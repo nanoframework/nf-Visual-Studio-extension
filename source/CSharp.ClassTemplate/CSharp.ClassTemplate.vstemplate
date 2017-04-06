@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<VSTemplate Version="3.0.0" Type="Item" xmlns="http://schemas.microsoft.com/developer/vstemplate/2005" xmlns:sdk="http://schemas.microsoft.com/developer/vstemplate-sdkextension/2010">
+  <TemplateData>
+    <!--<Name Package="{FAE04EC1-301F-11d3-BF4B-00C04F79EFBC}" ID="2245" />-->
+    <!--<Description Package="{FAE04EC1-301F-11d3-BF4B-00C04F79EFBC}" ID="2262" />-->
+    <Name>Class definition (nanoFramework)</Name>
+    <Description>An empty nanoFramework class definition.</Description>
+    <AppliesTo>CSharp</AppliesTo>
+    <Icon>CSClassFile.ico</Icon>
+    <TemplateID>2202056b-59a6-4362-b498-df418a940084</TemplateID>
+    <RequiredFrameworkVersion>2.0</RequiredFrameworkVersion>
+    <NumberOfParentCategoriesToRollUp>1</NumberOfParentCategoriesToRollUp>
+    <DefaultName>Class.cs</DefaultName>
+    <ProjectType>CSharp</ProjectType>
+  </TemplateData>
+  <TemplateContent>
+    <References>
+      <Reference>
+        <Assembly>System</Assembly>
+      </Reference>
+    </References>
+    <ProjectItem ReplaceParameters="true">Class.cs</ProjectItem>
+  </TemplateContent>
+</VSTemplate>
