@@ -156,6 +156,13 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\CSharp.AssemblyInfoTemplate\CSharp.AssemblyInfoTemplate.csproj">
+      <Project>{EF2FEEDF-2D22-49F7-A51C-F6D4155A7932}</Project>
+      <Name>CSharp.AssemblyInfoTemplate</Name>
+      <VSIXSubPath>ItemTemplates</VSIXSubPath>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <IncludeOutputGroupsInVSIX>TemplateProjectOutputGroup%3b</IncludeOutputGroupsInVSIX>
+    </ProjectReference>
     <ProjectReference Include="..\CSharp.BlankApplication\CSharp.BlankApplication.csproj">
       <Project>{572121BD-E972-4BF7-ABF1-78251DDE1181}</Project>
       <Name>CSharp.BlankApplication</Name>
