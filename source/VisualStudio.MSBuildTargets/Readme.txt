@@ -1,0 +1,3 @@
+﻿# VisualStudio.MSBuildTargets Readme
+
+Nothing of interest here...
