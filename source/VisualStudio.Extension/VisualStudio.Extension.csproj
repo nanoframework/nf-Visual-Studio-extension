@@ -55,6 +55,10 @@
     <None Include="BuildSystem\DeployedBuildSystem\nanoFramework.Tools.MSBuildTargets.targets" />
     <None Include="BuildSystem\DeployedBuildSystem\nanoFramework.Tools.MSBuildTargets.props" />
     <None Include="packages.config" />
+    <Content Include="Packages\nanoFramework.Tools.MSBuildTargets.1.0.0-preview0012.nupkg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
     <None Include="source.extension.vsixmanifest">
       <SubType>Designer</SubType>
     </None>

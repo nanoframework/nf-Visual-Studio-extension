@@ -14,7 +14,7 @@
   </ItemGroup>
   <PropertyGroup Label="Configuration">
     <PackageId>nanoFramework.Tools.MSBuildTargets</PackageId>
-    <PackageVersion Condition="'$(PackageVersion)' == ''">1.0.0-preview002</PackageVersion>
+    <PackageVersion Condition="'$(PackageVersion)' == ''">1.0.0-preview0012</PackageVersion>
     <Title>MSBuild targets for nanoFramework projects</Title>
     <Authors>nanoFramework project contributors</Authors>
     <Owners>nanoFramework project contributors</Owners>
@@ -27,28 +27,26 @@
     <Copyright>Copyright (c) 2017 The nanoFramework project contributors</Copyright>
     <PackageTags>VisualStudio.MSBuildTargets</PackageTags>
     <PackageIconUrl>https://secure.gravatar.com/avatar/97d0e092247f0716db6d4b47b7d1d1ad</PackageIconUrl>
-    <ReferenceAssemblyFrameworks>
-    </ReferenceAssemblyFrameworks>
-    <GenerateSymbolPackage>false</GenerateSymbolPackage>
-    <EmbedSourceFiles>false</EmbedSourceFiles>
-    <NoPackageAnalysis>false</NoPackageAnalysis>
-    <NoDefaultExcludes>true</NoDefaultExcludes>
   </PropertyGroup>
   <PropertyGroup Label="Globals">
     <OutputPath>bin\$(Configuration)\</OutputPath>
-    <ProjectGuid>6364eccc-d1b2-4264-a921-47c514a3afb2</ProjectGuid>
-    <PackageVersion>1.0.0-preview004</PackageVersion>
+    <ProjectGuid>6bfec204-f554-4b10-a22d-25c7b3f94e8f</ProjectGuid>
   </PropertyGroup>
-  <ItemGroup>
-    <PackageReference Include="NuGet.Build.Packaging">
-      <Version>0.1.231</Version>
-      <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
-  </ItemGroup>
   <ItemGroup>
     <Content Include="..\VisualStudio.Extension\BuildSystem\DeployedBuildSystem\nanoFramework.Tools.MSBuildTargets.props">
       <Link>build\nanoFramework.Tools.MSBuildTargets.props</Link>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Content>
+    <None Include="Readme.txt">
+      <IncludeInPackage>true</IncludeInPackage>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="NuGet.Build.Packaging">
+      <Version>0.1.248-pr110</Version>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="build\" />
