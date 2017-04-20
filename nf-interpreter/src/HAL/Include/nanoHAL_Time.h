@@ -8,8 +8,11 @@
 #define _NANOHAL_TIME_H_ 1
 
 #include <nanoHAL_Types.h>
-#include <targetHAL_Time.h>
 #include <nanoWeak.h>
+
+#ifndef METADATAPROCESSOR
+#include <targetHAL_Time.h>
+#endif
 
 /// Our time origin is 1/1/1601 00:00:00.000.000.  In Gregorian Calendar Jan 1, 1601 was also a Monday.
 #define BASE_YEAR                   1601

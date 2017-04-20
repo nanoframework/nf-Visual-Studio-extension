@@ -8,7 +8,10 @@
 
 #include <nanoWeak.h>
 #include <netmf_errors.h>
+
+#ifndef METADATAPROCESSOR
 #include <targetPAL_Time.h>
+#endif
 
 #ifdef __cplusplus
 extern "C" {

@@ -382,8 +382,10 @@ int hal_strncmp_s( const char* str1, const char* str2, size_t num );
 //#include <Analog_decl.h>
 //#include <AnalogOut_decl.h>
 //
-#include "TargetPAL_BlockStorage.h"
 
+#ifndef METADATAPROCESSOR
+#include "TargetPAL_BlockStorage.h"
+#endif
 //#include <SD_decl.h>
 
 //#include "..\pal\Diagnostics\Native_Profiler.h"

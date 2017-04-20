@@ -34,7 +34,11 @@
 
 #include <nanoHAL_Power.h>
 #include <nanoHAL_Time.h>
+
+#ifndef METADATAPROCESSOR
 #include <targetHAL.h>
+#endif
+
 #include <nanoHAL_Types.h>
 #include <nanoHAL_ReleaseInfo.h>
 
