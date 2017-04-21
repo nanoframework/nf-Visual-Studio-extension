@@ -1,0 +1,3 @@
+[submodule "nf-interpreter"]
+	path = nf-interpreter
+	url = https://github.com/nanoframework/nf-interpreter.git
