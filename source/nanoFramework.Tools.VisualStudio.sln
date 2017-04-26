@@ -13,8 +13,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSharp.ClassTemplate", "CSh
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSharp.AssemblyInfoTemplate", "CSharp.AssemblyInfoTemplate\CSharp.AssemblyInfoTemplate.csproj", "{EF2FEEDF-2D22-49F7-A51C-F6D4155A7932}"
 EndProject
-Project("{5DD5E4FA-CB73-4610-85AB-557B54E96AA9}") = "VisualStudio.MSBuildTargets", "VisualStudio.MSBuildTargets\VisualStudio.MSBuildTargets.nuproj", "{6BFEC204-F554-4B10-A22D-25C7B3F94E8F}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Core", "..\nf-interpreter\src\CLR\Core\Core.vcxproj", "{89CF8BDB-9C8A-4D18-BC3E-4312C5BD34B1}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CorLib", "..\nf-interpreter\src\CLR\CorLib\CorLib.vcxproj", "{58E950CC-2FF6-423C-B006-A70A19272F20}"
@@ -115,17 +113,6 @@ Global
 		{EF2FEEDF-2D22-49F7-A51C-F6D4155A7932}.Release|x64.Build.0 = Release|Any CPU
 		{EF2FEEDF-2D22-49F7-A51C-F6D4155A7932}.Release|x86.ActiveCfg = Release|Any CPU
 		{EF2FEEDF-2D22-49F7-A51C-F6D4155A7932}.Release|x86.Build.0 = Release|Any CPU
-		{6BFEC204-F554-4B10-A22D-25C7B3F94E8F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6BFEC204-F554-4B10-A22D-25C7B3F94E8F}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{6BFEC204-F554-4B10-A22D-25C7B3F94E8F}.Debug|x64.Build.0 = Debug|Any CPU
-		{6BFEC204-F554-4B10-A22D-25C7B3F94E8F}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{6BFEC204-F554-4B10-A22D-25C7B3F94E8F}.Debug|x86.Build.0 = Debug|Any CPU
-		{6BFEC204-F554-4B10-A22D-25C7B3F94E8F}.Release|Any CPU.ActiveCfg = Debug|Any CPU
-		{6BFEC204-F554-4B10-A22D-25C7B3F94E8F}.Release|Any CPU.Build.0 = Debug|Any CPU
-		{6BFEC204-F554-4B10-A22D-25C7B3F94E8F}.Release|x64.ActiveCfg = Debug|Any CPU
-		{6BFEC204-F554-4B10-A22D-25C7B3F94E8F}.Release|x64.Build.0 = Debug|Any CPU
-		{6BFEC204-F554-4B10-A22D-25C7B3F94E8F}.Release|x86.ActiveCfg = Debug|Any CPU
-		{6BFEC204-F554-4B10-A22D-25C7B3F94E8F}.Release|x86.Build.0 = Debug|Any CPU
 		{89CF8BDB-9C8A-4D18-BC3E-4312C5BD34B1}.Debug|Any CPU.ActiveCfg = Debug|Win32
 		{89CF8BDB-9C8A-4D18-BC3E-4312C5BD34B1}.Debug|Any CPU.Build.0 = Debug|Win32
 		{89CF8BDB-9C8A-4D18-BC3E-4312C5BD34B1}.Debug|x64.ActiveCfg = Debug|x64
