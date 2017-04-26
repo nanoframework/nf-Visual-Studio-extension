@@ -14,7 +14,7 @@
     <Folder Include="build\" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="..\Debug\nF.Tools.MetaDataProcessor.exe">
+    <Content Include="..\Debug\nanoFramework.Tools.MetaDataProcessor.exe">
       <Link>build\nF.Tools.MetaDataProcessor.exe</Link>
     </Content>
     <Content Include="..\VisualStudio.BuildTask\bin\Release\nanoFramework.Tools.VisualStudio.BuildTask.dll">
