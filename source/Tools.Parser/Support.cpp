@@ -281,11 +281,11 @@ void ErrorReporting::Print( LPCWSTR szOrigin, LPCWSTR szSubCategory, BOOL fError
 
     va_start( arg, szTextFormat );
 
-                       wprintf( L"%s: ", szOrigin ? szOrigin : L"MMP"                 );
-    if(szSubCategory)  wprintf( L"%s " , szSubCategory                                );
-    /***************/  wprintf( L"%s MMP%04d: ", fError ? L"error" : L"warning", code );
-    if(szTextFormat )  vwprintf( szTextFormat, arg                                    );
-    /***************/  wprintf( L"\n"                                                 );
+                       wprintf( L"%s: ", szOrigin ? szOrigin : L"nanoFramework MetaDataProcessor:"  );
+    if(szSubCategory)  wprintf( L"%s " , szSubCategory												);
+    /***************/  wprintf( L"%s NFMDP%04d: ", fError ? L"error" : L"warning", code				);
+    if(szTextFormat )  vwprintf( szTextFormat, arg													);
+    /***************/  wprintf( L"\n"																);
 
     va_end( arg );
 
