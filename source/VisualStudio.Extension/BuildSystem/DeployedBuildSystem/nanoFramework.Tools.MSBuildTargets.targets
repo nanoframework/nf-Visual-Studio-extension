@@ -1,6 +1,298 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
+  <!-- Declares the MSBuild tasks that are provided by nanoFramework tools.
+    The path is the current directory because we are using the Nuget package build directory to place all these.
+  -->
+  <UsingTask TaskName="MetaDataProcessorTask"             AssemblyFile="$(MSBuildThisFileDirectory)nanoFramework.Tools.VisualStudio.BuildTask.dll" />
+  <UsingTask TaskName="ResolveRuntimeDependenciesTask"    AssemblyFile="$(MSBuildThisFileDirectory)nanoFramework.Tools.VisualStudio.BuildTask.dll" />
 
+  <!-- Overrides the "DependsOn" Properties for MSBuild. This is the recommended way of dealing with this because MSBuild 
+  evaluates the definition of targets sequentially. So there is no way to prevent another project that imports nanoFramework projects
+  from overriding the targets we need to override.
+  See https://msdn.microsoft.com/en-us/library/ms366724.aspx.
+  -->
+  <PropertyGroup>
+    <CoreBuildDependsOn>
+      BuildOnlySettings;
+      PrepareForBuild;
+      PreBuildEvent;
+      ResolveReferences;
+      PrepareResources;
+      ResolveKeySource;
+      Compile;
+      GenerateSerializationAssemblies;
+      CreateSatelliteAssemblies;
+      GetTargetPath;
+      PrepareForRun;
+      IncrementalClean;
+      MetaDataProcessor;
+      PostBuildEvent
+    </CoreBuildDependsOn>
+
+    <CleanDependsOn>
+      BeforeClean;
+      CleanReferencedProjects;
+      CoreClean;
+      AfterClean
+    </CleanDependsOn>
+
+    <CoreCleanDependsOn>
+      NanoFrameworkClean
+    </CoreCleanDependsOn>
+
+    <PrepareForRunDependsOn>
+      MetaDataProcessor;
+      CopyFilesToOutputDirectory;
+      CopyNanoFrameworkFiles
+    </PrepareForRunDependsOn>
+
+    <PrepareResourcesDependsOn>
+      PrepareResourceNames;
+      ResGen;
+      CompileLicxFiles;
+      <!--NanoResourceGenerator-->
+    </PrepareResourcesDependsOn>
+
+    <ResolveReferencesDependsOn>
+      BeforeResolveReferences;
+      ResolveProjectReferences;
+      ResolveAssemblyReferences;
+      ResolveRuntimeDependencies;
+      AfterResolveReferences
+    </ResolveReferencesDependsOn>
+
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <NanoFramework_StartProgram Condition=" '$(StartAction)'== 'Program' ">$(StartProgram)</NanoFramework_StartProgram>
+    <NanoFramework_IntermediateAssembly>$(ProjectDir)$(IntermediateOutputPath)$(TargetName)</NanoFramework_IntermediateAssembly>
+    <NanoFramework_Assembly>$(ProjectDir)$(OutDir)$(TargetName)</NanoFramework_Assembly>
+    <!--<nanoFramework_PdbxExt>.pdbx</nanoFramework_PdbxExt>
+    <nanoFramework_ExeExt>.exe</nanoFramework_ExeExt>
+    <nanoFramework_DllExt>.dll</nanoFramework_DllExt>
+    <nanoFramework_PdbExt>.pdb</nanoFramework_PdbExt>-->
+
+    <!-- Prevents the import of mscorlib.dll because we are using nanoFramework System namespace and objects.
+      See https://msdn.microsoft.com/en-us/library/fa13yay7.aspx
+    -->
+    <NoStdLib>true</NoStdLib>
+    
+    <!-- TODO add documentation about this
+    See https://msdn.microsoft.com/en-us/library/ms242202.aspx
+    See https://msdn.microsoft.com/en-us/library/ms171262.aspx
+    -->
+    <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
+        
+  </PropertyGroup>
   
+  
+  <!-- Clean pe/pdbx files -->
+  <Target Name="NanoFrameworkClean">
+    <Delete Condition="EXISTS('$(ProjectDir)$(OutDir)$(TargetName).pe')"   Files="$(ProjectDir)$(OutDir)$(TargetName).pe" />
+    <Delete Condition="EXISTS('$(ProjectDir)$(OutDir)$(TargetName).pdbx')" Files="$(ProjectDir)$(OutDir)$(TargetName).pdbx" />
+  </Target>
+
+  <Target Name="CopyToOutDir" >
+    <Copy
+        Condition="Exists('$(ProjectDir)$(IntermediateOutputPath)$(TargetName).pdbx')"
+        SourceFiles="$(ProjectDir)$(IntermediateOutputPath)$(TargetName).pdbx"
+        DestinationFolder="$(ProjectDir)$(OutDir)" >
+      <Output TaskParameter="DestinationFiles" ItemName="FileWrites" />
+    </Copy>
+  </Target>
+
+  <PropertyGroup>
+    <MetaDataProcessorDependsOn>Compile;CopyToOutDir</MetaDataProcessorDependsOn>
+    <NF_GenerateStubsDirectory Condition="'$(NF_GenerateStubsDirectory)'==''">$(ProjectDir)Stubs\</NF_GenerateStubsDirectory>
+    <NF_GenerateStubsRootName Condition="'$(NF_GenerateStubsRootName)'==''">$(TargetName)</NF_GenerateStubsRootName>
+    <NF_GenerateSkeletonProjectName Condition="'$(NF_GenerateSkeletonProjectName)'==''">$(TargetName)</NF_GenerateSkeletonProjectName>
+    <NF_GenerateSkeletonFile>$(NF_GenerateStubsDirectory)$(NF_GenerateStubsRootName)</NF_GenerateSkeletonFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <NF_GeneratedStubFile Include="$(NF_GenerateStubsDirectory)$(NF_GenerateStubsRootName).h" />
+    <NF_GeneratedStubFile Include="$(NF_GenerateStubsDirectory)$(NF_GenerateStubsRootName).cpp" />
+    <NF_GenerateStubsFeatureProj Include="$(NF_GenerateStubsDirectory)$(NF_GenerateStubsRootName).featureproj" Condition="'$(NF_GenerateStubs)'=='true'" />
+  </ItemGroup>
+
+  <Target
+    Name="GetReferenceAssemblyPaths"
+    DependsOnTargets="$(GetReferenceAssemblyPathsDependsOn)">
+  </Target>
+  
+  <!-- after the .NET regular build generate nanoFramework assembly -->
+  <!--<Target Name="AfterBuild" >
+    <GenerateNanoAssemblyTask
+      
+        LoadHints="@(ReferencePath);@(ReferenceDependencyPaths);@(ReferenceSatellitePaths)"
+        Parse="$(NanoFramework_Assembly)$(TargetExt)"
+        Compile="$(NanoFramework_IntermediateAssembly).pe"
+        ImportResources="@(nanoFramework_Resources)"
+        Minimize="true">
+      
+    </GenerateNanoAssemblyTask>
+    
+  </Target>-->
+
+  <Target Name="MetaDataProcessor"
+      Inputs="$(NanoFramework_Assembly)$(TargetExt);
+        @(ReferencePath);
+        @(ReferenceDependencyPaths);
+        @(ReferenceSatellitePaths);
+        @(NanoFramework_Resources)"
+      Outputs="$(NanoFramework_IntermediateAssembly).pe;@(NF_GenerateStubsFeatureProj)"
+      DependsOnTargets="$(MetaDataProcessorDependsOn)"
+        >
+    <!-- Should we also use ReferenceCopyLocalPaths, dlls that got copied to output directory?? -->
+    <MetaDataProcessorTask
+        LoadHints="@(ReferencePath);@(ReferenceDependencyPaths);@(ReferenceSatellitePaths)"
+        Parse="$(NanoFramework_Assembly)$(TargetExt)"
+        Compile="$(NanoFramework_IntermediateAssembly).pe"
+        ImportResources="@(nanoFramework_Resources)"
+        Minimize="true">
+
+      <Output TaskParameter="FilesWritten" ItemName="FileWrites" />
+    </MetaDataProcessorTask>
+
+    <!--CallTarget is less than ideal... NF_GeneratedStubFile isn't a complete list...-->
+    <CallTarget Targets="GenerateStubs" Condition="'$(NF_GenerateStubs)'=='true'" />
+  </Target>
+
+  <!-- Generate stubs for assemblies containing methods to be implemented in native code -->
+  <Target Name="GenerateStubs"
+    Inputs="$(NanoFramework_IntermediateAssembly).pe"
+    Outputs="@(NF_GeneratedStubFile)"
+    DependsOnTargets="ReferencedAssemblyDllsToPeFiles"
+    >
+    <MakeDir Condition="!Exists('$(NF_GenerateStubsDirectory)')" Directories="$(NF_GenerateStubsDirectory)" />
+
+    <MetaDataProcessorTask
+      Verbose="true"
+      Load="$(NanoFramework_IntermediateAssembly).pe;@(ReferencedPeFile)"
+
+      GenerateSkeletonName="$(TargetName)"
+      GenerateSkeletonFile="$(NF_GenerateSkeletonFile)"
+      GenerateSkeletonProject="$(NF_GenerateSkeletonProjectName)"
+      RefreshAssemblyName="$(AssemblyName)"
+      RefreshAssemblyOutput="$(NanoFramework_IntermediateAssembly).pe"
+      Resolve="true"
+      >
+      <Output TaskParameter="FilesWritten" ItemName="FileWrites"/>
+      <!--TODO... output here is incomplete? -->
+    </MetaDataProcessorTask>
+
+    <CreateInteropFeatureProj
+        StubsPath="$(NF_GenerateStubsDirectory)"
+        Name="$(TargetName)"
+        AssemblyName="$(NanoFramework_IntermediateAssembly).pe"
+        ManagedProjectFile="$(MSBuildProjectFullPath)"
+        NativeProjectFile="$(NF_GenerateStubsDirectory)$(TargetName)_stubs.proj"
+          />
+    <!--TODO FileWrites for FeatureProj -->
+  </Target>
+
+  <Target Name="ReferencedAssemblyDllsToPeFiles" DependsOnTargets="ResolveRuntimeDependencies">
+    <ItemGroup>
+      <_ReferencedAssemblyDll Include="@(NanoFramework_StartProgram_ResolvedFiles);@(NanoFramework_StartProgram_ResolvedDependencyFiles)" />
+      <_ReferencedPeFile Include="@(_ReferencedAssemblyDll->'%(RootDir)%(Directory)%(filename).pe')" />
+
+      <ReferencedPeFile Include="%(_ReferencedPeFile.identity)" Condition="EXISTS(%(_ReferencedPeFile.identity))" />
+    </ItemGroup>
+  </Target>
+
+  <Target Name="CopyNanoFrameworkFiles" >
+    <Copy
+        SourceFiles="$(NanoFramework_IntermediateAssembly).pe"
+        DestinationFiles="$(NanoFramework_Assembly).pe"
+        SkipUnchangedFiles="true">
+      <Output TaskParameter="DestinationFiles" ItemName="FileWrites" />
+    </Copy>
+
+    <Copy
+        Condition="Exists('$(NanoFramework_IntermediateAssembly).pdbx')"
+        SourceFiles="$(NanoFramework_Assembly).pdbx"
+        DestinationFiles="$(NanoFramework_Assembly).pdbx"
+        SkipUnchangedFiles="true">
+      <Output TaskParameter="DestinationFiles" ItemName="FileWrites" />
+    </Copy>
+
+    <!--
+        These two tasks will also copy the .pe and .pdbx files for references
+        that are marked as CopyLocal. A couple of notes.  @(ReferenceCopyLocalPaths) can contain the
+        .dll and .pdb files, so there is likely duplicate copying going on here: the copy command
+        is a little smart, but we are still doing a bit more work than necessary.
+        Also, if the pdbx files are in a separate directory from the .dll, then this may fail.
+        I haven't tried yet.
+        -->
+
+    <Copy
+        SourceFiles="@(ReferenceCopyLocalPaths->'%(RootDir)%(Directory)%(Filename).pe')"
+        DestinationFiles="@(ReferenceCopyLocalPaths->'$(OutDir)%(DestinationSubDirectory)%(Filename).pe')"
+        SkipUnchangedFiles="true" >
+      <Output TaskParameter="DestinationFiles" ItemName="FileWrites" />
+    </Copy>
+    
+    <Copy
+        SourceFiles="@(ReferenceCopyLocalPaths->'%(RootDir)%(Directory)%(Filename).pdbx')"
+        DestinationFiles="@(ReferenceCopyLocalPaths->'$(OutDir)%(DestinationSubDirectory)%(Filename).pdbx')"
+        SkipUnchangedFiles="true">
+      <Output TaskParameter="DestinationFiles" ItemName="FileWrites" />
+    </Copy>
+    
+  </Target>
+
+  <Target Name="ResolveRuntimeDependencies" >
+
+    <ItemGroup>
+      <NanoFramework_StartProgramItem Include="$(NanoFramework_StartProgram)" Condition=" '$(NanoFramework_StartProgram)' != '' " />
+    </ItemGroup>
+
+    <PropertyGroup>
+      <NanoFramework_DebugReferencesStateFile>$(IntermediateOutputPath)NanoFramework_DebugReferences.cache</NanoFramework_DebugReferencesStateFile>
+    </PropertyGroup>
+
+    <ResolveAssemblyReference
+        Assemblies="@(Reference)"
+        AssemblyFiles="$(NanoFramework_StartProgram);@(_ResolvedProjectReferencePaths)"
+        InstalledAssemblyTables="@(InstalledAssemblyTables)"
+        CandidateAssemblyFiles="@(Content);@(None)"
+        SearchPaths="{CandidateAssemblyFiles};
+                         $(ReferencePath);
+                         {HintPathFromItem};
+                         $(TargetFrameworkDirectoryLE);
+                         {Registry:$(FrameworkRegistryBase),$(TargetFrameworkVersion),$(AssemblyFoldersSuffix)$(AssemblyFoldersExConditions)};
+                         {RawFileName};
+                         $(OutputPath);
+                         @(NanoFramework_StartProgramItem->'%(RootDir)%(Directory)')"
+        AppConfigFile="@(_ResolveAssemblyReferencesApplicationConfigFileForExes)"
+        AutoUnify="$(AutoUnifyAssemblyReferences)"
+        FindDependencies="true"
+        FindSatellites="true"
+        FindRelatedFiles="true"
+        Silent="!$(BuildingProject)"
+        StateFile="$(NanoFramework_DebugReferencesStateFile)">
+      
+      <Output TaskParameter="ResolvedFiles" ItemName="NanoFramework_StartProgram_ResolvedFiles"/>
+      <Output TaskParameter="ResolvedDependencyFiles" ItemName="NanoFramework_StartProgram_ResolvedDependencyFiles"/>
+      <Output TaskParameter="RelatedFiles" ItemName="NanoFramework_ReferenceRelatedPaths"/>
+      <Output TaskParameter="SatelliteFiles" ItemName="NanoFramework_ReferenceSatellitePaths"/>
+      <Output TaskParameter="CopyLocalFiles" ItemName="NanoFramework_ReferenceCopyLocalPaths"/>
+      <Output TaskParameter="SuggestedRedirects" ItemName="NanoFramework_SuggestedBindingRedirects"/>
+      <Output TaskParameter="FilesWritten" ItemName="FileWrites"/>
+    
+    </ResolveAssemblyReference>
+
+    <ResolveRuntimeDependenciesTask
+        Assembly="$(NanoFramework_Assembly)$(TargetExt)"
+        AssemblyReferences="@(ReferencePath);@(ReferenceDependencyPaths);@(ReferenceSatellitePaths)"
+        StartProgram="$(NanoFramework_StartProgram)"
+        StartProgramReferences="@(NanoFramework_StartProgram_ResolvedFiles);@(NanoFramework_StartProgram_ResolvedDependencyFiles)"/>
+  
+  </Target>
+  
+  <!-- Overriding common targets.  Application and Deployment manifests are not supported -->
+  <Target Name="_CopyManifestFiles" />
+  <Target Name="_CopyApplicationConfigFiles" />
+
 </Project>
