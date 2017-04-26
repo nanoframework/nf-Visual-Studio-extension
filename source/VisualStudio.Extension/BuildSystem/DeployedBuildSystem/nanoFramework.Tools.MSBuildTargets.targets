@@ -1,6 +1,13 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
+  <ItemGroup>
+    <Reference Include="mscorlib">
+      <HintPath>$(MSBuildThisFileDirectory)mscorlib.dll</HintPath>
+      <InProject>false</InProject>
+    </Reference>
+  </ItemGroup>
+  
   <!-- Declares the MSBuild tasks that are provided by nanoFramework tools.
     The path is the current directory because we are using the Nuget package build directory to place all these.
   -->

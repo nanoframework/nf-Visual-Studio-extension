@@ -8,7 +8,7 @@ Project("{FF286327-C783-4F7A-AB73-9BCBAD0D4460}") = "VisualStudio.MSBuildTargets
 		{CE0631F2-731D-4A48-B927-F13F6B2FB055} = {CE0631F2-731D-4A48-B927-F13F6B2FB055}
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VisualStudio.BuildTask", "..\VisualStudio.BuildTask\VisualStudio.BuildTask.csproj", "{CE0631F2-731D-4A48-B927-F13F6B2FB055}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VisualStudio.BuildTasks", "..\VisualStudio.BuildTasks\VisualStudio.BuildTasks.csproj", "{CE0631F2-731D-4A48-B927-F13F6B2FB055}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
