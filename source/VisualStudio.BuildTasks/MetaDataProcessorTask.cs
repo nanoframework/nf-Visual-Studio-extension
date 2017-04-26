@@ -110,7 +110,7 @@ namespace nanoFramework.Tools.VisualStudio
         {
             get
             {
-                return "nF.Tools.MetaDataProcessor.exe";
+                return "nanoFramework.Tools.MetaDataProcessor.exe";
             }
         }
 

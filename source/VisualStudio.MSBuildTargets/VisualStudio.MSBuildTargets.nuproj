@@ -14,10 +14,10 @@
     <Folder Include="build\" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="..\Debug\nanoFramework.Tools.MetaDataProcessor.exe">
+    <Content Include="..\Tools.MetaDataProcessor\Debug\nanoFramework.Tools.MetaDataProcessor.exe">
       <Link>build\nanoFramework.Tools.MetaDataProcessor.exe</Link>
     </Content>
-    <Content Include="..\VisualStudio.BuildTask\bin\Release\nanoFramework.Tools.VisualStudio.BuildTask.dll">
+    <Content Include="..\VisualStudio.BuildTasks\bin\Release\nanoFramework.Tools.VisualStudio.BuildTask.dll">
       <Link>build\nanoFramework.Tools.VisualStudio.BuildTask.dll</Link>
     </Content>
     <Content Include="..\VisualStudio.Extension\BuildSystem\DeployedBuildSystem\nanoFramework.Tools.MSBuildTargets.props">

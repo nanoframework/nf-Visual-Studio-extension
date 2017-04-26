@@ -176,13 +176,6 @@
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
       <IncludeOutputGroupsInVSIX>TemplateProjectOutputGroup%3b</IncludeOutputGroupsInVSIX>
     </ProjectReference>
-    <ProjectReference Include="..\CSharp.ClassLibrary\CSharp.ClassLibrary.csproj">
-      <Project>{4AA9A693-FF7C-4F84-B0CE-28A7EE009471}</Project>
-      <Name>CSharp.ClassLibrary</Name>
-      <VSIXSubPath>ProjectTemplates</VSIXSubPath>
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-      <IncludeOutputGroupsInVSIX>TemplateProjectOutputGroup%3b</IncludeOutputGroupsInVSIX>
-    </ProjectReference>
     <ProjectReference Include="..\CSharp.ClassTemplate\CSharp.ClassTemplate.csproj">
       <Project>{C2DDF1E4-53A3-4E74-99D4-8A68349B9AEF}</Project>
       <Name>CSharp.ClassTemplate</Name>
