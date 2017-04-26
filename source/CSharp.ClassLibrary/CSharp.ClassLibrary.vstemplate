@@ -24,7 +24,7 @@
   </WizardExtension>
   <WizardData>
     <packages repository="extension" repositoryId="nanoFramework.Tools.VisualStudio2017.Extension.47973986-ed3c-4b64-ba40-a9da73b44ef7">
-      <package id="nanoFramework.Tools.MSBuildTargets" version="1.0.0-preview0014" />
+      <package id="nanoFramework.Tools.MSBuildTargets" version="1.0.0-preview0015" />
     </packages>
   </WizardData>
 </VSTemplate>

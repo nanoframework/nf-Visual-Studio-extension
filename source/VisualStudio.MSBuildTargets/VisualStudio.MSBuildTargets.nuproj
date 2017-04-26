@@ -15,7 +15,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="..\Debug\nanoFramework.Tools.MetaDataProcessor.exe">
-      <Link>build\nF.Tools.MetaDataProcessor.exe</Link>
+      <Link>build\nanoFramework.Tools.MetaDataProcessor.exe</Link>
     </Content>
     <Content Include="..\VisualStudio.BuildTask\bin\Release\nanoFramework.Tools.VisualStudio.BuildTask.dll">
       <Link>build\nanoFramework.Tools.VisualStudio.BuildTask.dll</Link>
@@ -36,7 +36,7 @@
   <Import Project="$(NuProjPath)\NuProj.props" Condition="Exists('$(NuProjPath)\NuProj.props')" />
   <PropertyGroup Label="Configuration">
     <Id>nanoFramework.Tools.MSBuildTargets</Id>
-    <Version>1.0.0-preview0014</Version>
+    <Version>1.0.0-preview0015</Version>
     <Title>MSBuild targets for nanoFramework projects</Title>
     <Authors>nanoFramework project contributors</Authors>
     <Owners>nanoFramework project contributors</Owners>

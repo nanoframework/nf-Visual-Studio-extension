@@ -57,7 +57,7 @@
     </None>
     <None Include="BuildSystem\DeployedBuildSystem\nanoFramework.Tools.MSBuildTargets.targets" />
     <None Include="packages.config" />
-    <Content Include="Packages\nanoFramework.Tools.MSBuildTargets.1.0.0-preview0014.nupkg">
+    <Content Include="Packages\nanoFramework.Tools.MSBuildTargets.1.0.0-preview0015.nupkg">
       <IncludeInVSIX>true</IncludeInVSIX>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
