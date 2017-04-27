@@ -68,13 +68,6 @@
     <NanoFramework_StartProgram Condition=" '$(StartAction)'== 'Program' ">$(StartProgram)</NanoFramework_StartProgram>
     <NanoFramework_IntermediateAssembly>$(ProjectDir)$(IntermediateOutputPath)$(TargetName)</NanoFramework_IntermediateAssembly>
     <NanoFramework_Assembly>$(ProjectDir)$(OutDir)$(TargetName)</NanoFramework_Assembly>
-    
-    <!-- TODO add documentation about this
-    See https://msdn.microsoft.com/en-us/library/ms242202.aspx
-    See https://msdn.microsoft.com/en-us/library/ms171262.aspx
-    -->
-    <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
-        
   </PropertyGroup>
   
   
