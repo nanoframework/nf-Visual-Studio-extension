@@ -2,7 +2,24 @@
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
   <PropertyGroup>
+
     <ProjectSystemBase>$(MSBuildThisFileDirectory)</ProjectSystemBase>
+
+    <!-- Prevents the default MsBuild targets from referencing System.dll and mscorlib.dll
+     because we are using nanoFramework System namespace and objects.
+      See https://msdn.microsoft.com/en-us/library/fa13yay7.aspx -->
+    <NoStdLib>true</NoStdLib>
+    <NoCompilerStandardLib>true</NoCompilerStandardLib>
+
+    <!-- This prevents the default MsBuild targets from referencing System.Core.dll -->
+    <AddAdditionalExplicitAssemblyReferences>false</AddAdditionalExplicitAssemblyReferences>
+
+    <!-- TODO add documentation about this
+    See https://msdn.microsoft.com/en-us/library/ms242202.aspx
+    See https://msdn.microsoft.com/en-us/library/ms171262.aspx
+    -->
+    <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
+    <UseVSHostingProcess>False</UseVSHostingProcess>
 
   </PropertyGroup>
 
