@@ -9,8 +9,18 @@
     <OutputType>Exe</OutputType>
     <RootNamespace>$safeprojectname$</RootNamespace>
     <AssemblyName>$safeprojectname$</AssemblyName>
-    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+    <TargetFrameworkIdentifier></TargetFrameworkIdentifier>
+    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
+    <!-- Prevents the default MsBuild targets from referencing System.dll and mscorlib.dll
+     because we are using nanoFramework System namespace and objects.
+      See https://msdn.microsoft.com/en-us/library/fa13yay7.aspx
+    -->
+    <NoStdLib>true</NoStdLib>
+    <NoCompilerStandardLib>true</NoCompilerStandardLib>
+    <!-- This prevents the default MsBuild targets from referencing System.Core.dll -->
+    <AddAdditionalExplicitAssemblyReferences>false</AddAdditionalExplicitAssemblyReferences>
   </PropertyGroup>
   
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
