@@ -36,7 +36,7 @@
   <Import Project="$(NuProjPath)\NuProj.props" Condition="Exists('$(NuProjPath)\NuProj.props')" />
   <PropertyGroup Label="Configuration">
     <Id>nanoFramework.Tools.MSBuildSystem</Id>
-    <Version>1.0.0-preview0018</Version>
+    <Version>1.0.0-preview0020</Version>
     <Title>MSBuild system for nanoFramework projects</Title>
     <Authors>nanoFramework project contributors</Authors>
     <Owners>nanoFramework project contributors</Owners>
@@ -48,7 +48,7 @@
     <LicenseUrl>
     </LicenseUrl>
     <Copyright>Copyright (c) 2017 The nanoFramework project contributors</Copyright>
-    <Tags>VisualStudio.MSBuildTargets</Tags>
+    <Tags>nanoFramework msbuild .netnf .netmf</Tags>
     <IconUrl>https://secure.gravatar.com/avatar/97d0e092247f0716db6d4b47b7d1d1ad</IconUrl>
     <OutputPath>..\VisualStudio.Extension\Packages</OutputPath>
   </PropertyGroup>

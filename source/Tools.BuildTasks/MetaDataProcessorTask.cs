@@ -121,8 +121,6 @@ namespace nanoFramework.Tools
 
         protected override string GenerateCommandLineCommands()
         {
-            Log.LogWarning("exe: " + GenerateFullPathToTool());
-
             // build command line to execute MetaDataProcessor
             CommandLineBuilder commandLinedBuilder = new CommandLineBuilder();
 
@@ -188,11 +186,9 @@ namespace nanoFramework.Tools
             //commandLinedBuilder.AppendFileNameIfNotNull(@"C:\Users\jassimoes\Documents\Visual Studio 2017\Projects\NFApp111\NFApp111\bin\Debug\NFApp111.exe");
 
 
-            Log.LogWarning("cmd: " + commandLinedBuilder.ToString());
+            //Log.LogWarning("cmd: " + commandLinedBuilder.ToString());
 
             return commandLinedBuilder.ToString();
-
-            //return "";
         }
 
         #region command line helper methods
