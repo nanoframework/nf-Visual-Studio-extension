@@ -14,17 +14,17 @@
     <Folder Include="build\" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="..\Tools.MetaDataProcessor\Debug\nanoFramework.Tools.MetaDataProcessor.exe">
+    <Content Include="..\Tools.MetaDataProcessor\Release\nanoFramework.Tools.MetaDataProcessor.exe">
       <Link>build\nanoFramework.Tools.MetaDataProcessor.exe</Link>
     </Content>
-    <Content Include="..\VisualStudio.BuildTasks\bin\Release\nanoFramework.Tools.VisualStudio.BuildTask.dll">
-      <Link>build\nanoFramework.Tools.VisualStudio.BuildTask.dll</Link>
+    <Content Include="..\Tools.BuildTasks\bin\Release\nanoFramework.Tools.BuildTasks.dll">
+      <Link>build\nanoFramework.Tools.BuildTasks.dll</Link>
     </Content>
-    <Content Include="..\VisualStudio.Extension\BuildSystem\DeployedBuildSystem\nanoFramework.Tools.MSBuildTargets.props">
-      <Link>build\nanoFramework.Tools.MSBuildTargets.props</Link>
+    <Content Include="..\VisualStudio.Extension\BuildSystem\DeployedBuildSystem\nanoFramework.Tools.MSBuildSystem.props">
+      <Link>build\nanoFramework.Tools.MSBuildSystem.props</Link>
     </Content>
-    <Content Include="..\VisualStudio.Extension\BuildSystem\DeployedBuildSystem\nanoFramework.Tools.MSBuildTargets.targets">
-      <Link>build\nanoFramework.Tools.MSBuildTargets.targets</Link>
+    <Content Include="..\VisualStudio.Extension\BuildSystem\DeployedBuildSystem\nanoFramework.Tools.MSBuildSystem.targets">
+      <Link>build\nanoFramework.Tools.MSBuildSystem.targets</Link>
     </Content>
   </ItemGroup>
   <PropertyGroup Label="Globals">
@@ -35,13 +35,13 @@
   </PropertyGroup>
   <Import Project="$(NuProjPath)\NuProj.props" Condition="Exists('$(NuProjPath)\NuProj.props')" />
   <PropertyGroup Label="Configuration">
-    <Id>nanoFramework.Tools.MSBuildTargets</Id>
-    <Version>1.0.0-preview0015</Version>
-    <Title>MSBuild targets for nanoFramework projects</Title>
+    <Id>nanoFramework.Tools.MSBuildSystem</Id>
+    <Version>1.0.0-preview0018</Version>
+    <Title>MSBuild system for nanoFramework projects</Title>
     <Authors>nanoFramework project contributors</Authors>
     <Owners>nanoFramework project contributors</Owners>
-    <Summary>MSBuild targets and properties for nanoFramework project type.</Summary>
-    <Description>This package installs the required MSBuild targets and properties to support nanoFramework project type building.</Description>
+    <Summary>MSBuild targets, properties and associated tools for nanoFramework project type.</Summary>
+    <Description>This package installs the required MSBuild targets, properties and associated tools to support nanoFramework project type building.</Description>
     <ReleaseNotes>
     </ReleaseNotes>
     <ProjectUrl>https://github.com/nanoframework/nf-Visual-Studio-extension</ProjectUrl>

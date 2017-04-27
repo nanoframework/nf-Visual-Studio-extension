@@ -1,18 +1,18 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
-  <ItemGroup>
-    <Reference Include="mscorlib">
+  <!--<ItemGroup>
+    <Reference Include="mscorlib" Condition="'$(IsCoreAssembly)'!='true'">
       <HintPath>$(MSBuildThisFileDirectory)mscorlib.dll</HintPath>
       <InProject>false</InProject>
     </Reference>
-  </ItemGroup>
+  </ItemGroup>-->
   
   <!-- Declares the MSBuild tasks that are provided by nanoFramework tools.
     The path is the current directory because we are using the Nuget package build directory to place all these.
   -->
-  <UsingTask TaskName="MetaDataProcessorTask"             AssemblyFile="$(MSBuildThisFileDirectory)nanoFramework.Tools.VisualStudio.BuildTask.dll" />
-  <UsingTask TaskName="ResolveRuntimeDependenciesTask"    AssemblyFile="$(MSBuildThisFileDirectory)nanoFramework.Tools.VisualStudio.BuildTask.dll" />
+  <UsingTask TaskName="MetaDataProcessorTask"             AssemblyFile="$(MSBuildThisFileDirectory)nanoFramework.Tools.BuildTasks.dll" />
+  <UsingTask TaskName="ResolveRuntimeDependenciesTask"    AssemblyFile="$(MSBuildThisFileDirectory)nanoFramework.Tools.BuildTasks.dll" />
 
   <!-- Overrides the "DependsOn" Properties for MSBuild. This is the recommended way of dealing with this because MSBuild 
   evaluates the definition of targets sequentially. So there is no way to prevent another project that imports nanoFramework projects
@@ -75,10 +75,6 @@
     <NanoFramework_StartProgram Condition=" '$(StartAction)'== 'Program' ">$(StartProgram)</NanoFramework_StartProgram>
     <NanoFramework_IntermediateAssembly>$(ProjectDir)$(IntermediateOutputPath)$(TargetName)</NanoFramework_IntermediateAssembly>
     <NanoFramework_Assembly>$(ProjectDir)$(OutDir)$(TargetName)</NanoFramework_Assembly>
-    <!--<nanoFramework_PdbxExt>.pdbx</nanoFramework_PdbxExt>
-    <nanoFramework_ExeExt>.exe</nanoFramework_ExeExt>
-    <nanoFramework_DllExt>.dll</nanoFramework_DllExt>
-    <nanoFramework_PdbExt>.pdb</nanoFramework_PdbExt>-->
 
     <!-- Prevents the import of mscorlib.dll because we are using nanoFramework System namespace and objects.
       See https://msdn.microsoft.com/en-us/library/fa13yay7.aspx
@@ -127,20 +123,6 @@
     Name="GetReferenceAssemblyPaths"
     DependsOnTargets="$(GetReferenceAssemblyPathsDependsOn)">
   </Target>
-  
-  <!-- after the .NET regular build generate nanoFramework assembly -->
-  <!--<Target Name="AfterBuild" >
-    <GenerateNanoAssemblyTask
-      
-        LoadHints="@(ReferencePath);@(ReferenceDependencyPaths);@(ReferenceSatellitePaths)"
-        Parse="$(NanoFramework_Assembly)$(TargetExt)"
-        Compile="$(NanoFramework_IntermediateAssembly).pe"
-        ImportResources="@(nanoFramework_Resources)"
-        Minimize="true">
-      
-    </GenerateNanoAssemblyTask>
-    
-  </Target>-->
 
   <Target Name="MetaDataProcessor"
       Inputs="$(NanoFramework_Assembly)$(TargetExt);
@@ -151,8 +133,17 @@
       Outputs="$(NanoFramework_IntermediateAssembly).pe;@(NF_GenerateStubsFeatureProj)"
       DependsOnTargets="$(MetaDataProcessorDependsOn)"
         >
-    <!-- Should we also use ReferenceCopyLocalPaths, dlls that got copied to output directory?? -->
-    <MetaDataProcessorTask
+    <MetaDataProcessorTask  Condition="'$(IsCoreAssembly)'=='true'"
+        LoadHints="@(ReferencePath);@(ReferenceDependencyPaths);@(ReferenceSatellitePaths)"
+        Parse="$(NanoFramework_IntermediateAssembly)$(TargetExt)"
+        Compile="$(NanoFramework_IntermediateAssembly).pe"
+        ImportResources="@(nanoFramework_Resources)"
+        Minimize="true">
+
+      <Output TaskParameter="FilesWritten" ItemName="FileWrites" />
+    </MetaDataProcessorTask>
+
+    <MetaDataProcessorTask  Condition="'$(IsCoreAssembly)'!='true'"
         LoadHints="@(ReferencePath);@(ReferenceDependencyPaths);@(ReferenceSatellitePaths)"
         Parse="$(NanoFramework_Assembly)$(TargetExt)"
         Compile="$(NanoFramework_IntermediateAssembly).pe"

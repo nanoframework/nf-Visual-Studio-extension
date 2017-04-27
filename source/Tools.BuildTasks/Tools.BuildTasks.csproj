@@ -7,8 +7,8 @@
     <ProjectGuid>{CE0631F2-731D-4A48-B927-F13F6B2FB055}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>nanoFramework.Tools.VisualStudio</RootNamespace>
-    <AssemblyName>nanoFramework.Tools.VisualStudio.BuildTask</AssemblyName>
+    <RootNamespace>nanoFramework.Tools</RootNamespace>
+    <AssemblyName>nanoFramework.Tools.BuildTasks</AssemblyName>
     <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
