@@ -13,7 +13,7 @@ using System.IO;
 using System.Linq;
 using System.Collections.Generic;
 
-namespace nanoFramework.Tools.VisualStudio
+namespace nanoFramework.Tools
 {
     [Description("MetaDataProcessorTaskEntry")]
     public class MetaDataProcessorTask : ToolTask  // TODO this will be replace with a simple Task when we have MetaDataProcessor in C#
@@ -116,7 +116,7 @@ namespace nanoFramework.Tools.VisualStudio
 
         protected override string GenerateFullPathToTool()
         {
-            return Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "nF.Tools.MetaDataProcessor.exe");
+            return Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "nanoFramework.Tools.MetaDataProcessor.exe");
         }
 
         protected override string GenerateCommandLineCommands()

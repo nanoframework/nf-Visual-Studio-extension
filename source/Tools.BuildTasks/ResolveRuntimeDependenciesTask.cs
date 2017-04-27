@@ -10,7 +10,7 @@ using System;
 using System.ComponentModel;
 using System.Linq;
 
-namespace nanoFramework.Tools.VisualStudio
+namespace nanoFramework.Tools
 {
     [Description("ResolveRuntimeDependenciesTaskEntry")]
     public class ResolveRuntimeDependenciesTask : Task

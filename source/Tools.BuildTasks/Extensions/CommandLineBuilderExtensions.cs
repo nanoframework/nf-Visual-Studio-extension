@@ -6,7 +6,7 @@
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
 
-namespace nanoFramework.Tools.VisualStudio
+namespace nanoFramework.Tools
 {
     public static class CommandLineBuilderExtensions
     {
