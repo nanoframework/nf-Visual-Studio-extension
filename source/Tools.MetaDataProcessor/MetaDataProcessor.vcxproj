@@ -91,7 +91,8 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;METADATAPROCESSOR;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\..\nf-interpreter\src\CLR\CorLib;..\..\nf-interpreter\targets\os\win32\Include;..\..\nf-interpreter\src\PAL\Include;..\..\nf-interpreter\src\HAL\Include;..\..\nf-interpreter\src\CLR\Include;..\..\nf-interpreter\src\CLR\Core;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\Tools.Parser;..\..\nf-interpreter\src\CLR\CorLib;..\..\nf-interpreter\targets\os\win32\Include;..\..\nf-interpreter\src\PAL\Include;..\..\nf-interpreter\src\HAL\Include;..\..\nf-interpreter\src\CLR\Include;..\..\nf-interpreter\src\CLR\Core;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -115,15 +116,17 @@
       <WarningLevel>Level3</WarningLevel>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <Optimization>MaxSpeed</Optimization>
-      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;METADATAPROCESSOR;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\..\nf-interpreter\src\CLR\CorLib;..\..\nf-interpreter\targets\os\win32\Include;..\..\nf-interpreter\src\PAL\Include;..\..\nf-interpreter\src\HAL\Include;..\..\nf-interpreter\src\CLR\Include;..\..\nf-interpreter\src\CLR\Core;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\Tools.Parser;..\..\nf-interpreter\src\CLR\CorLib;..\..\nf-interpreter\targets\os\win32\Include;..\..\nf-interpreter\src\PAL\Include;..\..\nf-interpreter\src\HAL\Include;..\..\nf-interpreter\src\CLR\Include;..\..\nf-interpreter\src\CLR\Core;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
+      <LinkTimeCodeGeneration>UseFastLinkTimeCodeGeneration</LinkTimeCodeGeneration>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
