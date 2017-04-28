@@ -52,14 +52,20 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
-    <None Include="BuildSystem\DeployedBuildSystem\nanoFramework.Tools.MSBuildTargets.props">
+    <None Include="BuildSystem\DeployedBuildSystem\nanoFramework.Tools.MSBuildSystem.props">
       <SubType>Designer</SubType>
     </None>
-    <None Include="BuildSystem\DeployedBuildSystem\nanoFramework.Tools.MSBuildTargets.targets" />
+    <None Include="BuildSystem\DeployedBuildSystem\nanoFramework.Tools.MSBuildSystem.targets">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="packages.config" />
-    <Content Include="Packages\nanoFramework.Tools.MSBuildTargets.1.0.0-preview0015.nupkg">
+    <Content Include="Packages\nanoFramework.Tools.MSBuildSystem.1.0.0-preview0020.nupkg">
       <IncludeInVSIX>true</IncludeInVSIX>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Packages\nanoFramework.Assemblies.mscorlib.1.0.0-preview005.nupkg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
     <None Include="source.extension.vsixmanifest">
       <SubType>Designer</SubType>
@@ -172,6 +178,13 @@
     <ProjectReference Include="..\CSharp.BlankApplication\CSharp.BlankApplication.csproj">
       <Project>{572121BD-E972-4BF7-ABF1-78251DDE1181}</Project>
       <Name>CSharp.BlankApplication</Name>
+      <VSIXSubPath>ProjectTemplates</VSIXSubPath>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <IncludeOutputGroupsInVSIX>TemplateProjectOutputGroup%3b</IncludeOutputGroupsInVSIX>
+    </ProjectReference>
+    <ProjectReference Include="..\CSharp.ClassLibrary\CSharp.ClassLibrary.csproj">
+      <Project>{4AA9A693-FF7C-4F84-B0CE-28A7EE009471}</Project>
+      <Name>CSharp.ClassLibrary</Name>
       <VSIXSubPath>ProjectTemplates</VSIXSubPath>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
       <IncludeOutputGroupsInVSIX>TemplateProjectOutputGroup%3b</IncludeOutputGroupsInVSIX>
