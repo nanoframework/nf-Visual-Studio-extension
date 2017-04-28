@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
   <Metadata>
-    <Identity Id="nanoFramework.Tools.VisualStudio2017.Extension.47973986-ed3c-4b64-ba40-a9da73b44ef7" Version="0.1.11.0" Language="en-US" Publisher="nanoFramework Contributors" />
-    <DisplayName>nanoFramework.VS2017.Extension</DisplayName>
+    <Identity Id="47973986-ed3c-4b64-ba40-a9da73b44ef7" Version="0.1.11.0" Language="en-US" Publisher="nanoFramework" />
+    <DisplayName>nanoFramework VS2017 Extension</DisplayName>
     <Description xml:space="preserve">Visual Studio 2017 extension for nanoFramework. Enables creating C# Solutions and provides debugging tools.</Description>
     <MoreInfo>http://www.nanoframework.net</MoreInfo>
+    <License>license.txt</License>
     <Icon>nF-logo-32.png</Icon>
-    <Tags>NF;Nano Framework;NETMF;Micro Framework;C#</Tags>
+    <Tags>nf, nanoFramework, netnf, netmf, micro framework, C#, Productivity, microcontroller, I2C, PWM, Serial, SPI, IoT</Tags>
   </Metadata>
   <Installation>
     <InstallationTarget Id="Microsoft.VisualStudio.Community" Version="[15.0]" />

@@ -52,7 +52,7 @@
   <ItemGroup>
     <VSTemplate Include="CSharp.BlankApplication.vstemplate">
       <SubType>Designer</SubType>
-      <OutputSubPath>Nano Framework</OutputSubPath>
+      <OutputSubPath>nanoFramework</OutputSubPath>
     </VSTemplate>
   </ItemGroup>
   <ItemGroup>
