@@ -184,6 +184,7 @@
 
   <Target Name="CopyNanoFrameworkFiles" >
     <Copy
+        Condition="Exists('$(NanoFramework_IntermediateAssembly).pe')"
         SourceFiles="$(NanoFramework_IntermediateAssembly).pe"
         DestinationFiles="$(NanoFramework_Assembly).pe"
         SkipUnchangedFiles="true">
@@ -192,7 +193,7 @@
 
     <Copy
         Condition="Exists('$(NanoFramework_IntermediateAssembly).pdbx')"
-        SourceFiles="$(NanoFramework_Assembly).pdbx"
+        SourceFiles="$(NanoFramework_IntermediateAssembly).pdbx"
         DestinationFiles="$(NanoFramework_Assembly).pdbx"
         SkipUnchangedFiles="true">
       <Output TaskParameter="DestinationFiles" ItemName="FileWrites" />
