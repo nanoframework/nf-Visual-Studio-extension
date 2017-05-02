@@ -268,7 +268,6 @@ namespace WatchAssemblyBuilder
 		HRESULT LoadUniqueStrings(const std::wstring& file);
 		HRESULT DumpUniqueStrings(const std::wstring& file);
 		HRESULT DumpPdbx(std::wstring szFileNamePE);
-		HRESULT DumpDownloads(std::wstring szFileNamePE);
 
 		void LoadGlobalStrings();
 
