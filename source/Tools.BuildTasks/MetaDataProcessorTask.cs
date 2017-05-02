@@ -28,24 +28,63 @@ namespace nanoFramework.Tools
         /// </summary>
         public ITaskItem[] LoadHints { get; set; }
 
+        public ITaskItem[] IgnoreAssembly { get; set; }
+
         public ITaskItem[] Load { get; set; }
 
         public ITaskItem[] LoadDatabase { get; set; }
 
-        public ITaskItem[] LoadStrings { get; set; }
+        public string LoadStrings { get; set; }
 
         public ITaskItem[] ExcludeClassByName { get; set; }
 
-        public ITaskItem[] Parse { get; set; }
+        public ITaskItem[] ImportResources { get; set; }
+
+        public string Parse { get; set; }
 
         public bool Minimize { get; set; }
 
+        public string GenerateStringsTable { get; set; }
+
         public string Compile { get; set; }
 
-        public ITaskItem[] ImportResources { get; set; }
+        public bool Verbose { get; set; }
+
+        public bool VerboseMinimize { get; set; }
+
+        public bool NoByteCode { get; set; }
+
+        public bool NoAttributes { get; set; }
+
+        public ITaskItem[] CreateDatabase { get; set; }
+
+        public string GenerateSkeletonFile { get; set; }
+
+        public string GenerateSkeletonName { get; set; }
+
+        public string GenerateSkeletonProject { get; set; }
+
+        public string GenerateDependency { get; set; }
+
+        public string CreateDatabaseFile { get; set; }
+
+        public bool LegacySkeletonInterop { get; set; }
+
+        public bool Resolve { get; set; }
+
+        public string RefreshAssemblyName { get; set; }
+
+        public string RefreshAssemblyOutput { get; set; }
+
+        public string SaveStrings { get; set; }
+
+        public string DumpAll { get; set; }
+
+        public string DumpExports { get; set; }
 
         [Output]
-        public ITaskItem[] FilesWritten { get { return _FilesWritten.ToArray(); } private set { } }
+        public ITaskItem[] FilesWritten { get { return _FilesWritten.ToArray(); } private set {  } }
+
         private List<ITaskItem> _FilesWritten = new List<ITaskItem>();
 
         #endregion
@@ -89,15 +128,15 @@ namespace nanoFramework.Tools
 
         private void RecordFilesWritten()
         {
-            //RecordFileWritten(SaveStrings);
-            //RecordFileWritten(GenerateStringsTable);
-            //RecordFileWritten(DumpAll);
-            //RecordFileWritten(DumpExports);
+            RecordFileWritten(SaveStrings);
+            RecordFileWritten(GenerateStringsTable);
+            RecordFileWritten(DumpAll);
+            RecordFileWritten(DumpExports);
             RecordFileWritten(Compile);
             RecordFileWritten(Path.ChangeExtension(Compile, "pdbx"));
-            //RecordFileWritten(RefreshAssemblyOutput);
-            //RecordFileWritten(CreateDatabaseFile);
-            //RecordFileWritten(GenerateDependency);
+            RecordFileWritten(RefreshAssemblyOutput);
+            RecordFileWritten(CreateDatabaseFile);
+            RecordFileWritten(GenerateDependency);
         }
 
         private void Cleanup()
@@ -136,57 +175,66 @@ namespace nanoFramework.Tools
             commandLinedBuilder.AppendSwitchForEachFile("-loadDatabase", LoadDatabase);
 
             // -loadStrings
-            commandLinedBuilder.AppendSwitchAndFiles("-loadStrings", LoadStrings);
+            commandLinedBuilder.AppendSwitchForFile("-loadStrings", LoadStrings);
 
             // -excludeClassByName
             commandLinedBuilder.AppendSwitchForEachFile("-excludeClassByName", ExcludeClassByName);
 
             // -parse
-            commandLinedBuilder.AppendSwitchAndFiles("-parse", Parse);
+            commandLinedBuilder.AppendSwitchForFile("-parse", Parse);
 
             // -minimize
             commandLinedBuilder.AppendSwitchIfTrue("-minimize", Minimize);
 
-            //AppendSwitchIfTrue(commandLine, "-resolve", this.Resolve);
+            // -resolve
+            commandLinedBuilder.AppendSwitchIfTrue("-resolve", Resolve);
 
-            //AppendSwitchFiles(commandLine, "-dump_exports", this.DumpExports);
+            // -dump_exports
+            commandLinedBuilder.AppendSwitchForFile("-dump_exports", DumpExports);
 
-            //AppendSwitchFiles(commandLine, "-dump_all", this.DumpAll);
+            // -dump_all
+            commandLinedBuilder.AppendSwitchForFile("-dump_all", DumpAll);
 
-            //AppendSwitch(commandLine, "-importResource", this.ImportResources);
+            // -importResource
+            commandLinedBuilder.AppendSwitchForEachFile("-importResource", ImportResources);
 
             // -compile
             commandLinedBuilder.AppendSwitchForFile("-compile", Compile);
 
-            //AppendSwitchFiles(commandLine, "-savestrings", this.SaveStrings);
+            // -savestrings
+            commandLinedBuilder.AppendSwitchForFile("-savestrings", SaveStrings);
 
-            //AppendSwitchIfTrue(commandLine, "-verbose", this.Verbose);
+            // -verbose
+            commandLinedBuilder.AppendSwitchIfTrue("-verbose", Verbose);
 
-            //AppendSwitchIfTrue(commandLine, "-verboseMinimize", this.VerboseMinimize);
+            // -verboseMinimize
+            commandLinedBuilder.AppendSwitchIfTrue("-verboseMinimize", VerboseMinimize);
 
-            //AppendSwitchIfTrue(commandLine, "-noByteCode", this.NoByteCode);
+            // -noByteCode
+            commandLinedBuilder.AppendSwitchIfTrue("-noByteCode", NoByteCode);
 
-            //AppendSwitchIfTrue(commandLine, "-noAttributes", this.NoAttributes);
+            // -noAttributes
+            commandLinedBuilder.AppendSwitchIfTrue("-noAttributes", NoAttributes);
 
-            //AppendSwitch(commandLine, "-ignoreAssembly", this.IgnoreAssembly);
+            // -ignoreAssembly
+            commandLinedBuilder.AppendSwitchForEachFile("-ignoreAssembly", IgnoreAssembly);
 
-            //AppendSwitchFiles(commandLine, "-generateStringsTable", this.GenerateStringsTable);
+            // -generateStringsTable
+            commandLinedBuilder.AppendSwitchForFile("-generateStringsTable", GenerateStringsTable);
 
-            //AppendSwitchFiles(commandLine, "-generate_dependency", this.GenerateDependency);
+            // -generate_dependency
+            commandLinedBuilder.AppendSwitchForFile("-generate_dependency", GenerateDependency);
 
-            //AppendCreateDatabase(commandLine);
+            // -create_database
+            AppendCreateDatabase(commandLinedBuilder);
 
-            //AppendSwitchFileStrings(commandLine, "-generate_skeleton", this.GenerateSkeletonFile, this.GenerateSkeletonName, this.GenerateSkeletonProject, this.LegacySkeletonInterop ? "TRUE" : "FALSE");
+            // -generate_skeleton
+            commandLinedBuilder.AppendSwitchToFileAndExtraSwitches("-generate_skeleton", GenerateSkeletonFile, GenerateSkeletonName, GenerateSkeletonProject, LegacySkeletonInterop ? "TRUE" : "FALSE");
 
-            //AppendRefreshAssemblyCommand(commandLine);
+            // -refresh_assembly
+            AppendRefreshAssemblyCommand(commandLinedBuilder);
 
-
-
-            //commandLinedBuilder.AppendSwitch("-parse");
-            //commandLinedBuilder.AppendFileNameIfNotNull(@"C:\Users\jassimoes\Documents\Visual Studio 2017\Projects\NFApp111\NFApp111\bin\Debug\NFApp111.exe");
-
-
-            //Log.LogWarning("cmd: " + commandLinedBuilder.ToString());
+            Log.LogWarning("cmd: " + commandLinedBuilder.ToString());
 
             return commandLinedBuilder.ToString();
         }
@@ -205,20 +253,32 @@ namespace nanoFramework.Tools
             }).ToList();
         }
         
-
-        private void AppendCreateDatabase(CommandLineBuilder commandLine)
+        private void AppendCreateDatabase(CommandLineBuilder commandLinedBuilder)
         {
-            //if (this.CreateDatabase == null || this.CreateDatabase.Length == 0)
-            //    return;
+            if (CreateDatabase?.Length > 0)
+            {
+                if (this.CreateDatabase == null || this.CreateDatabase.Length == 0)
+                    return;
 
-            //tempDataBaseFile = Path.GetTempFileName();
-            //using (StreamWriter sw = new StreamWriter(m_tempFile))
-            //{
-            //    foreach (ITaskItem item in this.CreateDatabase)
-            //        sw.WriteLine(GetProperBuildFlavor(item.ItemSpec));
-            //}
+                tempDataBaseFile = Path.GetTempFileName();
+                using (StreamWriter sw = new StreamWriter(tempDataBaseFile))
+                {
+                    foreach (ITaskItem item in this.CreateDatabase)
+                        sw.WriteLine(item.ItemSpec);
+                }
 
-            //AppendSwitchFiles(commandLine, "-create_database", tempDataBaseFile, this.CreateDatabaseFile);
+                commandLinedBuilder.AppendSwitchToFileAndExtraSwitches("-create_database", tempDataBaseFile, CreateDatabaseFile);
+            }
+        }
+
+        private void AppendRefreshAssemblyCommand(CommandLineBuilder commandLinedBuilder)
+        {
+            if (!string.IsNullOrEmpty(RefreshAssemblyName) && !string.IsNullOrEmpty(RefreshAssemblyOutput))
+            {
+                commandLinedBuilder.AppendSwitch("-refresh_assembly");
+                commandLinedBuilder.AppendSwitch(RefreshAssemblyName);
+                commandLinedBuilder.AppendFileNameIfNotNull(RefreshAssemblyOutput);
+            }
         }
 
         #endregion
