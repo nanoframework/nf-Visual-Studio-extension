@@ -45,6 +45,7 @@
     <Compile Include="MetaDataProcessorTask.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Extensions\CommandLineBuilderExtensions.cs" />
+    <Compile Include="GenerateNanoResourceTask.cs" />
     <Compile Include="ResolveRuntimeDependenciesTask.cs" />
   </ItemGroup>
   <ItemGroup>
