@@ -14,18 +14,19 @@ namespace nanoFramework.Tools
         {
             if(value)
             {
-                commandLinedBuilder.AppendSwitch("-minimize");
+                commandLinedBuilder.AppendSwitch(switchValue);
             }
         }
 
-        public static void AppendSwitchAndFiles(this CommandLineBuilder commandLinedBuilder, string switchName, ITaskItem[] fileList)
+        public static void AppendSwitchAndFiles(this CommandLineBuilder commandLinedBuilder, string switchName, ITaskItem[] fileListAsTaskItems)
         {
-            // paranoid check if property has any data 
-            if (fileList?.Length > 0)
+            // paranoid check if arguments have any data 
+            if (fileListAsTaskItems?.Length > 0)
             {
                 commandLinedBuilder.AppendSwitch(switchName);
 
-                foreach(ITaskItem file in fileList)
+                // loop through each file in fileListAsTaskItems
+                foreach (ITaskItem file in fileListAsTaskItems)
                 {
                     commandLinedBuilder.AppendFileNameIfNotNull(file);
                 };
@@ -54,20 +55,18 @@ namespace nanoFramework.Tools
             }
         }
 
-        //public static void AppendSwitchToFileAndExtraSwitches(this CommandLineBuilder commandLinedBuilder, string switchValue, string file, )
-        //{
-        //    // paranoid check if property has any data 
-        //    if (fileList?[0]?.MetadataCount > 0)
-        //    {
-        //        commandLinedBuilder.AppendSwitch(switchValue);
+        public static void AppendSwitchToFileAndExtraSwitches(this CommandLineBuilder commandLinedBuilder, string switchName, string fileName, params string[] extraSwitches)
+        {
+            if (!string.IsNullOrEmpty(fileName))
+            {
+                commandLinedBuilder.AppendSwitch(switchName);
+                commandLinedBuilder.AppendFileNameIfNotNull(fileName);
 
-        //        fileList.Select(stringFile => {
-
-        //            commandLinedBuilder.AppendFileNameIfNotNull(stringFile);
-
-        //            return new object();
-        //        }).ToList();
-        //    }
-        //}
+                foreach (string val in extraSwitches)
+                {
+                    commandLinedBuilder.AppendSwitch(val);
+                }
+            }
+        }
     }
 }
