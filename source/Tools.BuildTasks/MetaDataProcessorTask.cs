@@ -234,7 +234,8 @@ namespace nanoFramework.Tools
             // -refresh_assembly
             AppendRefreshAssemblyCommand(commandLinedBuilder);
 
-            Log.LogWarning("cmd: " + commandLinedBuilder.ToString());
+            // usefull for debug purposes only
+            //Log.LogWarning("cmd: " + commandLinedBuilder.ToString());
 
             return commandLinedBuilder.ToString();
         }

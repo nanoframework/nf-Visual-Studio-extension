@@ -23,4 +23,12 @@
 
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(NF_IsCoreLibrary)' == 'True' ">
+    <NFMDP_PE_SKIP>true</NFMDP_PE_SKIP>
+    <NFMDP_DUMP_SKIP>true</NFMDP_DUMP_SKIP>
+    <NFMDP_STUB_SKIP>true</NFMDP_STUB_SKIP>
+    <NFMDP_DAT_SKIP>true</NFMDP_DAT_SKIP>
+    <NFMDP_XML_SKIP>true</NFMDP_XML_SKIP>
+  </PropertyGroup>
+
 </Project>
