@@ -364,7 +364,6 @@ struct Settings : CLR_RT_ParseOptions
 
 			NANOCLR_CHECK_HRESULT(CLR_RT_FileStore::SaveFile(szFile.c_str(), (CLR_UINT8*)buf.Ptr(), (DWORD)buf.Size()));
 
-			NANOCLR_CHECK_HRESULT(lk.DumpDownloads( szFile ));
 			NANOCLR_CHECK_HRESULT(lk.DumpPdbx(szFile.c_str()));
 		}
 
