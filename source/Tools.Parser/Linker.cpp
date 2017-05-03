@@ -70,7 +70,7 @@ static HRESULT GetFullPath( const std::wstring& szRelative, std::wstring* pAbsol
     int    cch;
 
     cch = ::GetFullPathNameW( szRelative.c_str(), MAXSTRLEN(buffer), buffer, &pFile );
-    if(cch == 0 || cch >= ARRAYSIZE(buffer)) NANOCLR_SET_AND_LEAVE(CLR_E_FAIL);
+    if(cch == 0 || cch >= ARRAYSIZE(buffer)) NANOCLR_MSG1_SET_AND_LEAVE(CLR_E_FAIL, L"Linker error getting path: %s\n", szRelative);
 
     if(pAbsolute) *pAbsolute = buffer;
     if(pFileName) *pFileName = pFile;
@@ -280,7 +280,7 @@ HRESULT WatchAssemblyBuilder::Linker::ExceptionHandlerHierarchy::GenerateOutput(
 
 WatchAssemblyBuilder::Linker::Linker()
 {
-    m_pr  = NULL;
+	m_pr = NULL;
 }
 
 WatchAssemblyBuilder::Linker::~Linker()
@@ -823,7 +823,7 @@ HRESULT WatchAssemblyBuilder::Linker::ValidateTypeRefOrDef( mdToken tk, bool fAs
 
     if(IsNilToken(tk))
     {
-        if(fAsInterface == false) NANOCLR_SET_AND_LEAVE(CLR_E_FAIL); // Only interfaces don't extend anything.
+        if(fAsInterface == false) wprintf(L"Linker error validating type ref or def: only interfaces don't extend anything\n"); NANOCLR_SET_AND_LEAVE(CLR_E_FAIL); // Only interfaces don't extend anything.
 
         NANOCLR_SET_AND_LEAVE(S_OK);
     }
@@ -1151,7 +1151,7 @@ HRESULT WatchAssemblyBuilder::Linker::ProcessTypeDef( mdTypeDef tdIdx )
     case tdNestedAssembly   : dst->flags = CLR_RECORD_TYPEDEF::TD_Scope_NestedAssembly   ; break;
     case tdNestedFamANDAssem: dst->flags = CLR_RECORD_TYPEDEF::TD_Scope_NestedFamANDAssem; break;
     case tdNestedFamORAssem : dst->flags = CLR_RECORD_TYPEDEF::TD_Scope_NestedFamORAssem ; break;
-    default                 : NANOCLR_SET_AND_LEAVE(CLR_E_FAIL);
+	default                 : wprintf(L"Linker error: wrong visibility mask\n"); NANOCLR_SET_AND_LEAVE(CLR_E_FAIL);
     }
 
     switch(td.m_flags & tdClassSemanticsMask)
@@ -1278,6 +1278,7 @@ HRESULT WatchAssemblyBuilder::Linker::ProcessTypeDef( mdTypeDef tdIdx )
 
         if(itFM == m_pr->m_mapDef_Field.end())
         {
+			wprintf(L"Linker error: can't find static field \n");
             NANOCLR_SET_AND_LEAVE(CLR_E_FAIL);
         }
 
@@ -1299,7 +1300,8 @@ HRESULT WatchAssemblyBuilder::Linker::ProcessTypeDef( mdTypeDef tdIdx )
 
         if(itFM == m_pr->m_mapDef_Field.end())
         {
-            NANOCLR_SET_AND_LEAVE(CLR_E_FAIL);
+			wprintf(L"Linker error: can't find instance field \n");
+			NANOCLR_SET_AND_LEAVE(CLR_E_FAIL);
         }
 
         MetaData::FieldDef& fd = itFM->second;
@@ -1326,6 +1328,7 @@ HRESULT WatchAssemblyBuilder::Linker::ProcessTypeDef( mdTypeDef tdIdx )
 
         if(itDM == m_pr->m_mapDef_Method.end())
         {
+			wprintf(L"Linker error: can't find virtual method \n");
             NANOCLR_SET_AND_LEAVE(CLR_E_FAIL);
         }
 
@@ -1347,6 +1350,7 @@ HRESULT WatchAssemblyBuilder::Linker::ProcessTypeDef( mdTypeDef tdIdx )
 
         if(itDM == m_pr->m_mapDef_Method.end())
         {
+			wprintf(L"Linker error: can't find instance method \n");
             NANOCLR_SET_AND_LEAVE(CLR_E_FAIL);
         }
 
@@ -1367,6 +1371,7 @@ HRESULT WatchAssemblyBuilder::Linker::ProcessTypeDef( mdTypeDef tdIdx )
 
         if(itDM == m_pr->m_mapDef_Method.end())
         {
+			wprintf(L"Linker error: can't find static method \n");
             NANOCLR_SET_AND_LEAVE(CLR_E_FAIL);
         }
 
@@ -1415,6 +1420,7 @@ HRESULT WatchAssemblyBuilder::Linker::ProcessTypeDef_ByteCode( mdTypeDef tdIdx )
 
         if(itDM == m_pr->m_mapDef_Method.end())
         {
+			wprintf(L"Linker error: can't find virtual method with ByteCode\n");
             NANOCLR_SET_AND_LEAVE(CLR_E_FAIL);
         }
 
@@ -1432,6 +1438,7 @@ HRESULT WatchAssemblyBuilder::Linker::ProcessTypeDef_ByteCode( mdTypeDef tdIdx )
 
         if(itDM == m_pr->m_mapDef_Method.end())
         {
+			wprintf(L"Linker error: can't find instance method with ByteCode\n");
             NANOCLR_SET_AND_LEAVE(CLR_E_FAIL);
         }
 
@@ -1449,6 +1456,7 @@ HRESULT WatchAssemblyBuilder::Linker::ProcessTypeDef_ByteCode( mdTypeDef tdIdx )
 
         if(itDM == m_pr->m_mapDef_Method.end())
         {
+			wprintf(L"Linker error: can't find static method with ByteCode\n");
             NANOCLR_SET_AND_LEAVE(CLR_E_FAIL);
         }
 
@@ -1514,7 +1522,7 @@ HRESULT WatchAssemblyBuilder::Linker::ProcessFieldDef( MetaData::TypeDef& td, CL
     case fdFamily      : dst->flags = CLR_RECORD_FIELDDEF::FD_Scope_Family      ; break;
     case fdFamORAssem  : dst->flags = CLR_RECORD_FIELDDEF::FD_Scope_FamORAssem  ; break;
     case fdPublic      : dst->flags = CLR_RECORD_FIELDDEF::FD_Scope_Public      ; break;
-    default            : NANOCLR_SET_AND_LEAVE(CLR_E_FAIL);
+    default            : wprintf(L"Linker error: wrong field access mask in ProcessFieldDef\n"); NANOCLR_SET_AND_LEAVE(CLR_E_FAIL);
     }
 
     if(fd.m_flags & fdStatic           ) dst->flags |= CLR_RECORD_FIELDDEF::FD_Static       ;
@@ -1611,7 +1619,7 @@ HRESULT WatchAssemblyBuilder::Linker::ProcessMethodDef( MetaData::TypeDef& td, C
     case mdFamily      : dst->flags = CLR_RECORD_METHODDEF::MD_Scope_Family      ; break;
     case mdFamORAssem  : dst->flags = CLR_RECORD_METHODDEF::MD_Scope_FamORAssem  ; break;
     case mdPublic      : dst->flags = CLR_RECORD_METHODDEF::MD_Scope_Public      ; break;
-    default            : NANOCLR_SET_AND_LEAVE(CLR_E_FAIL);
+    default            : wprintf(L"Linker error: wrong member access mask \n");  NANOCLR_SET_AND_LEAVE(CLR_E_FAIL);
     }
 
     if(md.m_flags & mdStatic          ) dst->flags |= CLR_RECORD_METHODDEF::MD_Static          ;
@@ -1635,6 +1643,7 @@ HRESULT WatchAssemblyBuilder::Linker::ProcessMethodDef( MetaData::TypeDef& td, C
         //
         if((tdDst->flags & (CLR_RECORD_TYPEDEF::TD_Delegate | CLR_RECORD_TYPEDEF::TD_MulticastDelegate)) == 0)
         {
+			wprintf(L"Linker error when processing method definition: It should be MulticastDelegate or Delegate\n");
             NANOCLR_SET_AND_LEAVE(CLR_E_FAIL);
         }
 
@@ -1993,12 +2002,12 @@ HRESULT WatchAssemblyBuilder::Linker::ProcessResource()
         ptr              += fileHeader->sizeOfHeader;        
         ptrResourceHeader = ptr;
 
-        if(ptr > ptrMax) NANOCLR_SET_AND_LEAVE(CLR_E_FAIL);
+        if(ptr > ptrMax) NANOCLR_MSG_SET_AND_LEAVE(CLR_E_FAIL, L"Linker error when processing resource: pointer overflowed\n");
         
         //Assert that we have a valid .tinyresources
-        if(fileHeader->magicNumber != TinyResourcesFileHeader::MAGIC_NUMBER    ) NANOCLR_SET_AND_LEAVE(CLR_E_FAIL);
-        if(fileHeader->version     != CLR_RECORD_RESOURCE_FILE::CURRENT_VERSION) NANOCLR_SET_AND_LEAVE(CLR_E_FAIL);
-        if(fileHeader->sizeOfResourceHeader < sizeof(CLR_RECORD_RESOURCE)      ) NANOCLR_SET_AND_LEAVE(CLR_E_FAIL);
+        if(fileHeader->magicNumber != TinyResourcesFileHeader::MAGIC_NUMBER    ) wprintf(L"Linker error when processing resource: wrong magic number\n"); NANOCLR_SET_AND_LEAVE(CLR_E_FAIL);
+        if(fileHeader->version     != CLR_RECORD_RESOURCE_FILE::CURRENT_VERSION) wprintf(L"Linker error when processing resource: wrong version\n"); NANOCLR_SET_AND_LEAVE(CLR_E_FAIL);
+        if(fileHeader->sizeOfResourceHeader < sizeof(CLR_RECORD_RESOURCE)      ) wprintf(L"Linker error when processing resource: wrong header size\n"); NANOCLR_SET_AND_LEAVE(CLR_E_FAIL);
         
         //write resource file header       
         resourceFile                       = m_tableResourceFile.Alloc( 1 ); FAULT_ON_NULL(resourceFile);
@@ -2026,16 +2035,16 @@ HRESULT WatchAssemblyBuilder::Linker::ProcessResource()
             resource = (TinyResourcesResourceHeader*)ptr;
                         
             ptr += fileHeader->sizeOfResourceHeader;                        
-            if(ptr > ptrMax) NANOCLR_SET_AND_LEAVE(CLR_E_FAIL);
+            if(ptr > ptrMax) wprintf(L"Linker error when processing resource: resource header overflow \n"); NANOCLR_SET_AND_LEAVE(CLR_E_FAIL);
             ptrResourceData = ptr;            
             
             ptr += resource->size;            
-            if(ptr > ptrMax) NANOCLR_SET_AND_LEAVE(CLR_E_FAIL);
+            if(ptr > ptrMax) wprintf(L"Linker error when processing resource: resource overflow \n"); NANOCLR_SET_AND_LEAVE(CLR_E_FAIL);
 
             if(iResource > 0)
             {
                 //Validate sorting of resource headers
-                if(resource->id <= idLast) NANOCLR_SET_AND_LEAVE(CLR_E_FAIL);
+                if(resource->id <= idLast) wprintf(L"Linker error when processing resource: wrong resource header order\n");  NANOCLR_SET_AND_LEAVE(CLR_E_FAIL);
             }
 
             idLast = resource->id;
@@ -2051,6 +2060,7 @@ HRESULT WatchAssemblyBuilder::Linker::ProcessResource()
                 fNeeds32bitAlignment = true;
                 break;
             default:
+				wprintf(L"Linker error when processing resource: invalid resource kind\n");
                 NANOCLR_SET_AND_LEAVE(CLR_E_FAIL);
             }
              
@@ -2147,6 +2157,7 @@ HRESULT WatchAssemblyBuilder::Linker::ResolveTypeRef( MetaData::TypeRef& tr, Met
     //
     if(IsNilToken( tr.m_scope ))
     {
+		wprintf(L"Linker error when resolving type ref: there is no scope \n");
         NANOCLR_SET_AND_LEAVE(CLR_E_FAIL); // We need a scope...
     }
     else
@@ -2209,6 +2220,7 @@ HRESULT WatchAssemblyBuilder::Linker::ResolveTypeDef( MetaData::TypeDef& td, Met
             //
             if(td.m_name != L"System.Object")
             {
+				wprintf(L"Linker error when resolving type def: type is not System.Object \n");
                 NANOCLR_SET_AND_LEAVE(CLR_E_FAIL);
             }
         }
@@ -2475,7 +2487,7 @@ HRESULT WatchAssemblyBuilder::Linker::DumpPdbx(std::wstring szFileNamePE )
     std::wstring   strAssemblyFile;
     bool           fFound;
 
-    if(!m_pr) NANOCLR_SET_AND_LEAVE(CLR_E_FAIL);
+    if(!m_pr) NANOCLR_MSG_SET_AND_LEAVE(CLR_E_FAIL, L"Linker error when dumping pdbx: MDP can't be null\n");
 
     NANOCLR_CHECK_HRESULT(GetFullPath( m_pr->m_assemblyFile, NULL, &strAssemblyFile ));
 
@@ -2542,7 +2554,7 @@ HRESULT WatchAssemblyBuilder::Linker::DumpPdbx(std::wstring szFileNamePE )
             IXMLDOMNodePtr pNodeILMap;
             int            ipDiff = 0;
 
-            if(md.m_byteCode.m_opcodes.size() != md.m_byteCodeOriginal.m_opcodes.size()) NANOCLR_SET_AND_LEAVE(CLR_E_FAIL);
+            if(md.m_byteCode.m_opcodes.size() != md.m_byteCodeOriginal.m_opcodes.size()) NANOCLR_MSG_SET_AND_LEAVE(CLR_E_FAIL, L"Linker error when dumping pdbx: op codes size is different\n");
 
 			xml.CreateNode( L"Method",                                                  &pNodeMethod, pNodeMethods );
 #ifdef DEBUG
@@ -2567,7 +2579,7 @@ HRESULT WatchAssemblyBuilder::Linker::DumpPdbx(std::wstring szFileNamePE )
                 MetaData::ByteCode::LogicalOpcodeDesc& opOriginal = md.m_byteCodeOriginal.m_opcodes[i];
                 int                                    ipDiffNew  = opOriginal.m_ipOffset - op.m_ipOffset;
 
-                if(op.m_op != opOriginal.m_op || ipDiffNew < ipDiff) NANOCLR_SET_AND_LEAVE(CLR_E_FAIL);
+                if(op.m_op != opOriginal.m_op || ipDiffNew < ipDiff) NANOCLR_MSG_SET_AND_LEAVE(CLR_E_FAIL, L"Linker error when dumping pdbx: op codes are different\n");
 
                 if(ipDiffNew > ipDiff)
                 {
