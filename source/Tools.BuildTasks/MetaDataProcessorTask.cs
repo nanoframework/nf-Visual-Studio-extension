@@ -82,10 +82,17 @@ namespace nanoFramework.Tools
 
         public string DumpExports { get; set; }
 
+        /// <summary>
+        /// Sets wether the command line output is sent to the Log to help debugging command execution.
+        /// Default is false.
+        /// </summary>
+        public bool OutputCommandLine { private get; set; } = false;
+
+        private List<ITaskItem> _FilesWritten = new List<ITaskItem>();
+
         [Output]
         public ITaskItem[] FilesWritten { get { return _FilesWritten.ToArray(); } private set {  } }
 
-        private List<ITaskItem> _FilesWritten = new List<ITaskItem>();
 
         #endregion
 
@@ -234,8 +241,11 @@ namespace nanoFramework.Tools
             // -refresh_assembly
             AppendRefreshAssemblyCommand(commandLinedBuilder);
 
-            // usefull for debug purposes only
-            //Log.LogWarning("cmd: " + commandLinedBuilder.ToString());
+            // output command line for debug? 
+            if (OutputCommandLine)
+            {
+                Log.LogWarning($"NFMDP cmd>> {GenerateFullPathToTool()} {commandLinedBuilder.ToString()} <<");
+            }
 
             return commandLinedBuilder.ToString();
         }
