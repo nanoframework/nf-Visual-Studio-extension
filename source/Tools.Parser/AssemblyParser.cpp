@@ -318,8 +318,8 @@ HRESULT MetaData::TypeSignature::ParseArray( PCCOR_SIGNATURE& pSigBlob )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#define PARSESIGNATURE_CHECKRANGE(sig,pos) if(pos >= sig.size()) NANOCLR_SET_AND_LEAVE(CLR_E_FAIL)
-#define PARSESIGNATURE_SCAN(sig,pos,fmt,val) if(swscanf_s( sig[pos++].c_str(), fmt, &val ) != 1) NANOCLR_SET_AND_LEAVE(CLR_E_FAIL)
+#define PARSESIGNATURE_CHECKRANGE(sig,pos) if(pos >= sig.size()) NANOCLR_MSG_SET_AND_LEAVE(CLR_E_FAIL, L"Failed in assembly parser: signature size.\n")
+#define PARSESIGNATURE_SCAN(sig,pos,fmt,val) if(swscanf_s( sig[pos++].c_str(), fmt, &val ) != 1) NANOCLR_MSG_SET_AND_LEAVE(CLR_E_FAIL, L"Failed in assembly parser: signature scan.\n")
 
 #define PARSESIGNATURE_CLEANUP(hr,sig) NANOCLR_CLEANUP(); if(FAILED(hr) && hr != CLR_E_PARSER_BAD_TEXT_SIGNATURE) { hr = CLR_E_PARSER_BAD_TEXT_SIGNATURE; DumpSignature( sig ); } NANOCLR_CLEANUP_END()
 
@@ -599,7 +599,7 @@ HRESULT MetaData::LocalVarSignature::Parse( PCCOR_SIGNATURE& pSigBlob )
 {
     NANOCLR_HEADER();
 
-    if(*pSigBlob++ != IMAGE_CEE_CS_CALLCONV_LOCAL_SIG) NANOCLR_SET_AND_LEAVE(CLR_E_FAIL);
+    if(*pSigBlob++ != IMAGE_CEE_CS_CALLCONV_LOCAL_SIG) NANOCLR_MSG_SET_AND_LEAVE(CLR_E_FAIL, L"Failed in assembly parser: parsing signature blob.\n");
 
     ULONG count = CorSigUncompressData( pSigBlob );
 
@@ -626,7 +626,7 @@ HRESULT MetaData::LocalVarSignature::Parse( CLR_RT_StringVector& sig, CLR_RT_Str
     PARSESIGNATURE_CHECKRANGE(sig,pos);
     PARSESIGNATURE_SCAN(sig,pos,L"0x%02x",val);
 
-    if(val != IMAGE_CEE_CS_CALLCONV_LOCAL_SIG) NANOCLR_SET_AND_LEAVE(CLR_E_FAIL);
+    if(val != IMAGE_CEE_CS_CALLCONV_LOCAL_SIG) NANOCLR_MSG_SET_AND_LEAVE(CLR_E_FAIL, L"Failed in assembly parser: parsing signature position in blob.\n");
 
     PARSESIGNATURE_CHECKRANGE(sig,pos);
     PARSESIGNATURE_SCAN(sig,pos,L"%d",val);
@@ -716,7 +716,7 @@ HRESULT MetaData::TypeSpecSignature::Parse( PCCOR_SIGNATURE& pSigBlob )
         break;
 
     default:
-        NANOCLR_SET_AND_LEAVE(CLR_E_FAIL);
+        NANOCLR_MSG_SET_AND_LEAVE(CLR_E_FAIL, L"Failed in assembly parser: invalid signature blob.\n");
     }
 
     NANOCLR_NOCLEANUP();
@@ -754,7 +754,7 @@ HRESULT MetaData::TypeSpecSignature::Parse( CLR_RT_StringVector& sig, CLR_RT_Str
         break;
 
     default:
-        NANOCLR_SET_AND_LEAVE(CLR_E_FAIL);
+        NANOCLR_MSG_SET_AND_LEAVE(CLR_E_FAIL, L"Failed in assembly parser: invalid method signature.\n");
     }
 
     PARSESIGNATURE_CLEANUP(hr,sig);
@@ -3127,7 +3127,7 @@ HRESULT MetaData::Collection::CreateDependentAssembly( LPCWSTR szFileName, Parse
 
     NANOCLR_CHECK_HRESULT(CreateAssembly( pr ));
 
-    pr->m_fNoByteCode   = true;
+    pr->m_fNoByteCode = true;
     pr->m_fNoAttributes = true;
 
     NANOCLR_CHECK_HRESULT(pr->Analyze( szFileName ));
@@ -3186,7 +3186,7 @@ HRESULT MetaData::Collection::ResolveAssemblyDef( Parser* pr, mdToken tk, Parser
                 if(m_setIgnoreAssemblies.find( name ) != m_setIgnoreAssemblies.end())
                 {
                     ErrorReporting::Print( pr->m_assemblyFile.c_str(), NULL, TRUE, 0, L"Cannot resolve assembly reference, '%s' is marked as 'ignore'", name.c_str() );
-                    NANOCLR_SET_AND_LEAVE(CLR_E_FAIL);
+                    NANOCLR_MSG_SET_AND_LEAVE(CLR_E_FAIL, L"Cannot resolve assembly reference, is marked as 'ignore'\n");
                 }
 
                 NANOCLR_CHECK_HRESULT(FromNameToFile( name, file ));
@@ -3208,7 +3208,7 @@ HRESULT MetaData::Collection::ResolveAssemblyDef( Parser* pr, mdToken tk, Parser
     }
 
     ErrorReporting::Print( pr->m_assemblyName.c_str(), NULL, TRUE, 0, L"Cannot resolve assembly %s::%08x!", pr->m_assemblyName.c_str(), tk );
-    NANOCLR_SET_AND_LEAVE(CLR_E_FAIL);
+    NANOCLR_MSG_SET_AND_LEAVE(CLR_E_FAIL, L"Cannot resolve assembly\n");
 
     NANOCLR_NOCLEANUP();
 }
@@ -3330,7 +3330,7 @@ HRESULT MetaData::Collection::ResolveTypeDef( Parser* pr, mdToken tk, Parser*& p
     }
 
     ErrorReporting::Print( pr->m_assemblyName.c_str(), NULL, TRUE, 0, L"Cannot resolve type %s from assembly %s!\n", missing.c_str(), pr->m_assemblyName.c_str() );
-    NANOCLR_SET_AND_LEAVE(CLR_E_FAIL);
+    NANOCLR_MSG_SET_AND_LEAVE(CLR_E_FAIL, L"Cannot resolve type from assembly!\n");
 
     NANOCLR_NOCLEANUP();
 }
@@ -3453,7 +3453,7 @@ HRESULT MetaData::Collection::ResolveMethodDef( Parser* pr, mdToken tk, Parser*&
     }
 
     ErrorReporting::Print( pr->m_assemblyName.c_str(), NULL, TRUE, 0, L"Cannot resolve method %s from assembly %s!\n", missing.c_str(), pr->m_assemblyName.c_str() );
-    NANOCLR_SET_AND_LEAVE(CLR_E_FAIL);
+    NANOCLR_MSG_SET_AND_LEAVE(CLR_E_FAIL, L"Cannot resolve method from assembly!\n");
 
     NANOCLR_NOCLEANUP();
 }
@@ -3555,7 +3555,7 @@ HRESULT MetaData::Collection::ResolveFieldDef( Parser* pr, mdToken tk, Parser*& 
     }
 
     ErrorReporting::Print( pr->m_assemblyName.c_str(), NULL, TRUE, 0, L"Cannot resolve field %s::%08x!", pr->m_assemblyName.c_str(), tk );
-    NANOCLR_SET_AND_LEAVE(CLR_E_FAIL);
+    NANOCLR_MSG_SET_AND_LEAVE(CLR_E_FAIL, L"Cannot resolve field !");
 
     NANOCLR_NOCLEANUP();
 }

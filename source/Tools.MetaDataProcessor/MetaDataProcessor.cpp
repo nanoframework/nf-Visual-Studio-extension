@@ -13,25 +13,25 @@
 
 struct Settings : CLR_RT_ParseOptions
 {
-	PELoader                       m_pe;
-	MetaData::Collection           m_col;
-	MetaData::Parser*              m_pr;
-	bool                           m_fEE;
-	CLR_RT_Assembly*               m_assm;
-	CLR_RT_ParseOptions::BufferMap m_assemblies;
+	PELoader                       peLoader;
+	MetaData::Collection           metaDataCollention;
+	MetaData::Parser*              metaDataParser;
+	bool                           generalFlag;
+	CLR_RT_Assembly*               currentAssembly;
+	CLR_RT_ParseOptions::BufferMap bufferMap;
 
-	bool                           m_fDumpStatistics;
+	bool                           dumpStatistics;
 
-	WatchAssemblyBuilder::Linker   m_lkForStrings;
+	WatchAssemblyBuilder::Linker   linkerForStrings;
 
-	bool                           m_patch_fReboot;
-	std::wstring                   m_patch_szNative;
+	bool                           patchToReboot;
+	std::wstring                   patchNative;
 
-	bool                           m_fFromAssembly;
-	bool                           m_fFromImage;
-	bool                           m_fNoByteCode;
+	bool                           fromAssembly;
+	bool                           fromImage;
+	bool                           noByteCode;
 
-	CLR_RT_StringSet                m_resources;
+	CLR_RT_StringSet               resources;
 
 	//--//
 
@@ -55,15 +55,15 @@ struct Settings : CLR_RT_ParseOptions
 
 	Settings()
 	{
-		m_fEE = false;
+		generalFlag = false;
 
-		m_fDumpStatistics = false;
+		dumpStatistics = false;
 
-		m_patch_fReboot = false;
+		patchToReboot = false;
 
-		m_fFromAssembly = false;
-		m_fFromImage = false;
-		m_fNoByteCode = false;
+		fromAssembly = false;
+		fromImage = false;
+		noByteCode = false;
 		RevertToDefaults();
 
 		BuildOptions();
@@ -78,29 +78,29 @@ struct Settings : CLR_RT_ParseOptions
 
 	void RevertToDefaults()
 	{
-		for (CLR_RT_ParseOptions::BufferMapIter it = m_assemblies.begin(); it != m_assemblies.end(); it++)
+		for (CLR_RT_ParseOptions::BufferMapIter it = bufferMap.begin(); it != bufferMap.end(); it++)
 		{
 			delete it->second;
 		}
 
-		m_pe.Close();                                   // PELoader                       m_pe;
-		m_col.Clear(false);                            // MetaData::Collection           m_col;
-		m_pr = NULL;                       // MetaData::Parser*              m_pr;
-										   // bool                           m_fEE;
-		m_assm = NULL;                       // CLR_RT_Assembly*               m_assm;
-		m_assemblies.clear();                            // CLR_RT_ParseOptions::BufferMap m_assemblies;
+		peLoader.Close();                                   // PELoader                       peLoader;
+		metaDataCollention.Clear(false);                            // MetaData::Collection           metaDataCollention;
+		metaDataParser = NULL;                       // MetaData::Parser*              metaDataParser;
+										   // bool                           generalFlag;
+		currentAssembly = NULL;                       // CLR_RT_Assembly*               currentAssembly;
+		bufferMap.clear();                            // CLR_RT_ParseOptions::BufferMap bufferMap;
 														 //
-		m_fDumpStatistics = false;                      // bool                           m_fDumpStatistics;
+		dumpStatistics = false;                      // bool                           dumpStatistics;
 														//
-														// WatchAssemblyBuilder::Linker   m_lkForStrings;
+														// WatchAssemblyBuilder::Linker   linkerForStrings;
 														//
-														// bool                           m_patch_fReboot;
+														// bool                           patchToReboot;
 														// bool                           m_patch_fSign;
-														// std::wstring                   m_patch_szNative;
+														// std::wstring                   patchNative;
 														//
-		m_fFromAssembly = false;                      // bool                           m_fFromAssembly;
-		m_fFromImage = false;                      // bool                           m_fFromImage;
-												   // bool                           m_fNoByteCode;
+		fromAssembly = false;                      // bool                           fromAssembly;
+		fromImage = false;                      // bool                           fromImage;
+												   // bool                           noByteCode;
 	}
 
 	//--//
@@ -109,11 +109,11 @@ struct Settings : CLR_RT_ParseOptions
 	{
 		NANOCLR_HEADER();
 
-		if (m_fEE == false)
+		if (generalFlag == false)
 		{
 			NANOCLR_CHECK_HRESULT(CLR_RT_ExecutionEngine::CreateInstance());
 
-			m_fEE = true;
+			generalFlag = true;
 		}
 
 		NANOCLR_NOCLEANUP();
@@ -121,11 +121,11 @@ struct Settings : CLR_RT_ParseOptions
 
 	void ReleaseSystem()
 	{
-		if (m_fEE)
+		if (generalFlag)
 		{
 			CLR_RT_ExecutionEngine::DeleteInstance();
 
-			m_fEE = false;
+			generalFlag = false;
 		}
 	}
 
@@ -191,7 +191,7 @@ struct Settings : CLR_RT_ParseOptions
 	{
 		NANOCLR_HEADER();
 
-		m_col.Clear(true);
+		metaDataCollention.Clear(true);
 
 		NANOCLR_NOCLEANUP_NOLABEL();
 	}
@@ -200,7 +200,7 @@ struct Settings : CLR_RT_ParseOptions
 	{
 		NANOCLR_HEADER();
 
-		NANOCLR_CHECK_HRESULT(m_col.LoadHints(PARAM_EXTRACT_STRING(params, 0), PARAM_EXTRACT_STRING(params, 1)));
+		NANOCLR_CHECK_HRESULT(metaDataCollention.LoadHints(PARAM_EXTRACT_STRING(params, 0), PARAM_EXTRACT_STRING(params, 1)));
 
 		NANOCLR_NOCLEANUP();
 	}
@@ -209,7 +209,7 @@ struct Settings : CLR_RT_ParseOptions
 	{
 		NANOCLR_HEADER();
 
-		NANOCLR_CHECK_HRESULT(m_col.IgnoreAssembly(PARAM_EXTRACT_STRING(params, 0)));
+		NANOCLR_CHECK_HRESULT(metaDataCollention.IgnoreAssembly(PARAM_EXTRACT_STRING(params, 0)));
 
 		NANOCLR_NOCLEANUP();
 	}
@@ -220,12 +220,12 @@ struct Settings : CLR_RT_ParseOptions
 	{
 		NANOCLR_HEADER();
 
-		m_fFromAssembly = true;
-		m_fFromImage = false;
+		fromAssembly = true;
+		fromImage = false;
 
-		if (!m_pr) NANOCLR_CHECK_HRESULT(m_col.CreateAssembly(m_pr));
+		if (!metaDataParser) NANOCLR_CHECK_HRESULT(metaDataCollention.CreateAssembly(metaDataParser));
 
-		NANOCLR_CHECK_HRESULT(m_pr->Analyze(PARAM_EXTRACT_STRING(params, 0)));
+		NANOCLR_CHECK_HRESULT(metaDataParser->Analyze(PARAM_EXTRACT_STRING(params, 0)));
 
 		NANOCLR_NOCLEANUP();
 	}
@@ -234,9 +234,9 @@ struct Settings : CLR_RT_ParseOptions
 	{
 		NANOCLR_HEADER();
 
-		if (!m_pr) NANOCLR_CHECK_HRESULT(m_col.CreateAssembly(m_pr));
+		if (!metaDataParser) NANOCLR_CHECK_HRESULT(metaDataCollention.CreateAssembly(metaDataParser));
 
-		m_pr->m_fVerboseMinimize = true;
+		metaDataParser->m_fVerboseMinimize = true;
 
 		NANOCLR_NOCLEANUP();
 	}
@@ -245,10 +245,10 @@ struct Settings : CLR_RT_ParseOptions
 	{
 		NANOCLR_HEADER();
 
-		if (!m_pr) NANOCLR_CHECK_HRESULT(m_col.CreateAssembly(m_pr));
+		if (!metaDataParser) NANOCLR_CHECK_HRESULT(metaDataCollention.CreateAssembly(metaDataParser));
 
-		m_pr->m_fNoByteCode = true;
-		m_fNoByteCode = true;
+		metaDataParser->m_fNoByteCode = true;
+		noByteCode = true;
 
 		NANOCLR_NOCLEANUP();
 	}
@@ -257,9 +257,9 @@ struct Settings : CLR_RT_ParseOptions
 	{
 		NANOCLR_HEADER();
 
-		if (!m_pr) NANOCLR_CHECK_HRESULT(m_col.CreateAssembly(m_pr));
+		if (!metaDataParser) NANOCLR_CHECK_HRESULT(metaDataCollention.CreateAssembly(metaDataParser));
 
-		m_pr->m_fNoAttributes = true;
+		metaDataParser->m_fNoAttributes = true;
 
 		NANOCLR_NOCLEANUP();
 	}
@@ -268,9 +268,9 @@ struct Settings : CLR_RT_ParseOptions
 	{
 		NANOCLR_HEADER();
 
-		if (!m_pr) NANOCLR_CHECK_HRESULT(m_col.CreateAssembly(m_pr));
+		if (!metaDataParser) NANOCLR_CHECK_HRESULT(metaDataCollention.CreateAssembly(metaDataParser));
 
-		m_pr->m_setFilter_ExcludeClassByName.insert(PARAM_EXTRACT_STRING(params, 0));
+		metaDataParser->m_setFilter_ExcludeClassByName.insert(PARAM_EXTRACT_STRING(params, 0));
 
 		NANOCLR_NOCLEANUP();
 	}
@@ -279,11 +279,14 @@ struct Settings : CLR_RT_ParseOptions
 	{
 		NANOCLR_HEADER();
 
-		if (!m_pr) NANOCLR_SET_AND_LEAVE(CLR_E_FAIL);
+		if (!metaDataParser)
+		{
+			NANOCLR_MSG_SET_AND_LEAVE(CLR_E_FAIL, L"MetaDataParser failed when minimizing\n");
+		}
 
-		NANOCLR_CHECK_HRESULT(m_pr->RemoveUnused());
+		NANOCLR_CHECK_HRESULT(metaDataParser->RemoveUnused());
 
-		NANOCLR_CHECK_HRESULT(m_pr->VerifyConsistency());
+		NANOCLR_CHECK_HRESULT(metaDataParser->VerifyConsistency());
 
 		NANOCLR_NOCLEANUP();
 	}
@@ -292,14 +295,17 @@ struct Settings : CLR_RT_ParseOptions
 	{
 		NANOCLR_HEADER();
 
-		if (!m_pr) NANOCLR_SET_AND_LEAVE(CLR_E_FAIL);
+		if (!metaDataParser)
+		{
+			NANOCLR_MSG_SET_AND_LEAVE(CLR_E_FAIL, L"MetaDataParser failed when saving strings\n");
+		}
 
 		{
-			MetaData::Parser prCopy = *m_pr;
+			MetaData::Parser prCopy = *metaDataParser;
 
-			NANOCLR_CHECK_HRESULT(m_lkForStrings.Process(prCopy));
+			NANOCLR_CHECK_HRESULT(linkerForStrings.Process(prCopy));
 
-			NANOCLR_CHECK_HRESULT(m_lkForStrings.SaveUniqueStrings(PARAM_EXTRACT_STRING(params, 0)));
+			NANOCLR_CHECK_HRESULT(linkerForStrings.SaveUniqueStrings(PARAM_EXTRACT_STRING(params, 0)));
 		}
 
 		NANOCLR_NOCLEANUP();
@@ -309,7 +315,7 @@ struct Settings : CLR_RT_ParseOptions
 	{
 		NANOCLR_HEADER();
 
-		NANOCLR_CHECK_HRESULT(m_lkForStrings.LoadUniqueStrings(PARAM_EXTRACT_STRING(params, 0)));
+		NANOCLR_CHECK_HRESULT(linkerForStrings.LoadUniqueStrings(PARAM_EXTRACT_STRING(params, 0)));
 
 		NANOCLR_NOCLEANUP();
 	}
@@ -318,7 +324,7 @@ struct Settings : CLR_RT_ParseOptions
 	{
 		NANOCLR_HEADER();
 
-		NANOCLR_CHECK_HRESULT(m_lkForStrings.DumpUniqueStrings(PARAM_EXTRACT_STRING(params, 0)));
+		NANOCLR_CHECK_HRESULT(linkerForStrings.DumpUniqueStrings(PARAM_EXTRACT_STRING(params, 0)));
 
 		NANOCLR_NOCLEANUP();
 	}
@@ -327,7 +333,7 @@ struct Settings : CLR_RT_ParseOptions
 	{
 		NANOCLR_HEADER();
 
-		m_resources.insert(PARAM_EXTRACT_STRING(params, 0));
+		resources.insert(PARAM_EXTRACT_STRING(params, 0));
 
 		NANOCLR_NOCLEANUP_NOLABEL();
 	}
@@ -336,16 +342,19 @@ struct Settings : CLR_RT_ParseOptions
 	{
 		NANOCLR_HEADER();
 
-		if (!m_pr) NANOCLR_SET_AND_LEAVE(CLR_E_FAIL);
+		if (!metaDataParser)
+		{
+			NANOCLR_MSG_SET_AND_LEAVE(CLR_E_FAIL, L"MetaDataParser failed when compiling\n");
+		}
 
-		if (!m_pr) NANOCLR_SET_AND_LEAVE(E_FAIL);
+		if (!metaDataParser) NANOCLR_SET_AND_LEAVE(E_FAIL);
 
-		m_pr->m_resources = m_resources; m_resources.clear();
+		metaDataParser->m_resources = resources; resources.clear();
 
 		{
 			WatchAssemblyBuilder::Linker             lk;
 			WatchAssemblyBuilder::CQuickRecord<BYTE> buf;
-			MetaData::Parser                         prCopy = *m_pr;
+			MetaData::Parser                         prCopy = *metaDataParser;
 
 			std::wstring                             szFile = PARAM_EXTRACT_STRING(params, 0);
 
@@ -354,9 +363,9 @@ struct Settings : CLR_RT_ParseOptions
 
 			NANOCLR_CHECK_HRESULT(lk.Process(prCopy));
 
-			NANOCLR_CHECK_HRESULT(lk.Generate(buf, m_patch_fReboot, m_patch_szNative.size() ? &m_patch_szNative : NULL));
+			NANOCLR_CHECK_HRESULT(lk.Generate(buf, patchToReboot, patchNative.size() ? &patchNative : NULL));
 
-			if (m_fDumpStatistics)
+			if (dumpStatistics)
 			{
 				MetaData::ByteCode::DumpDistributionStats();
 			}
@@ -387,14 +396,14 @@ struct Settings : CLR_RT_ParseOptions
 	{
 		NANOCLR_HEADER();
 
-		m_fFromAssembly = false;
-		m_fFromImage = true;
+		fromAssembly = false;
+		fromImage = true;
 
 		NANOCLR_CHECK_HRESULT(AllocateSystem());
 
 		{
 			LPCWSTR              szName = PARAM_EXTRACT_STRING(params, 0);
-			CLR_RT_Buffer*       buffer = new CLR_RT_Buffer(); m_assemblies[szName] = buffer;
+			CLR_RT_Buffer*       buffer = new CLR_RT_Buffer(); bufferMap[szName] = buffer;
 			CLR_RECORD_ASSEMBLY* header;
 			CLR_RT_Assembly*     assm;
 
@@ -414,8 +423,8 @@ struct Settings : CLR_RT_ParseOptions
 	{
 		NANOCLR_HEADER();
 
-		m_fFromAssembly = false;
-		m_fFromImage = true;
+		fromAssembly = false;
+		fromImage = true;
 
 		NANOCLR_CHECK_HRESULT(AllocateSystem());
 
@@ -453,7 +462,7 @@ struct Settings : CLR_RT_ParseOptions
 
 				g_CLR_RT_TypeSystem.Link(assm);
 
-				CLR_RT_UnicodeHelper::ConvertFromUTF8(assm->m_szName, strName); m_assemblies[strName] = bufferSub;
+				CLR_RT_UnicodeHelper::ConvertFromUTF8(assm->m_szName, strName); bufferMap[strName] = bufferSub;
 
 				header = (CLR_RECORD_ASSEMBLY*)ROUNDTOMULTIPLE((size_t)header + header->TotalSize(), CLR_UINT32);
 			}
@@ -470,15 +479,15 @@ struct Settings : CLR_RT_ParseOptions
 
 		if (szName[0] == 0) szName = NULL;
 
-		if (m_fFromAssembly && m_pr)
+		if (fromAssembly && metaDataParser)
 		{
-			m_pr->DumpSchema(szName, m_fNoByteCode);
+			metaDataParser->DumpSchema(szName, noByteCode);
 		}
 		else
 		{
 			NANOCLR_CHECK_HRESULT(AllocateSystem());
 
-			g_CLR_RT_TypeSystem.Dump(szName, m_fNoByteCode);
+			g_CLR_RT_TypeSystem.Dump(szName, noByteCode);
 		}
 
 		NANOCLR_NOCLEANUP();
@@ -488,8 +497,8 @@ struct Settings : CLR_RT_ParseOptions
 	{
 		NANOCLR_HEADER();
 
-		m_fFromAssembly = false;
-		m_fFromImage = true;
+		fromAssembly = false;
+		fromImage = true;
 
 		NANOCLR_CHECK_HRESULT(AllocateSystem());
 
@@ -527,7 +536,7 @@ struct Settings : CLR_RT_ParseOptions
 
 				NANOCLR_CHECK_HRESULT(CLR_RT_Assembly::CreateInstance(headerSub, assm));
 
-				//CLR_RT_UnicodeHelper::ConvertFromUTF8( assm->m_szName, strName ); m_assemblies[strName] = bufferSub;
+				//CLR_RT_UnicodeHelper::ConvertFromUTF8( assm->m_szName, strName ); bufferMap[strName] = bufferSub;
 
 				printf("Assembly %d: %s (%d.%d.%d.%d), size: %d\r\n", ++number, assm->m_szName, header->version.iMajorVersion, header->version.iMinorVersion, header->version.iBuildNumber, header->version.iRevisionNumber, header->TotalSize());
 
@@ -547,13 +556,13 @@ struct Settings : CLR_RT_ParseOptions
 
 		if (szName[0] == 0) szName = NULL;
 
-		if (m_fFromAssembly && m_pr)
+		if (fromAssembly && metaDataParser)
 		{
-			m_pr->DumpCompact(szName);
+			metaDataParser->DumpCompact(szName);
 		}
 		else
 		{
-			NANOCLR_SET_AND_LEAVE(CLR_E_FAIL);
+			NANOCLR_MSG_SET_AND_LEAVE(CLR_E_FAIL, L"Failed to dump exports\n");
 		}
 
 		NANOCLR_NOCLEANUP();
@@ -579,16 +588,16 @@ struct Settings : CLR_RT_ParseOptions
 
 		CLR_RT_UnicodeHelper::ConvertToUTF8(szName, name);
 
-		m_assm = g_CLR_RT_TypeSystem.FindAssembly(name.c_str(), NULL, false);
-		if (m_assm)
+		currentAssembly = g_CLR_RT_TypeSystem.FindAssembly(name.c_str(), NULL, false);
+		if (currentAssembly)
 		{
 			if (fUseOldCodeGen)
 			{
-				m_assm->GenerateSkeleton_Legacy(szFile, szProj);
+				currentAssembly->GenerateSkeleton_Legacy(szFile, szProj);
 			}
 			else
 			{
-				m_assm->GenerateSkeleton(szFile, szProj);
+				currentAssembly->GenerateSkeleton(szFile, szProj);
 			}
 		}
 
@@ -607,17 +616,17 @@ struct Settings : CLR_RT_ParseOptions
 
 		NANOCLR_CHECK_HRESULT(AllocateSystem());
 
-		m_assm = g_CLR_RT_TypeSystem.FindAssembly(name.c_str(), NULL, false);
-		if (m_assm)
+		currentAssembly = g_CLR_RT_TypeSystem.FindAssembly(name.c_str(), NULL, false);
+		if (currentAssembly)
 		{
-			CLR_UINT32 len = m_assm->m_header->TotalSize();
+			CLR_UINT32 len = currentAssembly->m_header->TotalSize();
 
 			if (len % sizeof(CLR_UINT32))
 			{
 				len += sizeof(CLR_UINT32) - (len % sizeof(CLR_UINT32));
 			}
 
-			NANOCLR_CHECK_HRESULT(CLR_RT_FileStore::SaveFile(szFile, (CLR_UINT8*)m_assm->m_header, (DWORD)len));
+			NANOCLR_CHECK_HRESULT(CLR_RT_FileStore::SaveFile(szFile, (CLR_UINT8*)currentAssembly->m_header, (DWORD)len));
 		}
 
 		NANOCLR_NOCLEANUP();
@@ -635,14 +644,14 @@ struct Settings : CLR_RT_ParseOptions
 
 		NANOCLR_CHECK_HRESULT(AllocateSystem());
 
-		m_assm = g_CLR_RT_TypeSystem.FindAssembly(name.c_str(), NULL, false);
-		if (m_assm)
+		currentAssembly = g_CLR_RT_TypeSystem.FindAssembly(name.c_str(), NULL, false);
+		if (currentAssembly)
 		{
-			for (int i = 0; i<m_assm->m_pTablesSize[TBL_MethodDef]; i++)
+			for (int i = 0; i<currentAssembly->m_pTablesSize[TBL_MethodDef]; i++)
 			{
 				CLR_RT_MethodDef_Index md;
 
-				md.Set(m_assm->m_idx, i);
+				md.Set(currentAssembly->m_idx, i);
 
 				NANOCLR_CHECK_HRESULT(g_CLR_RT_ExecutionEngine.Compile(md, CLR_RT_ExecutionEngine::c_Compile_CPP));
 			}
@@ -851,7 +860,7 @@ struct Settings : CLR_RT_ParseOptions
 		OPTION_INTEGER(&s_CLR_RT_fTrace_RedirectLinesPerFile, L"-Trace_RedirectLinesPerFile", L"", L"<lines>", L"Lines per File");
 		OPTION_STRING(&s_CLR_RT_fTrace_RedirectOutput, L"-Trace_RedirectOutput", L"", L"<file>", L"Output file");
 
-		OPTION_SET(&m_fDumpStatistics, L"-ILstats", L"Dumps statistics about IL code");
+		OPTION_SET(&dumpStatistics, L"-ILstats", L"Dumps statistics about IL code");
 
 		//--//
 
@@ -877,8 +886,8 @@ struct Settings : CLR_RT_ParseOptions
 
 		//--//
 
-		OPTION_SET(&m_patch_fReboot, L"-patchReboot", L"Marks the patch as needing a reboot");
-		OPTION_STRING(&m_patch_szNative, L"-patchNative", L"ARM code to include in the patch", L"<file>", L"Native code file");
+		OPTION_SET(&patchToReboot, L"-patchReboot", L"Marks the patch as needing a reboot");
+		OPTION_STRING(&patchNative, L"-patchNative", L"ARM code to include in the patch", L"<file>", L"Native code file");
 
 		//--//
 
@@ -973,6 +982,8 @@ int _tmain(int argc, _TCHAR* argv[])
 	Settings            st;
 
 	::CoInitialize(0);
+
+	wprintf(L"nanoFramework MetaDataProcessor v1.0.9\r\n");
 
 	NANOCLR_CHECK_HRESULT(HAL_Windows::Memory_Resize(64 * 1024 * 1024));
 	// TODO check if we are still using this.....
