@@ -8,11 +8,6 @@
   <UsingTask TaskName="ResolveRuntimeDependenciesTask"    AssemblyFile="$(MSBuildThisFileDirectory)nanoFramework.Tools.BuildTasks.dll" />
   <UsingTask TaskName="GenerateNanoResourceTask"          AssemblyFile="$(MSBuildThisFileDirectory)nanoFramework.Tools.BuildTasks.dll" />
 
-  <!-- set output for MDP command lines-->
-  <PropertyGroup>
-    <Enable_NFMDP_CmdLineOutput>true</Enable_NFMDP_CmdLineOutput>
-  </PropertyGroup>
-
   <!-- 
     ###########################################################
     common groups for CORE and NONE CORE builds 
@@ -409,7 +404,7 @@
       IgnoreAssembly="@(NFMDP_PE_IgnoreAssembly)"
       Load="@(NFMDP_PE_Load)"
       LoadDatabase="@(NFMDP_PE_LoadDatabase)"
-      OutputCommandLine="$(Enable_NFMDP_CmdLineOutput)"
+      OutputCommandLine="$(NFMDP_CMD_LINE_OUTPUT)"
       ExcludeClassByName="@(NFMDP_PE_ExcludeClassByName)">
 
       <Output TaskParameter="FilesWritten" ItemName="FileWrites"/>
@@ -445,7 +440,7 @@
       Load="@(NFMDP_STUB_Load)"
       LoadDatabase="@(NFMDP_STUB_LoadDatabase)"
       ExcludeClassByName="@(NFMDP_STUB_ExcludeClassByName)"
-      OutputCommandLine="$(Enable_NFMDP_CmdLineOutput)"
+      OutputCommandLine="$(NFMDP_CMD_LINE_OUTPUT)"
       Condition="'$(NFMDP_STUB_SKIP)' != 'true'">
 
       <Output TaskParameter="FilesWritten" ItemName="FileWrites"/>
@@ -521,7 +516,7 @@
       Load="@(NFMDP_DAT_Load)"
       LoadDatabase="@(NFMDP_DAT_LoadDatabase)"
       ExcludeClassByName="@(NFMDP_DAT_ExcludeClassByName)"
-      OutputCommandLine="$(Enable_NFMDP_CmdLineOutput)">
+      OutputCommandLine="$(NFMDP_CMD_LINE_OUTPUT)">
 
       <Output TaskParameter="FilesWritten" ItemName="FileWrites"/>
 
@@ -573,7 +568,7 @@
       Load="@(NFMDP_XML_Load)"
       LoadDatabase="@(NFMDP_XML_LoadDatabase)"
       ExcludeClassByName="@(NFMDP_XML_ExcludeClassByName)"
-      OutputCommandLine="$(Enable_NFMDP_CmdLineOutput)">
+      OutputCommandLine="$(NFMDP_CMD_LINE_OUTPUT)">
 
       <Output TaskParameter="FilesWritten" ItemName="FileWrites"/>
 
@@ -694,7 +689,7 @@
       Load="@(NFMDP_DUMP_Load)"
       LoadDatabase="@(NFMDP_DUMP_LoadDatabase)"
       ExcludeClassByName="@(NFMDP_DUMP_ExcludeClassByName)"
-      OutputCommandLine="$(Enable_NFMDP_CmdLineOutput)">
+      OutputCommandLine="$(NFMDP_CMD_LINE_OUTPUT)">
 
       <Output TaskParameter="FilesWritten" ItemName="FileWrites"/>
 
@@ -781,7 +776,7 @@
       RefreshAssemblyName="$(AssemblyName)"
       RefreshAssemblyOutput="$(NanoFramework_IntermediateAssembly).pe"
       Resolve="true"
-      OutputCommandLine="$(Enable_NFMDP_CmdLineOutput)">
+      OutputCommandLine="$(NFMDP_CMD_LINE_OUTPUT)">
 
       <Output TaskParameter="FilesWritten" ItemName="FileWrites"/>
 

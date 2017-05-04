@@ -29,6 +29,9 @@
     <NFMDP_STUB_SKIP>true</NFMDP_STUB_SKIP>
     <NFMDP_DAT_SKIP>true</NFMDP_DAT_SKIP>
     <NFMDP_XML_SKIP>true</NFMDP_XML_SKIP>
+
+    <!-- set output of nF MetaDataProcessor command lines to disable -->
+    <NFMDP_CMD_LINE_OUTPUT>false</NFMDP_CMD_LINE_OUTPUT>
   </PropertyGroup>
 
 </Project>
