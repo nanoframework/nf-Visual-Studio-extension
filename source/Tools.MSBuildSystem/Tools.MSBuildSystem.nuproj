@@ -36,8 +36,8 @@
   <Import Project="$(NuProjPath)\NuProj.props" Condition="Exists('$(NuProjPath)\NuProj.props')" />
   <PropertyGroup Label="Configuration">
     <Id>nanoFramework.Tools.MSBuildSystem</Id>
-    <Version>1.0.0-preview0028</Version>
-    <Title>MSBuild system for nanoFramework projects</Title>
+    <Version>1.0.0-preview0029</Version>
+    <Title>nanoFramework.Tools.MSBuildSystem</Title>
     <Authors>nanoFramework project contributors</Authors>
     <Owners>nanoFramework project contributors</Owners>
     <Summary>MSBuild targets, properties and associated tools to support nanoFramework project type.</Summary>
