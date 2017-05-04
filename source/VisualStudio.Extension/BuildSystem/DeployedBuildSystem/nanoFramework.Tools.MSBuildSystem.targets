@@ -8,6 +8,10 @@
   <UsingTask TaskName="ResolveRuntimeDependenciesTask"    AssemblyFile="$(MSBuildThisFileDirectory)nanoFramework.Tools.BuildTasks.dll" />
   <UsingTask TaskName="GenerateNanoResourceTask"          AssemblyFile="$(MSBuildThisFileDirectory)nanoFramework.Tools.BuildTasks.dll" />
 
+  <!-- set output for MDP command lines-->
+  <PropertyGroup>
+    <Enable_NFMDP_CmdLineOutput>true</Enable_NFMDP_CmdLineOutput>
+  </PropertyGroup>
 
   <!-- 
     ###########################################################
@@ -32,7 +36,6 @@
     <NanoFramework_IntermediateAssembly>$(ProjectDir)$(IntermediateOutputPath)$(TargetName)</NanoFramework_IntermediateAssembly>
     <NanoFramework_Assembly>$(ProjectDir)$(OutDir)$(TargetName)</NanoFramework_Assembly>
   </PropertyGroup>
-
 
   <!-- 
     ############################################################################
@@ -244,6 +247,10 @@
 
   </Target>
 
+  <!-- Overriding common targets.  Application and Deployment manifests are not supported -->
+  <Target Name="_CopyManifestFiles" Condition="'$(NF_IsCoreLibrary)' != 'True' "/>
+  <Target Name="_CopyApplicationConfigFiles" Condition="'$(NF_IsCoreLibrary)' != 'True' "/>
+
   <!-- 
     ######################################################################
     The following groups are to be used when building A CORE ASSEMBLY
@@ -265,7 +272,7 @@
     <NFMDP_DUMP_DumpAll>$(ProjectDir)$(IntermediateOutputPath)$(TargetName).dump</NFMDP_DUMP_DumpAll>
 
     <!-- nanoFramework MetaDataProcessor STUB options -->
-    <NFMDP_STUB_DumpAll>$(ProjectDir)$(IntermediateOutputPath)$(TargetName)_exports2.txt</NFMDP_STUB_DumpAll>
+    <NFMDP_STUBS_DumpAll>$(ProjectDir)$(IntermediateOutputPath)$(TargetName)_exports2.txt</NFMDP_STUBS_DumpAll>
     <NFMDP_STUB_GenerateSkeletonName>$(AssemblyName)</NFMDP_STUB_GenerateSkeletonName>
     <NFMDP_STUB_RefreshAssemblyName>$(AssemblyName)</NFMDP_STUB_RefreshAssemblyName>
     <NFMDP_STUB_RefreshAssemblyOutput>$(NFMDP_PE_Compile)</NFMDP_STUB_RefreshAssemblyOutput>
@@ -402,13 +409,12 @@
       IgnoreAssembly="@(NFMDP_PE_IgnoreAssembly)"
       Load="@(NFMDP_PE_Load)"
       LoadDatabase="@(NFMDP_PE_LoadDatabase)"
+      OutputCommandLine="$(Enable_NFMDP_CmdLineOutput)"
       ExcludeClassByName="@(NFMDP_PE_ExcludeClassByName)">
 
       <Output TaskParameter="FilesWritten" ItemName="FileWrites"/>
 
     </MetaDataProcessorTask>
-
-    <Message Text="Generating interop stub files for $(NFMDP_STUB_GenerateSkeletonName)..." Condition="'$(NFMDP_STUB_SKIP)' != 'true'"/>
 
     <!-- Create STUB file -->
     <MetaDataProcessorTask
@@ -439,6 +445,7 @@
       Load="@(NFMDP_STUB_Load)"
       LoadDatabase="@(NFMDP_STUB_LoadDatabase)"
       ExcludeClassByName="@(NFMDP_STUB_ExcludeClassByName)"
+      OutputCommandLine="$(Enable_NFMDP_CmdLineOutput)"
       Condition="'$(NFMDP_STUB_SKIP)' != 'true'">
 
       <Output TaskParameter="FilesWritten" ItemName="FileWrites"/>
@@ -513,7 +520,8 @@
       IgnoreAssembly="@(NFMDP_DAT_IgnoreAssembly)"
       Load="@(NFMDP_DAT_Load)"
       LoadDatabase="@(NFMDP_DAT_LoadDatabase)"
-      ExcludeClassByName="@(NFMDP_DAT_ExcludeClassByName)">
+      ExcludeClassByName="@(NFMDP_DAT_ExcludeClassByName)"
+      OutputCommandLine="$(Enable_NFMDP_CmdLineOutput)">
 
       <Output TaskParameter="FilesWritten" ItemName="FileWrites"/>
 
@@ -564,7 +572,8 @@
       IgnoreAssembly="@(NFMDP_XML_IgnoreAssembly)"
       Load="@(NFMDP_XML_Load)"
       LoadDatabase="@(NFMDP_XML_LoadDatabase)"
-      ExcludeClassByName="@(NFMDP_XML_ExcludeClassByName)">
+      ExcludeClassByName="@(NFMDP_XML_ExcludeClassByName)"
+      OutputCommandLine="$(Enable_NFMDP_CmdLineOutput)">
 
       <Output TaskParameter="FilesWritten" ItemName="FileWrites"/>
 
@@ -684,76 +693,15 @@
       IgnoreAssembly="@(NFMDP_DUMP_IgnoreAssembly)"
       Load="@(NFMDP_DUMP_Load)"
       LoadDatabase="@(NFMDP_DUMP_LoadDatabase)"
-      ExcludeClassByName="@(NFMDP_DUMP_ExcludeClassByName)">
+      ExcludeClassByName="@(NFMDP_DUMP_ExcludeClassByName)"
+      OutputCommandLine="$(Enable_NFMDP_CmdLineOutput)">
 
       <Output TaskParameter="FilesWritten" ItemName="FileWrites"/>
 
     </MetaDataProcessorTask>
   </Target>
 
-  <!-- 
-    ###########################################################
-    common targets for CORE and NONE CORE builds 
-    ###########################################################
-  -->
-
-
-  <!-- Generate stubs for assemblies containing methods to be implemented in native code -->
-  <Target Name="GenerateStubs"
-    Inputs="$(NanoFramework_IntermediateAssembly).pe"
-    Outputs="@(NF_GeneratedStubFile)"
-    DependsOnTargets="ReferencedAssemblyDllsToPeFiles">
-
-    <MakeDir Condition="!Exists('$(NF_GenerateStubsDirectory)')" Directories="$(NF_GenerateStubsDirectory)" />
-
-    <MetaDataProcessorTask
-      Verbose="true"
-      Load="$(NanoFramework_IntermediateAssembly).pe;@(ReferencedPeFile)"
-      GenerateSkeletonName="$(TargetName)"
-      GenerateSkeletonFile="$(NF_GenerateSkeletonFile)"
-      GenerateSkeletonProject="$(NF_GenerateSkeletonProjectName)"
-      RefreshAssemblyName="$(AssemblyName)"
-      RefreshAssemblyOutput="$(NanoFramework_IntermediateAssembly).pe"
-      Resolve="true">
-
-      <Output TaskParameter="FilesWritten" ItemName="FileWrites"/>
-
-    </MetaDataProcessorTask>
-
-  </Target>
-
-  <Target Name="ReferencedAssemblyDllsToPeFiles" DependsOnTargets="ResolveRuntimeDependencies">
-    <ItemGroup>
-      <_ReferencedAssemblyDll Include="@(NanoFramework_StartProgram_ResolvedFiles);@(NanoFramework_StartProgram_ResolvedDependencyFiles)" />
-      <_ReferencedPeFile Include="@(_ReferencedAssemblyDll->'%(RootDir)%(Directory)%(filename).pe')" />
-
-      <ReferencedPeFile Include="%(_ReferencedPeFile.identity)" Condition="EXISTS(%(_ReferencedPeFile.identity))" />
-    </ItemGroup>
-  </Target>
-
-  <!--<Target Name="NanoResourceGenerator"
-    Condition="'@(EmbeddedResource)'!=''"
-    DependsOnTargets="$(NanoResourceGeneratorDependsOn)"
-    >
-    <GenerateNanoResourceTask
-      Sources="@(EmbeddedResource)"
-      Condition=" '%(EmbeddedResource.Type)' == 'Resx' and '%(EmbeddedResource.GenerateResource)' != 'false'"
-      References="@(ReferencePath)"
-      UseSourcePath="$(UseSourcePath)"
-      StateFile="$(IntermediateOutputPath)$(MSBuildProjectFile).NanoGenerateResource.Cache"
-      OutputResources="@(EmbeddedResource->'$(IntermediateOutputPath)%(ManifestResourceName).nanoresources')"
-      >
-
-      <Output TaskParameter="OutputResources" ItemName="NFMDP_PE_Resource"/>
-      <Output TaskParameter="FilesWritten" ItemName="FileWrites"/>
-    </GenerateNanoResourceTask>
-  </Target>-->
-
-  <!--
-          CoreClean isn't very good at cleaning files not built into IntermediateDirectory or OutDirectory.  Just clean
-          the known files here
-    -->
-  <Target Name="NanoCLR_CleanExtraFiles">
+  <Target Name="NanoCLR_CleanExtraFiles" Condition="'$(NF_IsCoreLibrary)' == 'True' ">
     <Delete Files="
             $(NFMDP_PE_SaveStrings);
             $(NFMDP_PE_GenerateStringsTable);
@@ -794,9 +742,11 @@
             $(NFMDP_DAT_DumpExports);
             $(NFMDP_DAT_RefreshAssemblyOutput);
             $(NFMDP_DAT_CreateDatabaseFile);
-            $(NFMDP_DAT_GenerateDependency)"
+            $(NFMDP_DAT_GenerateDependency);
+            $(ProjectDir)$(IntermediateOutputPath)DesignTimeResolveAssemblyReferencesInput.cache"
         TreatErrorsAsWarnings="true" >
     </Delete>
+
   </Target>
 
   <Target Name="Disasm"
@@ -806,6 +756,70 @@
     >
     <Exec Command="ildasm.exe $(ILDASM_FLAGS) /out=$(NanoFramework_DisasmOutput) $(NanoFramework_DisasmInput)" />
   </Target>
+
+  <!-- 
+    ###########################################################
+    common targets for CORE and NONE CORE builds 
+    ###########################################################
+  -->
+
+
+  <!-- Generate stubs for assemblies containing methods to be implemented in native code -->
+  <Target Name="GenerateStubs"
+    Inputs="$(NanoFramework_IntermediateAssembly).pe"
+    Outputs="@(NF_GeneratedStubFile)"
+    DependsOnTargets="ReferencedAssemblyDllsToPeFiles">
+
+    <MakeDir Condition="!Exists('$(NF_GenerateStubsDirectory)')" Directories="$(NF_GenerateStubsDirectory)" />
+
+    <MetaDataProcessorTask
+      Verbose="true"
+      Load="$(NanoFramework_IntermediateAssembly).pe;@(ReferencedPeFile)"
+      GenerateSkeletonName="$(TargetName)"
+      GenerateSkeletonFile="$(NF_GenerateSkeletonFile)"
+      GenerateSkeletonProject="$(NF_GenerateSkeletonProjectName)"
+      RefreshAssemblyName="$(AssemblyName)"
+      RefreshAssemblyOutput="$(NanoFramework_IntermediateAssembly).pe"
+      Resolve="true"
+      OutputCommandLine="$(Enable_NFMDP_CmdLineOutput)">
+
+      <Output TaskParameter="FilesWritten" ItemName="FileWrites"/>
+
+    </MetaDataProcessorTask>
+
+  </Target>
+
+  <Target Name="ReferencedAssemblyDllsToPeFiles" DependsOnTargets="ResolveRuntimeDependencies">
+    <ItemGroup>
+      <_ReferencedAssemblyDll Include="@(NanoFramework_StartProgram_ResolvedFiles);@(NanoFramework_StartProgram_ResolvedDependencyFiles)" />
+      <_ReferencedPeFile Include="@(_ReferencedAssemblyDll->'%(RootDir)%(Directory)%(filename).pe')" />
+
+      <ReferencedPeFile Include="%(_ReferencedPeFile.identity)" Condition="EXISTS(%(_ReferencedPeFile.identity))" />
+    </ItemGroup>
+  </Target>
+
+  <!--<Target Name="NanoResourceGenerator"
+    Condition="'@(EmbeddedResource)'!=''"
+    DependsOnTargets="$(NanoResourceGeneratorDependsOn)"
+    >
+    <GenerateNanoResourceTask
+      Sources="@(EmbeddedResource)"
+      Condition=" '%(EmbeddedResource.Type)' == 'Resx' and '%(EmbeddedResource.GenerateResource)' != 'false'"
+      References="@(ReferencePath)"
+      UseSourcePath="$(UseSourcePath)"
+      StateFile="$(IntermediateOutputPath)$(MSBuildProjectFile).NanoGenerateResource.Cache"
+      OutputResources="@(EmbeddedResource->'$(IntermediateOutputPath)%(ManifestResourceName).nanoresources')"
+      >
+
+      <Output TaskParameter="OutputResources" ItemName="NFMDP_PE_Resource"/>
+      <Output TaskParameter="FilesWritten" ItemName="FileWrites"/>
+    </GenerateNanoResourceTask>
+  </Target>-->
+
+  <!--
+          CoreClean isn't very good at cleaning files not built into IntermediateDirectory or OutDirectory.  Just clean
+          the known files here
+    -->
 
   <Target Name="ConvertResources"
     Condition="Exists('$(OutDir)$(TargetFileName)')"
@@ -817,9 +831,5 @@
       ResourceDirectories="$(CONVERT_RESOURCES_DIR)"
       />
   </Target>
-
-  <!-- Overriding common targets.  Application and Deployment manifests are not supported -->
-  <Target Name="_CopyManifestFiles" />
-  <Target Name="_CopyApplicationConfigFiles" />
 
 </Project>

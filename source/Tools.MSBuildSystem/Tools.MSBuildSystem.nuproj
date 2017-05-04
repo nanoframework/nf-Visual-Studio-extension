@@ -40,8 +40,8 @@
     <Title>MSBuild system for nanoFramework projects</Title>
     <Authors>nanoFramework project contributors</Authors>
     <Owners>nanoFramework project contributors</Owners>
-    <Summary>MSBuild targets, properties and associated tools for nanoFramework project type.</Summary>
-    <Description>This package installs the required MSBuild targets, properties and associated tools to support nanoFramework project type building.</Description>
+    <Summary>MSBuild targets, properties and associated tools to support nanoFramework project type.</Summary>
+    <Description>This package installs the required MSBuild targets, properties and associated tools to support creating and building nanoFramework C# projects.</Description>
     <ReleaseNotes>
     </ReleaseNotes>
     <ProjectUrl>https://github.com/nanoframework/nf-Visual-Studio-extension</ProjectUrl>
