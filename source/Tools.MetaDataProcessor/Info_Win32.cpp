@@ -409,7 +409,7 @@ static const CHAR c_WARNING_FILE_OVERWRITE_Header[] =
 // the include name bellow has to be in LOWER case
 static const CHAR c_Include_Header_Begin[] =
 "\n"
-"#include \"%s_native.h\"\n"
+"#include \"%S_native.h\"\n"
 "\n"
 "\n";
 
@@ -1699,6 +1699,11 @@ void CLR_RT_Assembly::GenerateSkeleton_Legacy(LPCWSTR szFileName, LPCWSTR szProj
 				const CLR_RECORD_METHODDEF* md = GetMethodDef(td->methods_First);
 				bool fFirst = true;
 
+				// copy project name
+				wchar_t* projectNameLowerCase = wcsdup(szProjectName); 
+				// convert to lower case
+				_wcslwr(projectNameLowerCase);
+
 				for (int j = 0; j<totMethods; j++, md++)
 				{
 					if (IncludeInStub(md))
@@ -1709,7 +1714,7 @@ void CLR_RT_Assembly::GenerateSkeleton_Legacy(LPCWSTR szFileName, LPCWSTR szProj
 
 							Dump_Printf(c_WARNING_FILE_OVERWRITE_Header);
 
-							Dump_Printf(c_Include_Header_Begin, szProjectName);
+							Dump_Printf(c_Include_Header_Begin, projectNameLowerCase);
 
 							fFirst = false;
 						}
