@@ -406,14 +406,15 @@ static const CHAR c_WARNING_FILE_OVERWRITE_Header[] =
 "//-----------------------------------------------------------------------------\n"
 "\n\n";
 
+// the include name bellow has to be in LOWER case
 static const CHAR c_Include_Header_Begin[] =
 "\n"
-"#include \"%S_native.h\"\n"
+"#include \"%s_native.h\"\n"
 "\n"
 "\n";
 
 static const CHAR c_Include_Interop_h[] =
-"#include <NANOCLR_Interop.h>\n";
+"#include <nanoCLR_Interop.h>\n";
 
 //--//
 
