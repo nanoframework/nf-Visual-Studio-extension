@@ -14,16 +14,16 @@
     <Folder Include="build\" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="..\Tools.MetaDataProcessor\Release\nanoFramework.Tools.MetaDataProcessor.exe">
+    <Content Include="..\..\$(Configuration)\nanoFramework.Tools.MetaDataProcessor.exe">
       <Link>build\nanoFramework.Tools.MetaDataProcessor.exe</Link>
     </Content>
-    <Content Include="..\Tools.BuildTasks\bin\Release\nanoFramework.Tools.BuildTasks.dll">
+    <Content Include="..\bin\$(Configuration)\nanoFramework.Tools.BuildTasks.dll">
       <Link>build\nanoFramework.Tools.BuildTasks.dll</Link>
     </Content>
-    <Content Include="..\VisualStudio.Extension\BuildSystem\DeployedBuildSystem\nanoFramework.Tools.MSBuildSystem.props">
+    <Content Include="..\..\VisualStudio.Extension\BuildSystem\DeployedBuildSystem\nanoFramework.Tools.MSBuildSystem.props">
       <Link>build\nanoFramework.Tools.MSBuildSystem.props</Link>
     </Content>
-    <Content Include="..\VisualStudio.Extension\BuildSystem\DeployedBuildSystem\nanoFramework.Tools.MSBuildSystem.targets">
+    <Content Include="..\..\VisualStudio.Extension\BuildSystem\DeployedBuildSystem\nanoFramework.Tools.MSBuildSystem.targets">
       <Link>build\nanoFramework.Tools.MSBuildSystem.targets</Link>
     </Content>
   </ItemGroup>
@@ -31,7 +31,7 @@
     <ProjectGuid>1d406978-d747-4ba7-a315-155c0ffdfdbe</ProjectGuid>
   </PropertyGroup>
   <PropertyGroup>
-    <NuProjPath Condition=" '$(NuProjPath)' == '' ">$(MSBuildExtensionsPath)\NuProj\</NuProjPath>
+    <NuProjPath>..\packages\NuProj.0.11.14-beta\tools\</NuProjPath>
   </PropertyGroup>
   <Import Project="$(NuProjPath)\NuProj.props" Condition="Exists('$(NuProjPath)\NuProj.props')" />
   <PropertyGroup Label="Configuration">
@@ -50,7 +50,8 @@
     <Copyright>Copyright (c) 2017 The nanoFramework project contributors</Copyright>
     <Tags>nanoFramework msbuild .netnf .netmf</Tags>
     <IconUrl>https://secure.gravatar.com/avatar/97d0e092247f0716db6d4b47b7d1d1ad</IconUrl>
-    <OutputPath>..\VisualStudio.Extension\Packages</OutputPath>
+    <OutputPath>bin\$(Configuration)\</OutputPath>
+    <GenerateSymbolPackage>false</GenerateSymbolPackage>
   </PropertyGroup>
   <Import Project="$(NuProjPath)\NuProj.targets" />
 </Project>
