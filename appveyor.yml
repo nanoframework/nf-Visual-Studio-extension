@@ -1,0 +1,47 @@
+version: 0.1.{build}
+pull_requests:
+  do_not_increment_build_number: true
+branches:
+  only:
+  - master
+image: Visual Studio 2017
+configuration: Debug
+clone_depth: 1
+install:
+- cmd: git submodule update --init --recursive
+build_script:
+- ps: >-
+    msbuild source\Tools.MetaDataProcessor\nanoFramework.Tools.MetaDataProcessor.sln /p:Configuration=Release  /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
+
+
+    nuget restore source\Tools.BuildTasks\Tools.MSBuildSystem.sln
+
+
+    msbuild source\Tools.BuildTasks\Tools.MSBuildSystem.sln /p:Configuration=Release  /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
+
+
+    nuget restore source\nanoFramework.Tools.VisualStudio.AppVeyorBuild.sln
+
+
+    msbuild source\nanoFramework.Tools.VisualStudio.AppVeyorBuild.sln /p:Configuration=Release  /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
+artifacts:
+- path: '**\bin\Release\*MSBuildSystem*.nupkg'
+  name: MSBuild System Nuget Package
+- path: '**\*.vsix'
+  name: VS extension
+deploy:
+- provider: NuGet
+  api_key:
+    secure: Szcq1/9Opglxx9fR5wvMFK2GQvQXpdzxGaydUAFbbeldZAPWVkx1/lkL3/jWZN+YmwZeiKerJlQpG7GBMNpooe6RUIDyNBDnR81IU8N5+fo=
+  skip_symbols: true
+- provider: GitHub
+  tag: v$(appveyor_build_version)
+  release: nanoFramework VS2017 Extension v$(appveyor_build_version)
+  description: add description here
+  auth_token:
+    secure: XPPc2eTBV6X1Wp8cQIjJ/VEJW+UMrz9eYmxIUilw9tIF869lk7IYpBVSvb68EvPyjUOjzkI9iCRW0a+t4u83z23MOeA/c3lbviZpnqmoMoE=
+  artifact: /.*\.visx/
+  draft: true
+  prerelease: true
+  force_update: false
+  

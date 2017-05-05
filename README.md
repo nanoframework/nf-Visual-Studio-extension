@@ -1,6 +1,7 @@
 # Visual Studio extension for nanoFramework
 
 
+[![Build status](https://ci.appveyor.com/api/projects/status/9mtqen1wi0tv8x54?svg=true)](https://ci.appveyor.com/project/nfbot/nf-visual-studio-extension)
 [![Join the chat at https://nanoframework.slack.com/](https://img.shields.io/badge/join%20us-on%20slack-orange.svg)](https://nanoframework.wordpress.com/slack-invite-form/)
 
 Welcome to the repository of nanoFramework Visual Studio extension and associated tools!
