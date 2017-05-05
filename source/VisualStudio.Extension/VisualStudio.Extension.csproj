@@ -51,6 +51,16 @@
     <Compile Include="VsPackage.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="..\packages\nanoFramework.CoreLibrary.1.0.0-preview012\nanoFramework.CoreLibrary.1.0.0-preview012.nupkg">
+      <Link>Packages\nanoFramework.CoreLibrary.1.0.0-preview012.nupkg</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
+    <Content Include="..\Tools.BuildTasks\Nuget.MSBuildSystem\bin\$(Configuration)\nanoFramework.Tools.MSBuildSystem.1.0.0-preview0031.nupkg">
+      <Link>Packages\nanoFramework.Tools.MSBuildSystem.1.0.0-preview0031.nupkg</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
     <None Include="app.config" />
     <None Include="BuildSystem\DeployedBuildSystem\nanoFramework.Tools.MSBuildSystem.props">
       <SubType>Designer</SubType>
@@ -58,19 +68,13 @@
     <None Include="BuildSystem\DeployedBuildSystem\nanoFramework.Tools.MSBuildSystem.targets">
       <SubType>Designer</SubType>
     </None>
-    <None Include="packages.config" />
     <Content Include="license.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
-    <Content Include="Packages\nanoFramework.Tools.MSBuildSystem.1.0.0-preview0031.nupkg">
-      <IncludeInVSIX>true</IncludeInVSIX>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Packages\nanoFramework.CoreLibrary.1.0.0-preview011.nupkg">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
+    <None Include="packages.config">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="source.extension.vsixmanifest">
       <SubType>Designer</SubType>
     </None>
