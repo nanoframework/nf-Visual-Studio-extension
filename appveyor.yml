@@ -39,7 +39,7 @@ deploy:
   release: nanoFramework VS2017 Extension v$(appveyor_build_version)
   description: add description here
   auth_token:
-    secure: XPPc2eTBV6X1Wp8cQIjJ/VEJW+UMrz9eYmxIUilw9tIF869lk7IYpBVSvb68EvPyjUOjzkI9iCRW0a+t4u83z23MOeA/c3lbviZpnqmoMoE=
+    secure: DNixoFFE+pGlwyhj7McfZoln42vOmj0iY1iNV9zXEr3y0NpXlOIgL8k5ehzlFM1S
   artifact: /.*\.visx/
   draft: true
   prerelease: true
