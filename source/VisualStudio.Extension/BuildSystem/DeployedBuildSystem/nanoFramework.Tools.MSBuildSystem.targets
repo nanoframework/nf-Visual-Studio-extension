@@ -428,7 +428,6 @@
       GenerateSkeletonFile="$(NFMDP_STUB_GenerateSkeletonFile)"
       GenerateSkeletonName="$(NFMDP_STUB_GenerateSkeletonName)"
       GenerateSkeletonProject="$(NFMDP_STUB_GenerateSkeletonProject)"
-      LegacySkeletonInterop="$(NFMDP_STUB_LegacySkeletonInterop)"
       GenerateDependency="$(NFMDP_STUB_GenerateDependency)"
       CreateDatabase="@(NFMDP_STUB_CreateDatabase)"
       RefreshAssemblyName="$(NFMDP_STUB_RefreshAssemblyName)"
