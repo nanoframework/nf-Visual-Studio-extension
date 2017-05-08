@@ -166,7 +166,18 @@ void CLR_RT_Assembly::Dump(bool fNoByteCode)
 
 		Dump_Printf("FieldDef %04x[%08x] [Flags: %08x] ", i, ASMOFF(p), p->flags);
 		Dump_FieldOwner(i);
-		Dump_Printf("::%s [", GetString(p->name));
+
+		// need this to check for valid field names
+		char tempFieldName[200];
+		strcpy(tempFieldName, GetString(p->name));
+
+		if ((NULL != strstr(tempFieldName, "<")) || (NULL != strstr(tempFieldName, ">")))
+		{
+			// something very wrong with field name!!
+			strcpy(tempFieldName, ">>>>>>>>>>>>>>>>>>>>>>>>>>>>SOMETHING_WRONG_WITH_THIS_FIELD_POSSIBLY_MISSING_BACKING_FIELD");
+		}
+		
+		Dump_Printf("::%s [", &tempFieldName);
 		Dump_Signature(p->sig);
 		Dump_Printf("]\n");
 	}
