@@ -575,7 +575,6 @@ struct Settings : CLR_RT_ParseOptions
 		LPCWSTR     szFile = PARAM_EXTRACT_STRING(params, 0);
 		LPCWSTR     szName = PARAM_EXTRACT_STRING(params, 1);
 		LPCWSTR     szProj = PARAM_EXTRACT_STRING(params, 2);
-		LPCWSTR     szLeg = PARAM_EXTRACT_STRING(params, 3);
 
 		std::string name;
 
@@ -972,7 +971,7 @@ int _tmain(int argc, _TCHAR* argv[])
 
 	::CoInitialize(0);
 
-	wprintf(L"nanoFramework MetaDataProcessor v1.0.12\r\n");
+	wprintf(L"nanoFramework MetaDataProcessor v1.0.13\r\n");
 
 	NANOCLR_CHECK_HRESULT(HAL_Windows::Memory_Resize(64 * 1024 * 1024));
 	// TODO check if we are still using this.....
