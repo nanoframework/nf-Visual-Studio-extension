@@ -68,8 +68,6 @@ namespace nanoFramework.Tools
 
         public string CreateDatabaseFile { get; set; }
 
-        public bool LegacySkeletonInterop { get; set; }
-
         public bool Resolve { get; set; }
 
         public string RefreshAssemblyName { get; set; }
@@ -236,7 +234,7 @@ namespace nanoFramework.Tools
             AppendCreateDatabase(commandLinedBuilder);
 
             // -generate_skeleton
-            commandLinedBuilder.AppendSwitchToFileAndExtraSwitches("-generate_skeleton", GenerateSkeletonFile, GenerateSkeletonName, GenerateSkeletonProject, LegacySkeletonInterop ? "TRUE" : "FALSE");
+            commandLinedBuilder.AppendSwitchToFileAndExtraSwitches("-generate_skeleton", GenerateSkeletonFile, GenerateSkeletonName, GenerateSkeletonProject);
 
             // -refresh_assembly
             AppendRefreshAssemblyCommand(commandLinedBuilder);
