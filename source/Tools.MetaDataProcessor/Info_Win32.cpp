@@ -1274,7 +1274,18 @@ void CLR_RT_Assembly::GenerateSkeletonFromComplientNames(LPCWSTR szFilePath, LPC
 				{
 					if (fSeen == false) { Dump_Printf(c_Type_Begin, szName, cls_name.c_str()); fSeen = true; }
 
-					Dump_Printf(c_Type_Field_Static, GetString(fd->name), j + iStaticFields);
+
+					// need this to check for valid field names
+					char tempFieldName[200];
+					strcpy(tempFieldName, GetString(fd->name));
+
+					if ((NULL != strstr(tempFieldName, "<")) || (NULL != strstr(tempFieldName, ">")))
+					{
+						// something very wrong with field name!!
+						strcpy(tempFieldName, "SOMETHING_WRONG_WITH_THIS_FIELD_POSSIBLY_MISSING_BACKING_FIELD");
+					}
+
+					Dump_Printf(c_Type_Field_Static, &tempFieldName, j + iStaticFields);
 				}
 
 				Dump_Printf("\n");
@@ -1288,7 +1299,17 @@ void CLR_RT_Assembly::GenerateSkeletonFromComplientNames(LPCWSTR szFilePath, LPC
 				{
 					if (fSeen == false) { Dump_Printf(c_Type_Begin, szName, cls_name.c_str()); fSeen = true; }
 
-					Dump_Printf(c_Type_Field_Instance, GetString(fd->name), m_pCrossReference_FieldDef[j + td->iFields_First].m_offset);
+					// need this to check for valid field names
+					char tempFieldName[200];
+				    strcpy(tempFieldName, GetString(fd->name));
+
+					if ((NULL != strstr(tempFieldName, "<")) || (NULL != strstr(tempFieldName, ">")))
+					{
+						// something very wrong with field name!!
+						strcpy(tempFieldName, "SOMETHING_WRONG_WITH_THIS_FIELD_POSSIBLY_MISSING_BACKING_FIELD");
+					}
+
+					Dump_Printf(c_Type_Field_Instance, &tempFieldName, m_pCrossReference_FieldDef[j + td->iFields_First].m_offset);
 				}
 
 				Dump_Printf("\n");
