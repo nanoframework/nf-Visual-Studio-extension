@@ -169,12 +169,12 @@ void CLR_RT_Assembly::Dump(bool fNoByteCode)
 
 		// need this to check for valid field names
 		char tempFieldName[200];
-		strcpy(tempFieldName, GetString(p->name));
+		strcpy_s(tempFieldName, GetString(p->name));
 
 		if ((NULL != strstr(tempFieldName, "<")) || (NULL != strstr(tempFieldName, ">")))
 		{
 			// something very wrong with field name!!
-			strcpy(tempFieldName, ">>>>>>>>>>>>>>>>>>>>>>>>>>>>SOMETHING_WRONG_WITH_THIS_FIELD_POSSIBLY_MISSING_BACKING_FIELD");
+			strcpy_s(tempFieldName, ">>>>>>>>>>>>>>>>>>>>>>>>>>>>SOMETHING_WRONG_WITH_THIS_FIELD_POSSIBLY_MISSING_BACKING_FIELD");
 		}
 		
 		Dump_Printf("::%s [", &tempFieldName);
@@ -1288,12 +1288,12 @@ void CLR_RT_Assembly::GenerateSkeletonFromComplientNames(LPCWSTR szFilePath, LPC
 
 					// need this to check for valid field names
 					char tempFieldName[200];
-					strcpy(tempFieldName, GetString(fd->name));
+					strcpy_s(tempFieldName, GetString(fd->name));
 
 					if ((NULL != strstr(tempFieldName, "<")) || (NULL != strstr(tempFieldName, ">")))
 					{
 						// something very wrong with field name!!
-						strcpy(tempFieldName, "SOMETHING_WRONG_WITH_THIS_FIELD_POSSIBLY_MISSING_BACKING_FIELD");
+						strcpy_s(tempFieldName, "SOMETHING_WRONG_WITH_THIS_FIELD_POSSIBLY_MISSING_BACKING_FIELD");
 					}
 
 					Dump_Printf(c_Type_Field_Static, &tempFieldName, j + iStaticFields);
@@ -1312,12 +1312,12 @@ void CLR_RT_Assembly::GenerateSkeletonFromComplientNames(LPCWSTR szFilePath, LPC
 
 					// need this to check for valid field names
 					char tempFieldName[200];
-				    strcpy(tempFieldName, GetString(fd->name));
+				    strcpy_s(tempFieldName, GetString(fd->name));
 
 					if ((NULL != strstr(tempFieldName, "<")) || (NULL != strstr(tempFieldName, ">")))
 					{
 						// something very wrong with field name!!
-						strcpy(tempFieldName, "SOMETHING_WRONG_WITH_THIS_FIELD_POSSIBLY_MISSING_BACKING_FIELD");
+						strcpy_s(tempFieldName, "SOMETHING_WRONG_WITH_THIS_FIELD_POSSIBLY_MISSING_BACKING_FIELD");
 					}
 
 					Dump_Printf(c_Type_Field_Instance, &tempFieldName, m_pCrossReference_FieldDef[j + td->iFields_First].m_offset);
