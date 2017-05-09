@@ -756,7 +756,7 @@ static string BuildCalltoNativeStub(bool bStaticMember, string strMethodName, st
 	// If we do not check for void type, we get code like "void retVal = ...".
 	if (!elemPtrArray[0]->IsVoidType())
 	{
-		strCall += elemPtrArray[0]->GetNativeType() + " retVal = ";
+		strCall += elemPtrArray[0]->GetStandardTypeName() + " retVal = ";
 	}
 
 	// Add function call. We pre-pend class name to the function name
@@ -783,7 +783,7 @@ static string BuildCalltoNativeStub(bool bStaticMember, string strMethodName, st
 static string BuildDeclarationOfNativeStub(string strMethodName, string strAssemblyName, CLR_RT_VectorOfManagedElements &elemPtrArray, bool bStaticMethod)
 {
 	// Return type with function name like "INT64 AddValues("
-	string strCall = elemPtrArray[0]->GetNativeType() + " ";
+	string strCall = elemPtrArray[0]->GetStandardTypeName() + " ";
 	// Include class name if passed - example : "INT64 TestBasicTypes::AddValues(
 	if (strAssemblyName.length() > 0)
 	{
@@ -946,7 +946,7 @@ void CLR_RT_Assembly::GenerateSkeletonStubFieldsDef(const CLR_RECORD_TYPEDEF *pC
 
 			// Generates function that retrieves the managed field
 			// First function declaration
-			string strFieldDef = strIndent + "static " + elemType.GetNativeType() + "& Get_" + GetString(fd->name) + "( CLR_RT_HeapBlock* pMngObj )    ";
+			string strFieldDef = strIndent + "static " + elemType.GetStandardTypeName() + "& Get_" + GetString(fd->name) + "( CLR_RT_HeapBlock* pMngObj )    ";
 			// Now generates the body of the function. 
 			strFieldDef += "{ return Interop_Marshal_GetField_" + elemType.GetNativeType() + "( pMngObj, " + strNameSpace + "::FIELD__" + GetString(fd->name) + " ); }\n\n";
 
@@ -1131,7 +1131,7 @@ void CLR_RT_Assembly::GenerateSkeletonStubCode(LPCWSTR szFilePath, FILE *pFileDo
 					// If function is not void, we just declare return value equal to zero and return it.
 					if (!elemPtrArray[0]->IsVoidType())
 					{
-						Dump_Printf(pFileStubSrc, "\n{\n    %s retVal = 0; \n    return retVal;\n}\n\n", elemPtrArray[0]->GetNativeType().c_str());
+						Dump_Printf(pFileStubSrc, "\n{\n    %s retVal = 0; \n    return retVal;\n}\n\n", elemPtrArray[0]->GetStandardTypeName().c_str());
 					}
 					else
 					{ // In case of void function we just have empty "{}" implementation

@@ -26,6 +26,7 @@ public:
 		CLR_DataType  type;
 		LPCSTR        lpszTypeName;
 		LPCSTR        lpszNativeType;
+		LPCSTR        lpszStandardNativeType;
 	};
 protected:
 	// Data type of paramenter.
@@ -46,11 +47,14 @@ public:
 	// Return the name of type like I1, I2, I4, U1 and so on.
 	string GetTypeName() { return m_pTypeData->lpszTypeName; }
 
+	// Return the native type name correcponding to the CLR types bool, unsigned int, char and so on.
+	string GetStandardTypeName() { return m_pTypeData->lpszStandardNativeType; }
+
 	// Returns the name of variable like INT8, INT16, INT32, UINT8, float and so on.
 	string GetNativeType() { return m_pTypeData->lpszNativeType; }
 
 	// Declaration of variable in marshaling code.
-	virtual string GetVariableDecl() { return GetNativeType(); }
+	virtual string GetVariableDecl() { return GetStandardTypeName(); }
 
 	// For value type there is no prefix. Return empty string
 	virtual string GetTypeNamePrefix() { return "\0"; }
