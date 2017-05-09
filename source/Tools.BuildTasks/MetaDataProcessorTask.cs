@@ -73,7 +73,7 @@ namespace nanoFramework.Tools
         /// This is required to generate Core Libraries.
         /// Default is false, meaning that Interop support will be used.
         /// </summary>
-        public bool SkeletonWithoutInterop { get; set; } = true;
+        public bool SkeletonWithoutInterop { get; set; } = false;
 
         public bool Resolve { get; set; }
 

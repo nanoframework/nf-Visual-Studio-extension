@@ -57,8 +57,8 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
-    <Content Include="..\Tools.BuildTasks\Nuget.MSBuildSystem\bin\$(Configuration)\nanoFramework.Tools.MSBuildSystem.1.0.0-preview0037.nupkg">
-      <Link>Packages\nanoFramework.Tools.MSBuildSystem.1.0.0-preview0037.nupkg</Link>
+    <Content Include="..\Tools.BuildTasks\Nuget.MSBuildSystem\bin\$(Configuration)\nanoFramework.Tools.MSBuildSystem.1.0.0-preview0038.nupkg">
+      <Link>Packages\nanoFramework.Tools.MSBuildSystem.1.0.0-preview0038.nupkg</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
