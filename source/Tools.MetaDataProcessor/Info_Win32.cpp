@@ -1450,3 +1450,316 @@ void CLR_RT_Assembly::GenerateSkeleton(LPCWSTR szFilePath, LPCWSTR szProjectName
 	// Now calls the main generation functions with fixed names. ( Mostly dots converted to '_' )
 	GenerateSkeletonFromComplientNames(strFilePath.c_str(), rgProjectName);
 }
+
+void CLR_RT_Assembly::BuildMethodName_NoInterop(const CLR_RECORD_METHODDEF* md, std::string& name, CLR_RT_StringMap& mapMethods)
+{
+	CHAR          buffer[256];
+	CLR_PMETADATA p = GetSignature(md->sig); p++; // Skip Calling convention.
+	CLR_UINT32    len = *p++ + 1;
+
+	name = GetString(md->name); RemoveDots(name);
+
+	for (CLR_UINT32 a = 0; a<len; a++)
+	{
+		bool fContinue = true;
+
+		if (a == 0)
+		{
+			name += "___";
+
+			if (md->flags & CLR_RECORD_METHODDEF::MD_Static)
+			{
+				name += "STATIC__";
+			}
+		}
+
+		while (fContinue)
+		{
+			CLR_DataType opt = CLR_UncompressElementType(p);
+
+			switch (opt)
+			{
+			case DATATYPE_VOID: name += "VOID"; break;
+			case DATATYPE_BOOLEAN: name += "BOOLEAN"; break;
+			case DATATYPE_CHAR: name += "CHAR"; break;
+			case DATATYPE_I1: name += "I1"; break;
+			case DATATYPE_U1: name += "U1"; break;
+			case DATATYPE_I2: name += "I2"; break;
+			case DATATYPE_U2: name += "U2"; break;
+			case DATATYPE_I4: name += "I4"; break;
+			case DATATYPE_U4: name += "U4"; break;
+			case DATATYPE_I8: name += "I8"; break;
+			case DATATYPE_U8: name += "U8"; break;
+			case DATATYPE_R4: name += "R4"; break;
+			case DATATYPE_R8: name += "R8"; break;
+			case DATATYPE_STRING: name += "STRING"; break;
+			case DATATYPE_BYREF: name += "BYREF"; break;
+			case DATATYPE_VALUETYPE:; break;
+			case DATATYPE_CLASS:; break;
+			case DATATYPE_OBJECT: name += "OBJECT"; break;
+			case DATATYPE_SZARRAY: name += "SZARRAY"; break;
+			}
+
+			fContinue = false;
+
+			switch (opt)
+			{
+			case DATATYPE_BYREF:
+			case DATATYPE_SZARRAY:
+				fContinue = true;
+				name += "_";
+				break;
+
+			case DATATYPE_VALUETYPE:
+			case DATATYPE_CLASS:
+			{
+				CLR_UINT32  tk = CLR_TkFromStream(p);
+				std::string cls;
+
+				switch (CLR_TypeFromTk(tk))
+				{
+				case TBL_TypeDef: BuildClassName(GetTypeDef(CLR_DataFromTk(tk)), cls, true); break;
+				case TBL_TypeRef: BuildClassName(GetTypeRef(CLR_DataFromTk(tk)), cls, true); break;
+				case TBL_TypeSpec: sprintf_s(buffer, ARRAYSIZE(buffer), "_%08X", tk); cls = buffer; break;
+				}
+
+				while (true)
+				{
+					std::string::size_type pos = cls.find('_'); if (pos == cls.npos) break;
+
+					cls.erase(pos, 1);
+				}
+
+				name += cls;
+			}
+			break;
+			}
+		}
+
+		if (a != len - 1) name += "__";
+	}
+
+	int num = mapMethods[name];
+	if (num++)
+	{
+		sprintf_s(buffer, ARRAYSIZE(buffer), "_%d", num); name += buffer;
+	}
+	mapMethods[name] = num;
+}
+
+void CLR_RT_Assembly::GenerateSkeleton_NoInterop(LPCWSTR szFileName, LPCWSTR szProjectName)
+{
+	WCHAR   rgFiles[2 * MAX_PATH];
+	LPCWSTR szName;
+
+	// Creates local variable with name of assembly ( like Microsoft.SPOT.Graphics ).
+	std::string strAssemblyIDName = m_szName;
+	// Replaces "." with "_" so the assembly name could be part of C++ identifier name.
+	for (std::basic_string<char>::iterator strp_Iter = strAssemblyIDName.begin();
+		strp_Iter != strAssemblyIDName.end();
+		strp_Iter++
+		)
+	{
+		if (*strp_Iter == '.')
+		{
+			*strp_Iter = '_';
+		}
+	}
+
+	//
+	// 1) Create <assembly>.h, with the structs declarations.
+	//
+	{   swprintf(rgFiles, ARRAYSIZE(rgFiles), L"%s.h", szFileName); Dump_SetDevice(rgFiles);
+
+	//Allow szFileName to point to a path, not just a prefix
+	for (szName = szFileName + wcslen(szFileName); szName != szFileName; szName--)
+	{
+		if (*(szName - 1) == '\\' || *(szName - 1) == '/') break;
+	}
+
+	Dump_Printf(c_WARNING_FILE_OVERWRITE_Header);
+
+	string strHeaderDefineMacro = BuildHeaderDefMacro(rgFiles);
+
+	Dump_Printf("#ifndef %s\n", strHeaderDefineMacro.c_str());
+	Dump_Printf("#define %s\n\n", strHeaderDefineMacro.c_str());
+
+	int                       iStaticFields = 0;
+	const CLR_RECORD_TYPEDEF* td = GetTypeDef(0);
+
+	for (int i = 0; i<m_pTablesSize[TBL_TypeDef]; i++, td++)
+	{
+		if (IncludeInStub(td))
+		{
+			std::string cls_name; BuildClassName(td, cls_name, true);
+			bool        fSeen = false;
+
+			if (td->sFields_Num)
+			{
+				const CLR_RECORD_FIELDDEF* fd = GetFieldDef(td->sFields_First);
+
+				for (int j = 0; j<td->sFields_Num; j++, fd++)
+				{
+					if (fSeen == false) { Dump_Printf(c_Type_Begin, szName, cls_name.c_str()); fSeen = true; }
+
+					Dump_Printf(c_Type_Field_Static, GetString(fd->name), j + iStaticFields);
+				}
+
+				Dump_Printf("\n");
+			}
+
+			if (td->iFields_Num)
+			{
+				const CLR_RECORD_FIELDDEF* fd = GetFieldDef(td->iFields_First);
+
+				for (int j = 0; j<td->iFields_Num; j++, fd++)
+				{
+					if (fSeen == false) { Dump_Printf(c_Type_Begin, szName, cls_name.c_str()); fSeen = true; }
+
+					Dump_Printf(c_Type_Field_Instance, GetString(fd->name), m_pCrossReference_FieldDef[j + td->iFields_First].m_offset);
+				}
+
+				Dump_Printf("\n");
+			}
+
+			{
+				int totMethods = td->vMethods_Num + td->iMethods_Num + td->sMethods_Num;
+
+				if (totMethods)
+				{
+					std::string                 name;
+					CLR_RT_StringMap            mapMethods;
+					const CLR_RECORD_METHODDEF* md = GetMethodDef(td->methods_First);
+
+					for (int j = 0; j<totMethods; j++, md++)
+					{
+						if (IncludeInStub(md))
+						{
+							BuildMethodName(md, name, mapMethods);
+
+							if (fSeen == false) { Dump_Printf(c_Type_Begin, szName, cls_name.c_str()); fSeen = true; }
+
+							Dump_Printf(c_Type_Method, name.c_str());
+						}
+					}
+				}
+			}
+
+			if (fSeen) { Dump_Printf(c_Type_End); }
+		}
+
+		iStaticFields += td->sFields_Num;
+	}
+
+	//Dump_Printf( c_Declaration_End, strAssemblyIDName.c_str() );
+
+	Dump_Printf("#endif  //%s\n", strHeaderDefineMacro.c_str());
+	Dump_CloseDevice();
+	}
+
+	//
+	// 2) Create <assembly>.cpp, with the lookup definition.
+	//
+	{
+		swprintf(rgFiles, ARRAYSIZE(rgFiles), L"%s.cpp", szFileName); Dump_SetDevice(rgFiles);
+
+		Dump_Printf(c_Definition_Begin, szProjectName);
+
+		const CLR_RECORD_TYPEDEF* td = GetTypeDef(0);
+
+		for (int i = 0; i<m_pTablesSize[TBL_TypeDef]; i++, td++)
+		{
+			int totMethods = td->vMethods_Num + td->iMethods_Num + td->sMethods_Num;
+
+			if (totMethods)
+			{
+				std::string                 cls_name; BuildClassName(td, cls_name, true);
+				std::string                 name;
+				CLR_RT_StringMap            mapMethods;
+				const CLR_RECORD_METHODDEF* md = GetMethodDef(td->methods_First);
+
+				for (int j = 0; j<totMethods; j++, md++)
+				{
+					if (IncludeInStub(td) && IncludeInStub(md))
+					{
+						BuildMethodName(md, name, mapMethods);
+
+						Dump_Printf(c_Definition_Body, szName, cls_name.c_str(), name.c_str());
+					}
+					else
+					{
+						Dump_Printf("    NULL,\n");
+					}
+				}
+			}
+		}
+
+		{
+			CLR_RECORD_ASSEMBLY* header = (CLR_RECORD_ASSEMBLY*)m_header;
+
+			header->nativeMethodsChecksum = GenerateSignatureForNativeMethods();
+			header->ComputeCRC();
+		}
+
+		// Creates global variable of type CLR_RT_NativeAssemblyData.
+		Dump_Printf(c_Definition_End,
+			strAssemblyIDName.c_str(),
+			m_szName,
+			m_header->nativeMethodsChecksum
+		);
+
+
+		Dump_CloseDevice();
+	}
+
+	//
+	// 3) Create <assembly>_<type>.cpp, with the type definition.
+	//
+	{
+		const CLR_RECORD_TYPEDEF* td = GetTypeDef(0);
+
+		for (int i = 0; i<m_pTablesSize[TBL_TypeDef]; i++, td++)
+		{
+			int totMethods = td->vMethods_Num + td->iMethods_Num + td->sMethods_Num;
+
+			if (totMethods && IncludeInStub(td))
+			{
+				std::string                 cls_name; BuildClassName(td, cls_name, true);
+				std::string                 name;
+				CLR_RT_StringMap            mapMethods;
+				const CLR_RECORD_METHODDEF* md = GetMethodDef(td->methods_First);
+				bool fFirst = true;
+
+				// copy project name
+				wchar_t* projectNameLowerCase = wcsdup(szProjectName);
+				// convert to lower case
+				_wcslwr(projectNameLowerCase);
+
+				for (int j = 0; j<totMethods; j++, md++)
+				{
+					if (IncludeInStub(md))
+					{
+						if (fFirst)
+						{
+							swprintf(rgFiles, ARRAYSIZE(rgFiles), L"%s_%S.cpp", szFileName, cls_name.c_str()); Dump_SetDevice(rgFiles);
+
+							Dump_Printf(c_WARNING_FILE_OVERWRITE_Header);
+
+							Dump_Printf(c_Include_Header_Begin, projectNameLowerCase);
+
+							fFirst = false;
+						}
+						BuildMethodName(md, name, mapMethods);
+
+						Dump_Printf(c_Method, szName, cls_name.c_str(), name.c_str(), c_MethodStub);
+					}
+				}
+
+				if (!fFirst)
+				{
+					Dump_CloseDevice();
+				}
+			}
+		}
+	}
+}

@@ -68,6 +68,13 @@ namespace nanoFramework.Tools
 
         public string CreateDatabaseFile { get; set; }
 
+        /// <summary>
+        /// Option to generate skeleton project without Interop support.
+        /// This is required to generate Core Libraries.
+        /// Default is false, meaning that Interop support will be used.
+        /// </summary>
+        public bool SkeletonWithoutInterop { get; set; } = true;
+
         public bool Resolve { get; set; }
 
         public string RefreshAssemblyName { get; set; }
@@ -234,7 +241,7 @@ namespace nanoFramework.Tools
             AppendCreateDatabase(commandLinedBuilder);
 
             // -generate_skeleton
-            commandLinedBuilder.AppendSwitchToFileAndExtraSwitches("-generate_skeleton", GenerateSkeletonFile, GenerateSkeletonName, GenerateSkeletonProject);
+            commandLinedBuilder.AppendSwitchToFileAndExtraSwitches("-generate_skeleton", GenerateSkeletonFile, GenerateSkeletonName, GenerateSkeletonProject, SkeletonWithoutInterop ? "TRUE" : "FALSE");
 
             // -refresh_assembly
             AppendRefreshAssemblyCommand(commandLinedBuilder);
