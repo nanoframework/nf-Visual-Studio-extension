@@ -575,6 +575,9 @@ struct Settings : CLR_RT_ParseOptions
 		LPCWSTR     szFile = PARAM_EXTRACT_STRING(params, 0);
 		LPCWSTR     szName = PARAM_EXTRACT_STRING(params, 1);
 		LPCWSTR     szProj = PARAM_EXTRACT_STRING(params, 2);
+		LPCWSTR     szNoInterop = PARAM_EXTRACT_STRING(params, 3);
+
+		BOOL codeGeneratorNoInterop = _wcsicmp(L"TRUE", szNoInterop) == 0;
 
 		std::string name;
 
@@ -587,7 +590,14 @@ struct Settings : CLR_RT_ParseOptions
 		currentAssembly = g_CLR_RT_TypeSystem.FindAssembly(name.c_str(), NULL, false);
 		if (currentAssembly)
 		{
-			currentAssembly->GenerateSkeleton(szFile, szProj);
+			if (codeGeneratorNoInterop)
+			{
+				currentAssembly->GenerateSkeleton_NoInterop(szFile, szProj);
+			}
+			else
+			{
+				currentAssembly->GenerateSkeleton(szFile, szProj);
+			}
 		}
 
 		NANOCLR_NOCLEANUP();
@@ -928,6 +938,7 @@ struct Settings : CLR_RT_ParseOptions
 		PARAM_GENERIC(L"<file>", L"Prefix name for the files");
 		PARAM_GENERIC(L"<name>", L"Name of the assembly");
 		PARAM_GENERIC(L"<project>", L"Identifier for the library");
+		PARAM_GENERIC(L"<true|false>", L"Generate code without Interop support");
 
 		OPTION_CALL(Cmd_RefreshAssembly, L"-refresh_assembly", L"Recomputes CRCs for an assembly");
 		PARAM_GENERIC(L"<name>", L"Name of the assembly");
@@ -971,7 +982,7 @@ int _tmain(int argc, _TCHAR* argv[])
 
 	::CoInitialize(0);
 
-	wprintf(L"nanoFramework MetaDataProcessor v1.0.16\r\n");
+	wprintf(L"nanoFramework MetaDataProcessor v1.0.17\r\n");
 
 	NANOCLR_CHECK_HRESULT(HAL_Windows::Memory_Resize(64 * 1024 * 1024));
 	// TODO check if we are still using this.....
