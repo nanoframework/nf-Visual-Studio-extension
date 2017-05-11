@@ -40,7 +40,7 @@ deploy:
   description: add description here
   auth_token:
     secure: DNixoFFE+pGlwyhj7McfZoln42vOmj0iY1iNV9zXEr3y0NpXlOIgL8k5ehzlFM1S
-  artifact: /.*\.visx/
+  artifact: VS extension
   draft: true
   prerelease: true
   force_update: false
