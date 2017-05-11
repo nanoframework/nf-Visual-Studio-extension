@@ -28,7 +28,7 @@
       <package id="nanoFramework.Tools.MSBuildSystem" version="1.0.0-preview0038" />
     </packages>
     <packages repository="extension" repositoryId="47973986-ed3c-4b64-ba40-a9da73b44ef7">
-      <package id="nanoFramework.CoreLibrary" version="1.0.0-preview012" />
+      <package id="nanoFramework.CoreLibrary" version="1.0.0-preview014" />
     </packages>  
   </WizardData>
 </VSTemplate>
