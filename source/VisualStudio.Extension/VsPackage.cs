@@ -27,5 +27,25 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         /// The GUID for this package.
         /// </summary>
         public const string PackageGuid = "23C2F819-1E4B-4012-98E9-8DB86E5F351D";
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="VsPackage"/> class.
+        /// </summary>
+        public VsPackage()
+        {
+            // Place any initialization code that does not require
+            // any Visual Studio service because at this point the package object is created but
+            // not sited yet inside Visual Studio environment. The place to do all the other
+            // initialization is the Initialize method.
+        }
+
+        /// <summary>
+        /// Initialization of the package; this method is called right after the package is sited, so this is the place
+        /// where you can put all the initialization code that rely on services provided by VisualStudio.
+        /// </summary>
+        protected override void Initialize()
+        {
+            base.Initialize();
+        }
     }
 }
