@@ -31,7 +31,7 @@
     <ProjectGuid>1d406978-d747-4ba7-a315-155c0ffdfdbe</ProjectGuid>
   </PropertyGroup>
   <PropertyGroup>
-    <NuProjPath>..\packages\NuProj.0.11.14-beta\tools\</NuProjPath>
+    <NuProjPath>..\..\packages\NuProj.0.11.14-beta\tools\</NuProjPath>
   </PropertyGroup>
   <Import Project="$(NuProjPath)\NuProj.props" Condition="Exists('$(NuProjPath)\NuProj.props')" />
   <PropertyGroup Label="Configuration">
