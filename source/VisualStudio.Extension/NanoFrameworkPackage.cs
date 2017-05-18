@@ -8,6 +8,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
     using Microsoft.VisualStudio.Shell;
     using System;
     using System.ComponentModel;
+    using System.Diagnostics.CodeAnalysis;
     using System.Runtime.InteropServices;
 
     /// <summary>
@@ -19,9 +20,17 @@ namespace nanoFramework.Tools.VisualStudio.Extension
     /// Creating project extensions or project types does not actually require a VSPackage.
     /// </remarks>
     [PackageRegistration(UseManagedResourcesOnly = true)]
+    // info for package Help/About
+    [InstalledProductRegistration("#110", "#112", "1.0", IconResourceID = 400)]
+    // info that shown on extension catalog
     [Description("Visual Studio 2017 extension for nanoFramework. Enables creating C# Solutions to be deployed to a target board and provides debugging tools.")]
-    [Guid(VsPackage.PackageGuid)]
-    public sealed class VsPackage : Package
+    // menu for ToolWindow
+    [ProvideMenuResource("Menus.ctmenu", 1)]
+    // declaration of Device Explorer ToolWindo that (as default) will show tabbed in Solution Explorer
+    [ProvideToolWindow(typeof(DeviceExplorer), Style = VsDockStyle.Tabbed, Window = "3ae79031-e1bc-11d0-8f78-00a0c9110057")]
+    [Guid(NanoFrameworkPackage.PackageGuid)]
+    [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1650:ElementDocumentationMustBeSpelledCorrectly", Justification = "pkgdef, VS and vsixmanifest are valid VS terms")]
+    public sealed class NanoFrameworkPackage : Package
     {
         /// <summary>
         /// The GUID for this package.
@@ -29,9 +38,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         public const string PackageGuid = "23C2F819-1E4B-4012-98E9-8DB86E5F351D";
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="VsPackage"/> class.
+        /// Initializes a new instance of the <see cref="NanoFrameworkPackage"/> class.
         /// </summary>
-        public VsPackage()
+        public NanoFrameworkPackage()
         {
             // Place any initialization code that does not require
             // any Visual Studio service because at this point the package object is created but
@@ -45,6 +54,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         /// </summary>
         protected override void Initialize()
         {
+            DeviceExplorerCommand.Initialize(this);
             base.Initialize();
         }
     }
