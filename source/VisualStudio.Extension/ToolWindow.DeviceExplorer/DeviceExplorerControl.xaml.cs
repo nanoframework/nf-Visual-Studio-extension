@@ -19,5 +19,10 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         {
             this.InitializeComponent();
         }
+
+        //public System.Windows.Controls.MediaElement MediaPlayer
+        //{
+        //    get { return mediaElement1; }
+        //}
     }
 }

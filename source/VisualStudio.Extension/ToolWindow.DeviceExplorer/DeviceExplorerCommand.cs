@@ -8,6 +8,7 @@ using System.ComponentModel.Design;
 using System.Globalization;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
+using System.Windows.Forms;
 
 namespace nanoFramework.Tools.VisualStudio.Extension
 {
@@ -30,6 +31,13 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         /// VS Package that provides this command, not null.
         /// </summary>
         private readonly Package package;
+
+        private DeviceExplorer window;
+
+        public const string guidDeviceExplorerCmdSet = "4571793A-7F86-4F7C-B302-CC2E32F6436A";  // this GUID is comming from the .vsct file  
+        public const uint cmdidWindowsMedia = 0x100;
+        public const int cmdidCommand1 = 0x132;
+        public const int ToolbarID = 0x1000;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DeviceExplorerCommand"/> class.
@@ -101,6 +109,25 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
             IVsWindowFrame windowFrame = (IVsWindowFrame)window.Frame;
             Microsoft.VisualStudio.ErrorHandler.ThrowOnFailure(windowFrame.Show());
+
+            // Create the handles for the toolbar command.   
+            //var menuCommandService = this.ServiceProvider.GetService(typeof(IMenuCommandService)) as OleMenuCommandService;
+            //var toolbarButtonCommandId = new CommandID(new Guid(DeviceExplorerCommand.guidDeviceExplorerCmdSet),
+            //    DeviceExplorerCommand.cmdidCommand1);
+            //var menuItem = new MenuCommand(new EventHandler(
+            //    ButtonHandler), toolbarButtonCommandId);
+            //menuCommandService.AddCommand(menuItem);
+        }
+
+        private void ButtonHandler(object sender, EventArgs arguments)
+        {
+            //OpenFileDialog openFileDialog = new OpenFileDialog();
+            //DialogResult result = openFileDialog.ShowDialog();
+            //if (result == DialogResult.OK)
+            //{
+            //    // example to reach a control in the XWPF form
+            //    //window.control.MediaPlayer.Source = new System.Uri(openFileDialog.FileName);
+            //}
         }
     }
 }

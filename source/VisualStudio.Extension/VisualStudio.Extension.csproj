@@ -77,7 +77,7 @@
     </Content>
     <Content Include="Resources\DeviceExplorerCommand.png" />
     <Content Include="Resources\nanoFramework-16-16.png" />
-    <VSCTCompile Include="ToolWindow.DeviceExplorer\VsPackage.vsct">
+    <VSCTCompile Include="ToolWindow.DeviceExplorer\DeviceExplorerPackage.vsct">
       <ResourceName>Menus.ctmenu</ResourceName>
     </VSCTCompile>
     <None Include="app.config" />
