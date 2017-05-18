@@ -31,6 +31,24 @@
     group; your package should define its own command set in order to avoid collisions
     with command ids defined by other packages. -->
 
+    <Menus>
+      <!-- this is the menu for Device Explorer Window -->
+      <Menu guid="guidDeviceExplorerCmdSet" id="DeviceExplorerToolbarID" priority="0x0000" type="ToolWindowToolbar">
+        <Parent guid="guidDeviceExplorerCmdSet" id="DeviceExplorerToolbarID" />
+        <Strings>
+          <ButtonText>Tool Window Toolbar</ButtonText>
+          <CommandName>Tool Window Toolbar</CommandName>
+        </Strings>
+      </Menu>
+    </Menus>
+
+    <Groups>
+      <!-- this is the 1st group for the Device Explorer Toolbar -->
+      <Group guid="guidDeviceExplorerCmdSet" id="DeviceExplorerToolbarGroupID" priority="0x0000">
+        <Parent guid="guidDeviceExplorerCmdSet" id="DeviceExplorerToolbarID" />
+      </Group>
+    </Groups>
+
     <!--Buttons section. -->
     <!--This section defines the elements the user can interact with, like a menu command or a button
         or combo box in a toolbar. -->
@@ -49,6 +67,17 @@
           <ButtonText>Device Explorer</ButtonText>
         </Strings>
       </Button>
+
+      <!-- Button 1 for Device Exporer toolbar -->
+      <Button guid="guidDeviceExplorerCmdSet" id="cmdidCommand1" priority="0x0101" type="Button">
+        <Parent guid="guidDeviceExplorerCmdSet" id="DeviceExplorerToolbarGroupID"/>
+        <Icon guid="guidImages" id="bmpPicSearch" />
+        <Strings>
+          <CommandName>cmdidCommand1</CommandName>
+          <ButtonText>Do Command</ButtonText>
+        </Strings>
+      </Button>
+      
     </Buttons>
 
     <!--The bitmaps section is used to define the bitmaps that are used for the commands.-->
@@ -59,7 +88,10 @@
             inside a button definition. An important aspect of this declaration is that the element id
             must be the actual index (1-based) of the bitmap inside the bitmap strip. -->
       <Bitmap guid="guidImages" href="..\Resources\DeviceExplorerCommand.png" usedList="bmpPic1, bmpPic2, bmpPicSearch, bmpPicX, bmpPicArrows, bmpPicStrikethrough"/>
+      
+      <!-- bitmap to show the icon of the Device Explorer in  VS Windows menu -->
       <Bitmap guid="menuIcon" href="..\Resources\nanoFramework-16-16.png" usedList="icon1"/>
+    
     </Bitmaps>
   </Commands>
 
@@ -71,7 +103,16 @@
     <GuidSymbol name="guidVsPackageCmdSet" value="{c975c4ec-f229-45dd-b681-e42815641675}">
       <IDSymbol name="DeviceExplorerCommandId" value="0x0100" />
     </GuidSymbol>
-
+    
+    <!-- This is the guid used to group the Device Explorer Toolwindow menu commands together -->
+    <GuidSymbol name="guidDeviceExplorerCmdSet" value="{4571793A-7F86-4F7C-B302-CC2E32F6436A}">
+      <IDSymbol name="DeviceExplorerToolbarID" value="0x1000" />
+      <IDSymbol name="DeviceExplorerToolbarGroupID" value="0x1001" />
+      <IDSymbol name="cmdidWindowsMedia" value="0x0100" />
+      <IDSymbol name="cmdidCommand1" value="0x132" />
+    </GuidSymbol>
+    
+    <!-- guid images for default toolbar  -->
     <GuidSymbol name="guidImages" value="{3320b9ec-d5cd-4b50-9b41-8a5c9f3e87b6}" >
       <IDSymbol name="bmpPic1" value="1" />
       <IDSymbol name="bmpPic2" value="2" />
@@ -81,11 +122,10 @@
       <IDSymbol name="bmpPicStrikethrough" value="6" />
     </GuidSymbol>
     
-
+    <!-- menu icon for Device Explorer toolbar in VS Windows menu -->
     <GuidSymbol name="menuIcon" value="{922ED269-54F2-4942-9B4E-C8AC4DBF04B8}" >
       <IDSymbol name="icon1" value="1" />
     </GuidSymbol>
-    
     
   </Symbols>
 </CommandTable>
