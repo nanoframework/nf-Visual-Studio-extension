@@ -251,7 +251,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Resources\nanoFramework.ico" />
-    <Content Include="nF-logo-32.png">
+    <Content Include="Resources\nF-logo-32.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
