@@ -14,7 +14,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
     [Export]
     [AppliesTo(NanoCSharpProjectUnconfigured.UniqueCapability)]
-    [ProjectTypeRegistration(GuidsStrings.NanoCSharpProjectType, "NanoCSharpProject", "#2", ProjectExtension, Language, resourcePackageGuid: VsPackage.PackageGuid, PossibleProjectExtensions = ProjectExtension, ProjectTemplatesDir = @"..\..\Templates\Projects\MyCustomProject")]
+    [ProjectTypeRegistration(GuidsStrings.NanoCSharpProjectType, "NanoCSharpProject", "#2", ProjectExtension, Language, resourcePackageGuid: NanoFrameworkPackage.PackageGuid, PossibleProjectExtensions = ProjectExtension, ProjectTemplatesDir = @"..\..\Templates\Projects\MyCustomProject")]
     [ProvideProjectItem(GuidsStrings.NanoCSharpProjectType, "NanoCSharpItems", @"..\..\Templates\ProjectItems\MyCustomProject", 500)]
 
     internal class NanoCSharpProjectUnconfigured
