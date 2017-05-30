@@ -6,6 +6,7 @@
 namespace nanoFramework.Tools.VisualStudio.Extension
 {
     using Microsoft.VisualStudio.Shell;
+    using nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel;
     using System;
     using System.ComponentModel;
     using System.Diagnostics.CodeAnalysis;
@@ -38,6 +39,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         public const string PackageGuid = "23C2F819-1E4B-4012-98E9-8DB86E5F351D";
 
         /// <summary>
+        /// View model locator 
+        /// </summary>
+        ViewModelLocator viewModelLocator;
+
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="NanoFrameworkPackage"/> class.
         /// </summary>
         public NanoFrameworkPackage()
@@ -46,6 +53,18 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             // any Visual Studio service because at this point the package object is created but
             // not sited yet inside Visual Studio environment. The place to do all the other
             // initialization is the Initialize method.
+
+            // Need to add the View model Locator to the application resource dictionry programatically 
+            // becuase at the extension level we don't have 'XAML' access to it
+            // try to find if the view model locator is already in the app resources dictionary
+            if (System.Windows.Application.Current.TryFindResource("Locator") == null)
+            {
+                // instanciate the view model locator...
+                viewModelLocator = new ViewModelLocator();
+
+                // ... and add it there
+                System.Windows.Application.Current.Resources.Add("Locator", viewModelLocator);
+            }
         }
 
         /// <summary>
@@ -54,8 +73,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         /// </summary>
         protected override void Initialize()
         {
-            DeviceExplorerCommand.Initialize(this);
             base.Initialize();
+            DeviceExplorerCommand.Initialize(this, viewModelLocator);
         }
     }
 }
