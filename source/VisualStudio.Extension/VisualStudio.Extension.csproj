@@ -315,6 +315,7 @@
     <Resource Include="Resources\DeviceDisconnected.16.16.png" />
     <Content Include="Resources\nanoFramework.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
     <Resource Include="Resources\nF-logo-32.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
