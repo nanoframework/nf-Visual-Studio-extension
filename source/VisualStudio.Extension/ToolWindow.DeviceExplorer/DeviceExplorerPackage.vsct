@@ -19,6 +19,13 @@
 
   <!--This header contains the command ids for the menus provided by the shell. -->
   <Extern href="vsshlids.h"/>
+  
+  <!--This header contains the image monikers for various images-->
+  <Include href="KnownImageIds.vsct"/>
+
+  <!--This header contains data for the nanoFramework image moniker-->
+  <Include href="../NanoFrameworkMoniker.vsct"/>
+
 
   <!--The Commands section is where commands, menus, and menu groups are defined.
       This section uses a Guid to identify the package that provides the command defined inside it. -->
@@ -62,37 +69,76 @@
           If you do not want an image next to your command, remove the Icon node /> -->
       <Button guid="guidVsPackageCmdSet" id="DeviceExplorerCommandId" priority="0x0100" type="Button">
         <Parent guid="guidSHLMainMenu" id="IDG_VS_WNDO_OTRWNDWS1"/>
-        <Icon guid="menuIcon" id="icon1" />
+        <Icon guid="NanoFrameworkCatalog" id="NanoFramework" />
+        <!--<Icon guid="ImageCatalogGuid" id="OneX" />-->
+        <CommandFlag>IconIsMoniker</CommandFlag>
         <Strings>
           <ButtonText>Device Explorer</ButtonText>
         </Strings>
       </Button>
 
-      <!-- Button 1 for Device Exporer toolbar -->
-      <Button guid="guidDeviceExplorerCmdSet" id="cmdidCommand1" priority="0x0101" type="Button">
+      <!-- ConnectedDevice for Device Exporer toolbar -->
+      <Button guid="guidDeviceExplorerCmdSet" id="idConnectDeviceCommand" priority="0x0101" type="Button">
         <Parent guid="guidDeviceExplorerCmdSet" id="DeviceExplorerToolbarGroupID"/>
-        <Icon guid="guidImages" id="bmpPicSearch" />
+        <Icon guid="NanoFrameworkCatalog" id="DeviceConnected" />
+        <CommandFlag>IconIsMoniker</CommandFlag>
+        <CommandFlag>DefaultDisabled</CommandFlag>
+        <CommandFlag>DynamicVisibility</CommandFlag>
         <Strings>
-          <CommandName>cmdidCommand1</CommandName>
-          <ButtonText>Do Command</ButtonText>
+          <CommandName>ConnectDeviceCommand</CommandName>
+          <ButtonText>Connect Device</ButtonText>
         </Strings>
       </Button>
-      
+
+      <!-- DisconnectedDevice for Device Exporer toolbar -->
+      <Button guid="guidDeviceExplorerCmdSet" id="idDisconnectDeviceCommand" priority="0x0101" type="Button">
+        <Parent guid="guidDeviceExplorerCmdSet" id="DeviceExplorerToolbarGroupID"/>
+        <Icon guid="NanoFrameworkCatalog" id="DeviceDisconnected" />
+        <CommandFlag>IconIsMoniker</CommandFlag>
+        <CommandFlag>DynamicVisibility</CommandFlag>
+        <CommandFlag>DefaultDisabled</CommandFlag>
+        <Strings>
+          <CommandName>DisconnectDeviceCommand</CommandName>
+          <ButtonText>Disconnect Device</ButtonText>
+        </Strings>
+      </Button>
+
+      <!-- Ping for Device Exporer toolbar -->
+      <Button guid="guidDeviceExplorerCmdSet" id="idPingDeviceCommand" priority="0x0101" type="Button">
+        <Parent guid="guidDeviceExplorerCmdSet" id="DeviceExplorerToolbarGroupID"/>
+        <Icon guid="NanoFrameworkCatalog" id="Ping" />
+        <CommandFlag>IconIsMoniker</CommandFlag>
+        <CommandFlag>DefaultDisabled</CommandFlag>
+        <Strings>
+          <CommandName>PingDeviceCommand</CommandName>
+          <ButtonText>Ping Device</ButtonText>
+        </Strings>
+      </Button>
+
+      <!-- DeviceCapabilities for Device Exporer toolbar -->
+      <Button guid="guidDeviceExplorerCmdSet" id="idDeviceCapabilitiesCommand" priority="0x0101" type="Button">
+        <Parent guid="guidDeviceExplorerCmdSet" id="DeviceExplorerToolbarGroupID"/>
+        <Icon guid="NanoFrameworkCatalog" id="DeviceCapabilities" />
+        <CommandFlag>IconIsMoniker</CommandFlag>
+        <CommandFlag>DefaultDisabled</CommandFlag>
+        <Strings>
+          <CommandName>DeviceCapabilitiesCommand</CommandName>
+          <ButtonText>Device Capabilites</ButtonText>
+        </Strings>
+      </Button>
+
+
     </Buttons>
 
     <!--The bitmaps section is used to define the bitmaps that are used for the commands.-->
-    <Bitmaps>
-      <!--  The bitmap id is defined in a way that is a little bit different from the others:
+    <!--<Bitmaps>
+      --><!--  The bitmap id is defined in a way that is a little bit different from the others:
             the declaration starts with a guid for the bitmap strip, then there is the resource id of the
             bitmap strip containing the bitmaps and then there are the numeric ids of the elements used
             inside a button definition. An important aspect of this declaration is that the element id
-            must be the actual index (1-based) of the bitmap inside the bitmap strip. -->
-      <Bitmap guid="guidImages" href="..\Resources\DeviceExplorerCommand.png" usedList="bmpPic1, bmpPic2, bmpPicSearch, bmpPicX, bmpPicArrows, bmpPicStrikethrough"/>
-      
-      <!-- bitmap to show the icon of the Device Explorer in  VS Windows menu -->
-      <Bitmap guid="menuIcon" href="..\Resources\nanoFramework-16-16.png" usedList="icon1"/>
-    
-    </Bitmaps>
+            must be the actual index (1-based) of the bitmap inside the bitmap strip. --><!--
+      <Bitmap guid="guidImages" href="..\Resources\DeviceExplorerCommand.png" usedList="bmpPic1, bmpPic2, bmpPicSearch, bmpPicX, bmpPicArrows, bmpPicStrikethrough"/>    
+    </Bitmaps>-->
   </Commands>
 
   <Symbols>
@@ -105,27 +151,14 @@
     </GuidSymbol>
     
     <!-- This is the guid used to group the Device Explorer Toolwindow menu commands together -->
-    <GuidSymbol name="guidDeviceExplorerCmdSet" value="{4571793A-7F86-4F7C-B302-CC2E32F6436A}">
+    <GuidSymbol name="guidDeviceExplorerCmdSet" value="{2AC9D7EF-5178-40F1-A932-AD5DB2827D2F}">
       <IDSymbol name="DeviceExplorerToolbarID" value="0x1000" />
       <IDSymbol name="DeviceExplorerToolbarGroupID" value="0x1001" />
-      <IDSymbol name="cmdidWindowsMedia" value="0x0100" />
-      <IDSymbol name="cmdidCommand1" value="0x132" />
+      <IDSymbol name="idConnectDeviceCommand" value="0x0200" />
+      <IDSymbol name="idDisconnectDeviceCommand" value="0x0201" />
+      <IDSymbol name="idPingDeviceCommand" value="0x0202" />
+      <IDSymbol name="idDeviceCapabilitiesCommand" value="0x0203" />
     </GuidSymbol>
-    
-    <!-- guid images for default toolbar  -->
-    <GuidSymbol name="guidImages" value="{3320b9ec-d5cd-4b50-9b41-8a5c9f3e87b6}" >
-      <IDSymbol name="bmpPic1" value="1" />
-      <IDSymbol name="bmpPic2" value="2" />
-      <IDSymbol name="bmpPicSearch" value="3" />
-      <IDSymbol name="bmpPicX" value="4" />
-      <IDSymbol name="bmpPicArrows" value="5" />
-      <IDSymbol name="bmpPicStrikethrough" value="6" />
-    </GuidSymbol>
-    
-    <!-- menu icon for Device Explorer toolbar in VS Windows menu -->
-    <GuidSymbol name="menuIcon" value="{922ED269-54F2-4942-9B4E-C8AC4DBF04B8}" >
-      <IDSymbol name="icon1" value="1" />
-    </GuidSymbol>
-    
+
   </Symbols>
 </CommandTable>

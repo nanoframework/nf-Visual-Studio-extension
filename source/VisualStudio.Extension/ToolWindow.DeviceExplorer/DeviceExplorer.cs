@@ -34,7 +34,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         /// </summary>
         public DeviceExplorer() : base(null)
         {
-            this.Caption = "Device Explorer";
+            this.Caption = "Device Explorer - Home";
 
             // This is the user control hosted by the tool window; Note that, even if this class implements IDisposable,
             // we are not calling Dispose on this object. This is because ToolWindowPane calls Dispose on
@@ -42,9 +42,11 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             control = new DeviceExplorerControl();
             base.Content = control;
 
-            //// set the toolbar for this control
-            //this.ToolBar = new CommandID(new Guid(DeviceExplorerCommand.guidDeviceExplorerCmdSet), DeviceExplorerCommand.ToolbarID);
-            //this.ToolBarLocation = (int)VSTWT_LOCATION.VSTWT_TOP;
+            BitmapImageMoniker = NanoFrameworkMonikers.NanoFramework;
+
+            // set the toolbar for this control
+            this.ToolBar = new CommandID(new Guid(DeviceExplorerCommand.guidDeviceExplorerCmdSet), DeviceExplorerCommand.DeviceExplorerToolbarID);
+            this.ToolBarLocation = (int)VSTWT_LOCATION.VSTWT_TOP;
         }
     }
 }

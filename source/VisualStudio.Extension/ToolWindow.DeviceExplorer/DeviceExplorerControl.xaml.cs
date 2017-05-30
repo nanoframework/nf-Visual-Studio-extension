@@ -5,6 +5,11 @@
 
 namespace nanoFramework.Tools.VisualStudio.Extension
 {
+    using GalaSoft.MvvmLight.Messaging;
+    using Microsoft.VisualStudio.Shell;
+    using nanoFramework.Tools.Debugger;
+    using nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel;
+    using System;
     using System.Windows.Controls;
 
     /// <summary>
@@ -12,6 +17,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
     /// </summary>
     public partial class DeviceExplorerControl : UserControl
     {
+        // strongly-typed view models enable x:bind
+        public DeviceExplorerViewModel ViewModel => this.DataContext as DeviceExplorerViewModel;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="DeviceExplorerControl"/> class.
         /// </summary>
@@ -20,9 +28,32 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             this.InitializeComponent();
         }
 
-        //public System.Windows.Controls.MediaElement MediaPlayer
-        //{
-        //    get { return mediaElement1; }
-        //}
+        private void Hyperlink_RequestNavigate(object sender, System.Windows.Navigation.RequestNavigateEventArgs e)
+        {
+            NavigateHyperlink(e.Uri);
+            e.Handled = true;
+        }
+
+        private void NavigateHyperlink(Uri uri)
+        {
+            string page = uri.AbsoluteUri;
+            VsShellUtilities.OpenSystemBrowser(page);
+
+            // TODO: add telemetry for clicks 
+        }
+
+        private void TreeView_SelectedItemChanged(object sender, System.Windows.RoutedPropertyChangedEventArgs<object> e)
+        {
+
+        }
+
+        private void DevicesTreeView_SelectedItemChanged(object sender, System.Windows.RoutedPropertyChangedEventArgs<object> e)
+        {
+            // sanity check for no device in tree view 
+            if ((sender as TreeView).Items.Count > 0)
+            {
+                (this.DataContext as DeviceExplorerViewModel).SelectedDevice = (NanoDeviceBase)e.NewValue;
+            }
+        }
     }
 }
