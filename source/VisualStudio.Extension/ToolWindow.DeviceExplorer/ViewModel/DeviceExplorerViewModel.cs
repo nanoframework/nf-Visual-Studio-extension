@@ -11,6 +11,8 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Threading;
 
 namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
 {
@@ -72,7 +74,11 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
         private void SerialDebugClient_DeviceEnumerationCompleted(object sender, EventArgs e)
         {
             SerialDebugService.SerialDebugClient.DeviceEnumerationCompleted -= SerialDebugClient_DeviceEnumerationCompleted;
-            SelectedTransportType = TransportType.Serial;
+
+            Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(() => {
+                SelectedTransportType = TransportType.Serial;
+            }));
+
             UpdateAvailableDevices();
         }
 
@@ -84,15 +90,19 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
             {
                 case TransportType.Serial:
                     //BusySrv.ShowBusy(Res.GetString("HC_Searching"));
-                    AvailableDevices = new ObservableCollection<NanoDeviceBase>(SerialDebugService.SerialDebugClient.NanoFrameworkDevices);
-                    SerialDebugService.SerialDebugClient.NanoFrameworkDevices.CollectionChanged += NanoFrameworkDevices_CollectionChanged;
+                    Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(() => {
+                        AvailableDevices = new ObservableCollection<NanoDeviceBase>(SerialDebugService.SerialDebugClient.NanoFrameworkDevices);
+                        SerialDebugService.SerialDebugClient.NanoFrameworkDevices.CollectionChanged += NanoFrameworkDevices_CollectionChanged;
+                    }));
                     //BusySrv.HideBusy();
                     break;
 
                 case TransportType.Usb:
                     //BusySrv.ShowBusy(Res.GetString("HC_Searching"));
-                    //AvailableDevices = new ObservableCollection<NanoDeviceBase>(UsbDebugService.UsbDebugClient.NanoFrameworkDevices);
-                    //UsbDebugService.UsbDebugClient.NanoFrameworkDevices.CollectionChanged += NanoFrameworkDevices_CollectionChanged;
+                    Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(() => {
+                        //AvailableDevices = new ObservableCollection<NanoDeviceBase>(UsbDebugService.UsbDebugClient.NanoFrameworkDevices);
+                        //UsbDebugService.UsbDebugClient.NanoFrameworkDevices.CollectionChanged += NanoFrameworkDevices_CollectionChanged;
+                    }));
                     // if there's just one, select it
                     //SelectedDevice = (AvailableDevices.Count == 1) ? AvailableDevices.First() : null;
                     //BusySrv.HideBusy();
@@ -111,24 +121,27 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
 
         private void NanoFrameworkDevices_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
-            // handle this according to the selected device type 
-            switch (SelectedTransportType)
-            {
-                //case TransportType.Usb:
-                //    AvailableDevices = new ObservableCollection<NanoDeviceBase>(UsbDebugService.UsbDebugClient.NanoFrameworkDevices);
-                //    break;
+            Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(() => {
 
-                case TransportType.Serial:
-                    AvailableDevices = new ObservableCollection<NanoDeviceBase>(SerialDebugService.SerialDebugClient.NanoFrameworkDevices);
-                    break;
+                // handle this according to the selected device type 
+                switch (SelectedTransportType)
+                {
+                    //case TransportType.Usb:
+                    //    AvailableDevices = new ObservableCollection<NanoDeviceBase>(UsbDebugService.UsbDebugClient.NanoFrameworkDevices);
+                    //    break;
 
-                default:
-                    // shouldn't get here...
-                    break;
-            }
+                    case TransportType.Serial:
+                        AvailableDevices = new ObservableCollection<NanoDeviceBase>(SerialDebugService.SerialDebugClient.NanoFrameworkDevices);
+                        break;
 
-            // signal event that the devices collection has changed
-            this.MessengerInstance.Send<NotificationMessage>(new NotificationMessage(""), MessagingTokens.NanoDevicesCollectionHasChanged);
+                    default:
+                        // shouldn't get here...
+                        break;
+                }
+
+                // signal event that the devices collection has changed
+                this.MessengerInstance.Send<NotificationMessage>(new NotificationMessage(""), MessagingTokens.NanoDevicesCollectionHasChanged);
+            }));
         }
 
         public NanoDeviceBase SelectedDevice { get; set; }
@@ -189,15 +202,23 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
         {
             //IsBusyHeader = true;
 
-            SelectedDeviceConnectionResult = PingConnectionResult.Busy;
+            await Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(() => {
+                SelectedDeviceConnectionResult = PingConnectionResult.Busy;
+            }));
+
             try
             {
                 PingConnectionType connection = await SelectedDevice.PingAsync();
-                SelectedDeviceConnectionResult = (connection != PingConnectionType.NoConnection) ? PingConnectionResult.Ok : PingConnectionResult.Error;
+
+                await Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(() => {
+                    SelectedDeviceConnectionResult = (connection != PingConnectionType.NoConnection) ? PingConnectionResult.Ok : PingConnectionResult.Error;
+                }));
             }
-            catch
+            catch(Exception ex)
             {
-                SelectedDeviceConnectionResult = PingConnectionResult.Error;
+                await Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(() => {
+                    SelectedDeviceConnectionResult = PingConnectionResult.Error;
+                }));
             }
             finally
             {
@@ -239,14 +260,28 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
         {
             if (SelectedDevice != null)
             {
+
                 Debug.WriteLine($"Trying to connect to {SelectedDevice.Description} ...");
                 //IsBusyHeader = true;
-                ConnectionStateResult = ConnectionState.Connecting;
 
-                bool connectOk = await SelectedDevice.DebugEngine.ConnectAsync(3, 1000);
+                await Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(() => {
+                    ConnectionStateResult = ConnectionState.Connecting;
+                }));
 
-                ConnectionStateResult = connectOk ? ConnectionState.Connected : ConnectionState.Disconnected;
-                //IsBusyHeader = false;
+                try
+                {
+                    bool connectOk = await SelectedDevice.DebugEngine.ConnectAsync(3, 1000);
+
+                    await Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(() => {
+                        ConnectionStateResult = connectOk ? ConnectionState.Connected : ConnectionState.Disconnected;
+                    }));
+
+                    }
+                    catch(Exception ex)
+                    {
+
+                    }
+                    //IsBusyHeader = false;
 
                 //TODO
                 //if (!connectOk)
@@ -261,11 +296,22 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
             if (SelectedDevice != null)
             {
                 //IsBusyHeader = true;
-                ConnectionStateResult = ConnectionState.Disconnecting;
- 
-                SelectedDevice.DebugEngine.Disconnect();
+                Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(() => {
+                    ConnectionStateResult = ConnectionState.Disconnecting;
+                }));
 
-                ConnectionStateResult = ConnectionState.Disconnected;
+                try
+                {
+                    SelectedDevice.DebugEngine.Disconnect();
+
+                    Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(() => {
+                        ConnectionStateResult = ConnectionState.Disconnected;
+                    }));
+                }
+                catch(Exception ex)
+                {
+
+                }
                 //IsBusyHeader = false;
             }
         }

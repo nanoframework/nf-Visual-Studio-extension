@@ -55,7 +55,7 @@
                     </DataTemplate>
                 </TreeView.Resources>
 
-                <TreeViewItem Header="Devices" IsExpanded="True" ItemTemplate="{StaticResource NanoDeviceItemTemplate}" Focusable="False" ItemsSource="{Binding AvailableDevices}" />
+                <TreeViewItem x:Name="DevicesHeaderItem" Header="Devices" IsExpanded="True" ItemTemplate="{StaticResource NanoDeviceItemTemplate}" Focusable="False" ItemsSource="{Binding AvailableDevices}" />
 
             </TreeView>
 

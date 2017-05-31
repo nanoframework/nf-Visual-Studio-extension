@@ -125,7 +125,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             // ConnectDeviceCommand
             var toolbarButtonCommandId = GenerateCommandID(ConnectDeviceCommandID);
             var menuItem = new MenuCommand(new EventHandler(
-                ConnectDeviceCommandButtonHandlerAsync), toolbarButtonCommandId);
+                ConnectDeviceCommandButtonHandlerAsync) , toolbarButtonCommandId);
             menuItem.Enabled = false;
             menuItem.Visible = true;
             menuCommandService.AddCommand(menuItem);
@@ -133,7 +133,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             // DisconnectDeviceCommand
             toolbarButtonCommandId = GenerateCommandID(DisconnectDeviceCommandID);
             menuItem = new MenuCommand(new EventHandler(
-                DisconnectDeviceCommandButtonHandlerAsync), toolbarButtonCommandId);
+                DisconnectDeviceCommandHandlerAsync), toolbarButtonCommandId);
             menuItem.Enabled = false;
             menuItem.Visible = false;
             menuCommandService.AddCommand(menuItem);
@@ -141,15 +141,15 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             // PingCommand
             toolbarButtonCommandId = GenerateCommandID(PingDeviceCommandID);
             menuItem = new MenuCommand(new EventHandler(
-                PingDeviceCommandButtonHandler), toolbarButtonCommandId);
+                PingDeviceCommandHandlerAsync), toolbarButtonCommandId);
             menuItem.Enabled = false;
             menuItem.Visible = true;
             menuCommandService.AddCommand(menuItem);
 
             // DeviceCapabilities
             toolbarButtonCommandId = GenerateCommandID(DeviceCapabilitiesID);
-            menuItem = new MenuCommand(new EventHandler(
-                DeviceCapabilitiesCommandButtonHandler), toolbarButtonCommandId);
+            menuItem = new MenuCommand( new EventHandler(
+                DeviceCapabilitiesCommandHandlerAsync), toolbarButtonCommandId);
             menuItem.Enabled = false;
             menuItem.Visible = true;
             menuCommandService.AddCommand(menuItem);
@@ -178,40 +178,171 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         #region Command button handlers
 
+        /// <summary>
+        /// Handler for ConnectDeviceCommand
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="arguments"></param>
+        /// <remarks>OK to use async void because this is a top-level event-handler 
+        /// https://channel9.msdn.com/Series/Three-Essential-Tips-for-Async/Tip-1-Async-void-is-for-top-level-event-handlers-only
+        /// </remarks>
         private async void ConnectDeviceCommandButtonHandlerAsync(object sender, EventArgs arguments)
         {
             UpdateStatusBar($"Connecting to {ViewModelLocator.DeviceExplorer.SelectedDevice.Description}...");
-            await ViewModelLocator.DeviceExplorer.ConnectDisconnect();
+
+            try
+            {
+                // disable the button
+                (sender as MenuCommand).Enabled = false;
+
+                // just in case the current device is connected
+                //ViewModelLocator.DeviceExplorer.SelectedDevice?.DebugEngine.Disconnect();
+
+                // now try to connect
+                await ViewModelLocator.DeviceExplorer.ConnectDisconnect();
+            }
+            catch(Exception ex)
+            {
+                
+            }
+            finally
+            {
+                // enable the button
+                (sender as MenuCommand).Enabled = true;
+
+                ClearStatusBar();
+            }
         }
-        private async void DisconnectDeviceCommandButtonHandlerAsync(object sender, EventArgs arguments)
+
+        /// <summary>
+        /// Handler for DisconnectDeviceCommand
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="arguments"></param>
+        /// <remarks>OK to use async void because this is a top-level event-handler 
+        /// https://channel9.msdn.com/Series/Three-Essential-Tips-for-Async/Tip-1-Async-void-is-for-top-level-event-handlers-only
+        /// </remarks>
+        private async void DisconnectDeviceCommandHandlerAsync(object sender, EventArgs arguments)
         {
             UpdateStatusBar($"Disconnecting from {ViewModelLocator.DeviceExplorer.SelectedDevice.Description}...");
-            await ViewModelLocator.DeviceExplorer.ConnectDisconnect();
+
+            try
+            {
+                // disable the button
+                (sender as MenuCommand).Enabled = false;
+
+                await ViewModelLocator.DeviceExplorer.ConnectDisconnect();
+            }
+            catch(Exception ex)
+            {
+
+            }
+            finally
+            {
+                // enable the button
+                (sender as MenuCommand).Enabled = true;
+
+                ClearStatusBar();
+            }
         }
 
-        private async void PingDeviceCommandButtonHandler(object sender, EventArgs arguments)
+        /// <summary>
+        /// Handler for PingDeviceCommand
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="arguments"></param>
+        /// <remarks>OK to use async void because this is a top-level event-handler 
+        /// https://channel9.msdn.com/Series/Three-Essential-Tips-for-Async/Tip-1-Async-void-is-for-top-level-event-handlers-only
+        /// </remarks>
+        private async void PingDeviceCommandHandlerAsync(object sender, EventArgs arguments)
         {
             UpdateStatusBar($"Pinging {ViewModelLocator.DeviceExplorer.SelectedDevice.Description}...");
-            await ViewModelLocator.DeviceExplorer.SelectedDevicePing();
+            try
+            {
+                // disable the button
+                (sender as MenuCommand).Enabled = false;
+
+                var pingResult = await ViewModelLocator.DeviceExplorer.SelectedDevice.PingAsync();
+
+                IVsOutputWindowPane windowPane = (IVsOutputWindowPane)this.ServiceProvider.GetService(typeof(SVsGeneralOutputWindowPane));
+
+                switch (pingResult)
+                {
+                    case PingConnectionType.NoConnection:
+                        windowPane.OutputString($"No reply from {ViewModelLocator.DeviceExplorer.SelectedDevice.Description}" + Environment.NewLine);
+                        break;
+
+                    case PingConnectionType.NanoBooter:
+                    case PingConnectionType.NanoCLR:
+                        windowPane.OutputString($"{ViewModelLocator.DeviceExplorer.SelectedDevice.Description} is active running {pingResult.ToString()}" + Environment.NewLine);
+                        break;
+
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+            finally
+            {
+                // enable the button
+                (sender as MenuCommand).Enabled = true;
+
+                ClearStatusBar();
+            }
         }
 
-        private async void DeviceCapabilitiesCommandButtonHandler(object sender, EventArgs arguments)
+        /// <summary>
+        /// Handler for DeviceCapabilitiesCommand
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="arguments"></param>
+        /// <remarks>OK to use async void because this is a top-level event-handler 
+        /// https://channel9.msdn.com/Series/Three-Essential-Tips-for-Async/Tip-1-Async-void-is-for-top-level-event-handlers-only
+        /// </remarks>
+        private async void DeviceCapabilitiesCommandHandlerAsync(object sender, EventArgs arguments)
         {
             UpdateStatusBar($"Querying {ViewModelLocator.DeviceExplorer.SelectedDevice.Description} capabilites...");
 
-            //await ViewModelLocator.DeviceExplorer.LoadDeviceInfoAsync();
+            var statusBar = this.ServiceProvider.GetService(typeof(SVsStatusbar)) as IVsStatusbar;
+            // this is long running operation so better show an animation to provide proper visual feedback to the developer
+            // use the stock general animation icon
+            object icon = (short)Constants.SBAI_General;
 
-            //IVsOutputWindowPane windowPane = (IVsOutputWindowPane)this.ServiceProvider.GetService(typeof(SVsGeneralOutputWindowPane));
+            try
+            {
+                // disable the button
+                (sender as MenuCommand).Enabled = false;
 
-            //windowPane.OutputString(ViewModelLocator.DeviceExplorer.DeviceSystemInfo.ToString());
-            //windowPane.OutputString(Environment.NewLine);
-            //windowPane.OutputString(ViewModelLocator.DeviceExplorer.DeviceMemoryMap.ToString());
-            //windowPane.OutputString(Environment.NewLine);
-            //windowPane.OutputString(ViewModelLocator.DeviceExplorer.DeviceFlashSectorMap.ToString());
-            //windowPane.OutputString(Environment.NewLine);
-            //windowPane.OutputString(ViewModelLocator.DeviceExplorer.DeviceDeploymentMap.ToString());
+                statusBar?.Animation(1, ref icon);
 
-            ClearStatusBar();
+                await ViewModelLocator.DeviceExplorer.LoadDeviceInfoAsync();
+
+                //IVsOutputWindowPane windowPane = (IVsOutputWindowPane)this.ServiceProvider.GetService(typeof(SVsGeneralOutputWindowPane));
+
+                //windowPane.OutputString(ViewModelLocator.DeviceExplorer.DeviceSystemInfo.ToString());
+                //windowPane.OutputString(Environment.NewLine);
+                //windowPane.OutputString(ViewModelLocator.DeviceExplorer.DeviceMemoryMap.ToString());
+                //windowPane.OutputString(Environment.NewLine);
+                //windowPane.OutputString(ViewModelLocator.DeviceExplorer.DeviceFlashSectorMap.ToString());
+                //windowPane.OutputString(Environment.NewLine);
+                //windowPane.OutputString(ViewModelLocator.DeviceExplorer.DeviceDeploymentMap.ToString());
+
+            }
+            catch (Exception ex)
+            {
+
+            }
+            finally
+            {
+                // enable the button
+                (sender as MenuCommand).Enabled = true;
+
+                // stop the animation
+                statusBar?.Animation(0, ref icon);
+
+                ClearStatusBar();
+            }
         }
 
         #endregion
@@ -225,10 +356,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             return new NFSerialDebugClientService(serialDebugClient);
         }
 
-        private CommandID GenerateCommandID(int commandID)
-        {
-            return new CommandID(new Guid(guidDeviceExplorerCmdSet), commandID);
-        }
+
+        #region MVVM messaging handlers
 
         private void SelectedNanoDeviceChangeHandler()
         {
@@ -241,6 +370,62 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             // update toolbar 
             UpdateToolbarButtons();
         }
+
+        private void ConnectionStateResultChangedHandler()
+        {
+            // get the menu command service to reach the toolbar commands
+            var menuCommandService = this.ServiceProvider.GetService(typeof(IMenuCommandService)) as OleMenuCommandService;
+
+            // get tge output window
+            IVsOutputWindowPane windowPane = (IVsOutputWindowPane)this.ServiceProvider.GetService(typeof(SVsGeneralOutputWindowPane));
+
+            // update toolbar according to current status
+            if (ViewModelLocator.DeviceExplorer.ConnectionStateResult == ConnectionState.Connected)
+            {
+                // output message
+                windowPane.OutputString($"Connected to {ViewModelLocator.DeviceExplorer.SelectedDevice.Description}" + Environment.NewLine);
+
+                // hide connect button
+                menuCommandService.FindCommand(GenerateCommandID(ConnectDeviceCommandID)).Visible = false;
+                // show disconnect button
+                menuCommandService.FindCommand(GenerateCommandID(DisconnectDeviceCommandID)).Visible = true;
+
+                // enable disconnect button
+                menuCommandService.FindCommand(GenerateCommandID(DisconnectDeviceCommandID)).Enabled = true;
+                // enable ping button
+                menuCommandService.FindCommand(GenerateCommandID(PingDeviceCommandID)).Enabled = true;
+                // enable capabilites button
+                menuCommandService.FindCommand(GenerateCommandID(DeviceCapabilitiesID)).Enabled = true;
+            }
+            else if (ViewModelLocator.DeviceExplorer.ConnectionStateResult == ConnectionState.Disconnecting)
+            {
+                // disable ping button
+                menuCommandService.FindCommand(GenerateCommandID(PingDeviceCommandID)).Enabled = false;
+                // disable capabilites button
+                menuCommandService.FindCommand(GenerateCommandID(DeviceCapabilitiesID)).Enabled = false;
+            }
+            else if (ViewModelLocator.DeviceExplorer.ConnectionStateResult == ConnectionState.Disconnected)
+            {
+                // output message
+                windowPane.OutputString($"Disconnected from {ViewModelLocator.DeviceExplorer.SelectedDevice.Description}" + Environment.NewLine);
+
+                // hide disconnect button
+                menuCommandService.FindCommand(GenerateCommandID(DisconnectDeviceCommandID)).Visible = false;
+                // show connect button
+                menuCommandService.FindCommand(GenerateCommandID(ConnectDeviceCommandID)).Visible = true;
+                // enable disconnect button
+                menuCommandService.FindCommand(GenerateCommandID(DisconnectDeviceCommandID)).Enabled = true;
+            }
+            else
+            {
+
+            }
+        }
+
+        #endregion
+
+
+        #region tool and status bar update and general managers
 
         private void UpdateToolbarButtons()
         {
@@ -278,76 +463,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             }
         }
 
-        private void ConnectionStateResultChangedHandler()
-        {
-            // get the menu command service to reach the toolbar commands
-            var menuCommandService = this.ServiceProvider.GetService(typeof(IMenuCommandService)) as OleMenuCommandService;
-            
-            // get tge output window
-            IVsOutputWindowPane windowPane = (IVsOutputWindowPane)this.ServiceProvider.GetService(typeof(SVsGeneralOutputWindowPane));
-
-            // update toolbar according to current status
-            if (ViewModelLocator.DeviceExplorer.ConnectionStateResult == ConnectionState.Connected)
-            {
-                // output message
-                windowPane.OutputString($"Connected to {ViewModelLocator.DeviceExplorer.SelectedDevice.Description}" + Environment.NewLine);
-
-                // hide connect button
-                menuCommandService.FindCommand(GenerateCommandID(ConnectDeviceCommandID)).Visible = false;
-                // show disconnect button
-                menuCommandService.FindCommand(GenerateCommandID(DisconnectDeviceCommandID)).Visible = true;
-
-                // enable disconnect button
-                menuCommandService.FindCommand(GenerateCommandID(DisconnectDeviceCommandID)).Enabled = true;
-                // enable ping button
-                menuCommandService.FindCommand(GenerateCommandID(PingDeviceCommandID)).Enabled = true;
-                // enable capabilites button
-                menuCommandService.FindCommand(GenerateCommandID(DeviceCapabilitiesID)).Enabled = true;
-                // enable connect button
-                menuCommandService.FindCommand(GenerateCommandID(ConnectDeviceCommandID)).Enabled = true;
-            }
-            else if (ViewModelLocator.DeviceExplorer.ConnectionStateResult == ConnectionState.Connecting)
-            {
-                // disable connect button
-                menuCommandService.FindCommand(GenerateCommandID(ConnectDeviceCommandID)).Enabled = false;
-                // disable capabilites button
-                menuCommandService.FindCommand(GenerateCommandID(DeviceCapabilitiesID)).Enabled = false;
-            }
-            else if (ViewModelLocator.DeviceExplorer.ConnectionStateResult == ConnectionState.Disconnecting)
-            {
-                // disable disconnect button
-                menuCommandService.FindCommand(GenerateCommandID(DisconnectDeviceCommandID)).Enabled = false;
-                // disable ping button
-                menuCommandService.FindCommand(GenerateCommandID(PingDeviceCommandID)).Enabled = false;
-                // disable capabilites button
-                menuCommandService.FindCommand(GenerateCommandID(DeviceCapabilitiesID)).Enabled = false;
-            }
-            else if(ViewModelLocator.DeviceExplorer.ConnectionStateResult == ConnectionState.Disconnected)
-            {
-                // output message
-                windowPane.OutputString($"Disconnected from {ViewModelLocator.DeviceExplorer.SelectedDevice.Description}" + Environment.NewLine);
-
-                // disable ping button
-                menuCommandService.FindCommand(GenerateCommandID(PingDeviceCommandID)).Enabled = false;
-                // disable capabilites button
-                menuCommandService.FindCommand(GenerateCommandID(DeviceCapabilitiesID)).Enabled = false;
-
-                // hide disconnect button
-                menuCommandService.FindCommand(GenerateCommandID(DisconnectDeviceCommandID)).Visible = false;
-                // show connect button
-                menuCommandService.FindCommand(GenerateCommandID(ConnectDeviceCommandID)).Visible = true;
-                // enable disconnect button
-                menuCommandService.FindCommand(GenerateCommandID(DisconnectDeviceCommandID)).Enabled = true;
-            }
-            else
-            {
-
-            }
-
-            // clear status bar
-            ClearStatusBar();
-        }
-
         private void UpdateStatusBar(string text)
         {
             var statusBar = this.ServiceProvider.GetService(typeof(SVsStatusbar)) as IVsStatusbar;
@@ -380,5 +495,22 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             statusBar.Clear();
             statusBar.SetText(string.Empty);
         }
+
+        #endregion
+
+
+        #region helper methods and utilities
+
+        /// <summary>
+        /// Generates a <see cref="CommandID"/> specific for the Device Explorer menugroup
+        /// </summary>
+        /// <param name="commandID">The ID for the command.</param>
+        /// <returns></returns>
+        private CommandID GenerateCommandID(int commandID)
+        {
+            return new CommandID(new Guid(guidDeviceExplorerCmdSet), commandID);
+        }
+
+        #endregion
     }
 }
