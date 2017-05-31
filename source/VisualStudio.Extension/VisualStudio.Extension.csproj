@@ -215,7 +215,8 @@
     <Reference Include="Microsoft.VisualStudio.Validation, Version=15.3.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.VisualStudio.Validation.15.3.15\lib\net45\Microsoft.VisualStudio.Validation.dll</HintPath>
     </Reference>
-    <Reference Include="nanoFramework.Tools.Debugger, Version=0.3.6359.3787, Culture=neutral, PublicKeyToken=e520bb6b53f04733, processorArchitecture=MSIL">
+    <!-- reference this assembly when Configuration is Release (on Debug reference the project directly instead) -->
+    <Reference Condition="'$(Configuration)' == 'Release'" Include="nanoFramework.Tools.Debugger, Version=0.3.6359.3787, Culture=neutral, PublicKeyToken=e520bb6b53f04733, processorArchitecture=MSIL">
       <HintPath>..\packages\nanoFramework.Tools.Debugger.Net.0.3.0-preview005\lib\net462\nanoFramework.Tools.Debugger.dll</HintPath>
     </Reference>
     <Reference Include="PresentationCore" />
@@ -275,6 +276,11 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <!-- reference this project when Configuration is Debug (on Release reference Nuget package instead) -->
+    <ProjectReference Condition="'$(Configuration)' == 'Debug'" Include="..\..\nf-debugger\source\nanoFramework.Tools.DebugLibrary.Net\nanoFramework.Tools.DebugLibrary.Net.csproj">
+      <Project>{101d57ad-d22f-4905-a992-de15e723f164}</Project>
+      <Name>nanoFramework.Tools.DebugLibrary.Net</Name>
+    </ProjectReference>
     <ProjectReference Include="..\CSharp.AssemblyInfoTemplate\CSharp.AssemblyInfoTemplate.csproj">
       <Project>{EF2FEEDF-2D22-49F7-A51C-F6D4155A7932}</Project>
       <Name>CSharp.AssemblyInfoTemplate</Name>
