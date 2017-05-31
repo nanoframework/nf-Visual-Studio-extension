@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26430.6
+VisualStudioVersion = 15.0.26430.12
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSharp.BlankApplication", "CSharp.BlankApplication\CSharp.BlankApplication.csproj", "{572121BD-E972-4BF7-ABF1-78251DDE1181}"
 EndProject
@@ -66,7 +66,17 @@ Project("{5DD5E4FA-CB73-4610-85AB-557B54E96AA9}") = "Nuget.MSBuildSystem", "Tool
 		{CE0631F2-731D-4A48-B927-F13F6B2FB055} = {CE0631F2-731D-4A48-B927-F13F6B2FB055}
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "debugger-library", "debugger-library", "{8C6A2ECA-8E1A-40C2-AEBF-C08B1CA67C67}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "nanoFramework.Tools.DebugLibrary.Shared", "..\nf-debugger\source\nanoFramework.Tools.DebugLibrary.Shared\nanoFramework.Tools.DebugLibrary.Shared.shproj", "{31472CAE-4B1A-4AB9-9B2A-8F28DBE01BCF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "nanoFramework.Tools.DebugLibrary.Net", "..\nf-debugger\source\nanoFramework.Tools.DebugLibrary.Net\nanoFramework.Tools.DebugLibrary.Net.csproj", "{101D57AD-D22F-4905-A992-DE15E723F164}"
+EndProject
 Global
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		..\nf-debugger\source\nanoFramework.Tools.DebugLibrary.Shared\nanoFramework.Tools.DebugLibrary.Net.projitems*{101d57ad-d22f-4905-a992-de15e723f164}*SharedItemsImports = 4
+		..\nf-debugger\source\nanoFramework.Tools.DebugLibrary.Shared\nanoFramework.Tools.DebugLibrary.Net.projitems*{31472cae-4b1a-4ab9-9b2a-8f28dbe01bcf}*SharedItemsImports = 13
+	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Debug|x64 = Debug|x64
@@ -324,6 +334,18 @@ Global
 		{1D406978-D747-4BA7-A315-155C0FFDFDBE}.Release|x64.Build.0 = Release|Any CPU
 		{1D406978-D747-4BA7-A315-155C0FFDFDBE}.Release|x86.ActiveCfg = Release|Any CPU
 		{1D406978-D747-4BA7-A315-155C0FFDFDBE}.Release|x86.Build.0 = Release|Any CPU
+		{101D57AD-D22F-4905-A992-DE15E723F164}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{101D57AD-D22F-4905-A992-DE15E723F164}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{101D57AD-D22F-4905-A992-DE15E723F164}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{101D57AD-D22F-4905-A992-DE15E723F164}.Debug|x64.Build.0 = Debug|Any CPU
+		{101D57AD-D22F-4905-A992-DE15E723F164}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{101D57AD-D22F-4905-A992-DE15E723F164}.Debug|x86.Build.0 = Debug|Any CPU
+		{101D57AD-D22F-4905-A992-DE15E723F164}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{101D57AD-D22F-4905-A992-DE15E723F164}.Release|Any CPU.Build.0 = Release|Any CPU
+		{101D57AD-D22F-4905-A992-DE15E723F164}.Release|x64.ActiveCfg = Release|Any CPU
+		{101D57AD-D22F-4905-A992-DE15E723F164}.Release|x64.Build.0 = Release|Any CPU
+		{101D57AD-D22F-4905-A992-DE15E723F164}.Release|x86.ActiveCfg = Release|Any CPU
+		{101D57AD-D22F-4905-A992-DE15E723F164}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -349,5 +371,7 @@ Global
 		{80209A7E-B9F0-4143-BCD1-B1891236A3CF} = {FCCC9596-0809-4BB4-ACC2-3615EEC264C7}
 		{CE0631F2-731D-4A48-B927-F13F6B2FB055} = {1E0CD797-F69D-4BD3-B77E-496B51F95214}
 		{1D406978-D747-4BA7-A315-155C0FFDFDBE} = {1E0CD797-F69D-4BD3-B77E-496B51F95214}
+		{31472CAE-4B1A-4AB9-9B2A-8F28DBE01BCF} = {8C6A2ECA-8E1A-40C2-AEBF-C08B1CA67C67}
+		{101D57AD-D22F-4905-A992-DE15E723F164} = {8C6A2ECA-8E1A-40C2-AEBF-C08B1CA67C67}
 	EndGlobalSection
 EndGlobal
