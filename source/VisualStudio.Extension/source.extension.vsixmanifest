@@ -6,7 +6,7 @@
     <Description xml:space="preserve">Visual Studio 2017 extension for nanoFramework. Enables creating C# Solutions and provides debugging tools.</Description>
     <MoreInfo>http://www.nanoframework.net</MoreInfo>
     <License>license.txt</License>
-    <Icon>Resources\nF-logo-32.png</Icon>
+    <Icon>nF-logo-32.png</Icon>
     <Tags>nf, nanoFramework, netnf, netmf, MicroFramework, C#, productivity, microcontroller, I2C, PWM, Serial, SPI, IoT</Tags>
   </Metadata>
   <Installation>
