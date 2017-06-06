@@ -26,7 +26,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>nanoFramework.Tools.VisualStudio.Extension</RootNamespace>
     <AssemblyName>nanoFramework.Tools.VS2017.Extension</AssemblyName>
-    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <GeneratePkgDefFile>true</GeneratePkgDefFile>
     <IncludeAssemblyInVSIXContainer>true</IncludeAssemblyInVSIXContainer>
     <IncludeDebugSymbolsInVSIXContainer>false</IncludeDebugSymbolsInVSIXContainer>
@@ -75,8 +75,8 @@
     <Compile Include="ToolWindow.DeviceExplorer\ViewModel\ViewModelLocator.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="..\packages\nanoFramework.CoreLibrary.1.0.0-preview014\nanoFramework.CoreLibrary.1.0.0-preview014.nupkg">
-      <Link>Packages\nanoFramework.CoreLibrary.1.0.0-preview014.nupkg</Link>
+    <Content Include="..\packages\nanoFramework.CoreLibrary.1.0.0-preview020\nanoFramework.CoreLibrary.1.0.0-preview020.nupkg">
+      <Link>Packages\nanoFramework.CoreLibrary.1.0.0-preview020.nupkg</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
@@ -215,14 +215,14 @@
     <Reference Include="Microsoft.VisualStudio.Validation, Version=15.3.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.VisualStudio.Validation.15.3.15\lib\net45\Microsoft.VisualStudio.Validation.dll</HintPath>
     </Reference>
-    <!-- reference this assembly when Configuration is Release (on Debug reference the project directly instead) -->
-    <Reference Condition="'$(Configuration)' == 'Release'" Include="nanoFramework.Tools.Debugger, Version=0.3.6359.3787, Culture=neutral, PublicKeyToken=e520bb6b53f04733, processorArchitecture=MSIL">
-      <HintPath>..\packages\nanoFramework.Tools.Debugger.Net.0.3.0-preview005\lib\net462\nanoFramework.Tools.Debugger.dll</HintPath>
+    <Reference Include="nanoFramework.Tools.Debugger, Version=0.4.6366.8441, Culture=neutral, PublicKeyToken=e520bb6b53f04733, processorArchitecture=MSIL">
+      <HintPath>..\packages\nanoFramework.Tools.Debugger.Net.0.4.0-preview007\lib\net46\nanoFramework.Tools.Debugger.dll</HintPath>
     </Reference>
+    <!-- reference this assembly when Configuration is Release (on Debug reference the project directly instead) -->
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
-    <Reference Include="PropertyChanged, Version=2.0.0.0, Culture=neutral, PublicKeyToken=ee3ee20bcf148ddd, processorArchitecture=MSIL">
-      <HintPath>..\packages\PropertyChanged.Fody.2.0.0-beta001\lib\netstandard1.3\PropertyChanged.dll</HintPath>
+    <Reference Include="PropertyChanged, Version=2.1.1.0, Culture=neutral, PublicKeyToken=ee3ee20bcf148ddd, processorArchitecture=MSIL">
+      <HintPath>..\packages\PropertyChanged.Fody.2.1.1\lib\netstandard1.0\PropertyChanged.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="PropertyChanging, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
@@ -277,10 +277,6 @@
   </ItemGroup>
   <ItemGroup>
     <!-- reference this project when Configuration is Debug (on Release reference Nuget package instead) -->
-    <ProjectReference Condition="'$(Configuration)' == 'Debug'" Include="..\..\nf-debugger\source\nanoFramework.Tools.DebugLibrary.Net\nanoFramework.Tools.DebugLibrary.Net.csproj">
-      <Project>{101d57ad-d22f-4905-a992-de15e723f164}</Project>
-      <Name>nanoFramework.Tools.DebugLibrary.Net</Name>
-    </ProjectReference>
     <ProjectReference Include="..\CSharp.AssemblyInfoTemplate\CSharp.AssemblyInfoTemplate.csproj">
       <Project>{EF2FEEDF-2D22-49F7-A51C-F6D4155A7932}</Project>
       <Name>CSharp.AssemblyInfoTemplate</Name>
@@ -368,14 +364,16 @@
     <Error Condition="!Exists('..\packages\Microsoft.VSSDK.BuildTools.15.0.26201\build\Microsoft.VSSDK.BuildTools.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.VSSDK.BuildTools.15.0.26201\build\Microsoft.VSSDK.BuildTools.props'))" />
     <Error Condition="!Exists('..\packages\Microsoft.VSSDK.BuildTools.15.0.26201\build\Microsoft.VSSDK.BuildTools.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.VSSDK.BuildTools.15.0.26201\build\Microsoft.VSSDK.BuildTools.targets'))" />
     <Error Condition="!Exists('..\packages\UwpDesktop.10.0.14393.3\build\portable-net45+uap\UwpDesktop.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\UwpDesktop.10.0.14393.3\build\portable-net45+uap\UwpDesktop.targets'))" />
-    <Error Condition="!Exists('..\packages\Fody.2.0.10\build\netstandard1.4\Fody.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Fody.2.0.10\build\netstandard1.4\Fody.targets'))" />
     <Error Condition="!Exists('..\packages\Xamarin.Forms.2.3.4.224\build\portable-win+net45+wp80+win81+wpa81+MonoAndroid10+Xamarin.iOS10+xamarinmac20\Xamarin.Forms.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Xamarin.Forms.2.3.4.224\build\portable-win+net45+wp80+win81+wpa81+MonoAndroid10+Xamarin.iOS10+xamarinmac20\Xamarin.Forms.targets'))" />
+    <Error Condition="!Exists('..\packages\Fody.2.1.0\build\netstandard1.0\Fody.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Fody.2.1.0\build\netstandard1.0\Fody.targets'))" />
+    <Error Condition="!Exists('..\packages\nanoFramework.CoreLibrary.1.0.0-preview020\build\nanoFramework.CoreLibrary.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\nanoFramework.CoreLibrary.1.0.0-preview020\build\nanoFramework.CoreLibrary.targets'))" />
   </Target>
   <Import Project="..\packages\Microsoft.VisualStudio.SDK.VsixSuppression.14.1.33\build\Microsoft.VisualStudio.SDK.VsixSuppression.targets" Condition="Exists('..\packages\Microsoft.VisualStudio.SDK.VsixSuppression.14.1.33\build\Microsoft.VisualStudio.SDK.VsixSuppression.targets')" />
   <Import Project="..\packages\Microsoft.VSSDK.BuildTools.15.0.26201\build\Microsoft.VSSDK.BuildTools.targets" Condition="Exists('..\packages\Microsoft.VSSDK.BuildTools.15.0.26201\build\Microsoft.VSSDK.BuildTools.targets')" />
   <Import Project="..\packages\UwpDesktop.10.0.14393.3\build\portable-net45+uap\UwpDesktop.targets" Condition="Exists('..\packages\UwpDesktop.10.0.14393.3\build\portable-net45+uap\UwpDesktop.targets')" />
-  <Import Project="..\packages\Fody.2.0.10\build\netstandard1.4\Fody.targets" Condition="Exists('..\packages\Fody.2.0.10\build\netstandard1.4\Fody.targets')" />
   <Import Project="..\packages\Xamarin.Forms.2.3.4.224\build\portable-win+net45+wp80+win81+wpa81+MonoAndroid10+Xamarin.iOS10+xamarinmac20\Xamarin.Forms.targets" Condition="Exists('..\packages\Xamarin.Forms.2.3.4.224\build\portable-win+net45+wp80+win81+wpa81+MonoAndroid10+Xamarin.iOS10+xamarinmac20\Xamarin.Forms.targets')" />
+  <Import Project="..\packages\Fody.2.1.0\build\netstandard1.0\Fody.targets" Condition="Exists('..\packages\Fody.2.1.0\build\netstandard1.0\Fody.targets')" />
+  <Import Project="..\packages\nanoFramework.CoreLibrary.1.0.0-preview020\build\nanoFramework.CoreLibrary.targets" Condition="Exists('..\packages\nanoFramework.CoreLibrary.1.0.0-preview020\build\nanoFramework.CoreLibrary.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
