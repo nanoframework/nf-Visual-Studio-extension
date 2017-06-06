@@ -188,10 +188,18 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         /// </remarks>
         private async void ConnectDeviceCommandButtonHandlerAsync(object sender, EventArgs arguments)
         {
+            var statusBar = this.ServiceProvider.GetService(typeof(SVsStatusbar)) as IVsStatusbar;
+            // this is long running operation so better show an animation to provide proper visual feedback to the developer
+            // use the stock general animation icon
+            object icon = (short)Constants.SBAI_General;
+
             UpdateStatusBar($"Connecting to {ViewModelLocator.DeviceExplorer.SelectedDevice.Description}...");
 
             try
             {
+                // start the animation
+                statusBar?.Animation(1, ref icon);
+
                 // disable the button
                 (sender as MenuCommand).Enabled = false;
 
@@ -209,6 +217,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             {
                 // enable the button
                 (sender as MenuCommand).Enabled = true;
+
+                // stop the animation
+                statusBar?.Animation(0, ref icon);
 
                 ClearStatusBar();
             }
@@ -318,15 +329,30 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                 await ViewModelLocator.DeviceExplorer.LoadDeviceInfoAsync();
 
-                //IVsOutputWindowPane windowPane = (IVsOutputWindowPane)this.ServiceProvider.GetService(typeof(SVsGeneralOutputWindowPane));
+                IVsOutputWindowPane windowPane = (IVsOutputWindowPane)this.ServiceProvider.GetService(typeof(SVsGeneralOutputWindowPane));
 
-                //windowPane.OutputString(ViewModelLocator.DeviceExplorer.DeviceSystemInfo.ToString());
-                //windowPane.OutputString(Environment.NewLine);
-                //windowPane.OutputString(ViewModelLocator.DeviceExplorer.DeviceMemoryMap.ToString());
-                //windowPane.OutputString(Environment.NewLine);
-                //windowPane.OutputString(ViewModelLocator.DeviceExplorer.DeviceFlashSectorMap.ToString());
-                //windowPane.OutputString(Environment.NewLine);
-                //windowPane.OutputString(ViewModelLocator.DeviceExplorer.DeviceDeploymentMap.ToString());
+                windowPane.OutputString(Environment.NewLine);
+                windowPane.OutputString(Environment.NewLine);
+                windowPane.OutputString("System Information" + Environment.NewLine);
+                windowPane.OutputString(ViewModelLocator.DeviceExplorer.DeviceSystemInfo.ToString());
+                windowPane.OutputString(Environment.NewLine);
+                windowPane.OutputString(Environment.NewLine);
+
+                windowPane.OutputString("--------------------------------" + Environment.NewLine);
+                windowPane.OutputString("::        Memory Map          ::" + Environment.NewLine);
+                windowPane.OutputString("--------------------------------" + Environment.NewLine);
+                windowPane.OutputString(ViewModelLocator.DeviceExplorer.DeviceMemoryMap.ToString());
+                windowPane.OutputString(Environment.NewLine);
+                windowPane.OutputString(Environment.NewLine);
+                windowPane.OutputString("-----------------------------------------------------------" + Environment.NewLine);
+                windowPane.OutputString("::                   Flash Sector Map                    ::" + Environment.NewLine);
+                windowPane.OutputString("-----------------------------------------------------------" + Environment.NewLine);
+                windowPane.OutputString(ViewModelLocator.DeviceExplorer.DeviceFlashSectorMap.ToString());
+                windowPane.OutputString(Environment.NewLine);
+                windowPane.OutputString(Environment.NewLine);
+                windowPane.OutputString("Deployment Map" + Environment.NewLine);
+                windowPane.OutputString(ViewModelLocator.DeviceExplorer.DeviceDeploymentMap.ToString());
+                windowPane.OutputString(Environment.NewLine);
 
             }
             catch (Exception ex)
@@ -492,7 +518,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 statusBar.FreezeOutput(0);
             }
 
-            statusBar.Clear();
+            //statusBar.Clear();
             statusBar.SetText(string.Empty);
         }
 
