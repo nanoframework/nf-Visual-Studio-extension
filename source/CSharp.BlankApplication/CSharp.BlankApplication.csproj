@@ -51,7 +51,9 @@
   <ItemGroup>
     <None Include="packages.config" />
     <None Include="Program.cs" />
-    <None Include="NFApp.csproj" />
+    <None Include="NFApp.nfproj">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

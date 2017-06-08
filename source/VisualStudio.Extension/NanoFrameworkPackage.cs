@@ -10,6 +10,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
     using System;
     using System.ComponentModel;
     using System.Diagnostics.CodeAnalysis;
+    using System.IO;
     using System.Runtime.InteropServices;
 
     /// <summary>
@@ -20,7 +21,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
     /// or localized resources for the strings that appear in the New Project and Open Project dialogs.
     /// Creating project extensions or project types does not actually require a VSPackage.
     /// </remarks>
-    [PackageRegistration(UseManagedResourcesOnly = true)]
+    [PackageRegistration(AllowsBackgroundLoading = true, RegisterUsing = RegistrationMethod.CodeBase, UseManagedResourcesOnly = true)]
     // info for package Help/About
     [InstalledProductRegistration("#110", "#112", "1.0", IconResourceID = 400)]
     // info that shown on extension catalog
@@ -43,6 +44,10 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         /// </summary>
         ViewModelLocator viewModelLocator;
 
+        /// <summary>
+        /// Path for nanoFramework Extension directoy
+        /// </summary>
+        public static string NanoFrameworkExtensionDirectory { get; private set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="NanoFrameworkPackage"/> class.
@@ -53,6 +58,13 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             // any Visual Studio service because at this point the package object is created but
             // not sited yet inside Visual Studio environment. The place to do all the other
             // initialization is the Initialize method.
+
+            // fill the property holding the extension install directory
+            var assembly = GetType().Assembly;
+            if (assembly.Location == null) throw new Exception("Could not get assembly location!");
+            var info = new FileInfo(assembly.Location).Directory;
+            if (info == null) throw new Exception("Could not get assembly directory!");
+            NanoFrameworkExtensionDirectory = info.FullName;
 
             // Need to add the View model Locator to the application resource dictionry programatically 
             // becuase at the extension level we don't have 'XAML' access to it

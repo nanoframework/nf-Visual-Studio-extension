@@ -5,15 +5,16 @@
     <Description>A project for a nanoFramework class library (DLL) to be used in other projects.</Description>
     <Icon>CSLibrary.ico</Icon>
     <ProjectType>CSharp</ProjectType>
-    <RequiredFrameworkVersion>2.0</RequiredFrameworkVersion>
+    <RequiredFrameworkVersion>4.6</RequiredFrameworkVersion>
     <SortOrder>1000</SortOrder>
     <TemplateID>6DD46685-5662-4BE2-9E42-1A46A3209292</TemplateID>
     <CreateNewFolder>true</CreateNewFolder>
     <DefaultName>NFClassLibrary</DefaultName>
     <ProvideDefaultName>true</ProvideDefaultName>
+    <PromptForSaveOnCreation>true</PromptForSaveOnCreation>
   </TemplateData>
   <TemplateContent>
-    <Project File="NFClassLibrary.csproj" ReplaceParameters="true">
+    <Project File="NFClassLibrary.nfproj" ReplaceParameters="true">
       <ProjectItem ReplaceParameters="true" TargetFileName="Properties\AssemblyInfo.cs">AssemblyInfo.cs</ProjectItem>
       <ProjectItem ReplaceParameters="true" OpenInEditor="true">Class1.cs</ProjectItem>
     </Project>
@@ -24,10 +25,7 @@
   </WizardExtension>
   <WizardData>
     <packages repository="extension" repositoryId="47973986-ed3c-4b64-ba40-a9da73b44ef7">
-      <package id="nanoFramework.Tools.MSBuildSystem" version="1.0.0-preview0039" />
-    </packages>
-    <packages repository="extension" repositoryId="47973986-ed3c-4b64-ba40-a9da73b44ef7">
-      <package id="nanoFramework.CoreLibrary" version="1.0.0-preview014" />
+      <package id="nanoFramework.CoreLibrary" version="1.0.0-preview020" />
     </packages>    
   </WizardData>
 </VSTemplate>
