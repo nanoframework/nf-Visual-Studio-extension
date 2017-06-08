@@ -5,7 +5,7 @@
     <Description>A project for a nanoFramework application to be deployed into a target board.</Description>
     <Icon>CSApplication.ico</Icon>
     <ProjectType>CSharp</ProjectType>
-    <RequiredFrameworkVersion>2.0</RequiredFrameworkVersion>
+    <RequiredFrameworkVersion>4.6</RequiredFrameworkVersion>
     <SortOrder>1000</SortOrder>
     <TemplateID>26c4ac40-4260-42ad-a9ab-d324de259780</TemplateID>
     <CreateNewFolder>true</CreateNewFolder>
@@ -14,7 +14,7 @@
     <PromptForSaveOnCreation>true</PromptForSaveOnCreation>
   </TemplateData>
   <TemplateContent>
-    <Project File="NFApp.csproj" ReplaceParameters="true">
+    <Project File="NFApp.nfproj" ReplaceParameters="true">
       <ProjectItem ReplaceParameters="true" TargetFileName="Properties\AssemblyInfo.cs">AssemblyInfo.cs</ProjectItem>
       <ProjectItem ReplaceParameters="true" OpenInEditor="true">Program.cs</ProjectItem>
     </Project>
@@ -25,10 +25,7 @@
   </WizardExtension>
   <WizardData>
     <packages repository="extension" repositoryId="47973986-ed3c-4b64-ba40-a9da73b44ef7">
-      <package id="nanoFramework.Tools.MSBuildSystem" version="1.0.0-preview0039" />
-    </packages>
-    <packages repository="extension" repositoryId="47973986-ed3c-4b64-ba40-a9da73b44ef7">
-      <package id="nanoFramework.CoreLibrary" version="1.0.0-preview014" />
+      <package id="nanoFramework.CoreLibrary" version="1.0.0-preview020"/>
     </packages>  
   </WizardData>
 </VSTemplate>

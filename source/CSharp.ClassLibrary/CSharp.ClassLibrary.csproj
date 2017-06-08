@@ -50,7 +50,7 @@
   </PropertyGroup>
   <ItemGroup>
     <None Include="Class1.cs" />
-    <None Include="NFClassLibrary.csproj">
+    <None Include="NFClassLibrary.nfproj">
       <SubType>Designer</SubType>
     </None>
     <None Include="AssemblyInfo.cs" />

@@ -2,8 +2,11 @@
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
   <PropertyGroup>
+    <OutputPath>bin\$(Configuration)\</OutputPath>
 
-    <ProjectSystemBase>$(MSBuildThisFileDirectory)</ProjectSystemBase>
+    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
+    <TargetFrameworkProfile></TargetFrameworkProfile>
+    <TargetFrameworkMoniker>.NETFramework,Version=$(TargetFrameworkVersion)</TargetFrameworkMoniker>
 
     <!-- Prevents the default MsBuild targets from referencing System.dll and mscorlib.dll
      because we are using nanoFramework System namespace and objects.
@@ -14,15 +17,17 @@
     <!-- This prevents the default MsBuild targets from referencing System.Core.dll -->
     <AddAdditionalExplicitAssemblyReferences>false</AddAdditionalExplicitAssemblyReferences>
 
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    
     <!-- TODO add documentation about this
     See https://msdn.microsoft.com/en-us/library/ms242202.aspx
     See https://msdn.microsoft.com/en-us/library/ms171262.aspx
     -->
-    <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
-    <UseVSHostingProcess>False</UseVSHostingProcess>
-
+    <!--<EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>-->
+    <!--<UseVSHostingProcess>False</UseVSHostingProcess>-->
+    <DebuggerFlavor>NFDebugger</DebuggerFlavor>
   </PropertyGroup>
-
+ 
   <PropertyGroup Condition="'$(NF_IsCoreLibrary)' == 'True' ">
     <NFMDP_PE_SKIP>true</NFMDP_PE_SKIP>
     <NFMDP_DUMP_SKIP>true</NFMDP_DUMP_SKIP>
@@ -33,5 +38,5 @@
     <!-- set output of nF MetaDataProcessor command lines to disable -->
     <NFMDP_CMD_LINE_OUTPUT>false</NFMDP_CMD_LINE_OUTPUT>
   </PropertyGroup>
-
+  
 </Project>

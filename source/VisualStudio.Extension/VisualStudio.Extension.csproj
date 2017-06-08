@@ -6,8 +6,6 @@
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
-    <TargetFrameworkProfile />
-    <UseCodebase>true</UseCodebase>
   </PropertyGroup>
   <PropertyGroup>
     <SignAssembly>true</SignAssembly>
@@ -27,12 +25,9 @@
     <RootNamespace>nanoFramework.Tools.VisualStudio.Extension</RootNamespace>
     <AssemblyName>nanoFramework.Tools.VS2017.Extension</AssemblyName>
     <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
-    <GeneratePkgDefFile>true</GeneratePkgDefFile>
-    <IncludeAssemblyInVSIXContainer>true</IncludeAssemblyInVSIXContainer>
-    <IncludeDebugSymbolsInVSIXContainer>false</IncludeDebugSymbolsInVSIXContainer>
-    <IncludeDebugSymbolsInLocalVSIXDeployment>false</IncludeDebugSymbolsInLocalVSIXDeployment>
-    <CopyBuildOutputToOutputDirectory>true</CopyBuildOutputToOutputDirectory>
-    <CopyOutputSymbolsToOutputDirectory>false</CopyOutputSymbolsToOutputDirectory>
+    <StartAction>Program</StartAction>
+    <StartProgram>$(DevEnvDir)devenv.exe</StartProgram>
+    <StartArguments>/rootSuffix Exp</StartArguments>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -52,11 +47,14 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="DeployProvider.cs" />
     <Compile Include="GuidsStrings.cs" />
     <Compile Include="NanoFrameworkMonikers.cs" />
+    <Compile Include="ProjectSystem\GlobalPropertiesProvider.cs" />
     <Compile Include="ProjectSystem\NanoCSharpProjectConfigured.cs" />
     <Compile Include="ProjectSystem\NanoCSharpProjectUnconfigured.cs" />
     <Compile Include="ProjectSystem\ProjectProperties.cs" />
+    <Compile Include="ProjectSystem\ProjectTreePropertiesProvider.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ToolWindow.DeviceExplorer\DeviceExplorer.cs" />
     <Compile Include="ToolWindow.DeviceExplorer\DeviceExplorerCommand.cs" />
@@ -80,10 +78,27 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
-    <Content Include="..\Tools.BuildTasks\Nuget.MSBuildSystem\bin\$(Configuration)\nanoFramework.Tools.MSBuildSystem.1.0.0-preview0039.nupkg">
-      <Link>Packages\nanoFramework.Tools.MSBuildSystem.1.0.0-preview0039.nupkg</Link>
+    <Content Include="Targets\NFProjectSystem.MDP.targets">
+      <SubType>Designer</SubType>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <IncludeInVSIX>true</IncludeInVSIX>
+      <InstallRoot>MSBuild</InstallRoot>
+      <VSIXSubPath>nanoFramework\v1.0\</VSIXSubPath>
+    </Content>
+    <Resource Include="Resources\NanoFrameworkProject.16.16.png" />
+    <Content Include="Targets\NFProjectSystem.Default.props">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <IncludeInVSIX>true</IncludeInVSIX>
+      <InstallRoot>MSBuild</InstallRoot>
+      <VSIXSubPath>nanoFramework\v1.0\</VSIXSubPath>
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Targets\NFProjectSystem.CSharp.targets">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <IncludeInVSIX>true</IncludeInVSIX>
+      <InstallRoot>MSBuild</InstallRoot>
+      <VSIXSubPath>nanoFramework\v1.0\</VSIXSubPath>
+      <SubType>Designer</SubType>
     </Content>
     <Resource Include="Resources\DeviceCapabilities.16.16.png" />
     <Content Include="Resources\Ping.16.16.png" />
@@ -101,12 +116,20 @@
       <SubType>Designer</SubType>
     </VSCTCompile>
     <None Include="app.config" />
-    <None Include="BuildSystem\DeployedBuildSystem\nanoFramework.Tools.MSBuildSystem.props">
+    <Content Include="Targets\NFProjectSystem.props">
       <SubType>Designer</SubType>
-    </None>
-    <None Include="BuildSystem\DeployedBuildSystem\nanoFramework.Tools.MSBuildSystem.targets">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <IncludeInVSIX>true</IncludeInVSIX>
+      <InstallRoot>MSBuild</InstallRoot>
+      <VSIXSubPath>nanoFramework\v1.0\</VSIXSubPath>
+    </Content>
+    <Content Include="Targets\NFProjectSystem.targets">
       <SubType>Designer</SubType>
-    </None>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <IncludeInVSIX>true</IncludeInVSIX>
+      <InstallRoot>MSBuild</InstallRoot>
+      <VSIXSubPath>nanoFramework\v1.0\</VSIXSubPath>
+    </Content>
     <Content Include="license.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <IncludeInVSIX>true</IncludeInVSIX>
@@ -128,6 +151,15 @@
     </Reference>
     <Reference Include="GalaSoft.MvvmLight.Platform, Version=5.3.0.19032, Culture=neutral, PublicKeyToken=5f873c45e98af8a1, processorArchitecture=MSIL">
       <HintPath>..\packages\MvvmLightLibs.5.3.0.0\lib\net45\GalaSoft.MvvmLight.Platform.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Build">
+      <HintPath>$(MSBuildBinPath)\Microsoft.Build.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Build.Framework">
+      <HintPath>$(MSBuildBinPath)\Microsoft.Build.Framework.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Build.Utilities.Core">
+      <HintPath>$(MSBuildBinPath)\Microsoft.Build.Utilities.Core.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="Microsoft.Practices.ServiceLocation, Version=1.3.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
@@ -305,11 +337,24 @@
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
       <IncludeOutputGroupsInVSIX>TemplateProjectOutputGroup%3b</IncludeOutputGroupsInVSIX>
     </ProjectReference>
+    <ProjectReference Include="..\Tools.BuildTasks\Tools.BuildTasks.csproj">
+      <Project>{ce0631f2-731d-4a48-b927-f13f6b2fb055}</Project>
+      <Name>Tools.BuildTasks</Name>
+      <InstallRoot>MSBuild</InstallRoot>
+      <VSIXSubPath>nanoFramework\v1.0\</VSIXSubPath>
+      <IncludeOutputGroupsInVSIX>BuiltProjectOutputGroup</IncludeOutputGroupsInVSIX>
+    </ProjectReference>
+    <ProjectReference Include="..\Tools.MetaDataProcessor\MetaDataProcessor.vcxproj">
+      <Project>{80209a7e-b9f0-4143-bcd1-b1891236a3cf}</Project>
+      <Name>Tools.MetaDataProcessor</Name>
+      <InstallRoot>MSBuild</InstallRoot>
+      <VSIXSubPath>nanoFramework\v1.0\</VSIXSubPath>
+      <IncludeOutputGroupsInVSIX>BuiltProjectOutputGroup</IncludeOutputGroupsInVSIX>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="NanoFramework.resx">
       <MergeWithCTO>true</MergeWithCTO>
-      <ManifestResourceName>VSPackage</ManifestResourceName>
       <SubType>Designer</SubType>
     </EmbeddedResource>
   </ItemGroup>
@@ -325,6 +370,10 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <Page Include="Resources\NanoFrameworkProject.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Resources\DeviceConnected.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -350,30 +399,143 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Rules\csharp.browseobject.xaml">
+      <SubType>Designer</SubType>
+      <InstallRoot>MSBuild</InstallRoot>
+      <VSIXSubPath>nanoFramework\v1.0\Rules\</VSIXSubPath>
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
+    <Content Include="Rules\csharp.xaml">
+      <SubType>Designer</SubType>
+      <InstallRoot>MSBuild</InstallRoot>
+      <VSIXSubPath>nanoFramework\v1.0\Rules\</VSIXSubPath>
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
+    <Content Include="Rules\CustomPropertyPage.xaml">
+      <SubType>Designer</SubType>
+      <InstallRoot>MSBuild</InstallRoot>
+      <VSIXSubPath>nanoFramework\v1.0\Rules\</VSIXSubPath>
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
+    <Content Include="Rules\debugger_general.xaml">
+      <SubType>Designer</SubType>
+      <InstallRoot>MSBuild</InstallRoot>
+      <VSIXSubPath>nanoFramework\v1.0\Rules\</VSIXSubPath>
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
+    <Content Include="Rules\EmbeddedResource.xaml">
+      <SubType>Designer</SubType>
+      <IncludeInVSIX>true</IncludeInVSIX>
+      <InstallRoot>MSBuild</InstallRoot>
+      <VSIXSubPath>nanoFramework\v1.0\Rules\</VSIXSubPath>
+    </Content>
+    <Content Include="Rules\folder.xaml">
+      <SubType>Designer</SubType>
+      <IncludeInVSIX>true</IncludeInVSIX>
+      <InstallRoot>MSBuild</InstallRoot>
+      <VSIXSubPath>nanoFramework\v1.0\Rules\</VSIXSubPath>
+    </Content>
+    <Content Include="Rules\general.browseobject.xaml">
+      <SubType>Designer</SubType>
+      <IncludeInVSIX>true</IncludeInVSIX>
+      <InstallRoot>MSBuild</InstallRoot>
+      <VSIXSubPath>nanoFramework\v1.0\Rules\</VSIXSubPath>
+    </Content>
+    <Content Include="Rules\general.xaml">
+      <SubType>Designer</SubType>
+      <InstallRoot>MSBuild</InstallRoot>
+      <VSIXSubPath>nanoFramework\v1.0\Rules\</VSIXSubPath>
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
+    <Content Include="Rules\general_file.xaml">
+      <SubType>Designer</SubType>
+      <InstallRoot>MSBuild</InstallRoot>
+      <VSIXSubPath>nanoFramework\v1.0\Rules\</VSIXSubPath>
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
+    <Content Include="Rules\none.xaml">
+      <SubType>Designer</SubType>
+      <InstallRoot>MSBuild</InstallRoot>
+      <VSIXSubPath>nanoFramework\v1.0\Rules\</VSIXSubPath>
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
+    <Content Include="Rules\ProjectItemsSchema.xaml">
+      <SubType>Designer</SubType>
+      <IncludeInVSIX>true</IncludeInVSIX>
+      <InstallRoot>MSBuild</InstallRoot>
+      <VSIXSubPath>nanoFramework\v1.0\Rules\</VSIXSubPath>
+    </Content>
+    <Content Include="Rules\scc.xaml">
+      <SubType>Designer</SubType>
+      <IncludeInVSIX>true</IncludeInVSIX>
+      <InstallRoot>MSBuild</InstallRoot>
+      <VSIXSubPath>nanoFramework\v1.0\Rules\</VSIXSubPath>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <XamlPropertyRule Include="Rules\csharp.browseobject.xaml">
+      <SubType>Designer</SubType>
+    </XamlPropertyRule>
+    <XamlPropertyRule Include="Rules\csharp.xaml">
+      <SubType>Designer</SubType>
+    </XamlPropertyRule>
+    <XamlPropertyRule Include="Rules\CustomPropertyPage.xaml">
+      <SubType>Designer</SubType>
+    </XamlPropertyRule>
+    <XamlPropertyRule Include="Rules\debugger_general.xaml">
+      <SubType>Designer</SubType>
+    </XamlPropertyRule>
+    <XamlPropertyRule Include="Rules\EmbeddedResource.xaml">
+      <SubType>Designer</SubType>
+    </XamlPropertyRule>
+    <XamlPropertyRule Include="Rules\folder.xaml">
+      <SubType>Designer</SubType>
+    </XamlPropertyRule>
+    <XamlPropertyRule Include="Rules\general.browseobject.xaml">
+      <SubType>Designer</SubType>
+    </XamlPropertyRule>
+    <XamlPropertyRule Include="Rules\general.xaml">
+      <SubType>Designer</SubType>
+    </XamlPropertyRule>
+    <XamlPropertyRule Include="Rules\general_file.xaml">
+      <SubType>Designer</SubType>
+    </XamlPropertyRule>
+    <XamlPropertyRule Include="Rules\none.xaml">
+      <SubType>Designer</SubType>
+    </XamlPropertyRule>
+    <XamlPropertyRule Include="Rules\scc.xaml">
+      <SubType>Designer</SubType>
+    </XamlPropertyRule>
+  </ItemGroup>
+  <ItemGroup>
+    <Analyzer Include="..\packages\Microsoft.VisualStudio.ProjectSystem.Analyzers.15.0.751\analyzers\Microsoft.VisualStudio.ProjectSystem.Analyzers.dll" />
     <Analyzer Include="..\packages\UwpDesktop.10.0.14393.3\analyzers\dotnet\UwpDesktopAnalyzer.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Rules\Deployment\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(VSToolsPath)\VSSDK\Microsoft.VsSDK.targets" Condition="'$(VSToolsPath)' != ''" />
-  <Import Project="..\packages\Microsoft.VisualStudio.ProjectSystem.SDK.Tools.15.0.751\build\Microsoft.VisualStudio.ProjectSystem.Sdk.Tools.targets" Condition="Exists('..\packages\Microsoft.VisualStudio.ProjectSystem.SDK.Tools.15.0.751\build\Microsoft.VisualStudio.ProjectSystem.Sdk.Tools.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('..\packages\Microsoft.VisualStudio.ProjectSystem.SDK.Tools.15.0.751\build\Microsoft.VisualStudio.ProjectSystem.Sdk.Tools.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.VisualStudio.ProjectSystem.SDK.Tools.15.0.751\build\Microsoft.VisualStudio.ProjectSystem.Sdk.Tools.targets'))" />
     <Error Condition="!Exists('..\packages\Microsoft.VisualStudio.SDK.VsixSuppression.14.1.33\build\Microsoft.VisualStudio.SDK.VsixSuppression.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.VisualStudio.SDK.VsixSuppression.14.1.33\build\Microsoft.VisualStudio.SDK.VsixSuppression.targets'))" />
-    <Error Condition="!Exists('..\packages\Microsoft.VSSDK.BuildTools.15.0.26201\build\Microsoft.VSSDK.BuildTools.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.VSSDK.BuildTools.15.0.26201\build\Microsoft.VSSDK.BuildTools.props'))" />
-    <Error Condition="!Exists('..\packages\Microsoft.VSSDK.BuildTools.15.0.26201\build\Microsoft.VSSDK.BuildTools.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.VSSDK.BuildTools.15.0.26201\build\Microsoft.VSSDK.BuildTools.targets'))" />
     <Error Condition="!Exists('..\packages\UwpDesktop.10.0.14393.3\build\portable-net45+uap\UwpDesktop.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\UwpDesktop.10.0.14393.3\build\portable-net45+uap\UwpDesktop.targets'))" />
     <Error Condition="!Exists('..\packages\Xamarin.Forms.2.3.4.224\build\portable-win+net45+wp80+win81+wpa81+MonoAndroid10+Xamarin.iOS10+xamarinmac20\Xamarin.Forms.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Xamarin.Forms.2.3.4.224\build\portable-win+net45+wp80+win81+wpa81+MonoAndroid10+Xamarin.iOS10+xamarinmac20\Xamarin.Forms.targets'))" />
     <Error Condition="!Exists('..\packages\Fody.2.1.0\build\netstandard1.0\Fody.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Fody.2.1.0\build\netstandard1.0\Fody.targets'))" />
     <Error Condition="!Exists('..\packages\nanoFramework.CoreLibrary.1.0.0-preview020\build\nanoFramework.CoreLibrary.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\nanoFramework.CoreLibrary.1.0.0-preview020\build\nanoFramework.CoreLibrary.targets'))" />
+    <Error Condition="!Exists('..\packages\Microsoft.VSSDK.BuildTools.15.0.26201\build\Microsoft.VSSDK.BuildTools.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.VSSDK.BuildTools.15.0.26201\build\Microsoft.VSSDK.BuildTools.props'))" />
+    <Error Condition="!Exists('..\packages\Microsoft.VSSDK.BuildTools.15.0.26201\build\Microsoft.VSSDK.BuildTools.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.VSSDK.BuildTools.15.0.26201\build\Microsoft.VSSDK.BuildTools.targets'))" />
+    <Error Condition="!Exists('..\packages\Microsoft.VisualStudio.ProjectSystem.SDK.Tools.15.0.743\build\Microsoft.VisualStudio.ProjectSystem.Sdk.Tools.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.VisualStudio.ProjectSystem.SDK.Tools.15.0.743\build\Microsoft.VisualStudio.ProjectSystem.Sdk.Tools.targets'))" />
   </Target>
   <Import Project="..\packages\Microsoft.VisualStudio.SDK.VsixSuppression.14.1.33\build\Microsoft.VisualStudio.SDK.VsixSuppression.targets" Condition="Exists('..\packages\Microsoft.VisualStudio.SDK.VsixSuppression.14.1.33\build\Microsoft.VisualStudio.SDK.VsixSuppression.targets')" />
-  <Import Project="..\packages\Microsoft.VSSDK.BuildTools.15.0.26201\build\Microsoft.VSSDK.BuildTools.targets" Condition="Exists('..\packages\Microsoft.VSSDK.BuildTools.15.0.26201\build\Microsoft.VSSDK.BuildTools.targets')" />
   <Import Project="..\packages\UwpDesktop.10.0.14393.3\build\portable-net45+uap\UwpDesktop.targets" Condition="Exists('..\packages\UwpDesktop.10.0.14393.3\build\portable-net45+uap\UwpDesktop.targets')" />
   <Import Project="..\packages\Xamarin.Forms.2.3.4.224\build\portable-win+net45+wp80+win81+wpa81+MonoAndroid10+Xamarin.iOS10+xamarinmac20\Xamarin.Forms.targets" Condition="Exists('..\packages\Xamarin.Forms.2.3.4.224\build\portable-win+net45+wp80+win81+wpa81+MonoAndroid10+Xamarin.iOS10+xamarinmac20\Xamarin.Forms.targets')" />
   <Import Project="..\packages\Fody.2.1.0\build\netstandard1.0\Fody.targets" Condition="Exists('..\packages\Fody.2.1.0\build\netstandard1.0\Fody.targets')" />
   <Import Project="..\packages\nanoFramework.CoreLibrary.1.0.0-preview020\build\nanoFramework.CoreLibrary.targets" Condition="Exists('..\packages\nanoFramework.CoreLibrary.1.0.0-preview020\build\nanoFramework.CoreLibrary.targets')" />
+  <Import Project="..\packages\Microsoft.VSSDK.BuildTools.15.0.26201\build\Microsoft.VSSDK.BuildTools.targets" Condition="Exists('..\packages\Microsoft.VSSDK.BuildTools.15.0.26201\build\Microsoft.VSSDK.BuildTools.targets')" />
+  <Import Project="..\packages\Microsoft.VisualStudio.ProjectSystem.SDK.Tools.15.0.743\build\Microsoft.VisualStudio.ProjectSystem.Sdk.Tools.targets" Condition="Exists('..\packages\Microsoft.VisualStudio.ProjectSystem.SDK.Tools.15.0.743\build\Microsoft.VisualStudio.ProjectSystem.Sdk.Tools.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

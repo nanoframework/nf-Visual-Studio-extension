@@ -1,0 +1,54 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+
+  <PropertyGroup>
+    <!--<DefineCommonCapabilities>false</DefineCommonCapabilities>-->
+    <!--<DefineCommonReferenceSchemas>false</DefineCommonReferenceSchemas>-->
+  </PropertyGroup>
+
+  <!--Importing project specific targets **AFTER** Microsoft.CSharp.targets so that project specific xaml rules can override those defined in MSBuild-->
+  <Import Project="$(MSBuildThisFileDirectory)\NFProjectSystem.targets" />
+
+  <ItemGroup>
+    <ProjectCapability Remove="LaunchProfiles" />
+    <ProjectCapability Include="NanoFrameworkProjectType" />
+
+    <ProjectCapability Include="ReferencesFolder"/>
+
+    <!-- Remove these as they are not important or interfere with nanoFramework projects -->
+    <ProjectCapability Remove="COMReferences" />
+    <ProjectCapability Remove="OutputGroups" />
+    <ProjectCapability Remove="ProjectConfigurationsInferredFromUsage" />
+    <ProjectCapability Include="ReferenceManagerAssemblies" />
+    <ProjectCapability Remove="ReferenceManagerBrowse" />
+    <ProjectCapability Remove="ReferenceManagerCOM" />
+    <ProjectCapability Remove="DependenciesTree" />
+    <ProjectCapability Include="ReferenceManagerProjects" />
+    <ProjectCapability Include="ReferenceManagerSharedProjects" />
+    <ProjectCapability Remove="ReferenceManagerWinRT" />
+
+    <ProjectCapability Remove="UseFileGlobs" />
+
+    <!-- DiagnoseCapabilities is useful when debugging the project system -->
+    <!--<ProjectCapability Include="DiagnoseCapabilities"/>-->
+    <!-- DependenciesTree capability lights up a Dependencies tree node and it's sub node providers-->
+    <!--<ProjectCapability Include="DependenciesTree" />-->
+  </ItemGroup>
+
+  <ItemGroup>
+
+    <PropertyPageSchema Include="$(MSBuildThisFileDirectory)Rules\csProjectItemsSchema.xaml;"/>
+    <PropertyPageSchema Include="$(MSBuildThisFileDirectory)Rules\csharp.xaml;">
+      <Context>File</Context>
+    </PropertyPageSchema>
+    <PropertyPageSchema Include="$(MSBuildThisFileDirectory)Rules\csharp.browseobject.xaml;">
+      <Context>BrowseObject</Context>
+    </PropertyPageSchema>
+
+  </ItemGroup>
+
+  <!-- Import MetaDataProcessor targets **AFTER** everything else-->
+  <Import Project="$(MSBuildThisFileDirectory)\NFProjectSystem.MDP.targets" />
+
+</Project>

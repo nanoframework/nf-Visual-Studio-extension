@@ -13,6 +13,7 @@
       <IDSymbol name="NanoFramework" value="40" />
       <IDSymbol name="Ping" value="50" />
       <IDSymbol name="DeviceCapabilities" value="70" />
+      <IDSymbol name="NanoFrameworkProject" value="80" />
     </GuidSymbol>
   </Symbols>
 </CommandTable>
