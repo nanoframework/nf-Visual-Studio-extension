@@ -73,8 +73,8 @@
                                 </DataTemplate>
                             </Setter.Value>
                         </Setter>
-                        <!--<Setter Property="Focusable" Value="False"/>-->
-                        <!--<Setter Property="IsManipulationEnabled" Value="False"/>-->
+                        <Setter Property="Focusable" Value="False"/>
+                        <Setter Property="IsManipulationEnabled" Value="False"/>
                         <Setter Property="ItemContainerStyle">
                             <Setter.Value>
                                 <Style TargetType="{x:Type TreeViewItem}">

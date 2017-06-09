@@ -37,7 +37,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         /// <summary>
         /// The GUID for this package.
         /// </summary>
-        public const string PackageGuid = "23C2F819-1E4B-4012-98E9-8DB86E5F351D";
+        public const string PackageGuid = "9CCE475A-237D-481B-88B0-1F7E13DF93DA";
 
         /// <summary>
         /// View model locator 

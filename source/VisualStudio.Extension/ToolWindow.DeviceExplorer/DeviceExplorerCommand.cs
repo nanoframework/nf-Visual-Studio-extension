@@ -433,7 +433,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             else if (ViewModelLocator.DeviceExplorer.ConnectionStateResult == ConnectionState.Disconnected)
             {
                 // output message
-                windowPane.OutputString($"Disconnected from {ViewModelLocator.DeviceExplorer.SelectedDevice.Description}" + Environment.NewLine);
+                windowPane.OutputString($"Disconnected from {ViewModelLocator.DeviceExplorer.PreviousSelectedDevice.Description}" + Environment.NewLine);
 
                 // hide disconnect button
                 menuCommandService.FindCommand(GenerateCommandID(DisconnectDeviceCommandID)).Visible = false;
