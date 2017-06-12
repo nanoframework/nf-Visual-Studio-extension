@@ -7,27 +7,11 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 {
     using Microsoft;
     using Microsoft.VisualStudio.ProjectSystem;
-    using Microsoft.VisualStudio.ProjectSystem.VS;
-    using Microsoft.VisualStudio.Shell;
     using Microsoft.VisualStudio.Shell.Interop;
-    using System;
     using System.ComponentModel.Composition;
-
 
     [Export]
     [AppliesTo(UniqueCapability)]
-    [ProjectTypeRegistration(   GuidsStrings.NanoCSharpProjectType, 
-                                "NanoCSharpProject", 
-                                "#2", 
-                                ProjectExtension, 
-                                Language, 
-                                resourcePackageGuid: NanoFrameworkPackage.PackageGuid, 
-                                PossibleProjectExtensions = ProjectExtension, 
-                                ProjectTemplatesDir = @"..\..\Templates\Projects\NanoCSharpProject"
-                                )]
-
-    [ProvideProjectItem(GuidsStrings.NanoCSharpProjectType, "NanoCSharpItems", @"..\..\Templates\ProjectItems\NanoCSharpProject", 500)]
-
     internal class NanoCSharpProjectUnconfigured
     {
         /// <summary>
@@ -44,20 +28,15 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         /// <remarks>
         /// This value should be kept in sync with the capability as actually defined in your .targets.
         /// </remarks>
-        internal const string UniqueCapability = "NanoFrameworkProjectType";
+        internal const string UniqueCapability = "NanoCSharpProject";
 
-        internal const string Language = "nanoFramework";
+        internal const string Language = "csharp";
 
         [ImportingConstructor]
         public NanoCSharpProjectUnconfigured(UnconfiguredProject unconfiguredProject)
         {
             Requires.NotNull(unconfiguredProject, nameof(unconfiguredProject));
             ProjectHierarchies = new OrderPrecedenceImportCollection<IVsHierarchy>(projectCapabilityCheckProvider: unconfiguredProject);
-        }
-
-        public Guid ProjectTypeGuid
-        {
-            get { return new Guid(GuidsStrings.NanoCSharpProjectType); }
         }
 
         [Import]
@@ -80,5 +59,4 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         internal IVsHierarchy ProjectHierarchy => ProjectHierarchies.Single().Value;
     }
-
 }

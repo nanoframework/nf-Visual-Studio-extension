@@ -2,17 +2,30 @@
 // Copyright (c) 2017 The nanoFramework project contributors
 // See LICENSE file in the project root for full license information.
 //
+using Microsoft.VisualStudio.ProjectSystem.VS;
+using Microsoft.VisualStudio.Shell;
+using nanoFramework.Tools.VisualStudio.Extension;
+using nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel;
+using System;
+using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
+using System.IO;
+using System.Runtime.InteropServices;
+
+
+[assembly: ProjectTypeRegistration( projectTypeGuid: NanoFrameworkPackage.ProjectTypeGuid,
+                                displayName: "NanoCSharpProject",
+                                displayProjectFileExtensions: "#2",
+                                defaultProjectExtension: NanoCSharpProjectUnconfigured.ProjectExtension,
+                                language: NanoCSharpProjectUnconfigured.Language, 
+                                resourcePackageGuid: NanoFrameworkPackage.PackageGuid, 
+                                PossibleProjectExtensions = NanoCSharpProjectUnconfigured.ProjectExtension, 
+                                Capabilities = NanoCSharpProjectUnconfigured.UniqueCapability
+                                )]
 
 namespace nanoFramework.Tools.VisualStudio.Extension
 {
-    using Microsoft.VisualStudio.Shell;
-    using nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel;
-    using System;
-    using System.ComponentModel;
-    using System.Diagnostics.CodeAnalysis;
-    using System.IO;
-    using System.Runtime.InteropServices;
-
+ 
     /// <summary>
     /// This class implements the package exposed by this assembly.
     /// </summary>
@@ -22,8 +35,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension
     /// Creating project extensions or project types does not actually require a VSPackage.
     /// </remarks>
     [PackageRegistration(AllowsBackgroundLoading = true, RegisterUsing = RegistrationMethod.CodeBase, UseManagedResourcesOnly = true)]
-    // info for package Help/About
-    [InstalledProductRegistration("#110", "#112", "1.0", IconResourceID = 400)]
     // info that shown on extension catalog
     [Description("Visual Studio 2017 extension for nanoFramework. Enables creating C# Solutions to be deployed to a target board and provides debugging tools.")]
     // menu for ToolWindow
@@ -35,9 +46,18 @@ namespace nanoFramework.Tools.VisualStudio.Extension
     public sealed class NanoFrameworkPackage : Package
     {
         /// <summary>
+        /// The GUID for this project type
+        /// </summary>
+        public const string ProjectTypeGuid = "11A8DD76-328B-46DF-9F39-F559912D0360";
+
+        /// <summary>
         /// The GUID for this package.
         /// </summary>
-        public const string PackageGuid = "9CCE475A-237D-481B-88B0-1F7E13DF93DA";
+        public const string PackageGuid = "046B40EB-1DE1-4D08-AF61-FDB7592B9BBD";
+
+
+        public const string NanoCSharpProjectSystemCommandSet = "{DF641D51-1E8C-48E4-B549-CC6BCA9BDE19}";
+
 
         /// <summary>
         /// View model locator 

@@ -45,7 +45,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         uint _statusBarCookie = 0;
 
-        public const string guidDeviceExplorerCmdSet = "2AC9D7EF-5178-40F1-A932-AD5DB2827D2F";  // this GUID is comming from the .vsct file  
+        public const string guidDeviceExplorerCmdSet = "DF641D51-1E8C-48E4-B549-CC6BCA9BDE19";  // this GUID is comming from the .vsct file  
 
         public const int DeviceExplorerToolbarID = 0x1000;
 

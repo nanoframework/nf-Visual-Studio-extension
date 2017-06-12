@@ -14,8 +14,7 @@ using System.Threading.Tasks;
 namespace nanoFramework.Tools.VisualStudio.Extension
 {
     [Export(typeof(IProjectGlobalPropertiesProvider))]
-    //[AppliesTo(NanoCSharpProjectUnconfigured.UniqueCapability)]
-    [AppliesTo("")]
+    [AppliesTo(NanoCSharpProjectUnconfigured.UniqueCapability)]
     internal class GlobalPropertiesProvider : StaticGlobalPropertiesProviderBase
     {
         public const string NanoCSharpProjectPathPropertyName = "NanoCSharpProjectPath";

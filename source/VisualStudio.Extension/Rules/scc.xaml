@@ -4,6 +4,7 @@
 	DisplayName="Source control"
 	PageTemplate="generic"
 	Description="General"
+    OverrideMode="Replace"    
 	xmlns="http://schemas.microsoft.com/build/2009/properties">
     <Rule.DataSource>
         <DataSource Persistence="ProjectFile" Label="Globals" HasConfigurationCondition="False" />

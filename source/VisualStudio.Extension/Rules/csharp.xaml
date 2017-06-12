@@ -4,6 +4,7 @@
 	DisplayName="C#"
 	PageTemplate="tool"
 	Description="C# source file"
+    OverrideMode="Replace"
 	xmlns="http://schemas.microsoft.com/build/2009/properties">
     <Rule.DataSource>
         <DataSource Persistence="ProjectFile"  ItemType="Compile" HasConfigurationCondition="false" />

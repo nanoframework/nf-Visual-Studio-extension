@@ -3,6 +3,7 @@
       DisplayName="General"
       PageTemplate="generic"
       Description="General"
+      OverrideMode="Replace"  
 	xmlns="http://schemas.microsoft.com/build/2009/properties">
 
     <Rule.Categories>

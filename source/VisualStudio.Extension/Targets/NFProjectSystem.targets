@@ -15,7 +15,7 @@
 
   <!-- ProjectCapabilities in dev15 should be supported via NuGet packages -->
   <ItemGroup>
-    <ProjectCapability Include="NanoFrameworkProjectType" />
+    <ProjectCapability Include="NanoCSharpProject" />
     
     <ProjectCapability Include="AssemblyReferences;ProjectReferences;PackageReferences;SharedProjectReferences" />
     <ProjectCapability Include="ProjectConfigurationsDeclaredAsItems" />
