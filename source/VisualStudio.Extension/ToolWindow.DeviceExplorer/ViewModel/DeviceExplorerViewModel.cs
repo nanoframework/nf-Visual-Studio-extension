@@ -146,9 +146,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
 
         public NanoDeviceBase SelectedDevice { get; set; }
 
+        public NanoDeviceBase PreviousSelectedDevice { get; private set; }
+
         public void OnSelectedDeviceChanging()
         {
-            Debug.WriteLine($"Selected device changing from {SelectedDevice?.Description}");
+            // save previous device
+            PreviousSelectedDevice = SelectedDevice;
 
             // disconnect device becoming unselected
             SelectedDeviceDisconnect();
@@ -156,8 +159,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
 
         public void OnSelectedDeviceChanged()
         {
-            Debug.WriteLine($"Selected device changed to {SelectedDevice.Description}");
-
             SelectedDeviceConnectionResult = PingConnectionResult.None;
 
             if (SelectedDevice != null)
@@ -200,8 +201,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
 
         public async Task SelectedDevicePing()
         {
-            //IsBusyHeader = true;
-
             await Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(() => {
                 SelectedDeviceConnectionResult = PingConnectionResult.Busy;
             }));
@@ -216,13 +215,11 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
             }
             catch(Exception ex)
             {
+                // TODO handle exception?
+
                 await Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(() => {
                     SelectedDeviceConnectionResult = PingConnectionResult.Error;
                 }));
-            }
-            finally
-            {
-                //IsBusyHeader = false;
             }
         }
 
@@ -260,10 +257,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
         {
             if (SelectedDevice != null)
             {
-
-                Debug.WriteLine($"Trying to connect to {SelectedDevice.Description} ...");
-                //IsBusyHeader = true;
-
                 await Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(() => {
                     ConnectionStateResult = ConnectionState.Connecting;
                 }));
@@ -276,14 +269,13 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
                         ConnectionStateResult = connectOk ? ConnectionState.Connected : ConnectionState.Disconnected;
                     }));
 
-                    }
-                    catch(Exception ex)
-                    {
+                }
+                catch(Exception ex)
+                {
+                    // TODO handle exception
+                }
 
-                    }
-                    //IsBusyHeader = false;
-
-                //TODO
+                //TODO show message in output reporting that the connection attempt failed
                 //if (!connectOk)
                 //{
                 //    await DialogSrv.ShowMessageAsync(Res.GetString("HC_ConnectionError"));
@@ -293,9 +285,10 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
 
         private void SelectedDeviceDisconnect()
         {
-            if (SelectedDevice != null)
+            // only attempt to perform disconnect on a device if there is one 
+            // AND if it's connection state is connected (no point on trying to disconnect something that is not connected, right?)
+            if (SelectedDevice != null && ConnectionStateResult == ConnectionState.Connected)
             {
-                //IsBusyHeader = true;
                 Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(() => {
                     ConnectionStateResult = ConnectionState.Disconnecting;
                 }));
@@ -310,9 +303,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
                 }
                 catch(Exception ex)
                 {
-
+                    // TODO handle exception
                 }
-                //IsBusyHeader = false;
             }
         }
 

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
   <Metadata>
-    <Identity Id="47973986-ed3c-4b64-ba40-a9da73b44ef7" Version="0.1.28" Language="en-US" Publisher="nanoFramework" />
+    <Identity Id="47973986-ed3c-4b64-ba40-a9da73b44ef7" Version="0.1.35" Language="en-US" Publisher="nanoFramework" />
     <DisplayName>nanoFramework VS2017 Extension</DisplayName>
     <Description xml:space="preserve">Visual Studio 2017 extension for nanoFramework. Enables creating C# Solutions and provides debugging tools.</Description>
     <MoreInfo>http://www.nanoframework.net</MoreInfo>
@@ -17,8 +17,8 @@
     <Dependency d:Source="Installed" Id="Microsoft.VisualStudio.MPF.15.0" DisplayName="Visual Studio MPF 15.0" Version="[15.0,16.0)" />
   </Dependencies>
   <Assets>
-    <Asset Type="Microsoft.VisualStudio.MefComponent" d:Source="Project" d:ProjectName="VisualStudio.Extension" Path="|VisualStudio.Extension|" />
-    <Asset Type="Microsoft.VisualStudio.VsPackage" d:Source="Project" d:ProjectName="VisualStudio.Extension" Path="|VisualStudio.Extension;PkgdefProjectOutputGroup|" />
+    <Asset Type="Microsoft.VisualStudio.MefComponent" d:Source="Project" d:ProjectName="%CurrentProject%" Path="|%CurrentProject%|" />
+    <Asset Type="Microsoft.VisualStudio.VsPackage" d:Source="Project" d:ProjectName="%CurrentProject%" Path="|%CurrentProject%;PkgdefProjectOutputGroup|" />
     <Asset Type="Microsoft.VisualStudio.ProjectTemplate" d:Source="Project" d:ProjectName="CSharp.BlankApplication" d:TargetPath="|CSharp.BlankApplication;TemplateProjectOutputGroup|" Path="ProjectTemplates" d:VsixSubPath="ProjectTemplates" />
     <Asset Type="Microsoft.VisualStudio.ItemTemplate" d:Source="Project" d:ProjectName="CSharp.AssemblyInfoTemplate" d:TargetPath="|CSharp.AssemblyInfoTemplate;TemplateProjectOutputGroup|" Path="ItemTemplates" d:VsixSubPath="ItemTemplates" />
     <Asset Type="Microsoft.VisualStudio.ProjectTemplate" d:Source="Project" d:ProjectName="CSharp.ClassLibrary" d:TargetPath="|CSharp.ClassLibrary;TemplateProjectOutputGroup|" Path="ProjectTemplates" d:VsixSubPath="ProjectTemplates" />
