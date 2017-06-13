@@ -17,7 +17,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         /// <param name="pszOutputString">Text to be appended to the output window pane.</param>
         public static void OutputStringAsLine(this IVsOutputWindowPane pane, string pszOutputString)
         {
-            pane.OutputString(pane + Environment.NewLine);
+            pane.OutputString(pszOutputString + Environment.NewLine);
         }
     }
 }
