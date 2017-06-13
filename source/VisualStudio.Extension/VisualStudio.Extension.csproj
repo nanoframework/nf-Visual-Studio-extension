@@ -57,6 +57,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="DeployProvider.cs" />
+    <Compile Include="Extensions\IVsOutputWindowPaneExtensions.cs" />
     <Compile Include="NanoFrameworkMonikers.cs" />
     <Compile Include="ProjectSystem\GlobalPropertiesProvider.cs" />
     <Compile Include="ProjectSystem\NanoCSharpProjectConfigured.cs" />
@@ -64,6 +65,11 @@
     <Compile Include="ProjectSystem\ProjectProperties.cs" />
     <Compile Include="ProjectSystem\ProjectTreePropertiesProvider.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Resources\ResourceStrings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>ResourceStrings.resx</DependentUpon>
+    </Compile>
     <Compile Include="ToolWindow.DeviceExplorer\DeviceExplorer.cs" />
     <Compile Include="ToolWindow.DeviceExplorer\DeviceExplorerCommand.cs" />
     <Compile Include="ToolWindow.DeviceExplorer\DeviceExplorerControl.xaml.cs">
@@ -505,6 +511,10 @@
     <Analyzer Include="..\packages\UwpDesktop.10.0.14393.3\analyzers\dotnet\UwpDesktopAnalyzer.dll" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Resources\ResourceStrings.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>ResourceStrings.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
     <EmbeddedResource Include="VSPackage.resx">
       <MergeWithCTO>true</MergeWithCTO>
     </EmbeddedResource>
