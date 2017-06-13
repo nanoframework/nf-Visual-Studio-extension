@@ -11,8 +11,9 @@
   <Import Project="$(MSBuildThisFileDirectory)\NFProjectSystem.targets" />
 
   <ItemGroup>
+    <!-- need to remove LaunchProfiles otherwise the C# project system provides it's ProjectDebuggerProvider that applies to ProjectCapability.LaunchProfiles-->
     <ProjectCapability Remove="LaunchProfiles" />
-    <ProjectCapability Include="NanoFrameworkProjectType" />
+    <ProjectCapability Include="NanoCSharpProject" />
 
     <ProjectCapability Include="ReferencesFolder"/>
 
@@ -38,12 +39,21 @@
 
   <ItemGroup>
 
-    <PropertyPageSchema Include="$(MSBuildThisFileDirectory)Rules\csProjectItemsSchema.xaml;"/>
-    <PropertyPageSchema Include="$(MSBuildThisFileDirectory)Rules\csharp.xaml;">
-      <Context>File</Context>
+    <PropertyPageSchema Include="$(MSBuildThisFileDirectory)Rules\nfProjectItemsSchema.xaml;"/>
+
+    <PropertyPageSchema Include="
+                        $(MSBuildThisFileDirectory)Rules\general.xaml;
+                        $(MSBuildThisFileDirectory)Rules\NanoFrameworkPropertyPage.xaml;
+                        ">
+      <Context>Project</Context>
     </PropertyPageSchema>
+
     <PropertyPageSchema Include="$(MSBuildThisFileDirectory)Rules\csharp.browseobject.xaml;">
       <Context>BrowseObject</Context>
+    </PropertyPageSchema>
+
+    <PropertyPageSchema Include="$(MSBuildThisFileDirectory)Rules\csharp.xaml;">
+      <Context>File</Context>
     </PropertyPageSchema>
 
   </ItemGroup>

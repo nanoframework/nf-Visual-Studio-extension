@@ -24,11 +24,11 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             IProjectTreeCustomizablePropertyContext propertyContext,
             IProjectTreeCustomizablePropertyValues propertyValues)
         {
-            // Only set the icon for the root project node.  We could choose to set different icons for nodes based
-            // on various criteria, not just Capabilities, if we wished.
+            // set the icon for the root project node
             if (propertyValues.Flags.Contains(ProjectTreeFlags.Common.ProjectRoot))
             {
                 propertyValues.Icon = NanoFrameworkMonikers.NanoFrameworkProject.ToProjectSystemType();
+                propertyValues.ExpandedIcon = NanoFrameworkMonikers.NanoFrameworkProject.ToProjectSystemType();
             }
         }
     }

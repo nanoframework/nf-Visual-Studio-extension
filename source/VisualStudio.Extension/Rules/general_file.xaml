@@ -4,6 +4,7 @@
 	DisplayName="General"
 	PageTemplate="generic"
 	Description="Project item general properties"
+    OverrideMode="Replace"    
 	xmlns="http://schemas.microsoft.com/build/2009/properties">
     
     <Rule.DataSource>
