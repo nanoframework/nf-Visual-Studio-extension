@@ -280,12 +280,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 switch (pingResult)
                 {
                     case PingConnectionType.NoConnection:
-                        windowPane.OutputString($"No reply from {ViewModelLocator.DeviceExplorer.SelectedDevice.Description}" + Environment.NewLine);
+                        windowPane.OutputStringAsLine($"No reply from {ViewModelLocator.DeviceExplorer.SelectedDevice.Description}");
                         break;
 
                     case PingConnectionType.NanoBooter:
                     case PingConnectionType.NanoCLR:
-                        windowPane.OutputString($"{ViewModelLocator.DeviceExplorer.SelectedDevice.Description} is active running {pingResult.ToString()}" + Environment.NewLine);
+                        windowPane.OutputStringAsLine($"{ViewModelLocator.DeviceExplorer.SelectedDevice.Description} is active running {pingResult.ToString()}");
                         break;
 
                 }
@@ -331,28 +331,28 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                 IVsOutputWindowPane windowPane = (IVsOutputWindowPane)this.ServiceProvider.GetService(typeof(SVsGeneralOutputWindowPane));
 
-                windowPane.OutputString(Environment.NewLine);
-                windowPane.OutputString(Environment.NewLine);
-                windowPane.OutputString("System Information" + Environment.NewLine);
-                windowPane.OutputString(ViewModelLocator.DeviceExplorer.DeviceSystemInfo.ToString());
-                windowPane.OutputString(Environment.NewLine);
-                windowPane.OutputString(Environment.NewLine);
+                windowPane.OutputStringAsLine(string.Empty);
+                windowPane.OutputStringAsLine(string.Empty);
+                windowPane.OutputStringAsLine("System Information");
+                windowPane.OutputStringAsLine(ViewModelLocator.DeviceExplorer.DeviceSystemInfo.ToString());
+                windowPane.OutputStringAsLine(string.Empty);
+                windowPane.OutputStringAsLine(string.Empty);
 
-                windowPane.OutputString("--------------------------------" + Environment.NewLine);
-                windowPane.OutputString("::        Memory Map          ::" + Environment.NewLine);
-                windowPane.OutputString("--------------------------------" + Environment.NewLine);
-                windowPane.OutputString(ViewModelLocator.DeviceExplorer.DeviceMemoryMap.ToString());
-                windowPane.OutputString(Environment.NewLine);
-                windowPane.OutputString(Environment.NewLine);
-                windowPane.OutputString("-----------------------------------------------------------" + Environment.NewLine);
-                windowPane.OutputString("::                   Flash Sector Map                    ::" + Environment.NewLine);
-                windowPane.OutputString("-----------------------------------------------------------" + Environment.NewLine);
-                windowPane.OutputString(ViewModelLocator.DeviceExplorer.DeviceFlashSectorMap.ToString());
-                windowPane.OutputString(Environment.NewLine);
-                windowPane.OutputString(Environment.NewLine);
-                windowPane.OutputString("Deployment Map" + Environment.NewLine);
-                windowPane.OutputString(ViewModelLocator.DeviceExplorer.DeviceDeploymentMap.ToString());
-                windowPane.OutputString(Environment.NewLine);
+                windowPane.OutputStringAsLine("--------------------------------");
+                windowPane.OutputStringAsLine("::        Memory Map          ::");
+                windowPane.OutputStringAsLine("--------------------------------");
+                windowPane.OutputStringAsLine(ViewModelLocator.DeviceExplorer.DeviceMemoryMap.ToString());
+                windowPane.OutputStringAsLine(string.Empty);
+                windowPane.OutputStringAsLine(string.Empty);
+                windowPane.OutputStringAsLine("-----------------------------------------------------------");
+                windowPane.OutputStringAsLine("::                   Flash Sector Map                    ::");
+                windowPane.OutputStringAsLine("-----------------------------------------------------------");
+                windowPane.OutputStringAsLine(ViewModelLocator.DeviceExplorer.DeviceFlashSectorMap.ToString());
+                windowPane.OutputStringAsLine(string.Empty);
+                windowPane.OutputStringAsLine(string.Empty);
+                windowPane.OutputStringAsLine("Deployment Map");
+                windowPane.OutputStringAsLine(ViewModelLocator.DeviceExplorer.DeviceDeploymentMap.ToString());
+                windowPane.OutputStringAsLine(string.Empty);
 
             }
             catch (Exception ex)
@@ -409,7 +409,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             if (ViewModelLocator.DeviceExplorer.ConnectionStateResult == ConnectionState.Connected)
             {
                 // output message
-                windowPane.OutputString($"Connected to {ViewModelLocator.DeviceExplorer.SelectedDevice.Description}" + Environment.NewLine);
+                windowPane.OutputStringAsLine($"Connected to {ViewModelLocator.DeviceExplorer.SelectedDevice.Description}");
 
                 // hide connect button
                 menuCommandService.FindCommand(GenerateCommandID(ConnectDeviceCommandID)).Visible = false;
@@ -433,7 +433,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             else if (ViewModelLocator.DeviceExplorer.ConnectionStateResult == ConnectionState.Disconnected)
             {
                 // output message
-                windowPane.OutputString($"Disconnected from {ViewModelLocator.DeviceExplorer.PreviousSelectedDevice.Description}" + Environment.NewLine);
+                windowPane.OutputStringAsLine($"Disconnected from {ViewModelLocator.DeviceExplorer.PreviousSelectedDevice.Description}");
 
                 // hide disconnect button
                 menuCommandService.FindCommand(GenerateCommandID(DisconnectDeviceCommandID)).Visible = false;
