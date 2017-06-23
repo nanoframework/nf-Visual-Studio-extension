@@ -125,7 +125,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             // ConnectDeviceCommand
             var toolbarButtonCommandId = GenerateCommandID(ConnectDeviceCommandID);
             var menuItem = new MenuCommand(new EventHandler(
-                ConnectDeviceCommandButtonHandlerAsync) , toolbarButtonCommandId);
+                ConnectDeviceCommandButtonHandler) , toolbarButtonCommandId);
             menuItem.Enabled = false;
             menuItem.Visible = true;
             menuCommandService.AddCommand(menuItem);
@@ -133,7 +133,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             // DisconnectDeviceCommand
             toolbarButtonCommandId = GenerateCommandID(DisconnectDeviceCommandID);
             menuItem = new MenuCommand(new EventHandler(
-                DisconnectDeviceCommandHandlerAsync), toolbarButtonCommandId);
+                DisconnectDeviceCommandHandler), toolbarButtonCommandId);
             menuItem.Enabled = false;
             menuItem.Visible = false;
             menuCommandService.AddCommand(menuItem);
@@ -149,7 +149,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             // DeviceCapabilities
             toolbarButtonCommandId = GenerateCommandID(DeviceCapabilitiesID);
             menuItem = new MenuCommand( new EventHandler(
-                DeviceCapabilitiesCommandHandlerAsync), toolbarButtonCommandId);
+                DeviceCapabilitiesCommandHandler), toolbarButtonCommandId);
             menuItem.Enabled = false;
             menuItem.Visible = true;
             menuCommandService.AddCommand(menuItem);
@@ -186,7 +186,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         /// <remarks>OK to use async void because this is a top-level event-handler 
         /// https://channel9.msdn.com/Series/Three-Essential-Tips-for-Async/Tip-1-Async-void-is-for-top-level-event-handlers-only
         /// </remarks>
-        private async void ConnectDeviceCommandButtonHandlerAsync(object sender, EventArgs arguments)
+        private void ConnectDeviceCommandButtonHandler(object sender, EventArgs arguments)
         {
             var statusBar = this.ServiceProvider.GetService(typeof(SVsStatusbar)) as IVsStatusbar;
             // this is long running operation so better show an animation to provide proper visual feedback to the developer
@@ -207,7 +207,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 //ViewModelLocator.DeviceExplorer.SelectedDevice?.DebugEngine.Disconnect();
 
                 // now try to connect
-                await ViewModelLocator.DeviceExplorer.ConnectDisconnect();
+                ViewModelLocator.DeviceExplorer.ConnectDisconnect();
             }
             catch(Exception ex)
             {
@@ -233,7 +233,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         /// <remarks>OK to use async void because this is a top-level event-handler 
         /// https://channel9.msdn.com/Series/Three-Essential-Tips-for-Async/Tip-1-Async-void-is-for-top-level-event-handlers-only
         /// </remarks>
-        private async void DisconnectDeviceCommandHandlerAsync(object sender, EventArgs arguments)
+        private void DisconnectDeviceCommandHandler(object sender, EventArgs arguments)
         {
             UpdateStatusBar($"Disconnecting from {ViewModelLocator.DeviceExplorer.SelectedDevice.Description}...");
 
@@ -242,7 +242,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 // disable the button
                 (sender as MenuCommand).Enabled = false;
 
-                await ViewModelLocator.DeviceExplorer.ConnectDisconnect();
+                ViewModelLocator.DeviceExplorer.ConnectDisconnect();
             }
             catch(Exception ex)
             {
@@ -311,7 +311,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         /// <remarks>OK to use async void because this is a top-level event-handler 
         /// https://channel9.msdn.com/Series/Three-Essential-Tips-for-Async/Tip-1-Async-void-is-for-top-level-event-handlers-only
         /// </remarks>
-        private async void DeviceCapabilitiesCommandHandlerAsync(object sender, EventArgs arguments)
+        private void DeviceCapabilitiesCommandHandler(object sender, EventArgs arguments)
         {
             UpdateStatusBar($"Querying {ViewModelLocator.DeviceExplorer.SelectedDevice.Description} capabilites...");
 
@@ -327,7 +327,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                 statusBar?.Animation(1, ref icon);
 
-                await ViewModelLocator.DeviceExplorer.LoadDeviceInfoAsync();
+                ViewModelLocator.DeviceExplorer.LoadDeviceInfo();
 
                 IVsOutputWindowPane windowPane = (IVsOutputWindowPane)this.ServiceProvider.GetService(typeof(SVsGeneralOutputWindowPane));
 
@@ -376,8 +376,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         private INFSerialDebugClientService CreateSerialDebugClient()
         {
-            // TODO: check app lifecycle
-            var serialDebugClient = PortBase.CreateInstanceForSerial("", System.Windows.Application.Current);
+            // create serial instance WITHOUT app associated because we don't care of app life cycle in VS extension
+            var serialDebugClient = PortBase.CreateInstanceForSerial("", null);
 
             return new NFSerialDebugClientService(serialDebugClient);
         }
@@ -432,8 +432,11 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             }
             else if (ViewModelLocator.DeviceExplorer.ConnectionStateResult == ConnectionState.Disconnected)
             {
-                // output message
-                windowPane.OutputStringAsLine($"Disconnected from {ViewModelLocator.DeviceExplorer.PreviousSelectedDevice.Description}");
+                // output message, if there was a device selected
+                if (ViewModelLocator.DeviceExplorer.PreviousSelectedDevice != null)
+                {
+                    windowPane.OutputStringAsLine($"Disconnected from {ViewModelLocator.DeviceExplorer.PreviousSelectedDevice.Description}");
+                }
 
                 // hide disconnect button
                 menuCommandService.FindCommand(GenerateCommandID(DisconnectDeviceCommandID)).Visible = false;

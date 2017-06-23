@@ -3,8 +3,9 @@
 // See LICENSE file in the project root for full license information.
 //
 using Microsoft.VisualStudio.ProjectSystem.VS;
-using Microsoft.VisualStudio.Shell;
 using nanoFramework.Tools.VisualStudio.Extension;
+using Microsoft.VisualStudio.Shell;
+using Microsoft.VisualStudio.Shell.Interop;
 using nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel;
 using System;
 using System.ComponentModel;
@@ -12,28 +13,20 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Runtime.InteropServices;
 
-
-[assembly: ProjectTypeRegistration( projectTypeGuid: NanoFrameworkPackage.ProjectTypeGuid,
+[assembly: ProjectTypeRegistration(projectTypeGuid: NanoFrameworkPackage.ProjectTypeGuid,
                                 displayName: "NanoCSharpProject",
                                 displayProjectFileExtensions: "#2",
                                 defaultProjectExtension: NanoCSharpProjectUnconfigured.ProjectExtension,
-                                language: NanoCSharpProjectUnconfigured.Language, 
-                                resourcePackageGuid: NanoFrameworkPackage.PackageGuid, 
-                                PossibleProjectExtensions = NanoCSharpProjectUnconfigured.ProjectExtension, 
+                                language: NanoCSharpProjectUnconfigured.Language,
+                                resourcePackageGuid: NanoFrameworkPackage.PackageGuid,
+                                PossibleProjectExtensions = NanoCSharpProjectUnconfigured.ProjectExtension,
                                 Capabilities = NanoCSharpProjectUnconfigured.UniqueCapability
                                 )]
 
 namespace nanoFramework.Tools.VisualStudio.Extension
 {
- 
-    /// <summary>
-    /// This class implements the package exposed by this assembly.
-    /// </summary>
-    /// <remarks>
-    /// This package is required if you want to define adds custom commands (ctmenu)
-    /// or localized resources for the strings that appear in the New Project and Open Project dialogs.
-    /// Creating project extensions or project types does not actually require a VSPackage.
-    /// </remarks>
+    [ProvideAutoLoad(UIContextGuids.NoSolution)]
+    [ProvideAutoLoad(UIContextGuids.SolutionExists)]
     [PackageRegistration(AllowsBackgroundLoading = true, RegisterUsing = RegistrationMethod.CodeBase, UseManagedResourcesOnly = true)]
     // info that shown on extension catalog
     [Description("Visual Studio 2017 extension for nanoFramework. Enables creating C# Solutions to be deployed to a target board and provides debugging tools.")]
@@ -62,7 +55,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         /// <summary>
         /// View model locator 
         /// </summary>
-        ViewModelLocator viewModelLocator;
+        static internal ViewModelLocator ViewModelLocator;
 
         /// <summary>
         /// Path for nanoFramework Extension directoy
@@ -92,10 +85,10 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             if (System.Windows.Application.Current.TryFindResource("Locator") == null)
             {
                 // instanciate the view model locator...
-                viewModelLocator = new ViewModelLocator();
+                ViewModelLocator = new ViewModelLocator();
 
                 // ... and add it there
-                System.Windows.Application.Current.Resources.Add("Locator", viewModelLocator);
+                System.Windows.Application.Current.Resources.Add("Locator", ViewModelLocator);
             }
         }
 
@@ -106,7 +99,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         protected override void Initialize()
         {
             base.Initialize();
-            DeviceExplorerCommand.Initialize(this, viewModelLocator);
+            DeviceExplorerCommand.Initialize(this, ViewModelLocator);
         }
     }
 }

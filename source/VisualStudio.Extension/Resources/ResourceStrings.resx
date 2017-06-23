@@ -117,7 +117,13 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="String1" xml:space="preserve">
-    <value />
+  <data name="DeviceInitializationTimeout" xml:space="preserve">
+    <value>ERROR: Timeout waiting for device to initialize. Try reset the device and reconnect in Device Explorer tool window.</value>
+  </data>
+  <data name="DeviceInitialized" xml:space="preserve">
+    <value>Device is initialized</value>
+  </data>
+  <data name="WaitingDeviceInitialization" xml:space="preserve">
+    <value>Waiting for device to initialize...</value>
   </data>
 </root>

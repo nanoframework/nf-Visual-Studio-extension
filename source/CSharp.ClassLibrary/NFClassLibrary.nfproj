@@ -15,6 +15,7 @@
     <FileAlignment>512</FileAlignment>
     <RootNamespace>$safeprojectname$</RootNamespace>
     <AssemblyName>$safeprojectname$</AssemblyName>
+    <NFTargetVersion>v1.0</NFTargetVersion>
   </PropertyGroup>
 
   <Import Project="$(NanoFrameworkProjectSystemPath)NFProjectSystem.props" Condition="Exists('$(NanoFrameworkProjectSystemPath)NFProjectSystem.props')" />
