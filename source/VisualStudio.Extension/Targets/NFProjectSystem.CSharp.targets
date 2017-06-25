@@ -55,10 +55,31 @@
     <PropertyPageSchema Include="$(MSBuildThisFileDirectory)Rules\csharp.xaml;">
       <Context>File</Context>
     </PropertyPageSchema>
+    
+    <PropertyPageSchema Include="$(MSBuildThisFileDirectory)Rules\general_file.xaml">
+      <Context>File</Context>
+    </PropertyPageSchema>
+    <PropertyPageSchema Include="$(MSBuildThisFileDirectory)Rules\scc.xaml">
+      <Context>Invisible</Context>
+    </PropertyPageSchema>
+
+    <PropertyPageSchema Include="
+                        $(MSBuildThisFileDirectory)Rules\folder.xaml;
+                        $(MSBuildThisFileDirectory)Rules\none.xaml;
+                        ">
+      <Context>File;BrowseObject</Context>
+    </PropertyPageSchema>
+
+    <PropertyPageSchema Include="$(MSBuildThisFileDirectory)Rules\general.browseobject.xaml">
+      <Context>BrowseObject</Context>
+    </PropertyPageSchema>
+
 
   </ItemGroup>
 
   <!-- Import MetaDataProcessor targets **AFTER** everything else-->
   <Import Project="$(MSBuildThisFileDirectory)\NFProjectSystem.MDP.targets" />
+
+  <Import Project="$(MSBuildProjectFullPath).user" Condition="Exists('$(MSBuildProjectFullPath).user')" />
 
 </Project>

@@ -3,20 +3,22 @@
 // See LICENSE file in the project root for full license information.
 //
 
+using Microsoft.VisualStudio.ProjectSystem;
+using Microsoft.VisualStudio.ProjectSystem.Properties;
+using System.ComponentModel.Composition;
+using System.Diagnostics.CodeAnalysis;
+
 namespace nanoFramework.Tools.VisualStudio.Extension
 {
-    using Microsoft.VisualStudio.ProjectSystem;
-    using Microsoft.VisualStudio.ProjectSystem.Properties;
-    using System.ComponentModel.Composition;
-
     [Export]
+    [ExcludeFromCodeCoverage]
     internal partial class ProjectProperties : StronglyTypedPropertyAccess
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="ProjectProperties"/> class.
         /// </summary>
         [ImportingConstructor]
-        public ProjectProperties(ConfiguredProject configuredProject)
+        public ProjectProperties([Import] ConfiguredProject configuredProject)
             : base(configuredProject)
         {
         }
@@ -43,6 +45,11 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         public ProjectProperties(ConfiguredProject configuredProject, UnconfiguredProject unconfiguredProject)
             : base(configuredProject, unconfiguredProject)
         {
+        }
+
+        public new ConfiguredProject ConfiguredProject
+        {
+            get { return base.ConfiguredProject; }
         }
     }
 }

@@ -58,5 +58,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         internal OrderPrecedenceImportCollection<IVsHierarchy> ProjectHierarchies { get; private set; }
 
         internal IVsHierarchy ProjectHierarchy => ProjectHierarchies.Single().Value;
+
+        [Import(ExportContractNames.Scopes.UnconfiguredProject)]
+        IProjectAsynchronousTasksService AsyncTasksService { get; set; }
     }
 }

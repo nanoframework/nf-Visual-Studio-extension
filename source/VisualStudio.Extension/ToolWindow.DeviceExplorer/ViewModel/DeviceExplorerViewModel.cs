@@ -1,5 +1,6 @@
 ﻿using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Messaging;
+using Microsoft.VisualStudio.Shell;
 using nanoFramework.Tools.Debugger;
 using nanoFramework.Tools.Debugger.Extensions;
 using nanoFramework.Tools.Debugger.WireProtocol;
@@ -75,9 +76,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
         {
             SerialDebugService.SerialDebugClient.DeviceEnumerationCompleted -= SerialDebugClient_DeviceEnumerationCompleted;
 
-            Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(() => {
-                SelectedTransportType = TransportType.Serial;
-            }));
+            SelectedTransportType = TransportType.Serial;
 
             UpdateAvailableDevices();
         }
@@ -90,19 +89,15 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
             {
                 case TransportType.Serial:
                     //BusySrv.ShowBusy(Res.GetString("HC_Searching"));
-                    Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(() => {
-                        AvailableDevices = new ObservableCollection<NanoDeviceBase>(SerialDebugService.SerialDebugClient.NanoFrameworkDevices);
-                        SerialDebugService.SerialDebugClient.NanoFrameworkDevices.CollectionChanged += NanoFrameworkDevices_CollectionChanged;
-                    }));
+                    AvailableDevices = new ObservableCollection<NanoDeviceBase>(SerialDebugService.SerialDebugClient.NanoFrameworkDevices);
+                    SerialDebugService.SerialDebugClient.NanoFrameworkDevices.CollectionChanged += NanoFrameworkDevices_CollectionChanged;
                     //BusySrv.HideBusy();
                     break;
 
                 case TransportType.Usb:
                     //BusySrv.ShowBusy(Res.GetString("HC_Searching"));
-                    Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(() => {
-                        //AvailableDevices = new ObservableCollection<NanoDeviceBase>(UsbDebugService.UsbDebugClient.NanoFrameworkDevices);
-                        //UsbDebugService.UsbDebugClient.NanoFrameworkDevices.CollectionChanged += NanoFrameworkDevices_CollectionChanged;
-                    }));
+                    //AvailableDevices = new ObservableCollection<NanoDeviceBase>(UsbDebugService.UsbDebugClient.NanoFrameworkDevices);
+                    //UsbDebugService.UsbDebugClient.NanoFrameworkDevices.CollectionChanged += NanoFrameworkDevices_CollectionChanged;
                     // if there's just one, select it
                     //SelectedDevice = (AvailableDevices.Count == 1) ? AvailableDevices.First() : null;
                     //BusySrv.HideBusy();
@@ -121,27 +116,24 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
 
         private void NanoFrameworkDevices_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
-            Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(() => {
+            // handle this according to the selected device type 
+            switch (SelectedTransportType)
+            {
+                //case TransportType.Usb:
+                //    AvailableDevices = new ObservableCollection<NanoDeviceBase>(UsbDebugService.UsbDebugClient.NanoFrameworkDevices);
+                //    break;
 
-                // handle this according to the selected device type 
-                switch (SelectedTransportType)
-                {
-                    //case TransportType.Usb:
-                    //    AvailableDevices = new ObservableCollection<NanoDeviceBase>(UsbDebugService.UsbDebugClient.NanoFrameworkDevices);
-                    //    break;
+                case TransportType.Serial:
+                    AvailableDevices = new ObservableCollection<NanoDeviceBase>(SerialDebugService.SerialDebugClient.NanoFrameworkDevices);
+                    break;
 
-                    case TransportType.Serial:
-                        AvailableDevices = new ObservableCollection<NanoDeviceBase>(SerialDebugService.SerialDebugClient.NanoFrameworkDevices);
-                        break;
+                default:
+                    // shouldn't get here...
+                    break;
+            }
 
-                    default:
-                        // shouldn't get here...
-                        break;
-                }
-
-                // signal event that the devices collection has changed
-                this.MessengerInstance.Send<NotificationMessage>(new NotificationMessage(""), MessagingTokens.NanoDevicesCollectionHasChanged);
-            }));
+            // signal event that the devices collection has changed
+            this.MessengerInstance.Send<NotificationMessage>(new NotificationMessage(""), MessagingTokens.NanoDevicesCollectionHasChanged);
         }
 
         public NanoDeviceBase SelectedDevice { get; set; }
@@ -199,28 +191,17 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
         public bool ConnectionResultError { get { return (SelectedDeviceConnectionResult == PingConnectionResult.Error); } }
         public bool Pinging { get { return (SelectedDeviceConnectionResult == PingConnectionResult.Busy); } }
 
-        public async Task SelectedDevicePing()
+        public void SelectedDevicePing()
         {
-            await Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(() => {
-                SelectedDeviceConnectionResult = PingConnectionResult.Busy;
-            }));
+            SelectedDeviceConnectionResult = PingConnectionResult.Busy;
 
-            try
-            {
+            ThreadHelper.JoinableTaskFactory.Run(async delegate {
+
                 PingConnectionType connection = await SelectedDevice.PingAsync();
 
-                await Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(() => {
-                    SelectedDeviceConnectionResult = (connection != PingConnectionType.NoConnection) ? PingConnectionResult.Ok : PingConnectionResult.Error;
-                }));
-            }
-            catch(Exception ex)
-            {
-                // TODO handle exception?
+                SelectedDeviceConnectionResult = (connection != PingConnectionType.NoConnection) ? PingConnectionResult.Ok : PingConnectionResult.Error;
 
-                await Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(() => {
-                    SelectedDeviceConnectionResult = PingConnectionResult.Error;
-                }));
-            }
+            });
         }
 
         #endregion
@@ -241,7 +222,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
             this.MessengerInstance.Send<NotificationMessage>(new NotificationMessage(""), MessagingTokens.ConnectionStateResultHasChanged);
         }
 
-        public async Task ConnectDisconnect()
+        public void ConnectDisconnect()
         {
             if (ConnectionStateResult == ConnectionState.Connected)
             {
@@ -249,31 +230,22 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
             }
             else
             {
-                await SelectedDeviceConnect();
+                SelectedDeviceConnect();
             }
         }
 
-        private async Task SelectedDeviceConnect()
+        private void SelectedDeviceConnect()
         {
             if (SelectedDevice != null)
             {
-                await Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(() => {
-                    ConnectionStateResult = ConnectionState.Connecting;
-                }));
+                ConnectionStateResult = ConnectionState.Connecting;
 
-                try
-                {
+                ThreadHelper.JoinableTaskFactory.Run(async delegate {
+
                     bool connectOk = await SelectedDevice.DebugEngine.ConnectAsync(3, 1000);
 
-                    await Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(() => {
-                        ConnectionStateResult = connectOk ? ConnectionState.Connected : ConnectionState.Disconnected;
-                    }));
-
-                }
-                catch(Exception ex)
-                {
-                    // TODO handle exception
-                }
+                    ConnectionStateResult = connectOk ? ConnectionState.Connected : ConnectionState.Disconnected;
+                });
 
                 //TODO show message in output reporting that the connection attempt failed
                 //if (!connectOk)
@@ -289,17 +261,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
             // AND if it's connection state is connected (no point on trying to disconnect something that is not connected, right?)
             if (SelectedDevice != null && ConnectionStateResult == ConnectionState.Connected)
             {
-                Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(() => {
-                    ConnectionStateResult = ConnectionState.Disconnecting;
-                }));
+                ConnectionStateResult = ConnectionState.Disconnecting;
 
                 try
                 {
                     SelectedDevice.DebugEngine.Disconnect();
-
-                    Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(() => {
-                        ConnectionStateResult = ConnectionState.Disconnected;
-                    }));
+                    ConnectionStateResult = ConnectionState.Disconnected;
                 }
                 catch(Exception ex)
                 {
@@ -323,7 +290,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
 
         public int LastDeviceHash { get; set; }
 
-        public async Task LoadDeviceInfoAsync()
+        public void LoadDeviceInfo()
         {
             // sanity check
             if (SelectedDevice == null)
@@ -338,26 +305,32 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
             // keep device description hash code to avoid get info twice
             LastDeviceHash = SelectedDevice.Description.GetHashCode();
 
-            try
-            {
-                // get device info
-                var di = await SelectedDevice.GetDeviceInfoAsync();
-                var mm = await SelectedDevice.DebugEngine.GetMemoryMapAsync();
-                var fm = await SelectedDevice.DebugEngine.GetFlashSectorMapAsync();
-                var dm = await SelectedDevice.DebugEngine.GetDeploymentMapAsync();
 
-                // load properties for maps
-                DeviceMemoryMap = new StringBuilder(mm?.ToStringForOutput() ?? "Empty");
-                DeviceFlashSectorMap = new StringBuilder(fm?.ToStringForOutput() ?? "Empty");
-                DeviceDeploymentMap = new StringBuilder(dm?.ToStringForOutput() ?? "Empty");
-                // and system
-                DeviceSystemInfo = new StringBuilder(di?.ToString() ?? "Empty");
-            }
-            catch
-            {
-                // reset prop to force a new get on next time we navigate into this page
-                LastDeviceHash = 0;
-            }
+            ThreadHelper.JoinableTaskFactory.Run(async delegate {
+
+                try
+                {
+                    // get device info
+                    var di = await SelectedDevice.GetDeviceInfoAsync();
+                    var mm = await SelectedDevice.DebugEngine.GetMemoryMapAsync();
+                    var fm = await SelectedDevice.DebugEngine.GetFlashSectorMapAsync();
+                    var dm = await SelectedDevice.DebugEngine.GetDeploymentMapAsync();
+
+                    // load properties for maps
+                    DeviceMemoryMap = new StringBuilder(mm?.ToStringForOutput() ?? "Empty");
+                    DeviceFlashSectorMap = new StringBuilder(fm?.ToStringForOutput() ?? "Empty");
+                    DeviceDeploymentMap = new StringBuilder(dm?.ToStringForOutput() ?? "Empty");
+                    // and system
+                    DeviceSystemInfo = new StringBuilder(di?.ToString() ?? "Empty");
+                }
+                catch
+                {
+                    // reset prop to force a new get on next time we navigate into this page
+                    LastDeviceHash = 0;
+                }
+
+            });
+
         }
 
         #endregion
