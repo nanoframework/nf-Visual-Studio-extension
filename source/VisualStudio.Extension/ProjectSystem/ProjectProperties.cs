@@ -51,5 +51,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         {
             get { return base.ConfiguredProject; }
         }
+
     }
 }
