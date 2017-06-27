@@ -271,6 +271,7 @@
       <HintPath>..\packages\Microsoft.VisualStudio.Validation.15.3.15\lib\net45\Microsoft.VisualStudio.Validation.dll</HintPath>
     </Reference>
     <Reference Include="nanoFramework.Tools.Debugger, Version=0.4.6383.23861, Culture=neutral, PublicKeyToken=e520bb6b53f04733, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\nanoFramework.Tools.Debugger.Net.0.4.0-preview016\lib\net46\nanoFramework.Tools.Debugger.dll</HintPath>
     </Reference>
     <Reference Include="Polly, Version=5.1.0.0, Culture=neutral, PublicKeyToken=c8a3ffc3f8f825cc, processorArchitecture=MSIL">

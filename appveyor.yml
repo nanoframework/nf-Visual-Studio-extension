@@ -1,4 +1,4 @@
-version: 0.1.40-pre{build}
+version: 0.1.41-pre{build}
 pull_requests:
   do_not_increment_build_number: true
 branches:
@@ -15,15 +15,9 @@ build_script:
 
     msbuild source\nanoFramework.Tools.VisualStudio.sln /p:Configuration=Release  /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
 artifacts:
-- path: '**\bin\Release\*MSBuildSystem*.nupkg'
-  name: MSBuild_System_Nuget_Package
 - path: '**\*.vsix'
   name: VS_extension
 deploy:
-- provider: NuGet
-  api_key:
-    secure: NSRDXbS8tmzOy4wStGuO3yQMKI8Sk10vF8iQtz9ZDXEnHfwnuDdnXbr/Kno3MMvY
-  skip_symbols: true
 - provider: GitHub
   tag: v$(appveyor_build_version)
   release: nanoFramework VS2017 Extension v$(appveyor_build_version)

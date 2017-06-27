@@ -61,7 +61,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to ERROR: Timeout waiting for device to initialize. Try reset the device and reconnect in Device Explorer tool window..
+        ///   Looks up a localized string similar to ERROR: Timeout waiting for device to leave initialization state. Try reset the device and reconnect in Device Explorer tool window..
         /// </summary>
         internal static string DeviceInitializationTimeout {
             get {
