@@ -21,5 +21,19 @@
             <DataSource Persistence="ProjectFile" PersistedName="MSBuildProjectFullPath" />
         </StringProperty.DataSource>
     </StringProperty>
+
+    <StringProperty Name="AssemblyName" DisplayName="Assembly Name" Visible="true">
+        <StringProperty.DataSource>
+                <DataSource PersistedName="AssemblyName" Persistence="ProjectFile" HasConfigurationCondition="false" SourceOfDefaultValue="AfterContext" />
+        </StringProperty.DataSource>
+    </StringProperty>
+
+    <StringProperty Name="RootNamespace" DisplayName="RootNamespace" Visible="False" />
+    <StringProperty Name="DefaultNamespace" DisplayName="Default Namespace" Visible="true">
+        <StringProperty.DataSource>
+            <DataSource PersistedName="RootNamespace" Persistence="ProjectFile" HasConfigurationCondition="false" SourceOfDefaultValue="AfterContext" />
+        </StringProperty.DataSource>
+    </StringProperty>
+    
 </Rule>
     
