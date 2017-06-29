@@ -1,4 +1,4 @@
-version: 0.1.42-pre{build}
+version: 0.1.44-pre{build}
 pull_requests:
   do_not_increment_build_number: true
 branches:

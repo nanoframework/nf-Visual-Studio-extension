@@ -89,8 +89,8 @@
     <Compile Include="ToolWindow.DeviceExplorer\ViewModel\ViewModelLocator.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="..\packages\nanoFramework.CoreLibrary.1.0.0-preview020\nanoFramework.CoreLibrary.1.0.0-preview020.nupkg">
-      <Link>Packages\nanoFramework.CoreLibrary.1.0.0-preview020.nupkg</Link>
+    <Content Include="..\packages\nanoFramework.CoreLibrary.1.0.0-preview022\nanoFramework.CoreLibrary.1.0.0-preview022.nupkg">
+      <Link>Packages\nanoFramework.CoreLibrary.1.0.0-preview022.nupkg</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
@@ -270,12 +270,11 @@
     <Reference Include="Microsoft.VisualStudio.Validation, Version=15.3.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.VisualStudio.Validation.15.3.15\lib\net45\Microsoft.VisualStudio.Validation.dll</HintPath>
     </Reference>
-    <Reference Include="nanoFramework.Tools.Debugger, Version=0.4.6383.23861, Culture=neutral, PublicKeyToken=e520bb6b53f04733, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\nanoFramework.Tools.Debugger.Net.0.4.0-preview016\lib\net46\nanoFramework.Tools.Debugger.dll</HintPath>
+    <Reference Include="nanoFramework.Tools.Debugger, Version=0.4.6389.7304, Culture=neutral, PublicKeyToken=e520bb6b53f04733, processorArchitecture=MSIL">
+      <HintPath>..\packages\nanoFramework.Tools.Debugger.Net.0.4.0-preview017\lib\net46\nanoFramework.Tools.Debugger.dll</HintPath>
     </Reference>
-    <Reference Include="Polly, Version=5.1.0.0, Culture=neutral, PublicKeyToken=c8a3ffc3f8f825cc, processorArchitecture=MSIL">
-      <HintPath>..\packages\Polly-Signed.5.1.0\lib\net45\Polly.dll</HintPath>
+    <Reference Include="Polly, Version=5.2.0.0, Culture=neutral, PublicKeyToken=c8a3ffc3f8f825cc, processorArchitecture=MSIL">
+      <HintPath>..\packages\Polly-Signed.5.2.0\lib\net45\Polly.dll</HintPath>
     </Reference>
     <!-- reference this assembly when Configuration is Release (on Debug reference the project directly instead) -->
     <Reference Include="PresentationCore" />
@@ -552,7 +551,6 @@
     <Error Condition="!Exists('..\packages\Microsoft.VisualStudio.SDK.VsixSuppression.14.1.33\build\Microsoft.VisualStudio.SDK.VsixSuppression.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.VisualStudio.SDK.VsixSuppression.14.1.33\build\Microsoft.VisualStudio.SDK.VsixSuppression.targets'))" />
     <Error Condition="!Exists('..\packages\UwpDesktop.10.0.14393.3\build\portable-net45+uap\UwpDesktop.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\UwpDesktop.10.0.14393.3\build\portable-net45+uap\UwpDesktop.targets'))" />
     <Error Condition="!Exists('..\packages\Fody.2.1.0\build\netstandard1.0\Fody.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Fody.2.1.0\build\netstandard1.0\Fody.targets'))" />
-    <Error Condition="!Exists('..\packages\nanoFramework.CoreLibrary.1.0.0-preview020\build\nanoFramework.CoreLibrary.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\nanoFramework.CoreLibrary.1.0.0-preview020\build\nanoFramework.CoreLibrary.targets'))" />
     <Error Condition="!Exists('..\packages\Microsoft.VisualStudio.ProjectSystem.SDK.Tools.15.0.751\build\Microsoft.VisualStudio.ProjectSystem.Sdk.Tools.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.VisualStudio.ProjectSystem.SDK.Tools.15.0.751\build\Microsoft.VisualStudio.ProjectSystem.Sdk.Tools.targets'))" />
     <Error Condition="!Exists('..\packages\Microsoft.VisualStudio.SDK.EmbedInteropTypes.15.0.9\build\Microsoft.VisualStudio.SDK.EmbedInteropTypes.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.VisualStudio.SDK.EmbedInteropTypes.15.0.9\build\Microsoft.VisualStudio.SDK.EmbedInteropTypes.targets'))" />
     <Error Condition="!Exists('..\packages\Microsoft.VSSDK.BuildTools.15.1.192\build\Microsoft.VSSDK.BuildTools.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.VSSDK.BuildTools.15.1.192\build\Microsoft.VSSDK.BuildTools.props'))" />
@@ -561,7 +559,6 @@
   <Import Project="..\packages\Microsoft.VisualStudio.SDK.VsixSuppression.14.1.33\build\Microsoft.VisualStudio.SDK.VsixSuppression.targets" Condition="Exists('..\packages\Microsoft.VisualStudio.SDK.VsixSuppression.14.1.33\build\Microsoft.VisualStudio.SDK.VsixSuppression.targets')" />
   <Import Project="..\packages\UwpDesktop.10.0.14393.3\build\portable-net45+uap\UwpDesktop.targets" Condition="Exists('..\packages\UwpDesktop.10.0.14393.3\build\portable-net45+uap\UwpDesktop.targets')" />
   <Import Project="..\packages\Fody.2.1.0\build\netstandard1.0\Fody.targets" Condition="Exists('..\packages\Fody.2.1.0\build\netstandard1.0\Fody.targets')" />
-  <Import Project="..\packages\nanoFramework.CoreLibrary.1.0.0-preview020\build\nanoFramework.CoreLibrary.targets" Condition="Exists('..\packages\nanoFramework.CoreLibrary.1.0.0-preview020\build\nanoFramework.CoreLibrary.targets')" />
   <Import Project="..\packages\Microsoft.VisualStudio.ProjectSystem.SDK.Tools.15.0.751\build\Microsoft.VisualStudio.ProjectSystem.Sdk.Tools.targets" Condition="Exists('..\packages\Microsoft.VisualStudio.ProjectSystem.SDK.Tools.15.0.751\build\Microsoft.VisualStudio.ProjectSystem.Sdk.Tools.targets')" />
   <Import Project="..\packages\Microsoft.VisualStudio.SDK.EmbedInteropTypes.15.0.9\build\Microsoft.VisualStudio.SDK.EmbedInteropTypes.targets" Condition="Exists('..\packages\Microsoft.VisualStudio.SDK.EmbedInteropTypes.15.0.9\build\Microsoft.VisualStudio.SDK.EmbedInteropTypes.targets')" />
   <Import Project="..\packages\Microsoft.VSSDK.BuildTools.15.1.192\build\Microsoft.VSSDK.BuildTools.targets" Condition="Exists('..\packages\Microsoft.VSSDK.BuildTools.15.1.192\build\Microsoft.VSSDK.BuildTools.targets')" />
