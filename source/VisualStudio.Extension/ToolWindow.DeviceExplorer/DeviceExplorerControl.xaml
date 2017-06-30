@@ -50,12 +50,12 @@
                 <TreeView.Resources>
                     <DataTemplate x:Key="NanoDeviceItemTemplate" DataType="{x:Type debugger:NanoDeviceBase}">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Top" HorizontalAlignment="Stretch">
-                            <TextBlock Text="{Binding Description}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+                            <TextBlock Text="{Binding Description, Mode=OneWay}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
                         </StackPanel>
                     </DataTemplate>
                 </TreeView.Resources>
 
-                <TreeViewItem x:Name="DevicesHeaderItem" Header="Devices" IsExpanded="True" ItemTemplate="{StaticResource NanoDeviceItemTemplate}" Focusable="False" ItemsSource="{Binding AvailableDevices}" />
+                <TreeViewItem x:Name="DevicesHeaderItem" Header="Devices" IsExpanded="True" ItemTemplate="{StaticResource NanoDeviceItemTemplate}" Focusable="False" ItemsSource="{Binding AvailableDevices, Mode=OneWay}" />
 
             </TreeView>
 
