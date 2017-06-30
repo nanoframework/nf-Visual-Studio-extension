@@ -4,6 +4,7 @@ using Microsoft.VisualStudio.Shell;
 using nanoFramework.Tools.Debugger;
 using nanoFramework.Tools.Debugger.Extensions;
 using nanoFramework.Tools.Debugger.WireProtocol;
+using PropertyChanged;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -17,6 +18,7 @@ using System.Windows.Threading;
 
 namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
 {
+    [AddINotifyPropertyChangedInterface]
     /// <summary>
     /// This class contains properties that the main View can data bind to.
     /// <para>
@@ -29,7 +31,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
     /// See http://www.galasoft.ch/mvvm
     /// </para>
     /// </summary>
-    public class DeviceExplorerViewModel : ViewModelBase, INotifyPropertyChanging
+    public class DeviceExplorerViewModel : ViewModelBase, INotifyPropertyChanging, INotifyPropertyChanged
     {
         public const int WRITE_TO_OUTPUT_TOKEN = 1;
         public const int SELECTED_NULL_TOKEN = 2;
@@ -346,5 +348,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
         }
 
         #endregion
+
     }
 }
