@@ -265,6 +265,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
             {
                 ConnectionStateResult = ConnectionState.Disconnecting;
 
+                // reset property to force that device capabilities are retrieved on next connection
+                LastDeviceConnectedHash = 0;
+
                 try
                 {
                     SelectedDevice.DebugEngine.Disconnect();
@@ -290,7 +293,10 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
 
         public StringBuilder DeviceSystemInfo { get; set; }
 
-        public int LastDeviceHash { get; set; }
+        /// <summary>
+        /// used to prevent repeated retrieval of device capabilites after connection
+        /// </summary>
+        public int LastDeviceConnectedHash { get; set; }
 
         public void LoadDeviceInfo()
         {
@@ -301,11 +307,11 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
             }
 
             // if same device nothing to do here, exit
-            if (SelectedDevice.Description.GetHashCode() == LastDeviceHash)
+            if (SelectedDevice.Description.GetHashCode() == LastDeviceConnectedHash)
                 return;
 
             // keep device description hash code to avoid get info twice
-            LastDeviceHash = SelectedDevice.Description.GetHashCode();
+            LastDeviceConnectedHash = SelectedDevice.Description.GetHashCode();
 
 
             ThreadHelper.JoinableTaskFactory.Run(async delegate {
@@ -327,8 +333,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
                 }
                 catch
                 {
-                    // reset prop to force a new get on next time we navigate into this page
-                    LastDeviceHash = 0;
+                    // reset property to force that device capabilities are retrieved on next connection
+                    LastDeviceConnectedHash = 0;
                 }
 
             });

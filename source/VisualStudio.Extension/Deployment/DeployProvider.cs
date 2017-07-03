@@ -75,8 +75,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             if ((ViewModelLocator?.DeviceExplorer.ConnectionStateResult != ConnectionState.Connected))
             {
                 // can't debug
-                await outputPaneWriter.WriteLineAsync("There is no device connected. Check Device Explorer tool window.");
-                return;
+                // throw exception to signal deployment failure
+                throw new Exception("There is no device connected. Check Device Explorer tool window.");
             }
 
             // get the device here so we are not always carrying the full path to the device
@@ -170,18 +170,29 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                 if (!await device.DebugEngine.DeploymentExecuteAsync(assemblies, false))
                 {
-                    await outputPaneWriter.WriteLineAsync("Deploy failed.");
-                    return;
+                    // throw exception to signal deployment failure
+                    throw new Exception("Deploy failed.");
                 }
 
-                //
+                // deployment successfull
                 await outputPaneWriter.WriteLineAsync("Deployment successful.");
 
+                // TODO 
+                // this can be uncommented after the command is actually working
+                //try
+                //{
+                //    await device.DebugEngine.RebootDeviceAsync(RebootOption.RebootClrOnly);
+                //}
+                //catch { }
+
+                // reset the hash for the connected device so the deployment information can be refreshed
+                ViewModelLocator.DeviceExplorer.LastDeviceConnectedHash = 0;
             }
             else
             {
                 // after retry policy applied seems that we couldn't set the device in initizaled state...
-                await outputPaneWriter.WriteLineAsync(ResourceStrings.DeviceInitializationTimeout);
+                // throw exception to signal deployment failure
+                throw new Exception(ResourceStrings.DeviceInitializationTimeout);
             }
         }
 
