@@ -1,4 +1,9 @@
-version: 0.1.44-pre{build}
+version: 0.1.47-pre{build}
+
+# temporary fix for nuget connectivity issues
+hosts:
+  api.nuget.org: 93.184.221.200
+
 pull_requests:
   do_not_increment_build_number: true
 branches:
