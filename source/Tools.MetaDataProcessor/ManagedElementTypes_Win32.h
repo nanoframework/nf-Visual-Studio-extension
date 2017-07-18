@@ -56,6 +56,9 @@ public:
 	// Declaration of variable in marshaling code.
 	virtual string GetVariableDecl() { return GetStandardTypeName(); }
 
+	// Declaration of variable for use in typed array in marshaling code.
+	virtual string GetVariableDeclForTypedArray() { return GetNativeType(); }
+
 	// For value type there is no prefix. Return empty string
 	virtual string GetTypeNamePrefix() { return "\0"; }
 
@@ -102,7 +105,7 @@ public:
 	virtual ~CLR_RT_ManagedElementTypeArray() {}
 
 	// Varialble declaration - "CLR_RT_TypedArray_" of specified type;
-	virtual string GetVariableDecl() { return "CLR_RT_TypedArray_" + CLR_RT_ManagedElementType::GetVariableDecl(); }
+	virtual string GetVariableDecl() { return "CLR_RT_TypedArray_" + CLR_RT_ManagedElementType::GetVariableDeclForTypedArray(); }
 
 	// Reference types are prefixed by BYREF_ in function names.
 	virtual string GetTypeNamePrefix() { return "SZARRAY_"; }
