@@ -30,26 +30,20 @@
 
   <!-- set default NF properties for CoreLibrary project -->
   <PropertyGroup Condition="'$(NF_IsCoreLibrary)' == 'True' ">
-    <NFMDP_PE_SKIP>false</NFMDP_PE_SKIP>
-    <NFMDP_DUMP_SKIP>false</NFMDP_DUMP_SKIP>
-    <NFMDP_STUB_SKIP>false</NFMDP_STUB_SKIP>
-    <NFMDP_DAT_SKIP>false</NFMDP_DAT_SKIP>
-    <NFMDP_XML_SKIP>false</NFMDP_XML_SKIP>
+    <NFMDP_PE_SKIP Condition="'$(NFMDP_PE_SKIP)'==''">false</NFMDP_PE_SKIP>
+    <NFMDP_DUMP_SKIP Condition="'$(NFMDP_DUMP_SKIP)'==''">false</NFMDP_DUMP_SKIP>
+    <NFMDP_STUB_SKIP Condition="'$(NFMDP_STUB_SKIP)'==''">false</NFMDP_STUB_SKIP>
+    <NFMDP_DAT_SKIP Condition="'$(NFMDP_DAT_SKIP)'==''">false</NFMDP_DAT_SKIP>
+    <NFMDP_XML_SKIP Condition="'$(NFMDP_XML_SKIP)'==''">false</NFMDP_XML_SKIP>
   </PropertyGroup>
 
   <!-- set default NF properties for regular project (not CoreLibrary) -->
   <PropertyGroup Condition="'$(NF_IsCoreLibrary)' != 'True' Or '$(NF_IsCoreLibrary)' == '' ">
-    <NFMDP_PE_SKIP>true</NFMDP_PE_SKIP>
-    <NFMDP_DUMP_SKIP>true</NFMDP_DUMP_SKIP>
-    <NFMDP_STUB_SKIP>true</NFMDP_STUB_SKIP>
-    <NFMDP_DAT_SKIP>true</NFMDP_DAT_SKIP>
-    <NFMDP_XML_SKIP>true</NFMDP_XML_SKIP>
-  </PropertyGroup>
-
-  <!-- set default NF properties for all projects -->
-  <PropertyGroup>
-    <!-- set output of nF MetaDataProcessor command lines to disable -->
-    <NFMDP_CMD_LINE_OUTPUT>false</NFMDP_CMD_LINE_OUTPUT>
+    <NFMDP_PE_SKIP Condition="'$(NFMDP_PE_SKIP)'==''">true</NFMDP_PE_SKIP>
+    <NFMDP_DUMP_SKIP Condition="'$(NFMDP_DUMP_SKIP)'==''">true</NFMDP_DUMP_SKIP>
+    <NFMDP_STUB_SKIP Condition="'$(NFMDP_STUB_SKIP)'==''">true</NFMDP_STUB_SKIP>
+    <NFMDP_DAT_SKIP Condition="'$(NFMDP_DAT_SKIP)'==''">true</NFMDP_DAT_SKIP>
+    <NFMDP_XML_SKIP Condition="'$(NFMDP_XML_SKIP)'==''">true</NFMDP_XML_SKIP>
   </PropertyGroup>
 
 </Project>
