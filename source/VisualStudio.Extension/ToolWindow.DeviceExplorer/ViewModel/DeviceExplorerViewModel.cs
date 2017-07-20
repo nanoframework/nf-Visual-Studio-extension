@@ -244,7 +244,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
 
                 ThreadHelper.JoinableTaskFactory.Run(async delegate {
 
-                    bool connectOk = await SelectedDevice.DebugEngine.ConnectAsync(3, 1000);
+                    bool connectOk = await SelectedDevice.DebugEngine.ConnectAsync(3, 1000, true);
 
                     ConnectionStateResult = connectOk ? ConnectionState.Connected : ConnectionState.Disconnected;
                 });
