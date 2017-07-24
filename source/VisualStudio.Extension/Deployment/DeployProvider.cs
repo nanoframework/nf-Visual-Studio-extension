@@ -177,13 +177,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 // deployment successfull
                 await outputPaneWriter.WriteLineAsync("Deployment successful.");
 
-                // TODO 
-                // this can be uncommented after the command is actually working
-                //try
-                //{
-                //    await device.DebugEngine.RebootDeviceAsync(RebootOption.RebootClrOnly);
-                //}
-                //catch { }
+                // reboot device so the assemblies get loaded
+                try
+                {
+                    await device.DebugEngine.RebootDeviceAsync();
+                }
+                catch { }
 
                 // reset the hash for the connected device so the deployment information can be refreshed
                 ViewModelLocator.DeviceExplorer.LastDeviceConnectedHash = 0;
