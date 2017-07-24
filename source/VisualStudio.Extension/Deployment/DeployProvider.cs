@@ -115,9 +115,15 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 // device is NOT in initialization state, meaning is running or stopped
                 await outputPaneWriter.WriteLineAsync(ResourceStrings.DeviceInitialized);
 
+                ///////////////////////////////////////////////////////
                 // get the list of assemblies referenced by the project
                 var referencedAssemblies = await Properties.ConfiguredProject.Services.AssemblyReferences.GetResolvedReferencesAsync();
 
+                //////////////////////////////////////////////////////////////////////////
+                // get the list of other projects referenced by the project being deployed
+                var referencedProjects = await Properties.ConfiguredProject.Services.ProjectReferences.GetResolvedReferencesAsync();
+
+                /////////////////////////////////////////////////////////
                 // get the target path to reach the PE for the executable
 
                 // this is not currently working so...
@@ -137,12 +143,22 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 // we want the target path property
                 var targetPath = projectResult.Result.Properties.First(p => p.Name == "TargetPath").EvaluatedValue;
 
-                // build a list with the full path for each DLL and EXE
+
+                // build a list with the full path for each DLL, referenced DLL and EXE
                 List<string> assemblyList = new List<string>();
 
                 foreach (IAssemblyReference reference in referencedAssemblies)
                 {
                     assemblyList.Add(await reference.GetFullPathAsync());
+                }
+
+                // loop through each project that is set to build
+                foreach (IBuildDependencyProjectReference project in referencedProjects)
+                {
+                    if (await project.GetReferenceOutputAssemblyAsync())
+                    {
+                        assemblyList.Add(await project.GetFullPathAsync());
+                    }
                 }
 
                 // now add the executable to this list
