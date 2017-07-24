@@ -174,6 +174,12 @@ void CLR_RT_Assembly::Dump(bool fNoByteCode)
 		if ((NULL != strstr(tempFieldName, "<")) || (NULL != strstr(tempFieldName, ">")))
 		{
 			// something very wrong with field name!!
+			Dump_Printf("    // Something wrong with this field. Possibly its backing field is missing (mandatory for nanoFramework).\n");
+			Dump_Printf("    // ");
+			Dump_Printf(tempFieldName);
+			Dump_Printf("\n");
+
+			// output a variable name that is invalid to make the compiler issue an error
 			strcpy_s(tempFieldName, ">>>>>>>>>>>>>>>>>>>>>>>>>>>>SOMETHING_WRONG_WITH_THIS_FIELD_POSSIBLY_MISSING_BACKING_FIELD");
 		}
 		
@@ -946,9 +952,28 @@ void CLR_RT_Assembly::GenerateSkeletonStubFieldsDef(const CLR_RECORD_TYPEDEF *pC
 
 			// Generates function that retrieves the managed field
 			// First function declaration
-			string strFieldDef = strIndent + "static " + elemType.GetStandardTypeName() + "& Get_" + GetString(fd->name) + "( CLR_RT_HeapBlock* pMngObj )    ";
+
+			// need this to check for valid field names
+			char tempFieldName[200];
+			strcpy_s(tempFieldName, GetString(fd->name));
+
+			if ((NULL != strstr(tempFieldName, "<")) || (NULL != strstr(tempFieldName, ">")))
+			{
+				// something very wrong with field name!!
+				string tempMessage = strIndent + "// Something wrong with this field. Possibly its backing field is missing (mandatory for nanoFramework).\n";
+				tempMessage += strIndent + "// ";
+				tempMessage += tempFieldName;
+				tempMessage +="\n";
+
+				Dump_Printf(pFileStubHead, tempMessage.c_str());
+
+				// output a variable name that is invalid to make the compiler issue an error
+				strcpy_s(tempFieldName, "**THIS_FIELD_IS_NOT_CORRECT_CHECK_MANAGED_CODE**");
+			}
+
+			string strFieldDef = strIndent + "static " + elemType.GetStandardTypeName() + "& Get_" + tempFieldName + "( CLR_RT_HeapBlock* pMngObj )    ";
 			// Now generates the body of the function. 
-			strFieldDef += "{ return Interop_Marshal_GetField_" + elemType.GetNativeType() + "( pMngObj, " + strNameSpace + "::FIELD__" + GetString(fd->name) + " ); }\n\n";
+			strFieldDef += "{ return Interop_Marshal_GetField_" + elemType.GetNativeType() + "( pMngObj, " + strNameSpace + "::FIELD__" + tempFieldName + " ); }\n\n";
 
 
 			// Print field definition to header file.
@@ -1293,7 +1318,13 @@ void CLR_RT_Assembly::GenerateSkeletonFromComplientNames(LPCWSTR szFilePath, LPC
 					if ((NULL != strstr(tempFieldName, "<")) || (NULL != strstr(tempFieldName, ">")))
 					{
 						// something very wrong with field name!!
-						strcpy_s(tempFieldName, "SOMETHING_WRONG_WITH_THIS_FIELD_POSSIBLY_MISSING_BACKING_FIELD");
+						Dump_Printf("    // Something wrong with this field. Possibly its backing field is missing (mandatory for nanoFramework).\n");
+						Dump_Printf("    // ");
+						Dump_Printf(tempFieldName);
+						Dump_Printf("\n");
+						
+						// output a variable name that is invalid to make the compiler issue an error
+						strcpy_s(tempFieldName, "**THIS_FIELD_IS_NOT_CORRECT_CHECK_MANAGED_CODE**");
 					}
 
 					Dump_Printf(c_Type_Field_Static, &tempFieldName, j + iStaticFields);
@@ -1317,7 +1348,13 @@ void CLR_RT_Assembly::GenerateSkeletonFromComplientNames(LPCWSTR szFilePath, LPC
 					if ((NULL != strstr(tempFieldName, "<")) || (NULL != strstr(tempFieldName, ">")))
 					{
 						// something very wrong with field name!!
-						strcpy_s(tempFieldName, "SOMETHING_WRONG_WITH_THIS_FIELD_POSSIBLY_MISSING_BACKING_FIELD");
+						Dump_Printf("    // Something wrong with this field. Possibly its backing field is missing (mandatory for nanoFramework).\n");
+						Dump_Printf("    // ");
+						Dump_Printf(tempFieldName);
+						Dump_Printf("\n");
+
+						// output a variable name that is invalid to make the compiler issue an error
+						strcpy_s(tempFieldName, "**THIS_FIELD_IS_NOT_CORRECT_CHECK_MANAGED_CODE**");
 					}
 
 					Dump_Printf(c_Type_Field_Instance, &tempFieldName, m_pCrossReference_FieldDef[j + td->iFields_First].m_offset);
