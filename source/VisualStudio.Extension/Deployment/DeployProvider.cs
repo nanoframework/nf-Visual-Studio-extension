@@ -167,22 +167,28 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 // build a list with the PE files corresponding to each DLL and EXE
                 List<string> peCollection = assemblyList.Select(a => a.Replace(".dll", ".pe").Replace(".exe", ".pe")).ToList();
 
+                // Keep track of total assembly size
+                long totalSizeOfAssemblies = 0;
+
                 // now we will re-deploy all system assemblies
                 foreach(string pePath in peCollection)
                 {
                     // append to the deploy blob the assembly
                     using (FileStream fs = File.Open(pePath, FileMode.Open, FileAccess.Read))
                     {
-                        await outputPaneWriter.WriteLineAsync($"Adding pe file {Path.GetFileNameWithoutExtension(pePath)} to deployment bundle");
                         long length = (fs.Length + 3) / 4 * 4;
+                        await outputPaneWriter.WriteLineAsync($"Adding pe file {Path.GetFileNameWithoutExtension(pePath)} to deployment bundle, size in bytes {length.ToString()}");
                         byte[] buffer = new byte[length];
 
                         fs.Read(buffer, 0, (int)fs.Length);
                         assemblies.Add(buffer);
+
+                        // Increment totalizer
+                        totalSizeOfAssemblies += length;
                     }
                 }
 
-                await outputPaneWriter.WriteLineAsync("Deploying assemblies to device...");
+                await outputPaneWriter.WriteLineAsync($"Deploying assemblies to device...total size in bytes {totalSizeOfAssemblies.ToString()}.");
 
                 if (!await device.DebugEngine.DeploymentExecuteAsync(assemblies, false))
                 {
