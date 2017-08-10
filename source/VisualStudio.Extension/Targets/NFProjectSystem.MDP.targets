@@ -448,6 +448,10 @@
     </MetaDataProcessorTask>
 
     <CallTarget Targets="GenerateStubs" Condition="'$(NF_GenerateStubs)'=='true'" />
+    
+    <!-- Copy files (dll, pe, pdb and pdbx) to ouput directory -->
+    <CallTarget Targets="CopyFilesToOutputDirectory" />
+    <CallTarget Targets="CopyNanoFrameworkFiles" />
   </Target>
 
 
