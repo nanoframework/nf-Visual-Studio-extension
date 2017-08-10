@@ -361,7 +361,7 @@
 
     <PropertyGroup>
       <!-- correct path for stubs output if set -->
-      <NFMDP_STUB_GenerateSkeletonFile Condition="'$(NFMDP_STUB_SKIP)' != 'true' AND '$(NFMDP_STUB_GenerateSkeletonFile)'!=''">$(ProjectDir)$(IntermediateOutputPath)$(NFMDP_STUB_GenerateSkeletonFile)</NFMDP_STUB_GenerateSkeletonFile>
+      <NFMDP_STUB_GenerateSkeletonFile Condition="'$(NFMDP_STUB_SKIP)' != 'true' AND '$(NFMDP_STUB_GenerateSkeletonFile)'!=''">$(ProjectDir)$(OutDir)$(NFMDP_STUB_GenerateSkeletonFile)</NFMDP_STUB_GenerateSkeletonFile>
     </PropertyGroup>
 
     <ItemGroup>
