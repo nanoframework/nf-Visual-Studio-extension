@@ -1653,7 +1653,23 @@ void CLR_RT_Assembly::GenerateSkeleton_NoInterop(LPCWSTR szFileName, LPCWSTR szP
 				{
 					if (fSeen == false) { Dump_Printf(c_Type_Begin, szName, cls_name.c_str()); fSeen = true; }
 
-					Dump_Printf(c_Type_Field_Instance, GetString(fd->name), m_pCrossReference_FieldDef[j + td->iFields_First].m_offset);
+					// need this to check for valid field names
+					char tempFieldName[200];
+					strcpy_s(tempFieldName, GetString(fd->name));
+
+					if ((NULL != strstr(tempFieldName, "<")) || (NULL != strstr(tempFieldName, ">")))
+					{
+						// something very wrong with field name!!
+						Dump_Printf("    // Something wrong with this field. Possibly its backing field is missing (mandatory for nanoFramework).\n");
+						Dump_Printf("    // ");
+						Dump_Printf(tempFieldName);
+						Dump_Printf("\n");
+
+						// output a variable name that is invalid to make the compiler issue an error
+						strcpy_s(tempFieldName, "**THIS_FIELD_IS_NOT_CORRECT_CHECK_MANAGED_CODE**");
+					}
+
+					Dump_Printf(c_Type_Field_Instance, &tempFieldName, m_pCrossReference_FieldDef[j + td->iFields_First].m_offset);
 				}
 
 				Dump_Printf("\n");
