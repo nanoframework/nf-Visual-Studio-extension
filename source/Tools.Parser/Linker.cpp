@@ -2469,7 +2469,7 @@ HRESULT WatchAssemblyBuilder::Linker::DumpPdbxToken(CLR_XmlUtil& xml, IXMLDOMNod
 
     NANOCLR_CHECK_HRESULT(xml.CreateNode( L"Token"  , &pNodeToken, pNodeParent ));
     NANOCLR_CHECK_HRESULT(xml.PutValue  ( L"CLR"    , ToHex( tk              ), fFound,  pNodeToken              ));
-    NANOCLR_CHECK_HRESULT(xml.PutValue  ( L"TinyCLR", ToHex( m_lookupIDs[tk] ), fFound,  pNodeToken              ));
+    NANOCLR_CHECK_HRESULT(xml.PutValue  ( L"nanoCLR", ToHex( m_lookupIDs[tk] ), fFound,  pNodeToken              ));
 
     NANOCLR_NOCLEANUP();
 }
@@ -2587,7 +2587,7 @@ HRESULT WatchAssemblyBuilder::Linker::DumpPdbx(std::wstring szFileNamePE )
 
 					xml.CreateNode( L"IL"     ,                                         &pNodeIL, pNodeILMap );
 					 xml.PutValue  ( L"CLR"    , ToHex( opOriginal.m_ipOffset ), fFound,  pNodeIL             );
-					 xml.PutValue  ( L"TinyCLR", ToHex( op        .m_ipOffset ), fFound,  pNodeIL             );
+					 xml.PutValue  ( L"nanoCLR", ToHex( op        .m_ipOffset ), fFound,  pNodeIL             );
                 }
             }
         }
