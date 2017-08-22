@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26430.14
+VisualStudioVersion = 15.0.26730.8
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSharp.BlankApplication", "CSharp.BlankApplication\CSharp.BlankApplication.csproj", "{572121BD-E972-4BF7-ABF1-78251DDE1181}"
 EndProject
@@ -352,5 +352,8 @@ Global
 		{CE0631F2-731D-4A48-B927-F13F6B2FB055} = {1E0CD797-F69D-4BD3-B77E-496B51F95214}
 		{31472CAE-4B1A-4AB9-9B2A-8F28DBE01BCF} = {8C6A2ECA-8E1A-40C2-AEBF-C08B1CA67C67}
 		{101D57AD-D22F-4905-A992-DE15E723F164} = {8C6A2ECA-8E1A-40C2-AEBF-C08B1CA67C67}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {5DF99A8C-CA3C-451A-ABC1-4D862154708B}
 	EndGlobalSection
 EndGlobal

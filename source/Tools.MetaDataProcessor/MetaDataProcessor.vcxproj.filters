@@ -67,7 +67,7 @@
     </ClCompile>
     <ClCompile Include="..\..\nf-interpreter\targets\os\win32\nanoCLR\targetHAL_Time.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile> 
+    </ClCompile>
     <ClCompile Include="ParseOptions_Win32.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -105,6 +105,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Various.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\nf-interpreter\src\CLR\Core\NativeEventDispatcher\NativeEventDispatcher_stub.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

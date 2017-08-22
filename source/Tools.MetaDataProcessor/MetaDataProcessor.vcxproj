@@ -164,6 +164,7 @@
     <ClInclude Include="WatchAssemblyBuilder.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\nf-interpreter\src\CLR\Core\NativeEventDispatcher\NativeEventDispatcher_stub.cpp" />
     <ClCompile Include="..\..\nf-interpreter\targets\os\win32\nanoCLR\Events.cpp" />
     <ClCompile Include="..\..\nf-interpreter\targets\os\win32\nanoCLR\PAL\blockstorageList_stubs.cpp" />
     <ClCompile Include="..\..\nf-interpreter\targets\os\win32\nanoCLR\PAL\COMDirector_stubs.cpp" />
