@@ -203,7 +203,7 @@
       <NanoFramework_DebugReferencesStateFile>$(IntermediateOutputPath)nanoFramework_DebugReferences.cache</NanoFramework_DebugReferencesStateFile>
     </PropertyGroup>
 
-    <ResolveAssemblyReference
+    <ResolveAssemblyReferences
         Assemblies="@(Reference)"
         AssemblyFiles="$(NanoFramework_StartProgram);@(_ResolvedProjectReferencePaths)"
         InstalledAssemblyTables="@(InstalledAssemblyTables)"
@@ -232,7 +232,7 @@
       <Output TaskParameter="SuggestedRedirects" ItemName="NanoFramework_SuggestedBindingRedirects"/>
       <Output TaskParameter="FilesWritten" ItemName="FileWrites"/>
 
-    </ResolveAssemblyReference>
+    </ResolveAssemblyReferences>
 
     <ResolveRuntimeDependenciesTask
         Assembly="$(NanoFramework_Assembly)$(TargetExt)"
