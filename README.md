@@ -1,25 +1,36 @@
-# Visual Studio extension for nanoFramework
+![nanoFramework logo](https://github.com/nanoframework/Home/blob/master/resources/logo/nanoFramework-repo-logo.png)
+
+-----
+
+### Welcome to the **nanoFramework** Visual Studio extension repository!
+
+This repo contains **nanoFramework** Visual Studio extension and associated tools.
 
 
-[![Build status](https://ci.appveyor.com/api/projects/status/9mtqen1wi0tv8x54?svg=true)](https://ci.appveyor.com/project/nfbot/nf-visual-studio-extension)
-[![Join the chat at https://nanoframework.slack.com/](https://img.shields.io/badge/join%20us-on%20slack-orange.svg)](https://nanoframework.wordpress.com/slack-invite-form/)
+## Build status
 
-Welcome to the repository of nanoFramework Visual Studio extension and associated tools!
-
-## How to Engage, Contribute and Provide Feedback
-
-Some of the best ways to contribute are to try things out, file bugs, and join in design conversations. 
-If you are having issues or need a clarification about something, instead of opening an issue the best way is to start a conversation in one of our Slack channels.
-Please select the one that's most appropriate to the matter you are facing.
+| Component | Build Status |
+|:-|---|
+| Visual Studio extension | [![Build status](https://ci.appveyor.com/api/projects/status/9mtqen1wi0tv8x54?svg=true)](https://ci.appveyor.com/project/nfbot/nf-visual-studio-extension) |
 
 
-If you've find a bug or can't use Slack, please open an issue at [Issues](https://github.com/nanoframework/nf-Visual-Studio-extension/issues).
-We ask you to open an issue only when you have a real and confirmed one. Don't open an issue for support requests or to start a discussion. For that you'll get a better (and quicker!) support/feedback in one of the Slack channels.
+## Feedback and documentation
 
-Looking for something to work on? The list of [up-for-grabs issues](https://github.com/nanoframework/nf-Visual-Studio-extension/labels/up-for-grabs)
-is a great place to start. Or take a look at our [documentation](docs/).
+For documentation, providing feedback, issues and finding out how to contribute please refer to the [Home repo](https://github.com/nanoframework/Home).
+
+Join our Slack community by filling in this [invite form](https://nanoframework.wordpress.com/slack-invite-form/).
+
+
+## Credits
+
+The list of contributors to this project can be found at [CONTRIBUTORS](CONTRIBUTORS.md).
 
 
 ## License
 
-The nanoFramework Visual Studio extension and associated tools are licensed under the [Apache 2.0 license](http://www.apache.org/licenses/LICENSE-2.0).
+The **nanoFramework** Visual Studio extension and associated tools are licensed under the [Apache 2.0 license](http://www.apache.org/licenses/LICENSE-2.0).
+
+
+## Code of Conduct
+This project has adopted the code of conduct defined by the [Contributor Covenant](http://contributor-covenant.org/)
+to clarify expected behavior in our community.
