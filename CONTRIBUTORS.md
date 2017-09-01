@@ -1,4 +1,3 @@
-nanoFramework Visual Studio Extension and associated tools Contributors
-========================================================================
+## **nanoFramework** Contributors
 
-The following is a list of contributors to the nanoFramework Visual Studio Extension and associated tools project, in alphabetical order.
+Please refer to the list of contributors at the Home repository [here](https://github.com/nanoframework/Home/blob/master/CONTRIBUTORS.md).
