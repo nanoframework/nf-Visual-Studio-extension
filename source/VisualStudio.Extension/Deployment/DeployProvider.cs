@@ -25,6 +25,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.Threading;
 using Task = System.Threading.Tasks.Task;
+using Microsoft.VisualStudio.ProjectSystem.Properties;
 
 namespace nanoFramework.Tools.VisualStudio.Extension
 {
@@ -145,11 +146,11 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
 
                 // build a list with the full path for each DLL, referenced DLL and EXE
-                List<string> assemblyList = new List<string>();
+                List<(string path, string version)> assemblyList = new List<(string path, string version)>();
 
                 foreach (IAssemblyReference reference in referencedAssemblies)
                 {
-                    assemblyList.Add(await reference.GetFullPathAsync());
+                    assemblyList.Add((await reference.GetFullPathAsync(), await reference.Metadata.GetEvaluatedPropertyValueAsync("Version")));
                 }
 
                 // loop through each project that is set to build
@@ -157,27 +158,28 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 {
                     if (await project.GetReferenceOutputAssemblyAsync())
                     {
-                        assemblyList.Add(await project.GetFullPathAsync());
+                        assemblyList.Add((await project.GetFullPathAsync(), await project.Metadata.GetEvaluatedPropertyValueAsync("Version")));
                     }
                 }
 
                 // now add the executable to this list
-                assemblyList.Add(targetPath);
+                // TODO need to find here the version property is to add it here
+                assemblyList.Add((targetPath, ""));
 
                 // build a list with the PE files corresponding to each DLL and EXE
-                List<string> peCollection = assemblyList.Select(a => a.Replace(".dll", ".pe").Replace(".exe", ".pe")).ToList();
+                List<(string path, string version)> peCollection = assemblyList.Select(a => (a.path.Replace(".dll", ".pe").Replace(".exe", ".pe"), a.version)).ToList();
 
                 // Keep track of total assembly size
                 long totalSizeOfAssemblies = 0;
 
                 // now we will re-deploy all system assemblies
-                foreach(string pePath in peCollection)
+                foreach((string path, string version) peItem in peCollection)
                 {
                     // append to the deploy blob the assembly
-                    using (FileStream fs = File.Open(pePath, FileMode.Open, FileAccess.Read))
+                    using (FileStream fs = File.Open(peItem.path, FileMode.Open, FileAccess.Read))
                     {
                         long length = (fs.Length + 3) / 4 * 4;
-                        await outputPaneWriter.WriteLineAsync($"Adding pe file {Path.GetFileNameWithoutExtension(pePath)} to deployment bundle, size in bytes {length.ToString()}");
+                        await outputPaneWriter.WriteLineAsync($"Adding {Path.GetFileNameWithoutExtension(peItem.path)} v{peItem.version}) ({length.ToString()} bytes) to deployment bundle");
                         byte[] buffer = new byte[length];
 
                         fs.Read(buffer, 0, (int)fs.Length);
