@@ -179,7 +179,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     using (FileStream fs = File.Open(peItem.path, FileMode.Open, FileAccess.Read))
                     {
                         long length = (fs.Length + 3) / 4 * 4;
-                        await outputPaneWriter.WriteLineAsync($"Adding {Path.GetFileNameWithoutExtension(peItem.path)} v{peItem.version}) ({length.ToString()} bytes) to deployment bundle");
+                        await outputPaneWriter.WriteLineAsync($"Adding [{Path.GetFileNameWithoutExtension(peItem.path)} v{peItem.version}] ({length.ToString()} bytes) to deployment bundle");
                         byte[] buffer = new byte[length];
 
                         fs.Read(buffer, 0, (int)fs.Length);
