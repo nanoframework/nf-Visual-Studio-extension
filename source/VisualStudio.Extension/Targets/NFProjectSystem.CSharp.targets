@@ -80,6 +80,4 @@
   <!-- Import MetaDataProcessor targets **AFTER** everything else-->
   <Import Project="$(MSBuildThisFileDirectory)\NFProjectSystem.MDP.targets" />
 
-  <Import Project="$(MSBuildProjectFullPath).user" Condition="Exists('$(MSBuildProjectFullPath).user')" />
-
 </Project>
