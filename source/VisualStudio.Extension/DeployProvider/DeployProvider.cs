@@ -7,25 +7,20 @@ using Microsoft.VisualStudio.ProjectSystem;
 using Microsoft.VisualStudio.ProjectSystem.Build;
 using Microsoft.VisualStudio.ProjectSystem.References;
 using Microsoft.VisualStudio.Shell;
+using Microsoft.VisualStudio.Threading;
 using nanoFramework.Tools.Debugger;
 using nanoFramework.Tools.Debugger.Extensions;
 using nanoFramework.Tools.VisualStudio.Extension.Resources;
 using nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel;
 using Polly;
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.ComponentModel.Composition;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.VisualStudio.Threading;
 using Task = System.Threading.Tasks.Task;
-using Microsoft.VisualStudio.ProjectSystem.Properties;
 
 namespace nanoFramework.Tools.VisualStudio.Extension
 {
@@ -39,24 +34,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         // timeout when performing a deploy operation
         private const int _timeoutMiliseconds = 200;
 
-        private ViewModelLocator _viewModelLocator;
-        private int assemblyList;
-
-        ViewModelLocator ViewModelLocator
-        {
-            get
-            {
-                if (_viewModelLocator == null)
-                {
-                    if (System.Windows.Application.Current.TryFindResource("Locator") != null)
-                    {
-                        _viewModelLocator = (System.Windows.Application.Current.TryFindResource("Locator") as ViewModelLocator);
-                    }
-                }
-
-                return _viewModelLocator;
-            }
-        }
+        private static ViewModelLocator _viewModelLocator;
+        private static Package _package;
 
         /// <summary>
         /// Provides access to the project's properties.
@@ -67,13 +46,19 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         [Import]
         IProjectService ProjectService { get; set; }
 
+        public static void Initialize(Package package, ViewModelLocator vmLocator)
+        {
+            _package = package;
+            _viewModelLocator = vmLocator;
+        }
+
         public async Task DeployAsync(CancellationToken cancellationToken, TextWriter outputPaneWriter)
         {
             // make sure we're on the UI thread
             await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
             // just in case....
-            if ((ViewModelLocator?.DeviceExplorer.ConnectionStateResult != ConnectionState.Connected))
+            if ((_viewModelLocator?.DeviceExplorer.ConnectionStateResult != ConnectionState.Connected))
             {
                 // can't debug
                 // throw exception to signal deployment failure
@@ -81,7 +66,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             }
 
             // get the device here so we are not always carrying the full path to the device
-            NanoDeviceBase device = ViewModelLocator.DeviceExplorer.SelectedDevice;
+            NanoDeviceBase device = _viewModelLocator.DeviceExplorer.SelectedDevice;
 
             // user feedback
             await outputPaneWriter.WriteLineAsync($"Getting things ready to deploy assemblies to nanoFramework device: {device.Description}.");
@@ -127,10 +112,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 /////////////////////////////////////////////////////////
                 // get the target path to reach the PE for the executable
 
-                // this is not currently working so...
-                //var props = Properties.GetConfigurationGeneralPropertiesAsync();
-
-                //... we need to access the target path using reflexion (step by step)
+                //... we need to access the target path using reflection (step by step)
                 // get type for ConfiguredProject
                 var projSystemType = Properties.ConfiguredProject.GetType();
 
@@ -190,7 +172,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     }
                 }
 
-                await outputPaneWriter.WriteLineAsync($"Deploying assemblies to device...total size in bytes {totalSizeOfAssemblies.ToString()}.");
+                await outputPaneWriter.WriteLineAsync($"Deploying assemblies to device...total size in bytes is {totalSizeOfAssemblies.ToString()}.");
 
                 if (!await device.DebugEngine.DeploymentExecuteAsync(assemblies, false))
                 {
@@ -198,15 +180,15 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     throw new Exception("Deploy failed.");
                 }
 
-                // deployment successfull
+                // deployment successful
                 await outputPaneWriter.WriteLineAsync("Deployment successful.");
 
                 // reset the hash for the connected device so the deployment information can be refreshed
-                ViewModelLocator.DeviceExplorer.LastDeviceConnectedHash = 0;
+                _viewModelLocator.DeviceExplorer.LastDeviceConnectedHash = 0;
             }
             else
             {
-                // after retry policy applied seems that we couldn't set the device in initizaled state...
+                // after retry policy applied seems that we couldn't set the device in initialized state...
                 // throw exception to signal deployment failure
                 throw new Exception(ResourceStrings.DeviceInitializationTimeout);
             }
@@ -216,7 +198,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         {
             get
             {
-                return (ViewModelLocator?.DeviceExplorer.ConnectionStateResult == ConnectionState.Connected);
+                return (_viewModelLocator?.DeviceExplorer.ConnectionStateResult == ConnectionState.Connected);
             }
         }
 

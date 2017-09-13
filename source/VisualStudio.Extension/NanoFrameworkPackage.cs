@@ -100,6 +100,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         {
             base.Initialize();
             DeviceExplorerCommand.Initialize(this, ViewModelLocator);
+            DeployProvider.Initialize(this, ViewModelLocator);
         }
     }
 }
