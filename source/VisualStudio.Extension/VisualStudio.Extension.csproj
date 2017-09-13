@@ -56,8 +56,8 @@
     </CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Deployment\DeployState.cs" />
-    <Compile Include="Deployment\DeployProvider.cs" />
+    <Compile Include="DeployProvider\DeployState.cs" />
+    <Compile Include="DeployProvider\DeployProvider.cs" />
     <Compile Include="Extensions\VersionExtensions.cs" />
     <Compile Include="Extensions\IVsOutputWindowPaneExtensions.cs" />
     <Compile Include="NanoFrameworkMonikers.cs" />
