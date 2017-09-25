@@ -29,3 +29,9 @@ deploy:
   draft: true
   prerelease: true
   force_update: true
+- provider: Slack
+  auth_token:
+    secure: 2tqAJTTbN2dm24Vrwo5TXun3Vxc34R5G9l7o3pK3xEuKZAzxx3nbP2yGkMI/kl3+NxHXknjBfZnkhZC5eLYBHb+jO7YVUZwPYOfC/ZGy5HU=
+  channel: '#build-monitor'
+  on_build_status_changed: true
+  
