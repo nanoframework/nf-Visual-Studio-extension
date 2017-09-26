@@ -12,7 +12,6 @@ using nanoFramework.Tools.Debugger;
 using nanoFramework.Tools.Debugger.Extensions;
 using nanoFramework.Tools.VisualStudio.Extension.Resources;
 using nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel;
-using Polly;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
@@ -73,32 +72,60 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
             List<byte[]> assemblies = new List<byte[]>();
 
-            // build policy to check for device initialized
-            // on false result
-            // set retry count
-            // set wait time between retries
-            var deviceInInitStatePolicy = Policy.HandleResult<bool>(r => r == false).WaitAndRetryAsync(
-                _numberOfRetries,
-                retryAttempt => TimeSpan.FromMilliseconds(_timeoutMiliseconds),
-                async (result, timeSpan, retryCount, context) =>
-                {
-                    // provide feedback to user on the 1st pass
-                    if (retryCount == 0)
-                    {
-                        await outputPaneWriter.WriteLineAsync(ResourceStrings.WaitingDeviceInitialization);
-                    }
-                });
+            // device needs to be in 'initialized state' for a successful and correct deployment 
+            // meaning that is not running nor stopped
+            int retryCount = 0;
+            bool deviceIsInInitializeState = false;
 
-            // check if device is still in initialized state
+            // initial check 
             if (await device.DebugEngine.IsDeviceInInitializeStateAsync())
+            {
+                // set flag
+                deviceIsInInitializeState = true;
+            }
+            else
             {
                 // device is still in initialization state, try resume execution
                 await device.DebugEngine.ResumeExecutionAsync();
             }
 
-            if (!await deviceInInitStatePolicy.ExecuteAsync(async () => { return await device.DebugEngine.IsDeviceInInitializeStateAsync(); }))
+            // handle the workflow required to try setting the device in 'initialized state'
+            // only required if device is not already there
+            // retry 5 times with a 200ms interval between retries
+            while (retryCount++ < _numberOfRetries && !deviceIsInInitializeState)
+            {
+                if (await device.DebugEngine.IsDeviceInInitializeStateAsync())
+                {
+                    // done here
+                    deviceIsInInitializeState = true;
+                    break;
+                }
+
+                // provide feedback to user on the 1st pass
+                if (retryCount == 0)
+                {
+                    await outputPaneWriter.WriteLineAsync(ResourceStrings.WaitingDeviceInitialization);
+                }
+
+                if (device.DebugEngine.ConnectionSource == Debugger.WireProtocol.ConnectionSource.NanoBooter)
+                {
+                    // request nanoBooter to load CLR
+                    await device.DebugEngine.ExecuteMemoryAsync(0);
+                }
+                else if (device.DebugEngine.ConnectionSource == Debugger.WireProtocol.ConnectionSource.NanoCLR)
+                {
+                    // already running nanoCLR try rebooting the CLR
+                    await device.DebugEngine.RebootDeviceAsync(RebootOption.RebootClrWaitForDebugger);
+                }
+
+                // wait before next pass
+                await Task.Delay(TimeSpan.FromMilliseconds(_timeoutMiliseconds));
+            };
+
+            // check if device is still in initialized state
+            if (deviceIsInInitializeState)
             { 
-                // device is NOT in initialization state, meaning is running or stopped
+                // device is initialized
                 await outputPaneWriter.WriteLineAsync(ResourceStrings.DeviceInitialized);
 
                 ///////////////////////////////////////////////////////
@@ -183,8 +210,18 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 // deployment successful
                 await outputPaneWriter.WriteLineAsync("Deployment successful.");
 
+                // reboot device
+                await outputPaneWriter.WriteLineAsync("Rebooting device.");
+                await device.DebugEngine.RebootDeviceAsync(RebootOption.RebootClrOnly);
+
                 // reset the hash for the connected device so the deployment information can be refreshed
                 _viewModelLocator.DeviceExplorer.LastDeviceConnectedHash = 0;
+
+                // force reload device info
+                await device.GetDeviceInfoAsync(true);
+
+                // provide feedback
+                await outputPaneWriter.WriteLineAsync("Reboot successful, device information updated.");
             }
             else
             {
