@@ -294,7 +294,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
         public StringBuilder DeviceSystemInfo { get; set; }
 
         /// <summary>
-        /// used to prevent repeated retrieval of device capabilites after connection
+        /// used to prevent repeated retrieval of device capabilities after connection
         /// </summary>
         public int LastDeviceConnectedHash { get; set; }
 
