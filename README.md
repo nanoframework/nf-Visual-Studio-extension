@@ -1,4 +1,4 @@
-![nanoFramework logo](https://github.com/nanoframework/Home/blob/master/resources/logo/nanoFramework-repo-logo.png)
+![nanoFramework logo](https://github.com/nanoframework/Home/blob/master/resources/logo/nanoFramework-repo-logo.png)---|
 
 -----
 
@@ -9,7 +9,7 @@ This repo contains **nanoFramework** Visual Studio extension and associated tool
 
 ## Build status
 
-| Component | Build Status |
+| Component | Build Status | Installer |
 |:-|---|---|
 | Visual Studio extension | [![Build status](https://ci.appveyor.com/api/projects/status/9mtqen1wi0tv8x54?svg=true)](https://ci.appveyor.com/project/nfbot/nf-visual-studio-extension) | [![Visual Studio Marketplace](https://img.shields.io/vscode-marketplace/v/vs-publisher-1470366.nanoFrameworkVS2017Extension.svg)]() |
 
