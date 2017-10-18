@@ -298,7 +298,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
         /// </summary>
         public int LastDeviceConnectedHash { get; set; }
 
-        public void LoadDeviceInfo()
+        public void LoadDeviceInfo(bool force = false)
         {
             // sanity check
             if (SelectedDevice == null)
@@ -319,7 +319,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
                 try
                 {
                     // get device info
-                    var di = await SelectedDevice.GetDeviceInfoAsync();
+                    var di = await SelectedDevice.GetDeviceInfoAsync(force);
                     var mm = await SelectedDevice.DebugEngine.GetMemoryMapAsync();
                     var fm = await SelectedDevice.DebugEngine.GetFlashSectorMapAsync();
                     var dm = await SelectedDevice.DebugEngine.GetDeploymentMapAsync();

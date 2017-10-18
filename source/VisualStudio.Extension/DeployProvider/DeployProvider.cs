@@ -19,6 +19,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
+using System.Threading.Tasks;
 using Task = System.Threading.Tasks.Task;
 
 namespace nanoFramework.Tools.VisualStudio.Extension
@@ -69,6 +70,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
             // user feedback
             await outputPaneWriter.WriteLineAsync($"Getting things ready to deploy assemblies to nanoFramework device: {device.Description}.");
+
+            // flag to signal if device has any assemblies deployed
+            bool hasAssembliesDeployed = device.DeviceInfo.Assemblies.Count() > 0 ? true : false;
 
             List<byte[]> assemblies = new List<byte[]>();
 
@@ -188,7 +192,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     using (FileStream fs = File.Open(peItem.path, FileMode.Open, FileAccess.Read))
                     {
                         long length = (fs.Length + 3) / 4 * 4;
-                        await outputPaneWriter.WriteLineAsync($"Adding [{Path.GetFileNameWithoutExtension(peItem.path) + peItem.version}] ({length.ToString()} bytes) to deployment bundle");
+                        await outputPaneWriter.WriteLineAsync($"Adding {Path.GetFileNameWithoutExtension(peItem.path) + peItem.version} ({length.ToString()} bytes) to deployment bundle");
                         byte[] buffer = new byte[length];
 
                         fs.Read(buffer, 0, (int)fs.Length);
@@ -210,18 +214,38 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 // deployment successful
                 await outputPaneWriter.WriteLineAsync("Deployment successful.");
 
-                // reboot device
-                await outputPaneWriter.WriteLineAsync("Rebooting device.");
-                await device.DebugEngine.RebootDeviceAsync(RebootOption.RebootClrOnly);
-
                 // reset the hash for the connected device so the deployment information can be refreshed
                 _viewModelLocator.DeviceExplorer.LastDeviceConnectedHash = 0;
 
-                // force reload device info
-                await device.GetDeviceInfoAsync(true);
+                // reboot device
+                if (hasAssembliesDeployed)
+                {
+                    await outputPaneWriter.WriteLineAsync("Rebooting nanoCLR on device.");
 
-                // provide feedback
-                await outputPaneWriter.WriteLineAsync("Reboot successful, device information updated.");
+                    await ThreadHelper.JoinableTaskFactory.RunAsync(async () => { await device.DebugEngine.RebootDeviceAsync(RebootOption.RebootClrOnly); });
+                    await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+
+                    // yield to give the UI thread a chance to respond to user input
+                    await Task.Yield();
+
+                    _viewModelLocator.DeviceExplorer.LoadDeviceInfo(true);
+
+                    // yield to give the UI thread a chance to respond to user input
+                    await Task.Yield();
+
+                    // provide feedback
+                    await outputPaneWriter.WriteLineAsync("Reboot successful, device information updated.");
+                }
+                else
+                {
+                    await outputPaneWriter.WriteLineAsync("Soft rebooting device.");
+
+                    await TaskScheduler.Default;
+                    await device.DebugEngine.RebootDeviceAsync(RebootOption.NormalReboot);
+
+                    // force load device info
+                    _viewModelLocator.DeviceExplorer.LoadDeviceInfo(true);
+                }
             }
             else
             {
