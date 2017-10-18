@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26730.12
+VisualStudioVersion = 15.0.26730.16
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSharp.BlankApplication", "CSharp.BlankApplication\CSharp.BlankApplication.csproj", "{572121BD-E972-4BF7-ABF1-78251DDE1181}"
 EndProject
@@ -320,6 +320,7 @@ Global
 		{CE0631F2-731D-4A48-B927-F13F6B2FB055}.Release|x86.ActiveCfg = Release|Any CPU
 		{CE0631F2-731D-4A48-B927-F13F6B2FB055}.Release|x86.Build.0 = Release|Any CPU
 		{101D57AD-D22F-4905-A992-DE15E723F164}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{101D57AD-D22F-4905-A992-DE15E723F164}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{101D57AD-D22F-4905-A992-DE15E723F164}.Debug|x64.ActiveCfg = Debug|Any CPU
 		{101D57AD-D22F-4905-A992-DE15E723F164}.Debug|x86.ActiveCfg = Debug|Any CPU
 		{101D57AD-D22F-4905-A992-DE15E723F164}.Release|Any CPU.ActiveCfg = Release|Any CPU

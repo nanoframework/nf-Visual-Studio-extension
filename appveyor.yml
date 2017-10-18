@@ -2,6 +2,16 @@ version: 0.1.62-pre{build}
 
 pull_requests:
   do_not_increment_build_number: true
+
+# Skipping commits affecting specific files
+skip_commits:
+  files:
+  - '**\AssemblyInfo.*'
+  - '**/*.md'
+  - 'LICENSE'
+  - dir/*
+  - '.gitignore'
+
 branches:
   only:
   - master
@@ -29,6 +39,11 @@ deploy:
   draft: true
   prerelease: true
   force_update: true
+- provider: Nuget
+  server: https://www.myget.org/F/nanoframework-dev/vsix/
+  api_key:
+    secure: 0drE56FivPFYI3oVZWcVFTpjOXSqyjT6kGangIxFRcRLqMhV3lQHqUButuuiPM+N
+  artifact: VS_extension
 notifications:
 - provider: Slack
   auth_token:
