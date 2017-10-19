@@ -72,7 +72,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             await outputPaneWriter.WriteLineAsync($"Getting things ready to deploy assemblies to nanoFramework device: {device.Description}.");
 
             // flag to signal if device has any assemblies deployed
-            bool hasAssembliesDeployed = device.DeviceInfo.Assemblies.Count() > 0 ? true : false;
+            bool hasAssembliesDeployed = device.DeviceInfo.Assemblies.Length > 0 ? true : false;
 
             List<byte[]> assemblies = new List<byte[]>();
 
