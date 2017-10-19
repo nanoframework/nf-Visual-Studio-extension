@@ -39,7 +39,7 @@ deploy:
   draft: true
   prerelease: true
   force_update: true
-- provider: Nuget
+- provider: NuGet
   server: https://www.myget.org/F/nanoframework-dev/vsix/
   api_key:
     secure: 0drE56FivPFYI3oVZWcVFTpjOXSqyjT6kGangIxFRcRLqMhV3lQHqUButuuiPM+N
