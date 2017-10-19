@@ -1,3 +1,9 @@
+# skip pull requests
+if ($env:APPVEYOR_PULL_REQUEST_NUMBER)
+{
+    return
+}
+
 $artifactsSearchPattern = "./*.vsix"
 $artifactsCollection = (Get-ChildItem $artifactsSearchPattern -Recurse)
 
