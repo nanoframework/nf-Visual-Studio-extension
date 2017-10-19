@@ -28,6 +28,11 @@ build_script:
 artifacts:
 - path: '**\*.vsix'
   name: VS_extension
+
+on_success:
+  # for this environment variable to work here it has to be set in AppVeyor UI
+  - ps: .\upload-vsix-myget.ps1
+ 
 deploy:
 - provider: GitHub
   tag: v$(appveyor_build_version)
@@ -39,11 +44,7 @@ deploy:
   draft: true
   prerelease: true
   force_update: true
-- provider: NuGet
-  server: https://www.myget.org/F/nanoframework-dev/vsix/upload
-  api_key:
-    secure: 0drE56FivPFYI3oVZWcVFTpjOXSqyjT6kGangIxFRcRLqMhV3lQHqUButuuiPM+N
-  artifact: VS_extension
+
 notifications:
 - provider: Slack
   auth_token:
