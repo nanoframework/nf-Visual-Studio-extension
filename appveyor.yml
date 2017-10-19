@@ -40,7 +40,7 @@ deploy:
   prerelease: true
   force_update: true
 - provider: NuGet
-  server: https://www.myget.org/F/nanoframework-dev/vsix/
+  server: https://www.myget.org/F/nanoframework-dev/vsix/upload
   api_key:
     secure: 0drE56FivPFYI3oVZWcVFTpjOXSqyjT6kGangIxFRcRLqMhV3lQHqUButuuiPM+N
   artifact: VS_extension
