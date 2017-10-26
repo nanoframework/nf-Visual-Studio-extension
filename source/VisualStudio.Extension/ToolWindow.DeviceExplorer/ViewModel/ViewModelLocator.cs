@@ -1,4 +1,9 @@
-﻿using GalaSoft.MvvmLight;
+﻿//
+// Copyright (c) 2017 The nanoFramework project contributors
+// See LICENSE file in the project root for full license information.
+//
+
+using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Ioc;
 using Microsoft.Practices.ServiceLocation;
 

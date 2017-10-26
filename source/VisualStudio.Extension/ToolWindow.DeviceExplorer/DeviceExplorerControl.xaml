@@ -30,7 +30,7 @@
             </Grid.RowDefinitions>
 
 
-            <TreeView Grid.Row="0" Height="116" Background="Transparent" VerticalContentAlignment="Stretch" VerticalAlignment="Top" SelectedItemChanged="DevicesTreeView_SelectedItemChanged">
+            <TreeView Grid.Row="0" Height="116" Background="Transparent" VerticalContentAlignment="Stretch" VerticalAlignment="Top" SelectedItemChanged="DevicesTreeView_SelectedItemChanged" Name="deviceTreeView">
                 <TreeView.Style>
                     <StaticResource ResourceKey="{x:Static vsfx:VsResourceKeys.ThemedDialogTreeViewStyleKey}"/>
                 </TreeView.Style>

@@ -26,6 +26,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         public DeviceExplorerControl()
         {
             this.InitializeComponent();
+
+            Messenger.Default.Register<NotificationMessage>(this, DeviceExplorerViewModel.MessagingTokens.ForceSelectionOfNanoDevice, (message) => ForceSelectionOfNanoDeviceHandler());
         }
 
         private void Hyperlink_RequestNavigate(object sender, System.Windows.Navigation.RequestNavigateEventArgs e)
@@ -53,6 +55,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             if (e.NewValue.GetType().Equals(typeof(TreeViewItem)))
             {
                 // clear selected device
+                // can't select header as the selected device
                 (this.DataContext as DeviceExplorerViewModel).SelectedDevice = null;
                 return;
             }
@@ -63,5 +66,34 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 (this.DataContext as DeviceExplorerViewModel).SelectedDevice = (NanoDeviceBase)e.NewValue;
             }
         }
+
+
+        #region MVVM messaging handlers
+
+        private void ForceSelectionOfNanoDeviceHandler()
+        {
+            // make sure the item in the treeview is selected, in case the selected device was changed in the view model
+            if(deviceTreeView.SelectedItem != null)
+            {
+                if(deviceTreeView.SelectedItem.GetType().Equals(typeof(NanoDeviceBase)))
+                {
+                    // check if it's the same so we don't switch 
+                    if(((NanoDeviceBase)deviceTreeView.SelectedItem).Description == (this.DataContext as DeviceExplorerViewModel).SelectedDevice.Description)
+                    {
+                        // nothing to do here
+                        return;
+                    }
+                }
+            }
+
+            // select the device
+            var deviceItem = DevicesHeaderItem.ItemContainerGenerator.ContainerFromItem((this.DataContext as DeviceExplorerViewModel).SelectedDevice) as TreeViewItem;
+            if (deviceItem != null)
+            {
+                deviceItem.IsSelected = true;
+            }
+        }
+
+        #endregion
     }
 }

@@ -99,6 +99,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         protected override void Initialize()
         {
             base.Initialize();
+            ViewModelLocator.DeviceExplorer.Package = this;
             DeviceExplorerCommand.Initialize(this, ViewModelLocator);
             DeployProvider.Initialize(this, ViewModelLocator);
         }
