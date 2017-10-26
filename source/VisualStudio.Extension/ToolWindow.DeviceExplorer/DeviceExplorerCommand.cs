@@ -12,7 +12,6 @@ using nanoFramework.Tools.VisualStudio.Extension.ToolWindow;
 using nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel;
 using System;
 using System.ComponentModel.Design;
-using System.Diagnostics;
 using System.Windows.Forms;
 
 namespace nanoFramework.Tools.VisualStudio.Extension
@@ -141,7 +140,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             // PingCommand
             toolbarButtonCommandId = GenerateCommandID(PingDeviceCommandID);
             menuItem = new MenuCommand(new EventHandler(
-                PingDeviceCommandHandlerAsync), toolbarButtonCommandId);
+                PingDeviceCommandHandler), toolbarButtonCommandId);
             menuItem.Enabled = false;
             menuItem.Visible = true;
             menuCommandService.AddCommand(menuItem);
@@ -265,7 +264,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         /// <remarks>OK to use async void because this is a top-level event-handler 
         /// https://channel9.msdn.com/Series/Three-Essential-Tips-for-Async/Tip-1-Async-void-is-for-top-level-event-handlers-only
         /// </remarks>
-        private async void PingDeviceCommandHandlerAsync(object sender, EventArgs arguments)
+        private void PingDeviceCommandHandler(object sender, EventArgs arguments)
         {
             UpdateStatusBar($"Pinging {ViewModelLocator.DeviceExplorer.SelectedDevice.Description}...");
             try
@@ -273,21 +272,20 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 // disable the button
                 (sender as MenuCommand).Enabled = false;
 
-                var pingResult = await ViewModelLocator.DeviceExplorer.SelectedDevice.PingAsync();
+                ViewModelLocator.DeviceExplorer.SelectedDevicePing();
+
 
                 IVsOutputWindowPane windowPane = (IVsOutputWindowPane)this.ServiceProvider.GetService(typeof(SVsGeneralOutputWindowPane));
-
-                switch (pingResult)
+                switch (ViewModelLocator.DeviceExplorer.SelectedDevice.DebugEngine.ConnectionSource)
                 {
-                    case PingConnectionType.NoConnection:
+                    case Debugger.WireProtocol.ConnectionSource.Unknown:
                         windowPane.OutputStringAsLine($"No reply from {ViewModelLocator.DeviceExplorer.SelectedDevice.Description}");
                         break;
 
-                    case PingConnectionType.NanoBooter:
-                    case PingConnectionType.NanoCLR:
-                        windowPane.OutputStringAsLine($"{ViewModelLocator.DeviceExplorer.SelectedDevice.Description} is active running {pingResult.ToString()}");
+                    case Debugger.WireProtocol.ConnectionSource.nanoBooter:
+                    case Debugger.WireProtocol.ConnectionSource.nanoCLR:
+                        windowPane.OutputStringAsLine($"{ViewModelLocator.DeviceExplorer.SelectedDevice.Description} is active running {ViewModelLocator.DeviceExplorer.SelectedDevice.DebugEngine.ConnectionSource.ToString()}");
                         break;
-
                 }
             }
             catch (Exception ex)
@@ -433,9 +431,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             else if (ViewModelLocator.DeviceExplorer.ConnectionStateResult == ConnectionState.Disconnected)
             {
                 // output message, if there was a device selected
-                if (ViewModelLocator.DeviceExplorer.PreviousSelectedDevice != null)
+                if (ViewModelLocator.DeviceExplorer.PreviousSelectedDeviceDescription != null)
                 {
-                    windowPane.OutputStringAsLine($"Disconnected from {ViewModelLocator.DeviceExplorer.PreviousSelectedDevice.Description}");
+                    windowPane.OutputStringAsLine($"Disconnected from {ViewModelLocator.DeviceExplorer.PreviousSelectedDeviceDescription}");
                 }
 
                 // hide disconnect button

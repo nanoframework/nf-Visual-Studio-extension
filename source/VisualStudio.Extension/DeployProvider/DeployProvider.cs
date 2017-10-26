@@ -1,5 +1,6 @@
 ﻿//
 // Copyright (c) 2017 The nanoFramework project contributors
+// Portions Copyright (c) Microsoft Corporation.  All rights reserved.
 // See LICENSE file in the project root for full license information.
 //
 
@@ -111,12 +112,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     await outputPaneWriter.WriteLineAsync(ResourceStrings.WaitingDeviceInitialization);
                 }
 
-                if (device.DebugEngine.ConnectionSource == Debugger.WireProtocol.ConnectionSource.NanoBooter)
+                if (device.DebugEngine.ConnectionSource == Debugger.WireProtocol.ConnectionSource.nanoBooter)
                 {
                     // request nanoBooter to load CLR
                     await device.DebugEngine.ExecuteMemoryAsync(0);
                 }
-                else if (device.DebugEngine.ConnectionSource == Debugger.WireProtocol.ConnectionSource.NanoCLR)
+                else if (device.DebugEngine.ConnectionSource == Debugger.WireProtocol.ConnectionSource.nanoCLR)
                 {
                     // already running nanoCLR try rebooting the CLR
                     await device.DebugEngine.RebootDeviceAsync(RebootOption.RebootClrWaitForDebugger);
@@ -240,11 +241,16 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 {
                     await outputPaneWriter.WriteLineAsync("Soft rebooting device.");
 
-                    await TaskScheduler.Default;
-                    await device.DebugEngine.RebootDeviceAsync(RebootOption.NormalReboot);
+                    // yield to give the UI thread a chance to respond to user input
+                    await Task.Yield();
 
-                    // force load device info
-                    _viewModelLocator.DeviceExplorer.LoadDeviceInfo(true);
+                    // reboot and reconnect device
+                    _viewModelLocator.DeviceExplorer.RebootAndSetupReconnectToDevice();
+
+                    // yield to give the UI thread a chance to respond to user input
+                    await Task.Yield();
+
+                    await outputPaneWriter.WriteLineAsync("Soft reboot performed and reconnection requested.");
                 }
             }
             else

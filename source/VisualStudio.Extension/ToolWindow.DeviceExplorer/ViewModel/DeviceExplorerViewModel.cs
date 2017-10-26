@@ -1,6 +1,12 @@
-﻿using GalaSoft.MvvmLight;
+﻿//
+// Copyright (c) 2017 The nanoFramework project contributors
+// See LICENSE file in the project root for full license information.
+//
+
+using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Messaging;
 using Microsoft.VisualStudio.Shell;
+using Microsoft.VisualStudio.Shell.Interop;
 using nanoFramework.Tools.Debugger;
 using nanoFramework.Tools.Debugger.Extensions;
 using nanoFramework.Tools.Debugger.WireProtocol;
@@ -9,12 +15,9 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Threading;
+using System.Threading;
 
 namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
 {
@@ -36,11 +39,38 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
         public const int WRITE_TO_OUTPUT_TOKEN = 1;
         public const int SELECTED_NULL_TOKEN = 2;
 
+        // for serial devices we wait 10 seconds for the device to be available again
+        private const int SerialDeviceReconnectMaximumAttempts = 4 * 10;
+
         // keep this here otherwise Fody won't be able to properly implement INotifyPropertyChanging
 #pragma warning disable 67
         public event PropertyChangingEventHandler PropertyChanging;
 #pragma warning restore 67
 
+        private bool _deviceEnumerationCompleted { get;  set; }
+
+        private BackgroundWorker _connectToNanoDevice;
+
+        /// <summary>
+        /// Sets if Device Explorer should auto-connect to a device when there is only a single one in the available list.
+        /// </summary>
+        public bool AutoConnect { get; set; } = true;
+
+        /// <summary>
+        /// VS Package.
+        /// </summary>
+        public Package Package;
+
+        /// <summary>
+        /// Gets the service provider from the owner package.
+        /// </summary>
+        private IServiceProvider _serviceProvider
+        {
+            get
+            {
+                return Package;
+            }
+        }
 
         /// <summary>
         /// Initializes a new instance of the MainViewModel class.
@@ -62,9 +92,26 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
             }
 
             SelectedDevice = null;
+
+            // initialize connect to background worker
+            _connectToNanoDevice = new BackgroundWorker
+            {
+                WorkerReportsProgress = true,
+
+                WorkerSupportsCancellation = true
+            };
+            _connectToNanoDevice.DoWork += ConnectToDeviceDoWork;
+            _connectToNanoDevice.ProgressChanged += ConnectToDeviceProgressChanged;
+            _connectToNanoDevice.RunWorkerCompleted += ConnectToNanoDeviceRunWorkerCompleted;
         }
 
         public INFSerialDebugClientService SerialDebugService { get; set; } = null;
+
+        public ObservableCollection<NanoDeviceBase> AvailableDevices { set; get; }
+
+        public NanoDeviceBase SelectedDevice { get; set; }
+
+        public string PreviousSelectedDeviceDescription { get; private set; }
 
         public void OnSerialDebugServiceChanged()
         {
@@ -76,14 +123,13 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
 
         private void SerialDebugClient_DeviceEnumerationCompleted(object sender, EventArgs e)
         {
-            SerialDebugService.SerialDebugClient.DeviceEnumerationCompleted -= SerialDebugClient_DeviceEnumerationCompleted;
+            // save status
+            _deviceEnumerationCompleted = true;
 
             SelectedTransportType = TransportType.Serial;
 
             UpdateAvailableDevices();
         }
-
-        public ObservableCollection<NanoDeviceBase> AvailableDevices { get; set; }
 
         private void UpdateAvailableDevices()
         {
@@ -114,6 +160,21 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
                     //BusySrv.HideBusy();
                     break;
             }
+
+            // handle auto-connect option
+            if (_deviceEnumerationCompleted || SerialDebugService.SerialDebugClient.IsDevicesEnumerationComplete)
+            {
+                // this auto-connect can only run after the initial device enumeration is completed
+                if (AutoConnect)
+                {
+                    // is there a single device
+                    if (AvailableDevices.Count == 1)
+                    {
+                        // launch "connect to" worker
+                        _connectToNanoDevice.RunWorkerAsync(AvailableDevices.First().Description);
+                    }
+                }
+            }
         }
 
         private void NanoFrameworkDevices_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
@@ -136,16 +197,34 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
 
             // signal event that the devices collection has changed
             this.MessengerInstance.Send<NotificationMessage>(new NotificationMessage(""), MessagingTokens.NanoDevicesCollectionHasChanged);
+
+            // handle auto-connect option
+            if (_deviceEnumerationCompleted || SerialDebugService.SerialDebugClient.IsDevicesEnumerationComplete)
+            {
+                // this auto-connect can only run after the initial device enumeration is completed
+                if (AutoConnect)
+                {
+                    // is there a single device
+                    if (AvailableDevices.Count == 1)
+                    {
+                        // check if a "connect to" worker is running
+                        if (_connectToNanoDevice.IsBusy)
+                        {
+                            // request cancellation
+                            _connectToNanoDevice.CancelAsync();
+                        }
+
+                        // launch "connect to" worker
+                        _connectToNanoDevice.RunWorkerAsync(AvailableDevices.First().Description);
+                    }
+                }
+            }
         }
-
-        public NanoDeviceBase SelectedDevice { get; set; }
-
-        public NanoDeviceBase PreviousSelectedDevice { get; private set; }
 
         public void OnSelectedDeviceChanging()
         {
             // save previous device
-            PreviousSelectedDevice = SelectedDevice;
+            PreviousSelectedDeviceDescription = SelectedDevice?.Description;
 
             // disconnect device becoming unselected
             SelectedDeviceDisconnect();
@@ -209,13 +288,16 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
         #endregion
 
 
-        #region Connect/Disconnect
+        #region Connect/Disconnect/Reconnect
 
         public ConnectionState ConnectionStateResult { get; set; } = ConnectionState.None;
 
         public bool Connected { get { return (ConnectionStateResult == ConnectionState.Connected); } }
+
         public bool Disconnected { get { return (ConnectionStateResult == ConnectionState.Disconnected); } }
+
         public bool Connecting { get { return (ConnectionStateResult == ConnectionState.Connecting); } }
+
         public bool Disconnecting { get { return (ConnectionStateResult == ConnectionState.Disconnecting); } }
 
         public void OnConnectionStateResultChanged()
@@ -244,16 +326,10 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
 
                 ThreadHelper.JoinableTaskFactory.Run(async delegate {
 
-                    bool connectOk = await SelectedDevice.DebugEngine.ConnectAsync(3, 1000, true);
+                    bool connectOk = await SelectedDevice.DebugEngine.ConnectAsync(1, 1000, true);
 
                     ConnectionStateResult = connectOk ? ConnectionState.Connected : ConnectionState.Disconnected;
                 });
-
-                //TODO show message in output reporting that the connection attempt failed
-                //if (!connectOk)
-                //{
-                //    await DialogSrv.ShowMessageAsync(Res.GetString("HC_ConnectionError"));
-                //}
             }
         }
 
@@ -263,6 +339,13 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
             // AND if it's connection state is connected (no point on trying to disconnect something that is not connected, right?)
             if (SelectedDevice != null && ConnectionStateResult == ConnectionState.Connected)
             {
+                // check if a "connect to" worker is running
+                if (_connectToNanoDevice.IsBusy)
+                {
+                    // request cancellation
+                    _connectToNanoDevice.CancelAsync();
+                }
+
                 ConnectionStateResult = ConnectionState.Disconnecting;
 
                 // reset property to force that device capabilities are retrieved on next connection
@@ -280,10 +363,142 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
             }
         }
 
+        public void RebootAndSetupReconnectToDevice()
+        {
+            // this is only possible to perform if there is a device connected 
+            if (SelectedDevice != null && ConnectionStateResult == ConnectionState.Connected)
+            {
+                // store the device description
+                var deviceToReconnect = SelectedDevice.Description;
+
+                // save previous device
+                PreviousSelectedDeviceDescription = deviceToReconnect;
+
+                // check if a "connect to" worker is running
+                if (_connectToNanoDevice.IsBusy)
+                {
+                    // request cancellation
+                    _connectToNanoDevice.CancelAsync();
+                }
+
+                // reboot the device
+                ThreadHelper.JoinableTaskFactory.Run(async delegate
+                {
+                    // remove device selection
+                    // reset property to force that device capabilities are retrieved on next connection
+                    LastDeviceConnectedHash = 0;
+                    ConnectionStateResult = ConnectionState.Disconnecting;
+                    ConnectionStateResult = ConnectionState.Disconnected;
+
+                    await SelectedDevice.DebugEngine.RebootDeviceAsync(RebootOption.NormalReboot).ConfigureAwait(true);
+                });
+
+                // setup reconnection to device
+                _connectToNanoDevice.RunWorkerAsync(deviceToReconnect);
+            }
+        }
+
+        private void ConnectToNanoDeviceRunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            if (e.Error != null)
+            {
+                IVsOutputWindowPane windowPane = (IVsOutputWindowPane)this._serviceProvider.GetService(typeof(SVsGeneralOutputWindowPane));
+                windowPane.OutputStringAsLine(e.Error.Message);
+            }
+            else if (e.Result != null)
+            {
+                IVsOutputWindowPane windowPane = (IVsOutputWindowPane)this._serviceProvider.GetService(typeof(SVsGeneralOutputWindowPane));
+                windowPane.OutputStringAsLine(e.Result.ToString());
+            }
+        }
+
+        private void ConnectToDeviceProgressChanged(object sender, ProgressChangedEventArgs e)
+        {
+            IVsOutputWindowPane windowPane = (IVsOutputWindowPane)this._serviceProvider.GetService(typeof(SVsGeneralOutputWindowPane));
+            windowPane.OutputStringAsLine(e.UserState as string);
+        }
+
+
+        private void ConnectToDeviceDoWork(object sender, DoWorkEventArgs e)
+        {
+            // wait for 2 seconds
+            Thread.Sleep(2000);
+
+            // timeout counter
+            int timeoutCounter = SerialDeviceReconnectMaximumAttempts;
+
+            // attempts counter
+            int attemptCounter = 0;
+
+            int delayTime = 250;
+
+            while (timeoutCounter > 0)
+            {
+                // check cancellation pending flag
+                if ((sender as BackgroundWorker).CancellationPending)
+                {
+                    e.Cancel = true;
+                    return;
+                }
+
+                var deviceToConnect = AvailableDevices.FirstOrDefault(d => d.Description == e.Argument as string);
+
+                if (deviceToConnect != null)
+                {
+                    // select device, if not already selected 
+                    if (SelectedDevice == null || SelectedDevice.Description != deviceToConnect.Description)
+                    {
+                        SelectedDevice = deviceToConnect;
+                    }
+
+                    ThreadHelper.JoinableTaskFactory.Run(async delegate
+                    {
+                        // switch to UI main thread
+                        await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+
+                        // signal event to force selection of device in Device Explorer
+                        this.MessengerInstance.Send<NotificationMessage>(new NotificationMessage(""), MessagingTokens.ForceSelectionOfNanoDevice);
+                    });
+
+                    // try to connect to device
+                    ConnectDisconnect();
+
+                    // check connection
+                    if (ConnectionStateResult == ConnectionState.Connected)
+                    {
+                        return;
+                    }
+                    else
+                    {
+                        // add attempt counter
+                        attemptCounter++;
+
+                        // increase delay
+                        delayTime = (int)(1.25 * delayTime);
+                    }
+                }
+
+                // check attempts counter
+                if (attemptCounter > 3)
+                {
+                    // device is showing but can't connect after 10 attempts so it must gone crazy
+                    e.Result = $"{e.Argument as string} seems unresponsive, try to reset the device...";
+                    return;
+                }
+
+                // wait for 250ms
+                Thread.Sleep(delayTime);
+
+                timeoutCounter--;
+            }
+
+            e.Result = $"Couldn't connect to {e.Argument as string} before the set timeout...";
+        }
+
         #endregion
 
 
-        #region Device Capabilites
+        #region Device Capabilities
 
         public StringBuilder DeviceDeploymentMap { get; set; }
 
@@ -351,6 +566,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
             public static readonly Guid SelectedNanoDeviceHasChanged = new Guid("{C3173983-A19A-49DD-A4BD-F25D360F7334}");
             public static readonly Guid NanoDevicesCollectionHasChanged = new Guid("{3E8906F9-F68A-45B7-A0CE-6D42BDB22455}");
             public static readonly Guid ConnectionStateResultHasChanged = new Guid("{CBB58A61-51B0-4ABB-8484-5D44F84B6A3C}");
+            public static readonly Guid ForceSelectionOfNanoDevice = new Guid("{8F012794-BC66-429D-9F9D-A9B0F546D6B5}");
         }
 
         #endregion
