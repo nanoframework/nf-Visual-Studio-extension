@@ -18,6 +18,9 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using Task = System.Threading.Tasks.Task;
+using System.Threading.Tasks;
+using System.Runtime.CompilerServices;
 
 namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
 {
@@ -49,7 +52,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
 
         private bool _deviceEnumerationCompleted { get;  set; }
 
-        private BackgroundWorker _connectToNanoDevice;
+        CancellationTokenSource _cancelConnectToDevice = new CancellationTokenSource();
+
+        private ConfiguredTaskAwaitable _connectToDeviceTask = new ConfiguredTaskAwaitable();
 
         /// <summary>
         /// Sets if Device Explorer should auto-connect to a device when there is only a single one in the available list.
@@ -92,17 +97,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
             }
 
             SelectedDevice = null;
-
-            // initialize connect to background worker
-            _connectToNanoDevice = new BackgroundWorker
-            {
-                WorkerReportsProgress = true,
-
-                WorkerSupportsCancellation = true
-            };
-            _connectToNanoDevice.DoWork += ConnectToDeviceDoWork;
-            _connectToNanoDevice.ProgressChanged += ConnectToDeviceProgressChanged;
-            _connectToNanoDevice.RunWorkerCompleted += ConnectToNanoDeviceRunWorkerCompleted;
         }
 
         public INFSerialDebugClientService SerialDebugService { get; set; } = null;
@@ -170,8 +164,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
                     // is there a single device
                     if (AvailableDevices.Count == 1)
                     {
-                        // launch "connect to" worker
-                        _connectToNanoDevice.RunWorkerAsync(AvailableDevices.First().Description);
+                        // launch "connect to" task
+                        _cancelConnectToDevice = new CancellationTokenSource();
+                        _connectToDeviceTask = ConnectToDeviceAsync(AvailableDevices.First().Description, _cancelConnectToDevice.Token).ConfigureAwait(false);
                     }
                 }
             }
@@ -207,15 +202,27 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
                     // is there a single device
                     if (AvailableDevices.Count == 1)
                     {
-                        // check if a "connect to" worker is running
-                        if (_connectToNanoDevice.IsBusy)
+                        // check if a "connect to" task is running
+                        if (!_connectToDeviceTask.GetAwaiter().IsCompleted)
                         {
                             // request cancellation
-                            _connectToNanoDevice.CancelAsync();
+                            _cancelConnectToDevice.Cancel();
+                            _cancelConnectToDevice.Dispose();
                         }
 
-                        // launch "connect to" worker
-                        _connectToNanoDevice.RunWorkerAsync(AvailableDevices.First().Description);
+                        // launch "connect to" task
+                        _cancelConnectToDevice = new CancellationTokenSource();
+                        _connectToDeviceTask = ConnectToDeviceAsync(AvailableDevices.First().Description, _cancelConnectToDevice.Token).ConfigureAwait(false);                       
+                    }
+                    else if (AvailableDevices.Count == 0)
+                    {
+                        // no devices available, cancel any "connect to" task that can be still running
+                        if (!_connectToDeviceTask.GetAwaiter().IsCompleted)
+                        {
+                            // request cancellation
+                            _cancelConnectToDevice.Cancel();
+                            _cancelConnectToDevice.Dispose();
+                        }
                     }
                 }
             }
@@ -276,7 +283,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
         {
             SelectedDeviceConnectionResult = PingConnectionResult.Busy;
 
-            ThreadHelper.JoinableTaskFactory.Run(async delegate {
+            ThreadHelper.JoinableTaskFactory.Run(async () => {
+
+                // switch to UI main thread
+                await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+
+                await Task.Yield();
 
                 PingConnectionType connection = await SelectedDevice.PingAsync();
 
@@ -324,11 +336,21 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
             {
                 ConnectionStateResult = ConnectionState.Connecting;
 
-                ThreadHelper.JoinableTaskFactory.Run(async delegate {
+                ThreadHelper.JoinableTaskFactory.Run(async () => {
+
+                    // switch to UI main thread
+                    await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+
+                    await Task.Yield();
 
                     bool connectOk = await SelectedDevice.DebugEngine.ConnectAsync(1, 1000, true);
 
                     ConnectionStateResult = connectOk ? ConnectionState.Connected : ConnectionState.Disconnected;
+
+                    if(ConnectionStateResult == ConnectionState.Connected)
+                    {
+                        SelectedDevice.DebugEngine.Start().GetAwaiter();
+                    }
                 });
             }
         }
@@ -339,27 +361,42 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
             // AND if it's connection state is connected (no point on trying to disconnect something that is not connected, right?)
             if (SelectedDevice != null && ConnectionStateResult == ConnectionState.Connected)
             {
-                // check if a "connect to" worker is running
-                if (_connectToNanoDevice.IsBusy)
+                // save previous device
+                PreviousSelectedDeviceDescription = SelectedDevice?.Description;
+
+                // check if a "connect to" task is running
+                if (!_connectToDeviceTask.GetAwaiter().IsCompleted)
                 {
                     // request cancellation
-                    _connectToNanoDevice.CancelAsync();
+                    _cancelConnectToDevice.Cancel();
+                    _cancelConnectToDevice.Dispose();
                 }
 
-                ConnectionStateResult = ConnectionState.Disconnecting;
 
                 // reset property to force that device capabilities are retrieved on next connection
                 LastDeviceConnectedHash = 0;
 
-                try
+                ThreadHelper.JoinableTaskFactory.Run(async () =>
                 {
-                    SelectedDevice.DebugEngine.Disconnect();
-                    ConnectionStateResult = ConnectionState.Disconnected;
-                }
-                catch(Exception ex)
-                {
-                    // TODO handle exception
-                }
+
+                    try
+                    {
+                        // switch to UI main thread
+                        await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+
+                        await Task.Yield();
+
+                        ConnectionStateResult = ConnectionState.Disconnecting;
+
+                        SelectedDevice.DebugEngine.Disconnect();
+
+                        ConnectionStateResult = ConnectionState.Disconnected;
+                    }
+                    catch (Exception ex)
+                    {
+                        // TODO handle exception
+                    }
+                });
             }
         }
 
@@ -374,15 +411,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
                 // save previous device
                 PreviousSelectedDeviceDescription = deviceToReconnect;
 
-                // check if a "connect to" worker is running
-                if (_connectToNanoDevice.IsBusy)
-                {
-                    // request cancellation
-                    _connectToNanoDevice.CancelAsync();
-                }
-
                 // reboot the device
-                ThreadHelper.JoinableTaskFactory.Run(async delegate
+                ThreadHelper.JoinableTaskFactory.Run(async () =>
                 {
                     // remove device selection
                     // reset property to force that device capabilities are retrieved on next connection
@@ -393,36 +423,23 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
                     await SelectedDevice.DebugEngine.RebootDeviceAsync(RebootOption.NormalReboot).ConfigureAwait(true);
                 });
 
-                // setup reconnection to device
-                _connectToNanoDevice.RunWorkerAsync(deviceToReconnect);
+                // check if a "connect to" task is running
+                if (!_connectToDeviceTask.GetAwaiter().IsCompleted)
+                {
+                    // request cancellation
+                    _cancelConnectToDevice.Cancel();
+                    _cancelConnectToDevice.Dispose();
+                }
+
+                // launch "connect to" task
+                _cancelConnectToDevice = new CancellationTokenSource();
+                _connectToDeviceTask = ConnectToDeviceAsync(AvailableDevices.First().Description, _cancelConnectToDevice.Token).ConfigureAwait(false);
             }
         }
 
-        private void ConnectToNanoDeviceRunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
-        {
-            if (e.Error != null)
-            {
-                IVsOutputWindowPane windowPane = (IVsOutputWindowPane)this._serviceProvider.GetService(typeof(SVsGeneralOutputWindowPane));
-                windowPane.OutputStringAsLine(e.Error.Message);
-            }
-            else if (e.Result != null)
-            {
-                IVsOutputWindowPane windowPane = (IVsOutputWindowPane)this._serviceProvider.GetService(typeof(SVsGeneralOutputWindowPane));
-                windowPane.OutputStringAsLine(e.Result.ToString());
-            }
-        }
-
-        private void ConnectToDeviceProgressChanged(object sender, ProgressChangedEventArgs e)
+        private async Task ConnectToDeviceAsync(string deviceDescription, CancellationToken cancellationToken)
         {
             IVsOutputWindowPane windowPane = (IVsOutputWindowPane)this._serviceProvider.GetService(typeof(SVsGeneralOutputWindowPane));
-            windowPane.OutputStringAsLine(e.UserState as string);
-        }
-
-
-        private void ConnectToDeviceDoWork(object sender, DoWorkEventArgs e)
-        {
-            // wait for 2 seconds
-            Thread.Sleep(2000);
 
             // timeout counter
             int timeoutCounter = SerialDeviceReconnectMaximumAttempts;
@@ -432,67 +449,81 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
 
             int delayTime = 250;
 
-            while (timeoutCounter > 0)
+            while (timeoutCounter > 0 && !cancellationToken.IsCancellationRequested)
             {
-                // check cancellation pending flag
-                if ((sender as BackgroundWorker).CancellationPending)
+                // don't do anything on the initial 2 seconds
+                if ((SerialDeviceReconnectMaximumAttempts - timeoutCounter) < 4 * 2)
                 {
-                    e.Cancel = true;
-                    return;
-                }
+                    var deviceToConnect = AvailableDevices.FirstOrDefault(d => d.Description == deviceDescription);
 
-                var deviceToConnect = AvailableDevices.FirstOrDefault(d => d.Description == e.Argument as string);
-
-                if (deviceToConnect != null)
-                {
-                    // select device, if not already selected 
-                    if (SelectedDevice == null || SelectedDevice.Description != deviceToConnect.Description)
+                    if (deviceToConnect != null)
                     {
-                        SelectedDevice = deviceToConnect;
+                        // select device, if not already selected 
+                        if (SelectedDevice == null || SelectedDevice.Description != deviceToConnect.Description)
+                        {
+                            SelectedDevice = deviceToConnect;
+                        }
+
+                        ThreadHelper.JoinableTaskFactory.Run(async () =>
+                        {
+                            // switch to UI main thread
+                            await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+
+                            // signal event to force selection of device in Device Explorer
+                            this.MessengerInstance.Send<NotificationMessage>(new NotificationMessage(""), MessagingTokens.ForceSelectionOfNanoDevice);
+                        });
+
+                        // try to connect to device
+                        try
+                        {
+                            ConnectDisconnect();
+                        }
+                        catch
+                        {
+                            // switch to UI main thread
+                            await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+                            windowPane.OutputStringAsLine($"{deviceDescription} seems unresponsive, try to reset the device...");
+                            return;
+                        };
+
+                        // check connection
+                        if (ConnectionStateResult == ConnectionState.Connected)
+                        {
+                            return;
+                        }
+                        else
+                        {
+                            // add attempt counter
+                            attemptCounter++;
+
+                            // increase delay
+                            delayTime = (int)(1.25 * delayTime);
+                        }
                     }
 
-                    ThreadHelper.JoinableTaskFactory.Run(async delegate
+                    // check attempts counter
+                    if (attemptCounter > 3)
                     {
                         // switch to UI main thread
                         await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
-
-                        // signal event to force selection of device in Device Explorer
-                        this.MessengerInstance.Send<NotificationMessage>(new NotificationMessage(""), MessagingTokens.ForceSelectionOfNanoDevice);
-                    });
-
-                    // try to connect to device
-                    ConnectDisconnect();
-
-                    // check connection
-                    if (ConnectionStateResult == ConnectionState.Connected)
-                    {
+                        // device is showing but can't connect after 10 attempts so it must gone crazy
+                        windowPane.OutputStringAsLine($"{deviceDescription} seems unresponsive, try to reset the device...");
                         return;
                     }
-                    else
-                    {
-                        // add attempt counter
-                        attemptCounter++;
-
-                        // increase delay
-                        delayTime = (int)(1.25 * delayTime);
-                    }
                 }
 
-                // check attempts counter
-                if (attemptCounter > 3)
-                {
-                    // device is showing but can't connect after 10 attempts so it must gone crazy
-                    e.Result = $"{e.Argument as string} seems unresponsive, try to reset the device...";
-                    return;
-                }
-
-                // wait for 250ms
-                Thread.Sleep(delayTime);
+                // wait for 250ms, if cancellation hasn't been requested 
+                if(!cancellationToken.IsCancellationRequested) await Task.Delay(250);
 
                 timeoutCounter--;
             }
 
-            e.Result = $"Couldn't connect to {e.Argument as string} before the set timeout...";
+            if (timeoutCounter == 0)
+            {
+                // switch to UI main thread
+                await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+                windowPane.OutputStringAsLine($"Couldn't connect to {deviceDescription} before the set timeout...");
+            }
         }
 
         #endregion
@@ -529,7 +560,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
             LastDeviceConnectedHash = SelectedDevice.Description.GetHashCode();
 
 
-            ThreadHelper.JoinableTaskFactory.Run(async delegate {
+            ThreadHelper.JoinableTaskFactory.Run(async () => {
 
                 try
                 {

@@ -71,10 +71,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 var menuItem = new MenuCommand(this.ShowToolWindow, menuCommandID);
                 commandService.AddCommand(menuItem);
             }
-
-            // launches the serial client and service
-            var serialClient = CreateSerialDebugClient();
-            ServiceLocator.Current.GetInstance<DeviceExplorerViewModel>().SerialDebugService = serialClient;
         }
 
         /// <summary>
@@ -101,7 +97,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         /// Initializes the singleton instance of the command.
         /// </summary>
         /// <param name="package">Owner package, not null.</param>
-        public static void Initialize(Package package, ViewModelLocator vmLocator)
+        public static async void Initialize(Package package, ViewModelLocator vmLocator)
         {
             Instance = new DeviceExplorerCommand(package);
 
@@ -110,10 +106,18 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
             Instance.CreateToolbarHandlers();
 
-            // setup message listeners to be notifed of events occuring in the View Model
+            // setup message listeners to be notified of events occurring in the View Model
             Messenger.Default.Register<NotificationMessage>(Instance, DeviceExplorerViewModel.MessagingTokens.SelectedNanoDeviceHasChanged, (message) => Instance.SelectedNanoDeviceChangeHandler());
             Messenger.Default.Register<NotificationMessage>(Instance, DeviceExplorerViewModel.MessagingTokens.NanoDevicesCollectionHasChanged, (message) => Instance.NanoDevicesCollectionChangedHandler());
             Messenger.Default.Register<NotificationMessage>(Instance, DeviceExplorerViewModel.MessagingTokens.ConnectionStateResultHasChanged, (message) => Instance.ConnectionStateResultChangedHandler());
+
+            // switch to UI main thread
+            await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+
+            // launches the serial client and service
+            // create serial instance WITHOUT app associated because we don't care of app life cycle in VS extension
+            var serialDebugClient = PortBase.CreateInstanceForSerial("", null);
+            ServiceLocator.Current.GetInstance<DeviceExplorerViewModel>().SerialDebugService = new NFSerialDebugClientService(serialDebugClient);
         }
 
         private void CreateToolbarHandlers()
@@ -370,15 +374,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         }
 
         #endregion
-
-
-        private INFSerialDebugClientService CreateSerialDebugClient()
-        {
-            // create serial instance WITHOUT app associated because we don't care of app life cycle in VS extension
-            var serialDebugClient = PortBase.CreateInstanceForSerial("", null);
-
-            return new NFSerialDebugClientService(serialDebugClient);
-        }
 
 
         #region MVVM messaging handlers
