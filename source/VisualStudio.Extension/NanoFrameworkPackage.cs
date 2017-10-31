@@ -12,6 +12,9 @@ using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Runtime.InteropServices;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.Practices.ServiceLocation;
 
 [assembly: ProjectTypeRegistration(projectTypeGuid: NanoFrameworkPackage.ProjectTypeGuid,
                                 displayName: "NanoCSharpProject",
@@ -34,9 +37,11 @@ namespace nanoFramework.Tools.VisualStudio.Extension
     [ProvideMenuResource("Menus.ctmenu", 1)]
     // declaration of Device Explorer ToolWindo that (as default) will show tabbed in Solution Explorer
     [ProvideToolWindow(typeof(DeviceExplorer), Style = VsDockStyle.Tabbed, Window = "3ae79031-e1bc-11d0-8f78-00a0c9110057")]
+    // register nanoDevice communication service
+    [ProvideService((typeof(NanoDeviceCommService)), IsAsyncQueryable = true)]
     [Guid(NanoFrameworkPackage.PackageGuid)]
     [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1650:ElementDocumentationMustBeSpelledCorrectly", Justification = "pkgdef, VS and vsixmanifest are valid VS terms")]
-    public sealed class NanoFrameworkPackage : Package
+    public sealed class NanoFrameworkPackage : AsyncPackage
     {
         /// <summary>
         /// The GUID for this project type
@@ -79,12 +84,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             if (info == null) throw new Exception("Could not get assembly directory!");
             NanoFrameworkExtensionDirectory = info.FullName;
 
-            // Need to add the View model Locator to the application resource dictionry programatically 
-            // becuase at the extension level we don't have 'XAML' access to it
+            // Need to add the View model Locator to the application resource dictionary programatically 
+            // because at the extension level we don't have 'XAML' access to it
             // try to find if the view model locator is already in the app resources dictionary
             if (System.Windows.Application.Current.TryFindResource("Locator") == null)
             {
-                // instanciate the view model locator...
+                // instantiate the view model locator...
                 ViewModelLocator = new ViewModelLocator();
 
                 // ... and add it there
@@ -96,12 +101,33 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         /// Initialization of the package; this method is called right after the package is sited, so this is the place
         /// where you can put all the initialization code that rely on services provided by VisualStudio.
         /// </summary>
-        protected override void Initialize()
+        protected override async System.Threading.Tasks.Task InitializeAsync(CancellationToken cancellationToken, IProgress<ServiceProgressData> progress)
         {
-            base.Initialize();
-            ViewModelLocator.DeviceExplorer.Package = this;
+            // need to switch to the main thread to initialize the command handlers
+            await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+
             DeviceExplorerCommand.Initialize(this, ViewModelLocator);
             DeployProvider.Initialize(this, ViewModelLocator);
+
+            AddService(typeof(NanoDeviceCommService), CreateNanoDeviceCommService);
+
+            ViewModelLocator.DeviceExplorer.Package = this;
+
+            //ServiceLocator.Current.GetInstance<DeviceExplorerViewModel>().NanoDeviceCommService = await this.GetServiceAsync(typeof(NanoDeviceCommService)) as INanoDeviceCommService;
+
+            await base.InitializeAsync(cancellationToken, progress);
+        }
+
+        public async Task<object> CreateNanoDeviceCommService(IAsyncServiceContainer container, CancellationToken cancellationToken, Type serviceType)
+        {
+            NanoDeviceCommService service = null;
+
+            await System.Threading.Tasks.Task.Run(async () => {
+                service = new NanoDeviceCommService(this);
+                await service.CreateDebugClientsAsync();
+            });
+
+            return service;
         }
     }
 }

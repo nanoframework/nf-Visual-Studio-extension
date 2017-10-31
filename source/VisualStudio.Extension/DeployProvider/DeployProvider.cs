@@ -36,7 +36,15 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         private const int _timeoutMiliseconds = 200;
 
         private static ViewModelLocator _viewModelLocator;
+
         private static Package _package;
+
+        /// <summary>
+        /// Gets the service provider from the owner package.
+        /// </summary>
+        private IServiceProvider ServiceProvider { get { return _package; } }
+
+        INanoDeviceCommService NanoDeviceCommService { get { return ServiceProvider.GetService(typeof(NanoDeviceCommService)) as INanoDeviceCommService; } }
 
         /// <summary>
         /// Provides access to the project's properties.
@@ -59,7 +67,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
             // just in case....
-            if ((_viewModelLocator?.DeviceExplorer.ConnectionStateResult != ConnectionState.Connected))
+            if ((_viewModelLocator?.DeviceExplorer.SelectedDeviceConnectionState != ConnectionState.Connected))
             {
                 // can't debug
                 // throw exception to signal deployment failure
@@ -229,7 +237,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     // yield to give the UI thread a chance to respond to user input
                     await Task.Yield();
 
-                    _viewModelLocator.DeviceExplorer.LoadDeviceInfo(true);
+                    await NanoDeviceCommService.Device.GetDeviceInfoAsync(true);
 
                     // yield to give the UI thread a chance to respond to user input
                     await Task.Yield();
@@ -244,8 +252,11 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     // yield to give the UI thread a chance to respond to user input
                     await Task.Yield();
 
-                    // reboot and reconnect device
-                    _viewModelLocator.DeviceExplorer.RebootAndSetupReconnectToDevice();
+                    // set device to reconnect to
+                    _viewModelLocator.DeviceExplorer.DeviceToReconnect = _viewModelLocator.DeviceExplorer.SelectedDevice.Description;
+
+                    // reboot device
+                    _viewModelLocator.DeviceExplorer.RebootSelectedDevice();
 
                     // yield to give the UI thread a chance to respond to user input
                     await Task.Yield();
@@ -265,7 +276,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         {
             get
             {
-                return (_viewModelLocator?.DeviceExplorer.ConnectionStateResult == ConnectionState.Connected);
+                return (_viewModelLocator?.DeviceExplorer.SelectedDeviceConnectionState == ConnectionState.Connected);
             }
         }
 

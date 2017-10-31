@@ -6,11 +6,13 @@
 namespace nanoFramework.Tools.VisualStudio.Extension
 {
     using GalaSoft.MvvmLight.Messaging;
+    using Microsoft.Practices.ServiceLocation;
     using Microsoft.VisualStudio.Shell;
     using nanoFramework.Tools.Debugger;
     using nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel;
     using System;
     using System.Windows.Controls;
+    using System.Windows.Threading;
 
     /// <summary>
     /// Interaction logic for DeviceExplorerControl.
@@ -73,12 +75,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         private void ForceSelectionOfNanoDeviceHandler()
         {
             // make sure the item in the treeview is selected, in case the selected device was changed in the view model
-            if(deviceTreeView.SelectedItem != null)
+            if (deviceTreeView.SelectedItem != null)
             {
-                if(deviceTreeView.SelectedItem.GetType().Equals(typeof(NanoDeviceBase)))
+                if (deviceTreeView.SelectedItem.GetType().Equals(typeof(NanoDeviceBase)))
                 {
                     // check if it's the same so we don't switch 
-                    if(((NanoDeviceBase)deviceTreeView.SelectedItem).Description == (this.DataContext as DeviceExplorerViewModel).SelectedDevice.Description)
+                    if (((NanoDeviceBase)deviceTreeView.SelectedItem).Description == (this.DataContext as DeviceExplorerViewModel).SelectedDevice.Description)
                     {
                         // nothing to do here
                         return;
@@ -95,5 +97,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         }
 
         #endregion
+
+        private async void DeviceExplorer_LoadedAsync(object sender, System.Windows.RoutedEventArgs e)
+        {
+            await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+
+            (this.DataContext as DeviceExplorerViewModel).NanoDeviceCommService = ((IServiceProvider)(this.DataContext as DeviceExplorerViewModel).Package).GetService(typeof(NanoDeviceCommService)) as INanoDeviceCommService;
+        }
     }
 }
