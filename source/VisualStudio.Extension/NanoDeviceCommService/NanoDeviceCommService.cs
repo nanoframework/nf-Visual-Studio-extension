@@ -25,11 +25,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         public NanoDeviceCommService(Microsoft.VisualStudio.Shell.IAsyncServiceProvider provider)
         {
             _serviceProvider = provider;
-        }
-
-        public async System.Threading.Tasks.Task CreateDebugClientsAsync()
-        {
-            await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
             // launches the serial client and service
             // create serial instance WITHOUT app associated because we don't care of app life cycle in VS extension

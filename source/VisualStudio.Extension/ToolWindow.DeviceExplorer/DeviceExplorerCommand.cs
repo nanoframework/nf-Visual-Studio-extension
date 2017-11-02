@@ -236,7 +236,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                     // connected, OK to start debug engine
                     // no need to wait, just launch the task
-                    NanoDeviceCommService.Device.DebugEngine.Start().GetAwaiter();
+                    //NanoDeviceCommService.Device.DebugEngine.Start().FireAndForget();
                 }
                 else
                 {
@@ -354,6 +354,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         /// </remarks>
         private async void DeviceCapabilitiesCommandHandler(object sender, EventArgs arguments)
         {
+            IVsOutputWindowPane windowPane = (IVsOutputWindowPane)this.ServiceProvider.GetService(typeof(SVsGeneralOutputWindowPane));
+
             UpdateStatusBar($"Querying {ViewModelLocator.DeviceExplorer.SelectedDevice.Description} capabilites...");
 
             var statusBar = this.ServiceProvider.GetService(typeof(SVsStatusbar)) as IVsStatusbar;
@@ -384,13 +386,28 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         var flashMap = await NanoDeviceCommService.Device.DebugEngine.GetFlashSectorMapAsync();
                         var deploymentMap = await NanoDeviceCommService.Device.DebugEngine.GetDeploymentMapAsync();
 
-                        // load view model properties for maps
-                        ViewModelLocator.DeviceExplorer.DeviceMemoryMap = new StringBuilder(memoryMap?.ToStringForOutput() ?? "Empty");
-                        ViewModelLocator.DeviceExplorer.DeviceFlashSectorMap = new StringBuilder(flashMap?.ToStringForOutput() ?? "Empty");
-                        ViewModelLocator.DeviceExplorer.DeviceDeploymentMap = new StringBuilder(deploymentMap?.ToStringForOutput() ?? "Empty");
+                        // we have to have a valid device info
+                        if (deviceInfo.Valid)
+                        {
 
-                        // load view model property for system
-                        ViewModelLocator.DeviceExplorer.DeviceSystemInfo = new StringBuilder(deviceInfo?.ToString() ?? "Empty");
+                            // load view model properties for maps
+                            ViewModelLocator.DeviceExplorer.DeviceMemoryMap = new StringBuilder(memoryMap?.ToStringForOutput() ?? "Empty");
+                            ViewModelLocator.DeviceExplorer.DeviceFlashSectorMap = new StringBuilder(flashMap?.ToStringForOutput() ?? "Empty");
+                            ViewModelLocator.DeviceExplorer.DeviceDeploymentMap = new StringBuilder(deploymentMap?.ToStringForOutput() ?? "Empty");
+
+                            // load view model property for system
+                            ViewModelLocator.DeviceExplorer.DeviceSystemInfo = new StringBuilder(deviceInfo?.ToString() ?? "Empty");
+                        }
+                        else
+                        {
+                            // reset property to force that device capabilities are retrieved on next connection
+                            ViewModelLocator.DeviceExplorer.LastDeviceConnectedHash = 0;
+
+                            // report issue to user
+                            windowPane.OutputStringAsLine($"Error retrieving device information from { ViewModelLocator.DeviceExplorer.SelectedDevice.Description}. Please reconnect device.");
+
+                            return;
+                        }
                     }
                     catch
                     {
@@ -401,10 +418,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     }
 
                 }
-
-                //ViewModelLocator.DeviceExplorer.LoadDeviceInfo();
-
-                IVsOutputWindowPane windowPane = (IVsOutputWindowPane)this.ServiceProvider.GetService(typeof(SVsGeneralOutputWindowPane));
 
                 windowPane.OutputStringAsLine(string.Empty);
                 windowPane.OutputStringAsLine(string.Empty);

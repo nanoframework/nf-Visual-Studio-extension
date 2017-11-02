@@ -74,35 +74,31 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         private void ForceSelectionOfNanoDeviceHandler()
         {
-            // make sure the item in the treeview is selected, in case the selected device was changed in the view model
-            if (deviceTreeView.SelectedItem != null)
+            Dispatcher.Invoke(() =>
             {
-                if (deviceTreeView.SelectedItem.GetType().Equals(typeof(NanoDeviceBase)))
+                // make sure the item in the treeview is selected, in case the selected device was changed in the view model
+                if (deviceTreeView.SelectedItem != null)
                 {
-                    // check if it's the same so we don't switch 
-                    if (((NanoDeviceBase)deviceTreeView.SelectedItem).Description == (this.DataContext as DeviceExplorerViewModel).SelectedDevice.Description)
+                    if (deviceTreeView.SelectedItem.GetType().Equals(typeof(NanoDeviceBase)))
                     {
-                        // nothing to do here
-                        return;
+                        // check if it's the same so we don't switch 
+                        if (((NanoDeviceBase)deviceTreeView.SelectedItem).Description == (this.DataContext as DeviceExplorerViewModel).SelectedDevice.Description)
+                        {
+                            // nothing to do here
+                            return;
+                        }
                     }
                 }
-            }
 
-            // select the device
-            var deviceItem = DevicesHeaderItem.ItemContainerGenerator.ContainerFromItem((this.DataContext as DeviceExplorerViewModel).SelectedDevice) as TreeViewItem;
-            if (deviceItem != null)
-            {
-                deviceItem.IsSelected = true;
-            }
+                // select the device
+                var deviceItem = DevicesHeaderItem.ItemContainerGenerator.ContainerFromItem((this.DataContext as DeviceExplorerViewModel).SelectedDevice) as TreeViewItem;
+                if (deviceItem != null)
+                {
+                    deviceItem.IsSelected = true;
+                }
+            });
         }
 
         #endregion
-
-        private async void DeviceExplorer_LoadedAsync(object sender, System.Windows.RoutedEventArgs e)
-        {
-            await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
-
-            (this.DataContext as DeviceExplorerViewModel).NanoDeviceCommService = ((IServiceProvider)(this.DataContext as DeviceExplorerViewModel).Package).GetService(typeof(NanoDeviceCommService)) as INanoDeviceCommService;
-        }
     }
 }
