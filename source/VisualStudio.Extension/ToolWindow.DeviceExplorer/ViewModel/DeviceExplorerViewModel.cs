@@ -50,9 +50,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
         private bool _deviceEnumerationCompleted { get;  set; }
 
         /// <summary>
-        /// Sets if Device Explorer should auto-connect to a device when there is only a single one in the available list.
+        /// Sets if Device Explorer should auto-select a device when there is only a single one in the available list.
         /// </summary>
-        public bool AutoConnect { get; set; } = true;
+        public bool AutoSelect { get; set; } = true;
 
         /// <summary>
         /// VS Package.
@@ -98,7 +98,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
 
         public NanoDeviceBase SelectedDevice { get; set; }
 
-        public string DeviceToReconnect { get; set; } = null;
+        public string DeviceToReSelect { get; set; } = null;
 
         public string PreviousSelectedDeviceDescription { get; internal set; }
 
@@ -155,12 +155,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
             if (_deviceEnumerationCompleted || NanoDeviceCommService.DebugClient.IsDevicesEnumerationComplete)
             {
                 // this auto-connect can only run after the initial device enumeration is completed
-                if (AutoConnect)
+                if (AutoSelect)
                 {
                     // is there a single device
                     if (AvailableDevices.Count == 1)
                     {
-                        ForceConnectionToNanoDevice(AvailableDevices[0]);
+                        ForceNanoDeviceSelection(AvailableDevices[0]);
                     }
                 }
             }
@@ -184,53 +184,50 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
                     break;
             }
 
-            // verify if the connected device was removed from the collection
-            if (AvailableDevices.FirstOrDefault(d => d.Description == PreviousSelectedDeviceDescription) == null)
-            {
-                // update property because the device is not connected anymore
-                SelectedDeviceConnectionState = ConnectionState.Disconnected;
-            }
-
             MessengerInstance.Send(new NotificationMessage(""), MessagingTokens.NanoDevicesCollectionHasChanged);
 
-            // handle auto-connect option
+            // handle auto-select option
             if (_deviceEnumerationCompleted || NanoDeviceCommService.DebugClient.IsDevicesEnumerationComplete)
             {
-                // reconnect to a specific device has higher priority than auto-connect
-                if(DeviceToReconnect != null)
+                // reselect a specific device has higher priority than auto-select
+                if(DeviceToReSelect != null)
                 {
-                    var deviceToReconnect = AvailableDevices.FirstOrDefault(d => d.Description == DeviceToReconnect);
-                    if (deviceToReconnect != null)
+                    var deviceToReSelect = AvailableDevices.FirstOrDefault(d => d.Description == DeviceToReSelect);
+                    if (deviceToReSelect != null)
                     {
-                        // device seems to be back online, connect to it
-                        ForceConnectionToNanoDevice(deviceToReconnect);
+                        // device seems to be back online, select it
+                        ForceNanoDeviceSelection(deviceToReSelect);
 
-                        // clear device to reconnect
-                        DeviceToReconnect = null;
+                        // clear device to reselect
+                        DeviceToReSelect = null;
                     }
                 }
-                // this auto-connect can only run after the initial device enumeration is completed
-                else if (AutoConnect)
+                // this auto-select can only run after the initial device enumeration is completed
+                else if (AutoSelect)
                 {
                     // is there a single device
                     if (AvailableDevices.Count == 1)
                     {
-                        ForceConnectionToNanoDevice(AvailableDevices[0]);
+                        ForceNanoDeviceSelection(AvailableDevices[0]);
                     }
                 }
             }
         }
 
-        private void ForceConnectionToNanoDevice(NanoDeviceBase nanoDevice)
+        private void ForceNanoDeviceSelection(NanoDeviceBase nanoDevice)
         {
             // select the device
             SelectedDevice = nanoDevice;
 
-            // launch connect task from Device Explorer command
-            MessengerInstance.Send(new NotificationMessage(""), MessagingTokens.ConnectToSelectedNanoDevice);
-
             // request forced selection of device in UI
             MessengerInstance.Send(new NotificationMessage(""), MessagingTokens.ForceSelectionOfNanoDevice);
+        }
+
+        public void ForceNanoDeviceSelection()
+        {
+            // request forced selection of device in UI
+            MessengerInstance.Send(new NotificationMessage(""), MessagingTokens.ForceSelectionOfNanoDevice);
+
         }
 
         public void OnSelectedDeviceChanging()
@@ -241,14 +238,31 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
 
         public void OnSelectedDeviceChanged()
         {
-            // set connection state to disconnected
-            SelectedDeviceConnectionState = ConnectionState.Disconnected;
-
             // clear hash for connected device
             LastDeviceConnectedHash = 0;
 
             // signal event that the selected device has changed
             MessengerInstance.Send(new NotificationMessage(""), MessagingTokens.SelectedNanoDeviceHasChanged);
+        }
+
+        public void RebootSelectedDevice()
+        {
+            // this is only possible to perform if there is a device connected 
+            if (SelectedDevice != null)
+            {
+                // save previous device
+                PreviousSelectedDeviceDescription = DeviceToReSelect;
+
+                // reboot the device
+                ThreadHelper.JoinableTaskFactory.Run(async () =>
+                {
+                    // remove device selection
+                    // reset property to force that device capabilities are retrieved on next connection
+                    LastDeviceConnectedHash = 0;
+
+                    await SelectedDevice.DebugEngine.RebootDeviceAsync(RebootOption.NormalReboot).ConfigureAwait(true);
+                });
+            }
         }
 
 
@@ -261,46 +275,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
         public void OnSelectedTransportTypeChanged()
         {
             UpdateAvailableDevices();
-        }
-
-        #endregion
-
-
-        #region Connect/Disconnect/Reconnect
-
-        public ConnectionState SelectedDeviceConnectionState { get; set; } = ConnectionState.None;
-
-        public bool Connected { get { return (SelectedDeviceConnectionState == ConnectionState.Connected); } }
-
-        public bool Disconnected { get { return (SelectedDeviceConnectionState == ConnectionState.Disconnected); } }
-
-        public bool Connecting { get { return (SelectedDeviceConnectionState == ConnectionState.Connecting); } }
-
-        public void OnSelectedDeviceConnectionStateChanged()
-        {
-            // signal event that the connection state has changed
-            MessengerInstance.Send(new NotificationMessage(""), MessagingTokens.SelectedDeviceConnectionStateHasChanged);
-        }
-       
-        public void RebootSelectedDevice()
-        {
-            // this is only possible to perform if there is a device connected 
-            if (SelectedDevice != null && SelectedDeviceConnectionState == ConnectionState.Connected)
-            {
-                // save previous device
-                PreviousSelectedDeviceDescription = DeviceToReconnect;
-
-                // reboot the device
-                ThreadHelper.JoinableTaskFactory.Run(async () =>
-                {
-                    // remove device selection
-                    // reset property to force that device capabilities are retrieved on next connection
-                    LastDeviceConnectedHash = 0;
-                    SelectedDeviceConnectionState = ConnectionState.Disconnected;
-
-                    await SelectedDevice.DebugEngine.RebootDeviceAsync(RebootOption.NormalReboot).ConfigureAwait(true);
-                });
-            }
         }
 
         #endregion
@@ -330,9 +304,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
         {
             public static readonly string SelectedNanoDeviceHasChanged = new Guid("{C3173983-A19A-49DD-A4BD-F25D360F7334}").ToString();
             public static readonly string NanoDevicesCollectionHasChanged = new Guid("{3E8906F9-F68A-45B7-A0CE-6D42BDB22455}").ToString();
-            public static readonly string SelectedDeviceConnectionStateHasChanged = new Guid("{CBB58A61-51B0-4ABB-8484-5D44F84B6A3C}").ToString();
             public static readonly string ForceSelectionOfNanoDevice = new Guid("{8F012794-BC66-429D-9F9D-A9B0F546D6B5}").ToString();
-            public static readonly string ConnectToSelectedNanoDevice = new Guid("{63A8228F-99A4-44D1-B660-559A0D1E1965}").ToString();
         }
 
         #endregion

@@ -15,6 +15,7 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Practices.ServiceLocation;
+using Microsoft.VisualStudio.Threading;
 
 [assembly: ProjectTypeRegistration(projectTypeGuid: NanoFrameworkPackage.ProjectTypeGuid,
                                 displayName: "NanoCSharpProject",
@@ -83,6 +84,15 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             var info = new FileInfo(assembly.Location).Directory;
             if (info == null) throw new Exception("Could not get assembly directory!");
             NanoFrameworkExtensionDirectory = info.FullName;
+        }
+
+        /// <summary>
+        /// Initialization of the package; this method is called right after the package is sited, so this is the place
+        /// where you can put all the initialization code that rely on services provided by VisualStudio.
+        /// </summary>
+        protected override async System.Threading.Tasks.Task InitializeAsync(CancellationToken cancellationToken, IProgress<ServiceProgressData> progress)
+        {
+            AddService(typeof(NanoDeviceCommService), CreateNanoDeviceCommService);
 
             // Need to add the View model Locator to the application resource dictionary programatically 
             // because at the extension level we don't have 'XAML' access to it
@@ -95,25 +105,18 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 // ... and add it there
                 System.Windows.Application.Current.Resources.Add("Locator", ViewModelLocator);
             }
-        }
 
-        /// <summary>
-        /// Initialization of the package; this method is called right after the package is sited, so this is the place
-        /// where you can put all the initialization code that rely on services provided by VisualStudio.
-        /// </summary>
-        protected override async System.Threading.Tasks.Task InitializeAsync(CancellationToken cancellationToken, IProgress<ServiceProgressData> progress)
-        {
-            AddService(typeof(NanoDeviceCommService), CreateNanoDeviceCommService);
-
-            ViewModelLocator.DeviceExplorer.Package = this;
-
-            ServiceLocator.Current.GetInstance<DeviceExplorerViewModel>().NanoDeviceCommService = await this.GetServiceAsync(typeof(NanoDeviceCommService)) as INanoDeviceCommService;
+            ServiceLocator.Current.GetInstance<DeviceExplorerViewModel>().Package = this;
 
             // need to switch to the main thread to initialize the command handlers
             await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
-            DeviceExplorerCommand.Initialize(this, ViewModelLocator);
+            DeviceExplorerCommand.Initialize(this, ViewModelLocator, await this.GetServiceAsync(typeof(NanoDeviceCommService)) as INanoDeviceCommService);
             DeployProvider.Initialize(this, ViewModelLocator);
+
+            await TaskScheduler.Default;
+
+            ServiceLocator.Current.GetInstance<DeviceExplorerViewModel>().NanoDeviceCommService = await this.GetServiceAsync(typeof(NanoDeviceCommService)) as INanoDeviceCommService;
 
             await base.InitializeAsync(cancellationToken, progress);
         }

@@ -12,6 +12,7 @@ using System;
 using System.ComponentModel.Design;
 using System.Text;
 using System.Windows.Forms;
+using Task = System.Threading.Tasks.Task;
 
 namespace nanoFramework.Tools.VisualStudio.Extension
 {
@@ -48,12 +49,10 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         public const int DeviceExplorerToolbarID = 0x1000;
 
         // toolbar commands
-        public const int ConnectDeviceCommandID = 0x0200;
-        public const int DisconnectDeviceCommandID = 0x0201;
         public const int PingDeviceCommandID = 0x0202;
         public const int DeviceCapabilitiesID = 0x0203;
 
-        INanoDeviceCommService NanoDeviceCommService { get { return ServiceProvider.GetService(typeof(NanoDeviceCommService)) as INanoDeviceCommService; } }
+        INanoDeviceCommService NanoDeviceCommService;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DeviceExplorerCommand"/> class.
@@ -97,11 +96,13 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         /// Initializes the singleton instance of the command.
         /// </summary>
         /// <param name="package">Owner package, not null.</param>
-        public static void Initialize(Package package, ViewModelLocator vmLocator)
+        public static void Initialize(Package package, ViewModelLocator vmLocator, INanoDeviceCommService nanoDeviceCommService)
         {
             Instance = new DeviceExplorerCommand(package);
 
             Instance.ViewModelLocator = vmLocator;
+            Instance.NanoDeviceCommService = nanoDeviceCommService;
+
             //windowApp = ();
 
             Instance.CreateToolbarHandlers();
@@ -109,8 +110,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             // setup message listeners to be notified of events occurring in the View Model
             Messenger.Default.Register<NotificationMessage>(Instance, DeviceExplorerViewModel.MessagingTokens.SelectedNanoDeviceHasChanged, (message) => Instance.SelectedNanoDeviceHasChangedHandler());
             Messenger.Default.Register<NotificationMessage>(Instance, DeviceExplorerViewModel.MessagingTokens.NanoDevicesCollectionHasChanged, (message) => Instance.NanoDevicesCollectionChangedHandler());
-            Messenger.Default.Register<NotificationMessage>(Instance, DeviceExplorerViewModel.MessagingTokens.SelectedDeviceConnectionStateHasChanged, (message) => Instance.ConnectionStateResultChangedHandlerAsync());
-            Messenger.Default.Register<NotificationMessage>(Instance, DeviceExplorerViewModel.MessagingTokens.ConnectToSelectedNanoDevice, (message) => Instance.ConnectToSelectedNanoDeviceHandlerAsync());
         }
 
         private void CreateToolbarHandlers()
@@ -118,21 +117,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             // Create the handles for the toolbar commands
             var menuCommandService = this.ServiceProvider.GetService(typeof(IMenuCommandService)) as OleMenuCommandService;
 
-            // ConnectDeviceCommand
-            var toolbarButtonCommandId = GenerateCommandID(ConnectDeviceCommandID);
-            var menuItem = new MenuCommand(new EventHandler(
-                ConnectDeviceCommandButtonHandlerAsync) , toolbarButtonCommandId);
-            menuItem.Enabled = false;
-            menuItem.Visible = true;
-            menuCommandService.AddCommand(menuItem);
-
-            // DisconnectDeviceCommand
-            toolbarButtonCommandId = GenerateCommandID(DisconnectDeviceCommandID);
-            menuItem = new MenuCommand(new EventHandler(
-                DisconnectDeviceCommandHandler), toolbarButtonCommandId);
-            menuItem.Enabled = false;
-            menuItem.Visible = false;
-            menuCommandService.AddCommand(menuItem);
+            CommandID toolbarButtonCommandId;
+            MenuCommand menuItem;
 
             // PingCommand
             toolbarButtonCommandId = GenerateCommandID(PingDeviceCommandID);
@@ -175,131 +161,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         #region Command button handlers
 
         /// <summary>
-        /// Handler for ConnectDeviceCommand
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="arguments"></param>
-        /// <remarks>OK to use async void because this is a top-level event-handler 
-        /// https://channel9.msdn.com/Series/Three-Essential-Tips-for-Async/Tip-1-Async-void-is-for-top-level-event-handlers-only
-        /// </remarks>
-        private async void ConnectDeviceCommandButtonHandlerAsync(object sender, EventArgs arguments)
-        {
-            var statusBar = this.ServiceProvider.GetService(typeof(SVsStatusbar)) as IVsStatusbar;
-            // this is long running operation so better show an animation to provide proper visual feedback to the developer
-            // use the stock general animation icon
-            object icon = (short)Constants.SBAI_General;
-
-            UpdateStatusBar($"Connecting to {ViewModelLocator.DeviceExplorer.SelectedDevice.Description}...");
-
-            try
-            {
-                // start the animation
-                statusBar?.Animation(1, ref icon);
-
-                // disable the button
-                (sender as MenuCommand).Enabled = false;
-
-                // update view model
-                ViewModelLocator.DeviceExplorer.SelectedDeviceConnectionState = ConnectionState.Connecting;
-
-                // the 'reasonable' connect timeout depends heavily on the transport type
-                var timeout = 5000;
-
-                switch(ViewModelLocator.DeviceExplorer.SelectedTransportType)
-                {
-                    case Debugger.WireProtocol.TransportType.Serial:
-                        timeout = 3000;
-                        break;
-
-                    // not available at this time
-                    //case Debugger.WireProtocol.TransportType.Usb:
-                    //    timeout = 3000;
-                    //    break;
-
-                    // not available at this time
-                    //case Debugger.WireProtocol.TransportType.TcpIp:
-                    //    timeout = 3000;
-                    //    break;
-                }
-
-                // try to connect
-                var connectResult = await NanoDeviceCommService.ConnectToAsync(ViewModelLocator.DeviceExplorer.SelectedDevice.Description, timeout).ConfigureAwait(true);
-
-                // update view model
-                ViewModelLocator.DeviceExplorer.SelectedDeviceConnectionState = connectResult ? ConnectionState.Connected : ConnectionState.Disconnected;
-
-                // if connection is successful select device
-                if(connectResult)
-                {
-
-                    NanoDeviceCommService.SelectDevice(ViewModelLocator.DeviceExplorer.SelectedDevice.Description);
-
-                    // connected, OK to start debug engine
-                    // no need to wait, just launch the task
-                    //NanoDeviceCommService.Device.DebugEngine.Start().FireAndForget();
-                }
-                else
-                {
-                    IVsOutputWindowPane windowPane = (IVsOutputWindowPane)this.ServiceProvider.GetService(typeof(SVsGeneralOutputWindowPane));
-                    windowPane.OutputStringAsLine($"{ViewModelLocator.DeviceExplorer.SelectedDevice.Description} is not responding, please reboot the device.");
-                }
-            }
-            catch(Exception ex)
-            {
-                
-            }
-            finally
-            {
-                // enable the button
-                (sender as MenuCommand).Enabled = true;
-
-                // stop the animation
-                statusBar?.Animation(0, ref icon);
-
-                ClearStatusBar();
-            }
-        }
-
-        /// <summary>
-        /// Handler for DisconnectDeviceCommand
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="arguments"></param>
-        /// <remarks>OK to use async void because this is a top-level event-handler 
-        /// https://channel9.msdn.com/Series/Three-Essential-Tips-for-Async/Tip-1-Async-void-is-for-top-level-event-handlers-only
-        /// </remarks>
-        private void DisconnectDeviceCommandHandler(object sender, EventArgs arguments)
-        {
-            UpdateStatusBar($"Disconnecting from {ViewModelLocator.DeviceExplorer.SelectedDevice.Description}...");
-
-            try
-            {
-                // disable the button
-                (sender as MenuCommand).Enabled = false;
-
-                // save for latter in view model
-                ViewModelLocator.DeviceExplorer.PreviousSelectedDeviceDescription = ViewModelLocator.DeviceExplorer.SelectedDevice.Description;
-
-                // disconnect
-                NanoDeviceCommService.Device.DebugEngine.Disconnect();
-
-                // update view model
-                ViewModelLocator.DeviceExplorer.SelectedDeviceConnectionState = ConnectionState.Disconnected;
-            }
-            catch (Exception ex)
-            {
-
-            }
-            finally
-            {
-                // enable the button
-                (sender as MenuCommand).Enabled = true;
-
-                ClearStatusBar();
-            }
-        }
-
-        /// <summary>
         /// Handler for PingDeviceCommand
         /// </summary>
         /// <param name="sender"></param>
@@ -309,26 +170,44 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         /// </remarks>
         private async void PingDeviceCommandHandler(object sender, EventArgs arguments)
         {
+            IVsOutputWindowPane windowPane = (IVsOutputWindowPane)this.ServiceProvider.GetService(typeof(SVsGeneralOutputWindowPane));
+
+            // yield to give the UI thread a chance to respond to user input
+            await Task.Yield();
+
             UpdateStatusBar($"Pinging {ViewModelLocator.DeviceExplorer.SelectedDevice.Description}...");
             try
             {
                 // disable the button
                 (sender as MenuCommand).Enabled = false;
 
-                // ping device
-                var connection = await NanoDeviceCommService.Device.PingAsync().ConfigureAwait(true);
+                // make sure this device is showing as selected in Device Explorer tree view
+                ViewModelLocator.DeviceExplorer.ForceNanoDeviceSelection();
 
-                IVsOutputWindowPane windowPane = (IVsOutputWindowPane)this.ServiceProvider.GetService(typeof(SVsGeneralOutputWindowPane));
-                switch (ViewModelLocator.DeviceExplorer.SelectedDevice.DebugEngine.ConnectionSource)
+                // connect to the device
+                if (await NanoDeviceCommService.Device.DebugEngine.ConnectAsync(5000))
                 {
-                    case Debugger.WireProtocol.ConnectionSource.Unknown:
-                        windowPane.OutputStringAsLine($"No reply from {ViewModelLocator.DeviceExplorer.SelectedDevice.Description}");
-                        break;
+                    // ping device
+                    var connection = await NanoDeviceCommService.Device.PingAsync().ConfigureAwait(true);
 
-                    case Debugger.WireProtocol.ConnectionSource.nanoBooter:
-                    case Debugger.WireProtocol.ConnectionSource.nanoCLR:
-                        windowPane.OutputStringAsLine($"{ViewModelLocator.DeviceExplorer.SelectedDevice.Description} is active running {ViewModelLocator.DeviceExplorer.SelectedDevice.DebugEngine.ConnectionSource.ToString()}");
-                        break;
+                    switch (ViewModelLocator.DeviceExplorer.SelectedDevice.DebugEngine.ConnectionSource)
+                    {
+                        case Debugger.WireProtocol.ConnectionSource.Unknown:
+                            windowPane.OutputStringAsLine($"No reply from {ViewModelLocator.DeviceExplorer.SelectedDevice.Description}");
+                            break;
+
+                        case Debugger.WireProtocol.ConnectionSource.nanoBooter:
+                        case Debugger.WireProtocol.ConnectionSource.nanoCLR:
+                            windowPane.OutputStringAsLine($"{ViewModelLocator.DeviceExplorer.SelectedDevice.Description} is active running {ViewModelLocator.DeviceExplorer.SelectedDevice.DebugEngine.ConnectionSource.ToString()}");
+                            break;
+                    }
+
+                    // disconnect from the device
+                    NanoDeviceCommService.Device.DebugEngine.Disconnect();
+                }
+                else
+                {
+                    windowPane.OutputStringAsLine($"{ViewModelLocator.DeviceExplorer.SelectedDevice.Description} is not responding, please reboot the device.");
                 }
             }
             catch (Exception ex)
@@ -356,7 +235,10 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         {
             IVsOutputWindowPane windowPane = (IVsOutputWindowPane)this.ServiceProvider.GetService(typeof(SVsGeneralOutputWindowPane));
 
-            UpdateStatusBar($"Querying {ViewModelLocator.DeviceExplorer.SelectedDevice.Description} capabilites...");
+            // yield to give the UI thread a chance to respond to user input
+            await Task.Yield();
+
+            UpdateStatusBar($"Querying {ViewModelLocator.DeviceExplorer.SelectedDevice.Description} capabilities...");
 
             var statusBar = this.ServiceProvider.GetService(typeof(SVsStatusbar)) as IVsStatusbar;
             // this is long running operation so better show an animation to provide proper visual feedback to the developer
@@ -368,8 +250,10 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 // disable the button
                 (sender as MenuCommand).Enabled = false;
 
-                statusBar?.Animation(1, ref icon);
+                // make sure this device is showing as selected in Device Explorer tree view
+                ViewModelLocator.DeviceExplorer.ForceNanoDeviceSelection();
 
+                statusBar?.Animation(1, ref icon);
 
                 // only query device if it's different 
                 if (ViewModelLocator.DeviceExplorer.SelectedDevice.Description.GetHashCode() != ViewModelLocator.DeviceExplorer.LastDeviceConnectedHash)
@@ -378,27 +262,41 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     ViewModelLocator.DeviceExplorer.LastDeviceConnectedHash = ViewModelLocator.DeviceExplorer.SelectedDevice.Description.GetHashCode();
 
 
-                    try
+                    // connect to the device
+                    if (await NanoDeviceCommService.Device.DebugEngine.ConnectAsync(5000))
                     {
-                        // get device info
-                        var deviceInfo = await NanoDeviceCommService.Device.GetDeviceInfoAsync(true);
-                        var memoryMap = await NanoDeviceCommService.Device.DebugEngine.GetMemoryMapAsync();
-                        var flashMap = await NanoDeviceCommService.Device.DebugEngine.GetFlashSectorMapAsync();
-                        var deploymentMap = await NanoDeviceCommService.Device.DebugEngine.GetDeploymentMapAsync();
-
-                        // we have to have a valid device info
-                        if (deviceInfo.Valid)
+                        try
                         {
+                            // get device info
+                            var deviceInfo = await NanoDeviceCommService.Device.GetDeviceInfoAsync(true);
+                            var memoryMap = await NanoDeviceCommService.Device.DebugEngine.GetMemoryMapAsync();
+                            var flashMap = await NanoDeviceCommService.Device.DebugEngine.GetFlashSectorMapAsync();
+                            var deploymentMap = await NanoDeviceCommService.Device.DebugEngine.GetDeploymentMapAsync();
 
-                            // load view model properties for maps
-                            ViewModelLocator.DeviceExplorer.DeviceMemoryMap = new StringBuilder(memoryMap?.ToStringForOutput() ?? "Empty");
-                            ViewModelLocator.DeviceExplorer.DeviceFlashSectorMap = new StringBuilder(flashMap?.ToStringForOutput() ?? "Empty");
-                            ViewModelLocator.DeviceExplorer.DeviceDeploymentMap = new StringBuilder(deploymentMap?.ToStringForOutput() ?? "Empty");
+                            // we have to have a valid device info
+                            if (deviceInfo.Valid)
+                            {
 
-                            // load view model property for system
-                            ViewModelLocator.DeviceExplorer.DeviceSystemInfo = new StringBuilder(deviceInfo?.ToString() ?? "Empty");
+                                // load view model properties for maps
+                                ViewModelLocator.DeviceExplorer.DeviceMemoryMap = new StringBuilder(memoryMap?.ToStringForOutput() ?? "Empty");
+                                ViewModelLocator.DeviceExplorer.DeviceFlashSectorMap = new StringBuilder(flashMap?.ToStringForOutput() ?? "Empty");
+                                ViewModelLocator.DeviceExplorer.DeviceDeploymentMap = new StringBuilder(deploymentMap?.ToStringForOutput() ?? "Empty");
+
+                                // load view model property for system
+                                ViewModelLocator.DeviceExplorer.DeviceSystemInfo = new StringBuilder(deviceInfo?.ToString() ?? "Empty");
+                            }
+                            else
+                            {
+                                // reset property to force that device capabilities are retrieved on next connection
+                                ViewModelLocator.DeviceExplorer.LastDeviceConnectedHash = 0;
+
+                                // report issue to user
+                                windowPane.OutputStringAsLine($"Error retrieving device information from { ViewModelLocator.DeviceExplorer.SelectedDevice.Description}. Please reconnect device.");
+
+                                return;
+                            }
                         }
-                        else
+                        catch
                         {
                             // reset property to force that device capabilities are retrieved on next connection
                             ViewModelLocator.DeviceExplorer.LastDeviceConnectedHash = 0;
@@ -408,15 +306,21 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                             return;
                         }
+                        finally
+                        {
+                            // disconnect from the device
+                            NanoDeviceCommService.Device.DebugEngine.Disconnect();
+                        }
                     }
-                    catch
+                    else
                     {
                         // reset property to force that device capabilities are retrieved on next connection
                         ViewModelLocator.DeviceExplorer.LastDeviceConnectedHash = 0;
 
+                        windowPane.OutputStringAsLine($"{ViewModelLocator.DeviceExplorer.SelectedDevice.Description} is not responding, please reboot the device.");
+
                         return;
                     }
-
                 }
 
                 windowPane.OutputStringAsLine(string.Empty);
@@ -468,6 +372,15 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         private void SelectedNanoDeviceHasChangedHandler()
         {
+            if (ViewModelLocator.DeviceExplorer.SelectedDevice != null)
+            {
+                NanoDeviceCommService.SelectDevice(ViewModelLocator.DeviceExplorer.SelectedDevice.Description);
+            }
+            else
+            {
+                NanoDeviceCommService.SelectDevice(null);
+            }
+
             // update toolbar 
             UpdateToolbarButtons();
         }
@@ -476,78 +389,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         {
             // update toolbar 
             UpdateToolbarButtons();
-        }
-
-        /// <remarks>OK to use async void because this is a top-level event-handler 
-        /// https://channel9.msdn.com/Series/Three-Essential-Tips-for-Async/Tip-1-Async-void-is-for-top-level-event-handlers-only
-        private async void ConnectionStateResultChangedHandlerAsync()
-        {
-            // have to switch to UI main thread
-            await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
-
-            // get the menu command service to reach the toolbar commands
-            var menuCommandService = this.ServiceProvider.GetService(typeof(IMenuCommandService)) as OleMenuCommandService;
-
-            // get tge output window
-            IVsOutputWindowPane windowPane = (IVsOutputWindowPane)this.ServiceProvider.GetService(typeof(SVsGeneralOutputWindowPane));
-
-            // update toolbar according to current status
-            if (ViewModelLocator.DeviceExplorer.SelectedDeviceConnectionState == ConnectionState.Connected)
-            {
-                // output message
-                windowPane.OutputStringAsLine($"Connected to {ViewModelLocator.DeviceExplorer.SelectedDevice.Description}");
-
-                // hide connect button
-                menuCommandService.FindCommand(GenerateCommandID(ConnectDeviceCommandID)).Visible = false;
-                // show disconnect button
-                menuCommandService.FindCommand(GenerateCommandID(DisconnectDeviceCommandID)).Visible = true;
-
-                // enable disconnect button
-                menuCommandService.FindCommand(GenerateCommandID(DisconnectDeviceCommandID)).Enabled = true;
-                // enable ping button
-                menuCommandService.FindCommand(GenerateCommandID(PingDeviceCommandID)).Enabled = true;
-                // enable capabilites button
-                menuCommandService.FindCommand(GenerateCommandID(DeviceCapabilitiesID)).Enabled = true;
-            }
-            else if (ViewModelLocator.DeviceExplorer.SelectedDeviceConnectionState == ConnectionState.Disconnected)
-            {
-                // output message, if there was a device selected
-                if (ViewModelLocator.DeviceExplorer.PreviousSelectedDeviceDescription != null)
-                {
-                    windowPane.OutputStringAsLine($"Disconnected from {ViewModelLocator.DeviceExplorer.PreviousSelectedDeviceDescription}");
-                }
-
-                // disable ping button
-                menuCommandService.FindCommand(GenerateCommandID(PingDeviceCommandID)).Enabled = false;
-                // disable capabilities button
-                menuCommandService.FindCommand(GenerateCommandID(DeviceCapabilitiesID)).Enabled = false;
-
-                // hide disconnect button
-                menuCommandService.FindCommand(GenerateCommandID(DisconnectDeviceCommandID)).Visible = false;
-                // show connect button
-                menuCommandService.FindCommand(GenerateCommandID(ConnectDeviceCommandID)).Visible = true;
-                // enable disconnect button
-                menuCommandService.FindCommand(GenerateCommandID(DisconnectDeviceCommandID)).Enabled = true;
-            }
-            else
-            {
-
-            }
-        }
-
-        /// <remarks>OK to use async void because this is a top-level event-handler 
-        /// https://channel9.msdn.com/Series/Three-Essential-Tips-for-Async/Tip-1-Async-void-is-for-top-level-event-handlers-only
-        private async void ConnectToSelectedNanoDeviceHandlerAsync()
-        {
-            // switch to UI main thread
-            await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
-
-            // get the command service
-            var menuCommandService = this.ServiceProvider.GetService(typeof(IMenuCommandService)) as OleMenuCommandService;
-
-            // get the connect command button
-            var menuItem = menuCommandService.FindCommand(GenerateCommandID(ConnectDeviceCommandID));
-            menuItem.Invoke();
         }
 
         #endregion
@@ -566,23 +407,18 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             // are there any devices available
             if (ViewModelLocator.DeviceExplorer.AvailableDevices.Count > 0)
             {
-                // hide disconnect button
-                menuCommandService.FindCommand(GenerateCommandID(DisconnectDeviceCommandID)).Visible = false;
-                // show connect button
-                menuCommandService.FindCommand(GenerateCommandID(ConnectDeviceCommandID)).Visible = true;
-
                 // any device selected?
                 if (ViewModelLocator.DeviceExplorer.SelectedDevice != null)
                 {
                     // there is a device selected
-                    // enable connect button
-                    menuCommandService.FindCommand(GenerateCommandID(ConnectDeviceCommandID)).Enabled = true;
+                    // enable ping button
+                    menuCommandService.FindCommand(GenerateCommandID(PingDeviceCommandID)).Enabled = true;
+                    // enable capabilities button
+                    menuCommandService.FindCommand(GenerateCommandID(DeviceCapabilitiesID)).Enabled = true;
                 }
                 else
                 {
                     // no device selected
-                    // disable connect button
-                    menuCommandService.FindCommand(GenerateCommandID(ConnectDeviceCommandID)).Enabled = false;
                     // disable ping button
                     menuCommandService.FindCommand(GenerateCommandID(PingDeviceCommandID)).Enabled = false;
                     // disable capabilities button
@@ -591,12 +427,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             }
             else
             {
-                // hide disconnect button
-                menuCommandService.FindCommand(GenerateCommandID(DisconnectDeviceCommandID)).Visible = false;
-                // show connect button
-                menuCommandService.FindCommand(GenerateCommandID(ConnectDeviceCommandID)).Visible = true;
-                // disable connect button
-                menuCommandService.FindCommand(GenerateCommandID(ConnectDeviceCommandID)).Enabled = false;
                 // disable ping button
                 menuCommandService.FindCommand(GenerateCommandID(PingDeviceCommandID)).Enabled = false;
                 // disable capabilities button
