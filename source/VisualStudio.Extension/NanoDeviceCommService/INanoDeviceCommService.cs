@@ -21,8 +21,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         bool SelectDevice(string description);
 
-        Task CreateDebugClientsAsync();
-
         TaskAwaiter GetAwaiter();
 
         Task<bool> ConnectToAsync(string description = null, int timeout = 5000);

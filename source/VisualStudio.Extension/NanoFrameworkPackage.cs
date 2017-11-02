@@ -103,17 +103,17 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         /// </summary>
         protected override async System.Threading.Tasks.Task InitializeAsync(CancellationToken cancellationToken, IProgress<ServiceProgressData> progress)
         {
+            AddService(typeof(NanoDeviceCommService), CreateNanoDeviceCommService);
+
+            ViewModelLocator.DeviceExplorer.Package = this;
+
+            ServiceLocator.Current.GetInstance<DeviceExplorerViewModel>().NanoDeviceCommService = await this.GetServiceAsync(typeof(NanoDeviceCommService)) as INanoDeviceCommService;
+
             // need to switch to the main thread to initialize the command handlers
             await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
             DeviceExplorerCommand.Initialize(this, ViewModelLocator);
             DeployProvider.Initialize(this, ViewModelLocator);
-
-            AddService(typeof(NanoDeviceCommService), CreateNanoDeviceCommService);
-
-            ViewModelLocator.DeviceExplorer.Package = this;
-
-            //ServiceLocator.Current.GetInstance<DeviceExplorerViewModel>().NanoDeviceCommService = await this.GetServiceAsync(typeof(NanoDeviceCommService)) as INanoDeviceCommService;
 
             await base.InitializeAsync(cancellationToken, progress);
         }
@@ -124,7 +124,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
             await System.Threading.Tasks.Task.Run(async () => {
                 service = new NanoDeviceCommService(this);
-                await service.CreateDebugClientsAsync();
             });
 
             return service;

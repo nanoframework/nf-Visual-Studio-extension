@@ -5,7 +5,6 @@
 
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Messaging;
-using Microsoft.VisualStudio.ProjectSystem;
 using Microsoft.VisualStudio.Shell;
 using nanoFramework.Tools.Debugger;
 using nanoFramework.Tools.Debugger.WireProtocol;
@@ -14,7 +13,6 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.ComponentModel.Composition;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -50,10 +48,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
 #pragma warning restore 67
 
         private bool _deviceEnumerationCompleted { get;  set; }
-
-        CancellationTokenSource _cancelConnectToDevice = new CancellationTokenSource();
-
-        private ConfiguredTaskAwaitable _connectToDeviceTask = new ConfiguredTaskAwaitable();
 
         /// <summary>
         /// Sets if Device Explorer should auto-connect to a device when there is only a single one in the available list.
@@ -166,7 +160,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
                     // is there a single device
                     if (AvailableDevices.Count == 1)
                     {
-                        ForceConnectionToNanoDevice(AvailableDevices[0]).ConfigureAwait(false);
+                        ForceConnectionToNanoDevice(AvailableDevices[0]);
                     }
                 }
             }
@@ -209,7 +203,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
                     if (deviceToReconnect != null)
                     {
                         // device seems to be back online, connect to it
-                        ForceConnectionToNanoDevice(deviceToReconnect).ConfigureAwait(false);
+                        ForceConnectionToNanoDevice(deviceToReconnect);
 
                         // clear device to reconnect
                         DeviceToReconnect = null;
@@ -221,16 +215,14 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
                     // is there a single device
                     if (AvailableDevices.Count == 1)
                     {
-                        ForceConnectionToNanoDevice(AvailableDevices[0]).ConfigureAwait(false);
+                        ForceConnectionToNanoDevice(AvailableDevices[0]);
                     }
                 }
             }
         }
 
-        private async Task ForceConnectionToNanoDevice(NanoDeviceBase nanoDevice)
+        private void ForceConnectionToNanoDevice(NanoDeviceBase nanoDevice)
         {
-            await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
-
             // select the device
             SelectedDevice = nanoDevice;
 
@@ -249,22 +241,14 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
 
         public void OnSelectedDeviceChanged()
         {
+            // set connection state to disconnected
             SelectedDeviceConnectionState = ConnectionState.Disconnected;
 
-            if (SelectedDevice != null)
-            {
-                SelectedDevice.DebugEngine.SpuriousCharactersReceived -= DebugEngine_SpuriousCharactersReceived;
-                SelectedDevice.DebugEngine.SpuriousCharactersReceived += DebugEngine_SpuriousCharactersReceived;
-            }
+            // clear hash for connected device
+            LastDeviceConnectedHash = 0;
 
             // signal event that the selected device has changed
             MessengerInstance.Send(new NotificationMessage(""), MessagingTokens.SelectedNanoDeviceHasChanged);
-        }
-
-        private void DebugEngine_SpuriousCharactersReceived(object sender, nanoFramework.Tools.Debugger.StringEventArgs e)
-        {
-            string textToSend = $"[{DateTime.Now.ToString()}] {e.EventText}";
-            MessengerInstance.Send(new NotificationMessage(textToSend), WRITE_TO_OUTPUT_TOKEN);
         }
 
 
