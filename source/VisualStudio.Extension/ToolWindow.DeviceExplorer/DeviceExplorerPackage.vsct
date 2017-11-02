@@ -77,32 +77,6 @@
         </Strings>
       </Button>
 
-      <!-- ConnectedDevice for Device Exporer toolbar -->
-      <Button guid="guidDeviceExplorerCmdSet" id="idConnectDeviceCommand" priority="0x0101" type="Button">
-        <Parent guid="guidDeviceExplorerCmdSet" id="DeviceExplorerToolbarGroupID"/>
-        <Icon guid="NanoFrameworkCatalog" id="DeviceConnected" />
-        <CommandFlag>IconIsMoniker</CommandFlag>
-        <CommandFlag>DefaultDisabled</CommandFlag>
-        <CommandFlag>DynamicVisibility</CommandFlag>
-        <Strings>
-          <CommandName>ConnectDeviceCommand</CommandName>
-          <ButtonText>Connect Device</ButtonText>
-        </Strings>
-      </Button>
-
-      <!-- DisconnectedDevice for Device Exporer toolbar -->
-      <Button guid="guidDeviceExplorerCmdSet" id="idDisconnectDeviceCommand" priority="0x0101" type="Button">
-        <Parent guid="guidDeviceExplorerCmdSet" id="DeviceExplorerToolbarGroupID"/>
-        <Icon guid="NanoFrameworkCatalog" id="DeviceDisconnected" />
-        <CommandFlag>IconIsMoniker</CommandFlag>
-        <CommandFlag>DynamicVisibility</CommandFlag>
-        <CommandFlag>DefaultDisabled</CommandFlag>
-        <Strings>
-          <CommandName>DisconnectDeviceCommand</CommandName>
-          <ButtonText>Disconnect Device</ButtonText>
-        </Strings>
-      </Button>
-
       <!-- Ping for Device Exporer toolbar -->
       <Button guid="guidDeviceExplorerCmdSet" id="idPingDeviceCommand" priority="0x0101" type="Button">
         <Parent guid="guidDeviceExplorerCmdSet" id="DeviceExplorerToolbarGroupID"/>
@@ -154,8 +128,6 @@
     <GuidSymbol name="guidDeviceExplorerCmdSet" value="{DF641D51-1E8C-48E4-B549-CC6BCA9BDE19}">
       <IDSymbol name="DeviceExplorerToolbarID" value="0x1000" />
       <IDSymbol name="DeviceExplorerToolbarGroupID" value="0x1001" />
-      <IDSymbol name="idConnectDeviceCommand" value="0x0200" />
-      <IDSymbol name="idDisconnectDeviceCommand" value="0x0201" />
       <IDSymbol name="idPingDeviceCommand" value="0x0202" />
       <IDSymbol name="idDeviceCapabilitiesCommand" value="0x0203" />
     </GuidSymbol>

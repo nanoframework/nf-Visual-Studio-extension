@@ -20,7 +20,6 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
-using System.Threading.Tasks;
 using Task = System.Threading.Tasks.Task;
 
 namespace nanoFramework.Tools.VisualStudio.Extension
@@ -67,11 +66,11 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
             // just in case....
-            if ((_viewModelLocator?.DeviceExplorer.SelectedDeviceConnectionState != ConnectionState.Connected))
+            if ((_viewModelLocator?.DeviceExplorer.SelectedDevice != null))
             {
                 // can't debug
                 // throw exception to signal deployment failure
-                throw new Exception("There is no device connected. Check Device Explorer tool window.");
+                throw new Exception("There is no device selected. Please select a device in Device Explorer tool window.");
             }
 
             // get the device here so we are not always carrying the full path to the device
@@ -252,8 +251,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     // yield to give the UI thread a chance to respond to user input
                     await Task.Yield();
 
-                    // set device to reconnect to
-                    _viewModelLocator.DeviceExplorer.DeviceToReconnect = _viewModelLocator.DeviceExplorer.SelectedDevice.Description;
+                    // set device to select
+                    _viewModelLocator.DeviceExplorer.DeviceToReSelect = _viewModelLocator.DeviceExplorer.SelectedDevice.Description;
 
                     // reboot device
                     _viewModelLocator.DeviceExplorer.RebootSelectedDevice();
@@ -261,7 +260,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     // yield to give the UI thread a chance to respond to user input
                     await Task.Yield();
 
-                    await outputPaneWriter.WriteLineAsync("Soft reboot performed and reconnection requested.");
+                    await outputPaneWriter.WriteLineAsync("Soft reboot performed and reselection requested.");
                 }
             }
             else
@@ -276,7 +275,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         {
             get
             {
-                return (_viewModelLocator?.DeviceExplorer.SelectedDeviceConnectionState == ConnectionState.Connected);
+                return true;
             }
         }
 
