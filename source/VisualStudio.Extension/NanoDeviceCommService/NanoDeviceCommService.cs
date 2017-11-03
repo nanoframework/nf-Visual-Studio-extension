@@ -38,16 +38,17 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         public bool SelectDevice(string deviceId = null)
         {
-            // check if this device is available
-            var device = DebugClient.NanoFrameworkDevices.First(d => d.Description == deviceId);
+            NanoDeviceBase device = null;
 
-            if (device != null)
+            if (deviceId != null)
             {
-                Device = device;
-                return true;
+                // check if this device is available
+                device = DebugClient.NanoFrameworkDevices.First(d => d.Description == deviceId);
+
             }
 
-            return false;
+            Device = device;
+            return true;
         }
 
         public async Task<bool> ConnectToAsync(string deviceId = null, int timeout = 5000)
