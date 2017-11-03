@@ -160,7 +160,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
                     // is there a single device
                     if (AvailableDevices.Count == 1)
                     {
-                        ForceNanoDeviceSelection(AvailableDevices[0]);
+                        ForceNanoDeviceSelection(AvailableDevices[0]).FireAndForget();
                     }
                 }
             }
@@ -185,18 +185,18 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
             }
 
             MessengerInstance.Send(new NotificationMessage(""), MessagingTokens.NanoDevicesCollectionHasChanged);
-
+            
             // handle auto-select option
             if (_deviceEnumerationCompleted || NanoDeviceCommService.DebugClient.IsDevicesEnumerationComplete)
             {
                 // reselect a specific device has higher priority than auto-select
-                if(DeviceToReSelect != null)
+                if (DeviceToReSelect != null)
                 {
                     var deviceToReSelect = AvailableDevices.FirstOrDefault(d => d.Description == DeviceToReSelect);
                     if (deviceToReSelect != null)
                     {
                         // device seems to be back online, select it
-                        ForceNanoDeviceSelection(deviceToReSelect);
+                        ForceNanoDeviceSelection(deviceToReSelect).FireAndForget();
 
                         // clear device to reselect
                         DeviceToReSelect = null;
@@ -208,14 +208,25 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
                     // is there a single device
                     if (AvailableDevices.Count == 1)
                     {
-                        ForceNanoDeviceSelection(AvailableDevices[0]);
+                        ForceNanoDeviceSelection(AvailableDevices[0]).FireAndForget();
+                    }
+                    else
+                    {
+                        // we have more than one now, was there any device already selected?
+                        if(SelectedDevice != null)
+                        {
+                            // maintain selection
+                            ForceNanoDeviceSelection(AvailableDevices.FirstOrDefault(d => d.Description == SelectedDevice.Description)).FireAndForget();
+                        }
                     }
                 }
             }
         }
 
-        private void ForceNanoDeviceSelection(NanoDeviceBase nanoDevice)
+        private async Task ForceNanoDeviceSelection(NanoDeviceBase nanoDevice)
         {
+            await Task.Delay(100);
+
             // select the device
             SelectedDevice = nanoDevice;
 
@@ -223,11 +234,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
             MessengerInstance.Send(new NotificationMessage(""), MessagingTokens.ForceSelectionOfNanoDevice);
         }
 
-        public void ForceNanoDeviceSelection()
+        public async Task ForceNanoDeviceSelection()
         {
+            await Task.Delay(100);
+
             // request forced selection of device in UI
             MessengerInstance.Send(new NotificationMessage(""), MessagingTokens.ForceSelectionOfNanoDevice);
-
         }
 
         public void OnSelectedDeviceChanging()

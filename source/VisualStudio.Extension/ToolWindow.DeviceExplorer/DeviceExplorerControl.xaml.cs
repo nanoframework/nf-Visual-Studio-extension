@@ -29,6 +29,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         {
             this.InitializeComponent();
 
+            deviceTreeView.SelectedItemChanged += DevicesTreeView_SelectedItemChanged;
             Messenger.Default.Register<NotificationMessage>(this, DeviceExplorerViewModel.MessagingTokens.ForceSelectionOfNanoDevice, (message) => ForceSelectionOfNanoDeviceHandler());
         }
 
@@ -44,11 +45,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             VsShellUtilities.OpenSystemBrowser(page);
 
             // TODO: add telemetry for clicks 
-        }
-
-        private void TreeView_SelectedItemChanged(object sender, System.Windows.RoutedPropertyChangedEventArgs<object> e)
-        {
-
         }
 
         private void DevicesTreeView_SelectedItemChanged(object sender, System.Windows.RoutedPropertyChangedEventArgs<object> e)
@@ -74,7 +70,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         private void ForceSelectionOfNanoDeviceHandler()
         {
-            Dispatcher.Invoke(() =>
+            Dispatcher.Invoke(async () =>
             {
                 // make sure the item in the treeview is selected, in case the selected device was changed in the view model
                 if (deviceTreeView.SelectedItem != null)
@@ -94,7 +90,21 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 var deviceItem = DevicesHeaderItem.ItemContainerGenerator.ContainerFromItem((this.DataContext as DeviceExplorerViewModel).SelectedDevice) as TreeViewItem;
                 if (deviceItem != null)
                 {
+                    // switch to UI main thread
+                    await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+
+                    // need to disable the event handler otherwise it will mess the selection
+                    deviceTreeView.SelectedItemChanged -= DevicesTreeView_SelectedItemChanged;
+
                     deviceItem.IsSelected = true;
+
+                    // enabled it back
+                    deviceTreeView.SelectedItemChanged += DevicesTreeView_SelectedItemChanged;
+
+                    // force redrawing to show selection
+                    deviceTreeView.InvalidateVisual();
+                    deviceTreeView.UpdateLayout();
+                    deviceTreeView.InvalidateVisual();
                 }
             });
         }

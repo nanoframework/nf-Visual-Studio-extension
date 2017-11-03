@@ -182,7 +182,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 (sender as MenuCommand).Enabled = false;
 
                 // make sure this device is showing as selected in Device Explorer tree view
-                ViewModelLocator.DeviceExplorer.ForceNanoDeviceSelection();
+                ViewModelLocator.DeviceExplorer.ForceNanoDeviceSelection().FireAndForget();
 
                 // connect to the device
                 if (await NanoDeviceCommService.Device.DebugEngine.ConnectAsync(5000))
@@ -251,7 +251,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 (sender as MenuCommand).Enabled = false;
 
                 // make sure this device is showing as selected in Device Explorer tree view
-                ViewModelLocator.DeviceExplorer.ForceNanoDeviceSelection();
+                ViewModelLocator.DeviceExplorer.ForceNanoDeviceSelection().FireAndForget();
 
                 statusBar?.Animation(1, ref icon);
 
