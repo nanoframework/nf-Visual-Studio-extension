@@ -125,7 +125,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         {
             NanoDeviceCommService service = null;
 
-            await System.Threading.Tasks.Task.Run(async () => {
+            await System.Threading.Tasks.Task.Run(() => {
                 service = new NanoDeviceCommService(this);
             });
 
