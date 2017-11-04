@@ -16,6 +16,7 @@ using nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -170,6 +171,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         // we want the target path property
                         var targetPath = projectResult.Result.Properties.First(p => p.Name == "TargetPath").EvaluatedValue;
 
+                        // get version information of executable
+                        var executableVersionInfo = FileVersionInfo.GetVersionInfo(targetPath);
 
                         // build a list with the full path for each DLL, referenced DLL and EXE
                         List<(string path, string version)> assemblyList = new List<(string path, string version)>();
@@ -189,8 +192,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         }
 
                         // now add the executable to this list
-                        // TODO need to find where the version property is to add it here
-                        assemblyList.Add((targetPath, string.Empty));
+                        assemblyList.Add((targetPath, $" v{ executableVersionInfo.ProductVersion }"));
 
                         // build a list with the PE files corresponding to each DLL and EXE
                         List<(string path, string version)> peCollection = assemblyList.Select(a => (a.path.Replace(".dll", ".pe").Replace(".exe", ".pe"), a.version)).ToList();
@@ -275,8 +277,16 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         throw new Exception(ResourceStrings.DeviceInitializationTimeout);
                     }
                 }
+                else
+                {
+                    // throw exception to signal deployment failure
+                    throw new Exception($"{_viewModelLocator.DeviceExplorer.SelectedDevice.Description} is not responding. Please retry the deployment. If the situation persists reboot the device.");
+                }
             }
-            catch { }
+            catch
+            {
+                throw new Exception("Unexpected error. Please retry the deployment. If the situation persists reboot the device.");
+            }
             finally
             {
                 if (deviceConnected)
