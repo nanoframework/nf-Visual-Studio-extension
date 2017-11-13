@@ -48,6 +48,12 @@
       <Context>Project</Context>
     </PropertyPageSchema>
 
+    <PropertyPageSchema Include="
+                        $(MSBuildThisFileDirectory)Rules\NanoDebugger.xaml
+                        ">
+      <Context>Project</Context>
+    </PropertyPageSchema>
+
     <PropertyPageSchema Include="$(MSBuildThisFileDirectory)Rules\csharp.browseobject.xaml;">
       <Context>BrowseObject</Context>
     </PropertyPageSchema>

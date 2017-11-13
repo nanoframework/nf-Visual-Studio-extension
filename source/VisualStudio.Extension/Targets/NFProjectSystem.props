@@ -25,7 +25,7 @@
     -->
     <!--<EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>-->
     <!--<UseVSHostingProcess>False</UseVSHostingProcess>-->
-    <DebuggerFlavor>NFDebugger</DebuggerFlavor>
+    <DebuggerFlavor>NanoDebugger</DebuggerFlavor>
   </PropertyGroup>
 
   <!-- set default NF properties for CoreLibrary project -->

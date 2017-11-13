@@ -44,13 +44,15 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         uint _statusBarCookie = 0;
 
-        public const string guidDeviceExplorerCmdSet = "DF641D51-1E8C-48E4-B549-CC6BCA9BDE19";  // this GUID is comming from the .vsct file  
+        // command set Guids
+        public const string guidDeviceExplorerCmdSet = "DF641D51-1E8C-48E4-B549-CC6BCA9BDE19";  // this GUID is coming from the .vsct file  
 
         public const int DeviceExplorerToolbarID = 0x1000;
 
         // toolbar commands
         public const int PingDeviceCommandID = 0x0202;
         public const int DeviceCapabilitiesID = 0x0203;
+
 
         INanoDeviceCommService NanoDeviceCommService;
 
@@ -70,6 +72,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 var menuItem = new MenuCommand(this.ShowToolWindow, menuCommandID);
                 commandService.AddCommand(menuItem);
             }
+
+
         }
 
         /// <summary>
@@ -84,7 +88,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         /// <summary>
         /// Gets the service provider from the owner package.
         /// </summary>
-        private IServiceProvider ServiceProvider
+        private System.IServiceProvider ServiceProvider
         {
             get
             {
@@ -170,12 +174,11 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         /// </remarks>
         private async void PingDeviceCommandHandler(object sender, EventArgs arguments)
         {
-            IVsOutputWindowPane windowPane = (IVsOutputWindowPane)this.ServiceProvider.GetService(typeof(SVsGeneralOutputWindowPane));
 
             // yield to give the UI thread a chance to respond to user input
             await Task.Yield();
 
-            UpdateStatusBar($"Pinging {ViewModelLocator.DeviceExplorer.SelectedDevice.Description}...");
+            NanoFrameworkPackage.StatusBar.Update($"Pinging {ViewModelLocator.DeviceExplorer.SelectedDevice.Description}...");
             try
             {
                 // disable the button
@@ -193,12 +196,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     switch (ViewModelLocator.DeviceExplorer.SelectedDevice.DebugEngine.ConnectionSource)
                     {
                         case Debugger.WireProtocol.ConnectionSource.Unknown:
-                            windowPane.OutputStringAsLine($"No reply from {ViewModelLocator.DeviceExplorer.SelectedDevice.Description}");
+                            NanoFrameworkPackage.WindowPane.OutputStringAsLine($"No reply from {ViewModelLocator.DeviceExplorer.SelectedDevice.Description}");
                             break;
 
                         case Debugger.WireProtocol.ConnectionSource.nanoBooter:
                         case Debugger.WireProtocol.ConnectionSource.nanoCLR:
-                            windowPane.OutputStringAsLine($"{ViewModelLocator.DeviceExplorer.SelectedDevice.Description} is active running {ViewModelLocator.DeviceExplorer.SelectedDevice.DebugEngine.ConnectionSource.ToString()}");
+                            NanoFrameworkPackage.WindowPane.OutputStringAsLine($"{ViewModelLocator.DeviceExplorer.SelectedDevice.Description} is active running {ViewModelLocator.DeviceExplorer.SelectedDevice.DebugEngine.ConnectionSource.ToString()}");
                             break;
                     }
 
@@ -207,7 +210,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 }
                 else
                 {
-                    windowPane.OutputStringAsLine($"{ViewModelLocator.DeviceExplorer.SelectedDevice.Description} is not responding, please reboot the device.");
+                    NanoFrameworkPackage.WindowPane.OutputStringAsLine($"{ViewModelLocator.DeviceExplorer.SelectedDevice.Description} is not responding, please reboot the device.");
                 }
             }
             catch (Exception ex)
@@ -219,7 +222,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 // enable the button
                 (sender as MenuCommand).Enabled = true;
 
-                ClearStatusBar();
+                IVsStatusbarExtensions.Clear(NanoFrameworkPackage.StatusBar);
             }
         }
 
@@ -233,17 +236,11 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         /// </remarks>
         private async void DeviceCapabilitiesCommandHandler(object sender, EventArgs arguments)
         {
-            IVsOutputWindowPane windowPane = (IVsOutputWindowPane)this.ServiceProvider.GetService(typeof(SVsGeneralOutputWindowPane));
-
             // yield to give the UI thread a chance to respond to user input
             await Task.Yield();
 
-            UpdateStatusBar($"Querying {ViewModelLocator.DeviceExplorer.SelectedDevice.Description} capabilities...");
-
-            var statusBar = this.ServiceProvider.GetService(typeof(SVsStatusbar)) as IVsStatusbar;
             // this is long running operation so better show an animation to provide proper visual feedback to the developer
-            // use the stock general animation icon
-            object icon = (short)Constants.SBAI_General;
+            NanoFrameworkPackage.StatusBar.Update($"Querying {ViewModelLocator.DeviceExplorer.SelectedDevice.Description} capabilities...", true);
 
             try
             {
@@ -252,8 +249,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                 // make sure this device is showing as selected in Device Explorer tree view
                 ViewModelLocator.DeviceExplorer.ForceNanoDeviceSelection().FireAndForget();
-
-                statusBar?.Animation(1, ref icon);
 
                 // only query device if it's different 
                 if (ViewModelLocator.DeviceExplorer.SelectedDevice.Description.GetHashCode() != ViewModelLocator.DeviceExplorer.LastDeviceConnectedHash)
@@ -291,7 +286,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                                 ViewModelLocator.DeviceExplorer.LastDeviceConnectedHash = 0;
 
                                 // report issue to user
-                                windowPane.OutputStringAsLine($"Error retrieving device information from { ViewModelLocator.DeviceExplorer.SelectedDevice.Description}. Please reconnect device.");
+                                NanoFrameworkPackage.WindowPane.OutputStringAsLine($"Error retrieving device information from { ViewModelLocator.DeviceExplorer.SelectedDevice.Description}. Please reconnect device.");
 
                                 return;
                             }
@@ -302,7 +297,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                             ViewModelLocator.DeviceExplorer.LastDeviceConnectedHash = 0;
 
                             // report issue to user
-                            windowPane.OutputStringAsLine($"Error retrieving device information from { ViewModelLocator.DeviceExplorer.SelectedDevice.Description}. Please reconnect device.");
+                            NanoFrameworkPackage.WindowPane.OutputStringAsLine($"Error retrieving device information from { ViewModelLocator.DeviceExplorer.SelectedDevice.Description}. Please reconnect device.");
 
                             return;
                         }
@@ -317,36 +312,36 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         // reset property to force that device capabilities are retrieved on next connection
                         ViewModelLocator.DeviceExplorer.LastDeviceConnectedHash = 0;
 
-                        windowPane.OutputStringAsLine($"{ViewModelLocator.DeviceExplorer.SelectedDevice.Description} is not responding, please reboot the device.");
+                        NanoFrameworkPackage.WindowPane.OutputStringAsLine($"{ViewModelLocator.DeviceExplorer.SelectedDevice.Description} is not responding, please reboot the device.");
 
                         return;
                     }
                 }
 
-                windowPane.OutputStringAsLine(string.Empty);
-                windowPane.OutputStringAsLine(string.Empty);
-                windowPane.OutputStringAsLine("System Information");
-                windowPane.OutputStringAsLine(ViewModelLocator.DeviceExplorer.DeviceSystemInfo.ToString());
+                NanoFrameworkPackage.WindowPane.OutputStringAsLine(string.Empty);
+                NanoFrameworkPackage.WindowPane.OutputStringAsLine(string.Empty);
+                NanoFrameworkPackage.WindowPane.OutputStringAsLine("System Information");
+                NanoFrameworkPackage.WindowPane.OutputStringAsLine(ViewModelLocator.DeviceExplorer.DeviceSystemInfo.ToString());
 
-                windowPane.OutputStringAsLine(string.Empty);
-                windowPane.OutputStringAsLine(string.Empty);
-                windowPane.OutputStringAsLine("--------------------------------");
-                windowPane.OutputStringAsLine("::        Memory Map          ::");
-                windowPane.OutputStringAsLine("--------------------------------");
-                windowPane.OutputStringAsLine(ViewModelLocator.DeviceExplorer.DeviceMemoryMap.ToString());
+                NanoFrameworkPackage.WindowPane.OutputStringAsLine(string.Empty);
+                NanoFrameworkPackage.WindowPane.OutputStringAsLine(string.Empty);
+                NanoFrameworkPackage.WindowPane.OutputStringAsLine("--------------------------------");
+                NanoFrameworkPackage.WindowPane.OutputStringAsLine("::        Memory Map          ::");
+                NanoFrameworkPackage.WindowPane.OutputStringAsLine("--------------------------------");
+                NanoFrameworkPackage.WindowPane.OutputStringAsLine(ViewModelLocator.DeviceExplorer.DeviceMemoryMap.ToString());
 
-                windowPane.OutputStringAsLine(string.Empty);
-                windowPane.OutputStringAsLine(string.Empty);
-                windowPane.OutputStringAsLine("-----------------------------------------------------------");
-                windowPane.OutputStringAsLine("::                   Flash Sector Map                    ::");
-                windowPane.OutputStringAsLine("-----------------------------------------------------------");
-                windowPane.OutputStringAsLine(ViewModelLocator.DeviceExplorer.DeviceFlashSectorMap.ToString());
+                NanoFrameworkPackage.WindowPane.OutputStringAsLine(string.Empty);
+                NanoFrameworkPackage.WindowPane.OutputStringAsLine(string.Empty);
+                NanoFrameworkPackage.WindowPane.OutputStringAsLine("-----------------------------------------------------------");
+                NanoFrameworkPackage.WindowPane.OutputStringAsLine("::                   Flash Sector Map                    ::");
+                NanoFrameworkPackage.WindowPane.OutputStringAsLine("-----------------------------------------------------------");
+                NanoFrameworkPackage.WindowPane.OutputStringAsLine(ViewModelLocator.DeviceExplorer.DeviceFlashSectorMap.ToString());
 
-                windowPane.OutputStringAsLine(string.Empty);
-                windowPane.OutputStringAsLine(string.Empty);
-                windowPane.OutputStringAsLine("Deployment Map");
-                windowPane.OutputStringAsLine(ViewModelLocator.DeviceExplorer.DeviceDeploymentMap.ToString());
-                windowPane.OutputStringAsLine(string.Empty);
+                NanoFrameworkPackage.WindowPane.OutputStringAsLine(string.Empty);
+                NanoFrameworkPackage.WindowPane.OutputStringAsLine(string.Empty);
+                NanoFrameworkPackage.WindowPane.OutputStringAsLine("Deployment Map");
+                NanoFrameworkPackage.WindowPane.OutputStringAsLine(ViewModelLocator.DeviceExplorer.DeviceDeploymentMap.ToString());
+                NanoFrameworkPackage.WindowPane.OutputStringAsLine(string.Empty);
 
             }
             catch (Exception ex)
@@ -358,10 +353,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 // enable the button
                 (sender as MenuCommand).Enabled = true;
 
-                // stop the animation
-                statusBar?.Animation(0, ref icon);
-
-                ClearStatusBar();
+                // clear status bar
+                IVsStatusbarExtensions.Clear(NanoFrameworkPackage.StatusBar);
             }
         }
 
@@ -432,39 +425,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 // disable capabilities button
                 menuCommandService.FindCommand(GenerateCommandID(DeviceCapabilitiesID)).Enabled = false;
             }
-        }
-
-        private void UpdateStatusBar(string text)
-        {
-            var statusBar = this.ServiceProvider.GetService(typeof(SVsStatusbar)) as IVsStatusbar;
-
-            // Make sure the status bar is not frozen  
-            int frozen;
-            statusBar.IsFrozen(out frozen);
-
-            if (frozen != 0)
-            {
-                statusBar.FreezeOutput(0);
-            }
-
-            statusBar.SetText(text);
-        }
-
-        private void ClearStatusBar()
-        {
-            var statusBar = this.ServiceProvider.GetService(typeof(SVsStatusbar)) as IVsStatusbar;
-
-            // Make sure the status bar is not frozen  
-            int frozen;
-            statusBar.IsFrozen(out frozen);
-
-            if (frozen != 0)
-            {
-                statusBar.FreezeOutput(0);
-            }
-
-            //statusBar.Clear();
-            statusBar.SetText(string.Empty);
         }
 
         #endregion
