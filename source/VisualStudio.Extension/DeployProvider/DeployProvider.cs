@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright (c) 2017 The nanoFramework project contributors
 // Portions Copyright (c) Microsoft Corporation.  All rights reserved.
 // See LICENSE file in the project root for full license information.
@@ -77,9 +77,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             // user feedback
             await outputPaneWriter.WriteLineAsync($"Getting things ready to deploy assemblies to nanoFramework device: {device.Description}.");
 
-            // flag to signal if device has any assemblies deployed
-            bool hasAssembliesDeployed = device.DeviceInfo.Assemblies.Length > 0 ? true : false;
-
             List<byte[]> assemblies = new List<byte[]>();
 
             // device needs to be in 'initialized state' for a successful and correct deployment 
@@ -100,22 +97,20 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     {
                         // set flag
                         deviceIsInInitializeState = true;
-                    }
-                    else
-                    {
+
                         // device is still in initialization state, try resume execution
                         await device.DebugEngine.ResumeExecutionAsync();
                     }
 
-                    // handle the workflow required to try setting the device in 'initialized state'
+                    // handle the workflow required to try resuming the execution on the device
                     // only required if device is not already there
                     // retry 5 times with a 200ms interval between retries
-                    while (retryCount++ < _numberOfRetries && !deviceIsInInitializeState)
+                    while (retryCount++ < _numberOfRetries && deviceIsInInitializeState)
                     {
-                        if (await device.DebugEngine.IsDeviceInInitializeStateAsync())
+                        if (!await device.DebugEngine.IsDeviceInInitializeStateAsync())
                         {
                             // done here
-                            deviceIsInInitializeState = true;
+                            deviceIsInInitializeState = false;
                             break;
                         }
 
@@ -125,12 +120,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                             await outputPaneWriter.WriteLineAsync(ResourceStrings.WaitingDeviceInitialization);
                         }
 
-                        if (device.DebugEngine.ConnectionSource == Debugger.WireProtocol.ConnectionSource.nanoBooter)
+                        if (device.DebugEngine.ConnectionSource == Tools.Debugger.WireProtocol.ConnectionSource.nanoBooter)
                         {
                             // request nanoBooter to load CLR
                             await device.DebugEngine.ExecuteMemoryAsync(0);
                         }
-                        else if (device.DebugEngine.ConnectionSource == Debugger.WireProtocol.ConnectionSource.nanoCLR)
+                        else if (device.DebugEngine.ConnectionSource == Tools.Debugger.WireProtocol.ConnectionSource.nanoCLR)
                         {
                             // already running nanoCLR try rebooting the CLR
                             await device.DebugEngine.RebootDeviceAsync(RebootOption.RebootClrWaitForDebugger);
@@ -141,9 +136,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     };
 
                     // check if device is still in initialized state
-                    if (deviceIsInInitializeState)
+                    if (!deviceIsInInitializeState)
                     {
-                        // device is initialized
+                        // device has left initialization state
                         await outputPaneWriter.WriteLineAsync(ResourceStrings.DeviceInitialized);
 
                         ///////////////////////////////////////////////////////
@@ -233,46 +228,25 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         _viewModelLocator.DeviceExplorer.LastDeviceConnectedHash = 0;
 
                         // reboot device
-                        if (hasAssembliesDeployed)
-                        {
-                            await outputPaneWriter.WriteLineAsync("Rebooting nanoCLR on device.");
+                        await outputPaneWriter.WriteLineAsync("Rebooting nanoCLR on device.");
 
-                            await ThreadHelper.JoinableTaskFactory.RunAsync(async () => { await device.DebugEngine.RebootDeviceAsync(RebootOption.RebootClrOnly); });
-                            await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+                        await ThreadHelper.JoinableTaskFactory.RunAsync(async () => { await device.DebugEngine.RebootDeviceAsync(RebootOption.RebootClrOnly); });
+                        await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
-                            // yield to give the UI thread a chance to respond to user input
-                            await Task.Yield();
+                        // yield to give the UI thread a chance to respond to user input
+                        await Task.Yield();
 
-                            await NanoDeviceCommService.Device.GetDeviceInfoAsync(true);
+                        await NanoDeviceCommService.Device.GetDeviceInfoAsync(true);
 
-                            // yield to give the UI thread a chance to respond to user input
-                            await Task.Yield();
+                        // yield to give the UI thread a chance to respond to user input
+                        await Task.Yield();
 
-                            // provide feedback
-                            await outputPaneWriter.WriteLineAsync("Reboot successful, device information updated.");
-                        }
-                        else
-                        {
-                            await outputPaneWriter.WriteLineAsync("Soft rebooting device.");
-
-                            // yield to give the UI thread a chance to respond to user input
-                            await Task.Yield();
-
-                            // set device to select
-                            _viewModelLocator.DeviceExplorer.DeviceToReSelect = _viewModelLocator.DeviceExplorer.SelectedDevice.Description;
-
-                            // reboot device
-                            _viewModelLocator.DeviceExplorer.RebootSelectedDevice();
-
-                            // yield to give the UI thread a chance to respond to user input
-                            await Task.Yield();
-
-                            await outputPaneWriter.WriteLineAsync("Soft reboot performed and reselection requested.");
-                        }
+                        // provide feedback
+                        await outputPaneWriter.WriteLineAsync("Reboot successful, device information updated.");
                     }
                     else
                     {
-                        // after retry policy applied seems that we couldn't set the device in initialized state...
+                        // after retry policy applied seems that we couldn't resume execution on the device...
                         // throw exception to signal deployment failure
                         throw new Exception(ResourceStrings.DeviceInitializationTimeout);
                     }
