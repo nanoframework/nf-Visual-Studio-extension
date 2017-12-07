@@ -17,7 +17,7 @@ branches:
   develop:
     mode: ContinuousDeployment
     tag: preview
-    increment: Minor
+    increment: Patch
     prevent-increment-of-merged-branch-version: false
     track-merge-target: true
   release:
