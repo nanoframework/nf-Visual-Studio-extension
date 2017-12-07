@@ -1,57 +1,297 @@
-version: 0.2.4-pre{build}
+# configuration for "master" branch
+-
+  branches:
+    only:
+      - master
 
-pull_requests:
-  do_not_increment_build_number: true
+  image: Visual Studio 2017
 
-# Skipping commits affecting specific files
-skip_commits:
-  files:
-  - '**\AssemblyInfo.*'
-  - '**/*.md'
-  - 'LICENSE'
-  - dir/*
-  - '.gitignore'
+  skip_branch_with_pr: true
 
-branches:
-  only:
-  - master
-image: Visual Studio 2017
-configuration: Release
-clone_depth: 1
-install:
-- cmd: git submodule update --init --recursive
-build_script:
-- ps: >-
-    nuget sources add -name MyGet -Source https://www.myget.org/F/nanoframework-dev
+  # Skipping commits affecting specific files
+  skip_commits:
+    files:
+    - '**\AssemblyInfo.*'
+    - '**/*.md'
+    - 'LICENSE'
+    - dir/*
+    - '.gitignore'
 
-    nuget restore source\nanoFramework.Tools.VisualStudio.sln
+  build:
+    verbosity: minimal
 
-    msbuild source\nanoFramework.Tools.VisualStudio.sln /p:Configuration=Release  /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
-artifacts:
-- path: '**\*.vsix'
-  name: VS_extension
+  test: off
 
-on_success:
-  # for this environment variable to work here it has to be set in AppVeyor UI
-  - ps: .\upload-vsix-myget.ps1
- 
-deploy:
-- provider: GitHub
-  tag: v$(appveyor_build_version)
-  release: nanoFramework VS2017 Extension v$(appveyor_build_version)
-  description: add description here
-  auth_token:
-    secure: DNixoFFE+pGlwyhj7McfZoln42vOmj0iY1iNV9zXEr3y0NpXlOIgL8k5ehzlFM1S
-  artifact: VS_extension
-  draft: true
-  prerelease: true
-  force_update: true
+  environment:
+    APPVEYOR_SAVE_CACHE_ON_ERROR: true
+    matrix:
+      - RUBY_VERSION: 24
+    GitHubUserName:
+      secure: 7OBtVAMTodMWK20wg6pGnQ==
+    GitHubUserEmail:
+      secure: HeABB68Sn/Lhbd69C2cUcfWv0ab/rMDEcOLvcxf8gGw=
+    GitHubToken:
+      secure: WOqlCsnwTzfDPJFoNV/h8mEESIpG/9uFn1u6oE8hGZtXwIQQlsY+NyyLt9Y5xoFn
 
-notifications:
-- provider: Slack
-  auth_token:
-    secure: 2tqAJTTbN2dm24Vrwo5TXun3Vxc34R5G9l7o3pK3xEuKZAzxx3nbP2yGkMI/kl3+NxHXknjBfZnkhZC5eLYBHb+jO7YVUZwPYOfC/ZGy5HU=
-  channel: '#build-monitor'
-  on_build_status_changed: true
-  on_build_success: false
-  on_build_failure: false  
+  init:
+    - git config --global core.autocrlf true
+    - git config --global credential.helper store
+    - ps: Add-Content "$env:USERPROFILE\.git-credentials" "https://$($env:GitHubToken):x-oauth-basic@github.com`n"
+    - git config --global user.email "%GitHubUserEmail%"
+    - git config --global user.name "%GitHubUserName%"
+
+  install:
+    - cmd: git submodule update --init --recursive
+    - set PATH=C:\Ruby%RUBY_VERSION%\bin;%PATH%
+    - gem install github_changelog_generator --quiet --no-ri --no-rdoc
+    # - bundle install
+    - choco install gitversion.portable -pre -y
+
+  before_build:
+  - ps: >-
+      nuget sources add -name MyGet -Source https://www.myget.org/F/nanoframework-dev
+
+      nuget restore source\nanoFramework.Tools.VisualStudio.sln
+
+      gitversion /l console /output buildserver /updateAssemblyInfo source\VisualStudio.Extension\Properties\AssemblyInfo.cs /ensureassemblyinfo
+
+  build_script:
+  - ps: >-
+
+      msbuild source\nanoFramework.Tools.VisualStudio.sln /p:Configuration=Release  /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
+
+  before_deploy:
+  # need this to keep ruby happy
+  - ps: md c:\tmp
+  - bundle exec github_changelog_generator --token %GitHubToken%
+  # add here the updated changelog and the updated assembly info files
+  - git add .
+  - git commit --amend --no-edit
+
+  artifacts:
+  - path: '**\*.vsix'
+    name: VS_extension
+
+  on_success:
+    # for this environment variable to work here it has to be set in AppVeyor UI
+    - ps: .\upload-vsix-myget.ps1
+
+  deploy:
+  - provider: GitHub
+    tag: v$(GitVersion_NuGetVersionV2)
+    release: nanoFramework VS2017 Extension v$(appveyor_build_version)
+    description: '[CHANGELOG.md](https://github.com/nanoframework/nf-Visual-Studio-extension/blob/master/CHANGELOG.md)\n\n## Install from Visual Studio Marketplace\n\nThe following Visual Studio Extensions are available for install from this release\n\n[nanoFramework VS2017 Extension](https://marketplace.visualstudio.com/items?itemName=vs-publisher-1470366.nanoFrameworkVS2017Extension)'
+    auth_token:
+      secure: DNixoFFE+pGlwyhj7McfZoln42vOmj0iY1iNV9zXEr3y0NpXlOIgL8k5ehzlFM1S
+    artifact: VS_extension
+    draft: true
+    prerelease: true
+    force_update: true
+
+  notifications:
+  - provider: Slack
+    auth_token:
+      secure: 2tqAJTTbN2dm24Vrwo5TXun3Vxc34R5G9l7o3pK3xEuKZAzxx3nbP2yGkMI/kl3+NxHXknjBfZnkhZC5eLYBHb+jO7YVUZwPYOfC/ZGy5HU=
+    channel: '#build-monitor'
+    on_build_status_changed: true
+    on_build_success: false
+    on_build_failure: false
+
+  cache:
+    - source\packages -> **source\packages.config
+    - C:\ProgramData\chocolatey\bin -> appveyor.yml
+    - C:\ProgramData\chocolatey\lib -> appveyor.yml
+
+
+####################################
+# configuration for develop branches
+-
+  branches:
+    only:
+      - /dev.*/
+
+  image: Visual Studio 2017
+
+  skip_branch_with_pr: true
+
+  # Do not build on tags
+  skip_tags: false
+
+  test: off
+  
+  pull_requests:
+    do_not_increment_build_number: true
+
+  # Skipping commits affecting specific files
+  skip_commits:
+    files:
+    - '**\AssemblyInfo.*'
+    - '**/*.md'
+    - 'LICENSE'
+    - dir/*
+    - '.gitignore'
+
+  build:
+    verbosity: minimal
+
+  install:
+    - choco install gitversion.portable -pre -y
+    - cmd: git submodule update --init --recursive
+
+  before_build:
+  - ps: >-
+
+      nuget sources add -name MyGet -Source https://www.myget.org/F/nanoframework-dev
+
+      nuget restore source\nanoFramework.Tools.VisualStudio.sln
+
+      gitversion /l console /output buildserver /updateAssemblyInfo source\VisualStudio.Extension\Properties\AssemblyInfo.cs /ensureassemblyinfo
+
+  build_script:
+  - ps: >-
+
+      msbuild source\nanoFramework.Tools.VisualStudio.sln /p:Configuration=Release  /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
+
+  artifacts:
+  - path: '**\*.vsix'
+    name: VS_extension
+
+  on_success:
+    # for this environment variable to work here it has to be set in AppVeyor UI
+    - ps: .\upload-vsix-myget.ps1
+
+  deploy:
+  - provider: GitHub
+    tag: v$(GitVersion_NuGetVersionV2)
+    release: nanoFramework VS2017 Extension v$(appveyor_build_version)
+    description: '[CHANGELOG.md](https://github.com/nanoframework/nf-Visual-Studio-extension/blob/master/CHANGELOG.md)\n\n## Install from Visual Studio Marketplace\n\nThe following Visual Studio Extensions are available for install from this release\n\n[nanoFramework VS2017 Extension](https://marketplace.visualstudio.com/items?itemName=vs-publisher-1470366.nanoFrameworkVS2017Extension)'
+    auth_token:
+      secure: DNixoFFE+pGlwyhj7McfZoln42vOmj0iY1iNV9zXEr3y0NpXlOIgL8k5ehzlFM1S
+    artifact: VS_extension
+    draft: true
+    prerelease: true
+    force_update: true
+
+  notifications:
+  - provider: Slack
+    auth_token:
+      secure: 2tqAJTTbN2dm24Vrwo5TXun3Vxc34R5G9l7o3pK3xEuKZAzxx3nbP2yGkMI/kl3+NxHXknjBfZnkhZC5eLYBHb+jO7YVUZwPYOfC/ZGy5HU=
+    channel: '#build-monitor'
+    on_build_status_changed: true
+    on_build_success: false
+    on_build_failure: false
+
+  cache:
+    - source\packages -> **source\packages.config
+    - C:\ProgramData\chocolatey\bin -> appveyor.yml
+    - C:\ProgramData\chocolatey\lib -> appveyor.yml
+
+############################################
+# configuration for release candidate branch
+-
+  branches:
+    only:
+      - release.*
+
+  image: Visual Studio 2017
+
+  skip_branch_with_pr: true
+
+  # OK to get only last commit as we don't need history
+  clone_depth: 1
+
+  # Skipping commits affecting specific files
+  skip_commits:
+    files:
+    - '**\AssemblyInfo.*'
+    - '**/*.md'
+    - 'LICENSE'
+    - dir/*
+    - '.gitignore'
+
+  build:
+    verbosity: minimal
+
+  test: off
+
+  environment:
+    matrix:
+      - RUBY_VERSION: 24
+    GitHubUserName:
+      secure: 7OBtVAMTodMWK20wg6pGnQ==
+    GitHubUserEmail:
+      secure: HeABB68Sn/Lhbd69C2cUcfWv0ab/rMDEcOLvcxf8gGw=
+    GitHubToken:
+      secure: WOqlCsnwTzfDPJFoNV/h8mEESIpG/9uFn1u6oE8hGZtXwIQQlsY+NyyLt9Y5xoFn
+
+  init:
+    - git config --global core.autocrlf true
+    - git config --global credential.helper store
+    - ps: Add-Content "$env:USERPROFILE\.git-credentials" "https://$($env:GitHubToken):x-oauth-basic@github.com`n"
+    - git config --global user.email "%GitHubUserEmail%"
+    - git config --global user.name "%GitHubUserName%"
+
+  install:
+    - cmd: git submodule update --init --recursive
+    - set PATH=C:\Ruby%RUBY_VERSION%\bin;%PATH%
+    - bundle config --local path vendor/bundle
+    - gem install bundler --quiet --no-ri --no-rdoc
+    - gem install github_changelog_generator --quiet --no-ri --no-rdoc
+    # - bundle install
+    - choco install gitversion.portable -pre -y
+
+  before_build:
+  - ps: >-
+
+      nuget sources add -name MyGet -Source https://www.myget.org/F/nanoframework-dev
+
+      nuget restore source\nanoFramework.Tools.VisualStudio.sln
+
+      gitversion /l console /output buildserver /updateAssemblyInfo source\VisualStudio.Extension\Properties\AssemblyInfo.cs /ensureassemblyinfo
+
+  build_script:
+  - ps: >-
+
+      msbuild source\nanoFramework.Tools.VisualStudio.sln /p:Configuration=Release  /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
+
+  before_deploy:
+  # need this to keep ruby happy
+  - ps: md c:\tmp
+  - bundle exec github_changelog_generator --token %GitHubToken%
+  # add here the updated changelog and the updated assembly info files
+  - git add .
+  - git commit --amend --no-edit
+
+  artifacts:
+  - path: '**\*.vsix'
+    name: VS_extension
+
+  on_success:
+    # for this environment variable to work here it has to be set in AppVeyor UI
+    - ps: .\upload-vsix-myget.ps1
+
+  deploy:
+  - provider: GitHub
+    tag: v$(GitVersion_NuGetVersionV2)
+    release: nanoFramework VS2017 Extension v$(appveyor_build_version)
+    description: '[CHANGELOG.md](https://github.com/nanoframework/nf-Visual-Studio-extension/blob/master/CHANGELOG.md)\n\n## Install from MyGet developer feed\n\nThe following Visual Studio Extensions are available for install from this release\n\n[nanoFramework VS2017 Extension](https://www.myget.org/feed/nanoframework-dev/package/vsix/47973986-ed3c-4b64-ba40-a9da73b44ef7)'
+    auth_token:
+      secure: DNixoFFE+pGlwyhj7McfZoln42vOmj0iY1iNV9zXEr3y0NpXlOIgL8k5ehzlFM1S
+    artifact: VS_extension
+    draft: true
+    prerelease: true
+    force_update: true
+
+  notifications:
+  - provider: Slack
+    auth_token:
+      secure: 2tqAJTTbN2dm24Vrwo5TXun3Vxc34R5G9l7o3pK3xEuKZAzxx3nbP2yGkMI/kl3+NxHXknjBfZnkhZC5eLYBHb+jO7YVUZwPYOfC/ZGy5HU=
+    channel: '#build-monitor'
+    on_build_status_changed: true
+    on_build_success: false
+    on_build_failure: false
+
+  cache:
+    - source\packages -> **source\packages.config
+    - C:\ProgramData\chocolatey\bin -> appveyor.yml
+    - C:\ProgramData\chocolatey\lib -> appveyor.yml
