@@ -61,7 +61,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Attempting to attach to the device for debugging....
+        ///   Looks up a localized string similar to Attempting to attach to the nanoDevice for debugging....
         /// </summary>
         internal static string Attach {
             get {
@@ -88,7 +88,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Attaching to device....
+        ///   Looks up a localized string similar to Attaching to nanoDevice....
         /// </summary>
         internal static string AttachingToDevice {
             get {
@@ -115,7 +115,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Debugger engine could not attach to debugging target..
+        ///   Looks up a localized string similar to Debugger engine could not attach to the nanoDevice target..
         /// </summary>
         internal static string DebugEngineAttachmentFailure {
             get {
@@ -133,7 +133,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Device debugging starting....
+        ///   Looks up a localized string similar to nanoDevice debugging starting....
         /// </summary>
         internal static string DebuggingStarting {
             get {
@@ -142,20 +142,11 @@ namespace nanoFramework.Tools.VisualStudio.Extension.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The debugging target could not be found..
+        ///   Looks up a localized string similar to The nanoDevice target could not be found..
         /// </summary>
         internal static string DebuggingTargetNotFound {
             get {
                 return ResourceManager.GetString("DebuggingTargetNotFound", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Looking for the debugging target {0} to connect to (will time out in {1} seconds)....
-        /// </summary>
-        internal static string DebuggingTargetWait {
-            get {
-                return ResourceManager.GetString("DebuggingTargetWait", resourceCulture);
             }
         }
         
@@ -169,7 +160,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Deployment error: failed to (re)connect debugger engine to debugging target..
+        ///   Looks up a localized string similar to Deployment error: failed to (re)connect debugger engine to nanoDevice target..
         /// </summary>
         internal static string DeploymentErrorReconnect {
             get {
@@ -187,7 +178,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to ERROR: Timeout waiting for device to leave initialization state. Try reset the device and reconnect in Device Explorer tool window..
+        ///   Looks up a localized string similar to ERROR: Timeout waiting for nanoDevice to leave initialization state. Try reset the device and reconnect in Device Explorer tool window..
         /// </summary>
         internal static string DeviceInitializationTimeout {
             get {
@@ -196,7 +187,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Device is initialized.
+        ///   Looks up a localized string similar to nanoDevice is initialized.
         /// </summary>
         internal static string DeviceInitialized {
             get {
@@ -214,7 +205,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The debugger engine is listening to debug events from the debugging target.
+        ///   Looks up a localized string similar to The debugger engine is listening to debug events from the nanoDevice target.
         /// </summary>
         internal static string DispatchEvents {
             get {
@@ -223,7 +214,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The debugger engine failed to receive any debug events from the debugging target.
+        ///   Looks up a localized string similar to The debugger engine failed to receive any debug events from the nanoDevice target.
         /// </summary>
         internal static string DispatchEventsFailed {
             get {
@@ -232,7 +223,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The debugging target and the debugger engine failed to initialize because of unspecified device errors..
+        ///   Looks up a localized string similar to The nanoDevice target and the debugger engine failed to initialize because of unspecified device errors..
         /// </summary>
         internal static string InitializationFailed {
             get {
@@ -259,7 +250,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The debugging target runtime is loading the application assemblies and starting execution..
+        ///   Looks up a localized string similar to The nanoDevice runtime is loading the application assemblies and starting execution..
         /// </summary>
         internal static string LoadAssemblies {
             get {
@@ -286,15 +277,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Restarting interpreter....
-        /// </summary>
-        internal static string RestartingClr {
-            get {
-                return ResourceManager.GetString("RestartingClr", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Updating thread list.
         /// </summary>
         internal static string RunningThreadsInformation {
@@ -304,7 +286,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Looking for the debugging target {0} to connect to (will time out in {1} seconds)....
+        ///   Looks up a localized string similar to Waiting for the nanoDevice target {0} to connect to the debugger engine....
         /// </summary>
         internal static string StartDeviceSearch {
             get {
@@ -313,7 +295,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The debugging target initialized successfully..
+        ///   Looks up a localized string similar to The nanoDevice target initialized successfully..
         /// </summary>
         internal static string TargetInitializeSuccess {
             get {
@@ -322,20 +304,11 @@ namespace nanoFramework.Tools.VisualStudio.Extension.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Waiting for device to initialize....
+        ///   Looks up a localized string similar to Waiting for nanoDevice to initialize....
         /// </summary>
         internal static string WaitingDeviceInitialization {
             get {
                 return ResourceManager.GetString("WaitingDeviceInitialization", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Waiting for VS debugger to wake up debuggee thread.
-        /// </summary>
-        internal static string WaitingForWakeup {
-            get {
-                return ResourceManager.GetString("WaitingForWakeup", resourceCulture);
             }
         }
     }

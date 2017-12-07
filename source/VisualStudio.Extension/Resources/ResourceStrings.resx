@@ -118,7 +118,7 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="Attach" xml:space="preserve">
-    <value>Attempting to attach to the device for debugging...</value>
+    <value>Attempting to attach to the nanoDevice for debugging...</value>
   </data>
   <data name="AttachFailed" xml:space="preserve">
     <value>Attach failed.</value>
@@ -127,7 +127,7 @@
     <value>Attach failed because  an internal error caused the process to terminate.</value>
   </data>
   <data name="AttachingToDevice" xml:space="preserve">
-    <value>Attaching to device...</value>
+    <value>Attaching to nanoDevice...</value>
   </data>
   <data name="BogusCorDebugProcess" xml:space="preserve">
     <value>CorDebugProcess not properly initialized (m_pid == 0)</value>
@@ -136,46 +136,43 @@
     <value>Could not reconnect to the debugging target after rebooting it.</value>
   </data>
   <data name="DebugEngineAttachmentFailure" xml:space="preserve">
-    <value>Debugger engine could not attach to debugging target.</value>
+    <value>Debugger engine could not attach to the nanoDevice target.</value>
   </data>
   <data name="DebuggerThreadTerminated" xml:space="preserve">
     <value>The debugger engine thread has terminated unexpectedly with error '{0}'.</value>
   </data>
   <data name="DebuggingStarting" xml:space="preserve">
-    <value>Device debugging starting...</value>
+    <value>nanoDevice debugging starting...</value>
   </data>
   <data name="DebuggingTargetNotFound" xml:space="preserve">
-    <value>The debugging target could not be found.</value>
-  </data>
-  <data name="DebuggingTargetWait" xml:space="preserve">
-    <value>Looking for the debugging target {0} to connect to (will time out in {1} seconds)...</value>
+    <value>The nanoDevice target could not be found.</value>
   </data>
   <data name="DeploymentErrorDeviceErrors" xml:space="preserve">
     <value>Deployment error: the debugging failed to initialize because of device errors.</value>
   </data>
   <data name="DeploymentErrorReconnect" xml:space="preserve">
-    <value>Deployment error: failed to (re)connect debugger engine to debugging target.</value>
+    <value>Deployment error: failed to (re)connect debugger engine to nanoDevice target.</value>
   </data>
   <data name="DeviceFound" xml:space="preserve">
     <value>Device "{0}" identified</value>
   </data>
   <data name="DeviceInitializationTimeout" xml:space="preserve">
-    <value>ERROR: Timeout waiting for device to leave initialization state. Try reset the device and reconnect in Device Explorer tool window.</value>
+    <value>ERROR: Timeout waiting for nanoDevice to leave initialization state. Try reset the device and reconnect in Device Explorer tool window.</value>
   </data>
   <data name="DeviceInitialized" xml:space="preserve">
-    <value>Device is initialized</value>
+    <value>nanoDevice is initialized</value>
   </data>
   <data name="DeviceNotFound" xml:space="preserve">
     <value>Device "{0}" was not found</value>
   </data>
   <data name="DispatchEvents" xml:space="preserve">
-    <value>The debugger engine is listening to debug events from the debugging target</value>
+    <value>The debugger engine is listening to debug events from the nanoDevice target</value>
   </data>
   <data name="DispatchEventsFailed" xml:space="preserve">
-    <value>The debugger engine failed to receive any debug events from the debugging target</value>
+    <value>The debugger engine failed to receive any debug events from the nanoDevice target</value>
   </data>
   <data name="InitializationFailed" xml:space="preserve">
-    <value>The debugging target and the debugger engine failed to initialize because of unspecified device errors.</value>
+    <value>The nanoDevice target and the debugger engine failed to initialize because of unspecified device errors.</value>
   </data>
   <data name="InitializeProcessFailed" xml:space="preserve">
     <value>The initialization of the debugging process failed.</value>
@@ -184,7 +181,7 @@
     <value>The initialization of the debugging process failed because an internal error caused the process to terminate.</value>
   </data>
   <data name="LoadAssemblies" xml:space="preserve">
-    <value>The debugging target runtime is loading the application assemblies and starting execution.</value>
+    <value>The nanoDevice runtime is loading the application assemblies and starting execution.</value>
   </data>
   <data name="LoadedAssembliesInformation" xml:space="preserve">
     <value>Updating information about assemblies on the debugging target.</value>
@@ -192,22 +189,16 @@
   <data name="Rebooting" xml:space="preserve">
     <value>The debugging target is not in an initialized state; rebooting...</value>
   </data>
-  <data name="RestartingClr" xml:space="preserve">
-    <value>Restarting interpreter...</value>
-  </data>
   <data name="RunningThreadsInformation" xml:space="preserve">
     <value>Updating thread list</value>
   </data>
   <data name="StartDeviceSearch" xml:space="preserve">
-    <value>Looking for the debugging target {0} to connect to (will time out in {1} seconds)...</value>
+    <value>Waiting for the nanoDevice target {0} to connect to the debugger engine...</value>
   </data>
   <data name="TargetInitializeSuccess" xml:space="preserve">
-    <value>The debugging target initialized successfully.</value>
+    <value>The nanoDevice target initialized successfully.</value>
   </data>
   <data name="WaitingDeviceInitialization" xml:space="preserve">
-    <value>Waiting for device to initialize...</value>
-  </data>
-  <data name="WaitingForWakeup" xml:space="preserve">
-    <value>Waiting for VS debugger to wake up debuggee thread</value>
+    <value>Waiting for nanoDevice to initialize...</value>
   </data>
 </root>

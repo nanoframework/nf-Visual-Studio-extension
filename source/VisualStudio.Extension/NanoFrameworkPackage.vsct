@@ -29,7 +29,7 @@
 
   <!--The Commands section is where we the commands, menus and menu groups are defined.
       This section uses a Guid to identify the package that provides the command defined inside it. -->
-  <Commands package="guidVsPackage">
+  <Commands package="guidNanoFrameworkPackage">
     <!-- Inside this section we have different sub-sections: one for the menus, another  
     for the menu groups, one for the buttons (the actual commands), one for the combos 
     and the last one for the bitmaps used. Each element is identified by a command id that  
@@ -79,7 +79,7 @@
               <CommandFlag>DefaultInvisible</CommandFlag>
               <CommandFlag>DynamicVisibility</CommandFlag>
           If you do not want an image next to your command, remove the Icon node /> -->
-      <Button guid="guidVsPackageCmdSet" id="DeviceExplorerCommandId" priority="0x0100" type="Button">
+      <Button guid="guidNanoFrameworkPackageCmdSet" id="DeviceExplorerCommandId" priority="0x0100" type="Button">
         <Parent guid="guidSHLMainMenu" id="IDG_VS_WNDO_OTRWNDWS1"/>
         <Icon guid="NanoFrameworkCatalog" id="NanoFramework" />
         <!--<Icon guid="ImageCatalogGuid" id="OneX" />-->
@@ -118,7 +118,7 @@
 
   <Symbols>
     <!-- This is the package guid. -->
-    <GuidSymbol name="guidVsPackage" value="{046B40EB-1DE1-4D08-AF61-FDB7592B9BBD}" />
+    <GuidSymbol name="guidNanoFrameworkPackage" value="{046B40EB-1DE1-4D08-AF61-FDB7592B9BBD}" />
     
     <!-- This is the guid used to group the commands together -->
     <GuidSymbol name="guidNanoDebugPackageCmdSet" value="{6A0F19B1-00EF-4215-BD7B-29DEB4425F7C}">
@@ -127,7 +127,7 @@
     </GuidSymbol>
 
     <!-- This is the guid used to group the menu commands together -->
-    <GuidSymbol name="guidVsPackageCmdSet" value="{c975c4ec-f229-45dd-b681-e42815641675}">
+    <GuidSymbol name="guidNanoFrameworkPackageCmdSet" value="{c975c4ec-f229-45dd-b681-e42815641675}">
       <IDSymbol name="DeviceExplorerCommandId" value="0x0100" />
     </GuidSymbol>
 

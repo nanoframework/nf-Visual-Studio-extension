@@ -1,14 +1,17 @@
-using System;
-using System.Diagnostics;
-using System.Runtime.InteropServices;
-using System.Runtime.CompilerServices;
+//
+// Copyright (c) 2017 The nanoFramework project contributors
+// Portions Copyright (c) Microsoft Corporation.  All rights reserved.
+// See LICENSE file in the project root for full license information.
+//
+
 using CorDebugInterop;
-using BreakpointDef = nanoFramework.Tools.Debugger.WireProtocol.Commands.Debugging_Execution_BreakpointDef;
 using nanoFramework.Tools.Debugger;
-using System.Threading;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace nanoFramework.Tools.VisualStudio.Extension
-{    
+{
     public class CorDebugEval : ICorDebugEval, ICorDebugEval2
     {
         const int SCRATCH_PAD_INDEX_NOT_INITIALIZED = -1;
@@ -162,7 +165,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                     if (fKillThread && m_threadVirtual != null)
                     {
-                        Engine.KillThreadAsync(m_threadVirtual.ID).Wait();
+                        Engine.KillThread(m_threadVirtual.ID);
                     }
 
                     if (resultType == EvalResult.Abort)
@@ -232,8 +235,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             
             this.Process.SetCurrentAppDomain( this.AppDomain );
             uint tdIndex = GetTypeDef_Index(elementType, pElementClass);
-            var allocateArray = Engine.AllocateArrayAsync(GetScratchPadLocation(), tdIndex, 1, (int)dims);
-            allocateArray.Wait();
+            Engine.AllocateArray(GetScratchPadLocation(), tdIndex, 1, (int)dims);
             EndEval (EvalResult.Complete, true);
 
             return COM_HResults.S_OK;
@@ -260,17 +262,14 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 if(function.IsVirtual && function.IsInstance)
                 {
                     Debug.Assert(nArgs > 0);
-                    var getMethod = this.Engine.GetVirtualMethodAsync(function.MethodDef_Index, ((CorDebugValue)ppArgs[0]).RuntimeValue);
-                    getMethod.Wait();
-                    md = getMethod.Result;
+                    
+                    md = this.Engine.GetVirtualMethod(function.MethodDef_Index, ((CorDebugValue)ppArgs[0]).RuntimeValue);
                 }
 
                 this.Process.SetCurrentAppDomain( this.AppDomain );
-                //Send the selected thread ID to the device so calls that use Thread.CurrentThread work as the user expects.
-                var createThread = this.Engine.CreateThreadAsync(md, GetScratchPadLocation(), m_threadReal.ID);
-                createThread.Wait();
 
-                uint pid = createThread.Result; 
+                //Send the selected thread ID to the device so calls that use Thread.CurrentThread work as the user expects.
+                uint pid = this.Engine.CreateThread(md, GetScratchPadLocation(), m_threadReal.ID);
 
                 if (pid == uint.MaxValue)
                 {
@@ -280,25 +279,14 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 //If anything below fails, we need to clean up by killing the thread
                 if (nArgs > 0)
                 {
-                    RuntimeValue[] args = new RuntimeValue[0];
-
-                    using (CancellationTokenSource cts = new CancellationTokenSource())
-                    {
-                        var getStack = this.Engine.GetStackFrameValueAllAsync(pid, 0, function.NumArg, Engine.StackValueKind.Argument, cts.Token);
-                        getStack.Wait();
-
-                        args = getStack.Result;
-                    }
+                    List<RuntimeValue> stackFrameValues = this.Engine.GetStackFrameValueAll(pid, 0, function.NumArg, Engine.StackValueKind.Argument);
 
                     for (int iArg = 0; iArg < nArgs; iArg++)
                     {
                         CorDebugValue valSrc = (CorDebugValue)ppArgs[iArg];
-                        CorDebugValue valDst = CorDebugValue.CreateValue (args[iArg], m_appDomain);
+                        CorDebugValue valDst = CorDebugValue.CreateValue (stackFrameValues[iArg], m_appDomain);
 
-                        var assignTask = valDst.RuntimeValue.AssignAsync(valSrc.RuntimeValue);
-                        assignTask.Wait();
-
-                        if (assignTask.Result == null)
+                        if (valDst.RuntimeValue.Assign(valSrc.RuntimeValue) == null)
                         {
                             throw new ArgumentException("nanoCLR cannot set argument " + iArg);
                         }
@@ -314,11 +302,11 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 //to evaluate.  If that is the case, than breakpoints need to be drained so the 
                 //breakpoint event is fired, to avoid a race condition, where cpde resumes 
                 //execution to start the function eval before it gets the breakpoint event
-                //This is primarily due to the difference in behavior of the nanoCLR and the desktop.
+                //This is primarily due to the difference in behaviour of the nanoCLR and the desktop.
                 //In the desktop, the hard breakpoint will not get hit until execution is resumed.
                 //The nanoCLR can hit the breakpoint during the Thread_Create call.
                 
-                Process.DrainBreakpoints ();                
+                Process.DrainBreakpointsAsync().Wait();
             }
             finally
             {
@@ -333,7 +321,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             this.Process.SetCurrentAppDomain( this.AppDomain );
             
             //changing strings is dependant on this method working....
-            Engine.AllocateStringAsync(GetScratchPadLocation(), @string).Wait();
+            Engine.AllocateString(GetScratchPadLocation(), @string);
             EndEval (EvalResult.Complete, true);
 
             return COM_HResults.S_OK;
@@ -342,8 +330,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         int ICorDebugEval.NewObjectNoConstructor( ICorDebugClass pClass )
         {
             this.Process.SetCurrentAppDomain( this.AppDomain );
-            var allocateObject = Engine.AllocateObjectAsync(GetScratchPadLocation (), ((CorDebugClass)pClass).TypeDef_Index);
-            allocateObject.Wait();
+            Engine.AllocateObject(GetScratchPadLocation (), ((CorDebugClass)pClass).TypeDef_Index);
             EndEval (EvalResult.Complete, true);
 
             return COM_HResults.S_OK;
@@ -355,8 +342,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             Debug.Assert(Utility.FImplies(pElementClass != null, elementType == CorElementType.ELEMENT_TYPE_VALUETYPE)); 
 
             this.Process.SetCurrentAppDomain( this.AppDomain );
-            var allocateObject = Engine.AllocateObjectAsync(GetScratchPadLocation (), tdIndex);
-            allocateObject.Wait();
+            Engine.AllocateObject(GetScratchPadLocation (), tdIndex);
 
             ppValue = GetResultValue ();
             ResetScratchPadLocation ();
@@ -372,7 +358,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             CorDebugClass c = f.Class;
 
             this.Process.SetCurrentAppDomain( this.AppDomain );
-            Engine.AllocateObjectAsync(GetScratchPadLocation (), c.TypeDef_Index).Wait();
+            Engine.AllocateObject(GetScratchPadLocation (), c.TypeDef_Index);
             
             ICorDebugValue[] args = new ICorDebugValue[nArgs + 1];
 

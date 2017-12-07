@@ -4,9 +4,7 @@
   <PropertyGroup>
     <OutputPath>bin\$(Configuration)\</OutputPath>
 
-    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
-    <TargetFrameworkProfile></TargetFrameworkProfile>
-    <TargetFrameworkMoniker>.NETFramework,Version=$(TargetFrameworkVersion)</TargetFrameworkMoniker>
+    <GenerateManifests>true</GenerateManifests>
 
     <!-- Prevents the default MsBuild targets from referencing System.dll and mscorlib.dll
      because we are using nanoFramework System namespace and objects.
@@ -23,8 +21,8 @@
     See https://msdn.microsoft.com/en-us/library/ms242202.aspx
     See https://msdn.microsoft.com/en-us/library/ms171262.aspx
     -->
-    <!--<EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>-->
-    <!--<UseVSHostingProcess>False</UseVSHostingProcess>-->
+    <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
     <DebuggerFlavor>NanoDebugger</DebuggerFlavor>
   </PropertyGroup>
 

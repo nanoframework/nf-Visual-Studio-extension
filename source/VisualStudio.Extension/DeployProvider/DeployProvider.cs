@@ -1,4 +1,4 @@
-//
+﻿//
 // Copyright (c) 2017 The nanoFramework project contributors
 // Portions Copyright (c) Microsoft Corporation.  All rights reserved.
 // See LICENSE file in the project root for full license information.
@@ -83,23 +83,21 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             // meaning that is not running nor stopped
             int retryCount = 0;
             bool deviceIsInInitializeState = false;
-            bool deviceConnected = false;
 
             try
             {
-
                 // connect to the device
                 if (await device.DebugEngine.ConnectAsync(5000))
                 {
 
                     // initial check 
-                    if (await device.DebugEngine.IsDeviceInInitializeStateAsync())
+                    if (device.DebugEngine.IsDeviceInInitializeState())
                     {
                         // set flag
                         deviceIsInInitializeState = true;
 
                         // device is still in initialization state, try resume execution
-                        await device.DebugEngine.ResumeExecutionAsync();
+                        device.DebugEngine.ResumeExecution();
                     }
 
                     // handle the workflow required to try resuming the execution on the device
@@ -123,12 +121,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         if (device.DebugEngine.ConnectionSource == Tools.Debugger.WireProtocol.ConnectionSource.nanoBooter)
                         {
                             // request nanoBooter to load CLR
-                            await device.DebugEngine.ExecuteMemoryAsync(0);
+                            device.DebugEngine.ExecuteMemory(0);
                         }
                         else if (device.DebugEngine.ConnectionSource == Tools.Debugger.WireProtocol.ConnectionSource.nanoCLR)
                         {
                             // already running nanoCLR try rebooting the CLR
-                            await device.DebugEngine.RebootDeviceAsync(RebootOption.RebootClrWaitForDebugger);
+                            device.DebugEngine.RebootDevice(RebootOption.RebootClrWaitForDebugger);
                         }
 
                         // wait before next pass
@@ -215,7 +213,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                         await outputPaneWriter.WriteLineAsync($"Deploying assemblies to device...total size in bytes is {totalSizeOfAssemblies.ToString()}.");
 
-                        if (!await device.DebugEngine.DeploymentExecuteAsync(assemblies, false))
+                        if (!device.DebugEngine.DeploymentExecute(assemblies, false))
                         {
                             // throw exception to signal deployment failure
                             throw new Exception("Deploy failed.");
@@ -260,14 +258,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             catch
             {
                 throw new Exception("Unexpected error. Please retry the deployment. If the situation persists reboot the device.");
-            }
-            finally
-            {
-                if (deviceConnected)
-                {
-                    // disconnect nano Device
-                    device?.DebugEngine.Disconnect();
-                }
             }
         }
 

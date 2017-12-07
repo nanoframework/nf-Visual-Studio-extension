@@ -1,9 +1,13 @@
+//
+// Copyright (c) 2017 The nanoFramework project contributors
+// Portions Copyright (c) Microsoft Corporation.  All rights reserved.
+// See LICENSE file in the project root for full license information.
+//
+
 using CorDebugInterop;
 using nanoFramework.Tools.Debugger;
 using System.Collections;
 using System.Diagnostics;
-using System;
-using System.Threading.Tasks;
 
 namespace nanoFramework.Tools.VisualStudio.Extension
 {
@@ -11,7 +15,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
     {
         CorDebugProcess _process;
         CorDebugChain _chain;
-        bool _fSuspendedSav; //for function eval, need to remember if this thread is suspended before suspending for function eval..      
+        bool _fSuspended;
+        bool _fSuspendedSav; //for function eval, need to remember if this thread is suspended before suspending for function eval.      
         CorDebugValue _currentException;
         CorDebugEval _eval;
         CorDebugAppDomain _initialAppDomain;
@@ -20,6 +25,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         {
             _process = process;
             ID = id;
+            _fSuspended = false;
             _eval = eval;
         }
 
@@ -39,33 +45,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             _process.AddThread(thread);
             Debug.Assert(Process.IsExecutionPaused);
 
-            threadLast._fSuspendedSav = threadLast.IsSuspended;
-            threadLast.Suspend().Wait();
-        }
-
-        private async Task<bool> Suspend()
-        {
-            if (!IsSuspended)
-            {
-                return await this.Engine.SuspendThreadAsync(ID);
-            }
-            else
-            {
-                return true;
-            }
-        }
-
-        private async Task<bool> Resume()
-        {
-            if (IsSuspended)
-            {
-                return await this.Engine.ResumeThreadAsync(ID);
-
-            }
-            else
-            {
-                return true;
-            }
+            threadLast._fSuspendedSav = threadLast._fSuspended;
+            threadLast.IsSuspended = true;
         }
 
         public bool RemoveVirtualThread(CorDebugThread thread)
@@ -80,15 +61,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             CorDebugThread threadNextToLast = threadLast.PreviousThread;
 
             threadNextToLast.NextThread = null;
-
-            if(_fSuspendedSav)
-            {
-                Suspend().Wait();
-            }
-            else
-            {
-                Resume().Wait();
-            }
+            threadNextToLast.IsSuspended = threadNextToLast._fSuspendedSav;
 
             threadLast.PreviousThread = null;
 
@@ -136,10 +109,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         public void StoppedOnException()
         {
-            var getThreadException = Engine.GetThreadExceptionAsync(ID);
-            getThreadException.Wait();
-
-            _currentException = CorDebugValue.CreateValue(getThreadException.Result, this.AppDomain);
+            _currentException = CorDebugValue.CreateValue(Engine.GetThreadException(ID), this.AppDomain);
         }
 
         //This is the only thread that cpde knows about
@@ -172,30 +142,37 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         public bool IsLogicalThreadSuspended { get { return GetLastCorDebugThread().IsSuspended; } }
 
-        public bool IsSuspended { get; } = false;
-        
+        public bool IsSuspended
+        {
+            get { return _fSuspended; }
+            set
+            {
+                bool fSuspend = value;
+
+                if (fSuspend && !IsSuspended)
+                {
+                    this.Engine.SuspendThread(ID);
+                }
+                else if (!fSuspend && IsSuspended)
+                {
+                    this.Engine.ResumeThread(ID);
+                }
+
+                _fSuspended = fSuspend;
+            }
+        }
+
         public CorDebugChain Chain
         {
             get
             {
                 if (_chain == null)
                 {
-                    var setThreadStack = this.Engine.GetThreadStackAsync(ID);
-                    setThreadStack.Wait();
-
-                    Debugger.WireProtocol.Commands.Debugging_Thread_Stack.Reply ts = setThreadStack.Result;
+                    Debugger.WireProtocol.Commands.Debugging_Thread_Stack.Reply ts = this.Engine.GetThreadStack(ID);
 
                     if (ts != null)
                     {
-                        if((ts.m_flags & Debugger.WireProtocol.Commands.Debugging_Thread_Stack.Reply.TH_F_Suspended) == 0)
-                        {
-                            Suspend().Wait();
-                        }
-                        else
-                        {
-                            Resume().Wait();
-                        }
-
+                        _fSuspended = (ts.m_flags & Debugger.WireProtocol.Commands.Debugging_Thread_Stack.Reply.TH_F_Suspended) != 0;
                         _chain = new CorDebugChain(this, ts.m_data);
 
                         if(_initialAppDomain == null)
@@ -236,10 +213,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         {
             Debug.Assert(!IsVirtualThread);
 
-            var getThread = Engine.GetThreadAsync(ID);
-            getThread.Wait();
-
-            RuntimeValue rv = getThread.Result;
+            RuntimeValue rv = Engine.GetThread(ID);
 
             if (rv != null)
             {
@@ -287,14 +261,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
             //This isnt' quite right, there is a discrepancy between CorDebugThreadState and CorDebugUserState
             //where the nanoCLR only has one thread state to differentiate between running, waiting, and stopped            
-            if (state != CorDebugThreadState.THREAD_RUN)
-            {
-                Suspend().Wait();
-            }
-            else
-            {
-                Resume().Wait();
-            }
+            IsSuspended = (state != CorDebugThreadState.THREAD_RUN);
 
             return COM_HResults.S_OK;
         }
@@ -441,7 +408,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         {
             CorDebugFrame frame = (CorDebugFrame)pFrame;
 
-            this.Engine.UnwindThreadAsync(this.ID, frame.DepthnanoCLR).Wait();
+            this.Engine.UnwindThread(this.ID, frame.DepthnanoCLR);
 
             return COM_HResults.S_OK;
         }

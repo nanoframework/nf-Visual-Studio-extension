@@ -1,69 +1,72 @@
+//
+// Copyright (c) 2017 The nanoFramework project contributors
+// Portions Copyright (c) Microsoft Corporation.  All rights reserved.
+// See LICENSE file in the project root for full license information.
+//
+
 using CorDebugInterop;
 using Microsoft.VisualStudio.Debugger.Interop;
 using nanoFramework.Tools.Debugger;
+using nanoFramework.Tools.Debugger.Extensions;
 using nanoFramework.Tools.Debugger.WireProtocol;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Runtime.CompilerServices;
-using System.Text.RegularExpressions;
 using System.Threading;
 using BreakpointDef = nanoFramework.Tools.Debugger.WireProtocol.Commands.Debugging_Execution_BreakpointDef;
 using WireProtocol = nanoFramework.Tools.Debugger.WireProtocol;
 
 namespace nanoFramework.Tools.VisualStudio.Extension
 {
-    public class CorDebugProcess : ICorDebugController,
-                                   ICorDebugProcess,
-                                   ICorDebugProcess2,
-                                   IDebugProcess2,
-                                   IDebugProcessEx2,
-                                   IDisposable
+    public class CorDebugProcess : ICorDebugController, ICorDebugProcess, ICorDebugProcess2, IDebugProcess2, IDebugProcessEx2, IDisposable
     {
-        CorDebug m_corDebug;
-        Queue m_events;
-        ArrayList m_threads;
-        ArrayList m_assemblies;
-        ArrayList m_appDomains;
-        CorDebugAppDomain m_appDomainCurrent;
-        string[] m_assemblyPaths;
-        ArrayList m_breakpoints;
+        CorDebug _corDebug;
+        Queue _events;
+        ArrayList _threads;
+        ArrayList _assemblies;
+        ArrayList _appDomains;
+        CorDebugAppDomain _appDomainCurrent;
+        string[] _assemblyPaths;
+        ArrayList _breakpoints;
         Engine _engine;
-        bool m_fExecutionPaused;
-        AutoResetEvent m_eventDispatch;
-        ManualResetEvent m_eventExecutionPaused;
-        ManualResetEvent m_eventProcessExited;
-        EventWaitHandle[] m_eventsStopped;
-        uint m_pid;
-        bool m_fUpdateBreakpoints;
-        int m_cStopped;
+        bool _executionPaused;
+        AutoResetEvent _eventDispatch;
+        ManualResetEvent _eventExecutionPaused;
+        ManualResetEvent _eventProcessExited;
+        EventWaitHandle[] _eventsStopped;
+        uint _pid;
+        bool _fUpdateBreakpoints;
+        int _cStopped;
         DebugPort _debugPort;
-        Guid m_guidProcessId;
-        bool m_fLaunched;       //whether the attach was from a launch (vs. an attach)
-        bool m_fTerminating;
-        bool m_fDetaching;
-        Utility.Kernel32.CreateThreadCallback m_dummyThreadDelegate;
-        AutoResetEvent m_dummyThreadEvent;
-        int m_cEvalThreads;
-        Hashtable m_tdBuiltin;
-        ScratchPadArea m_scratchPad;
-        Process m_win32process;
-        ulong m_fakeAssemblyAddressNext;
-        object m_syncTerminatingObject;
-        Thread m_threadDispatch;
+        bool _fLaunched;       //whether the attach was from a launch (vs. an attach)
+        bool _terminating;
+        bool _detaching;
+        Utility.Kernel32.CreateThreadCallback _dummyThreadDelegate;
+        AutoResetEvent _dummyThreadEvent;
+        int _cEvalThreads;
+        Hashtable _tdBuiltin;
+        ScratchPadArea _scratchPad;
+        Process _win32process;
+        ulong _fakeAssemblyAddressNext;
+        object _syncTerminatingObject;
+        Thread _threadDispatch;
+
+        static private SemaphoreSlim _breakpointsSemaphore = new SemaphoreSlim(1, 1);
 
         const ulong c_fakeAddressStart = 0x100000000;
 
-        internal const string c_DeployDeviceName = "/CorDebug_DeployDeviceName:";
+        public Guid GuidProcessId { get; }
+
+        public static string DeployDeviceName => "/CorDebug_DeployDeviceName:";
 
         public CorDebugProcess(DebugPort debugPort, NanoDeviceBase nanoDevice)
         {
             _debugPort = debugPort;
             Device = nanoDevice;
-            m_guidProcessId = Guid.NewGuid();
-            m_syncTerminatingObject = new object();
+            GuidProcessId = Guid.NewGuid();
+            _syncTerminatingObject = new object();
         }
 
         public void Dispose() 
@@ -95,48 +98,35 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         }
 
 
-        public NanoDeviceBase Device { get; protected set; }
+        public NanoDeviceBase Device { get; }
 
-        public CorDebug CorDebug
-        {
-            get { return m_corDebug; }
-        }
+        public CorDebug CorDebug => _corDebug;
 
-        public bool IsAttachedToEngine
-        {
-            get { return _engine != null; }
-        }
+        public bool IsAttachedToEngine => _engine != null;
 
         public void SetPid(uint pid)
         {
-            if (m_pid != 0)
+            if (_pid != 0)
                 throw new ArgumentException("PID already set");
 
-            m_pid = pid;
+            _pid = pid;
         }
 
-        public ScratchPadArea ScratchPad
-        {
-            get { return m_scratchPad; }
-        }
+        public ScratchPadArea ScratchPad => _scratchPad;
 
-        public bool IsDebugging
-        {
-            get { return m_corDebug != null; }
-        }
+        public bool IsDebugging => _corDebug != null;
 
         public void SetCurrentAppDomain( CorDebugAppDomain appDomain )
         {
-            if(appDomain != m_appDomainCurrent)
+            if(appDomain != _appDomainCurrent)
             {
                 if(appDomain != null && this.Engine.Capabilities.AppDomains)
                 {
-                    var setAppDomain = this.Engine.SetCurrentAppDomainAsync(appDomain.Id);
-                    setAppDomain.Wait();
+                    this.Engine.SetCurrentAppDomain(appDomain.Id);
                 }
             }
 
-            m_appDomainCurrent = appDomain;
+            _appDomainCurrent = appDomain;
         }
 
         private void OnProcessExit(object sender, EventArgs args)
@@ -146,7 +136,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             {
                 Process process = sender as Process;
 
-                if (process != null && m_win32process != null)
+                if (process != null && _win32process != null)
                 {
                     errorCode = (uint)process.ExitCode;
                 }
@@ -165,55 +155,55 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 if (IsDebugging)
                     throw new Exception("CorDebugProcess is already in debugging mode before Init() has run");
 
-                m_corDebug = corDebug;
-                m_fLaunched = fLaunch;
+                _corDebug = corDebug;
+                _fLaunched = fLaunch;
 
-                m_events = Queue.Synchronized(new Queue());
-                m_threads = new ArrayList();
-                m_assemblies = new ArrayList();
-                m_appDomains = new ArrayList();
-                m_breakpoints = ArrayList.Synchronized(new ArrayList());
-                m_fExecutionPaused = true;
-                m_eventDispatch = new AutoResetEvent(false);
-                m_eventExecutionPaused = new ManualResetEvent(true);
-                m_eventProcessExited = new ManualResetEvent(false);
-                m_eventsStopped = new EventWaitHandle[] { m_eventExecutionPaused, m_eventProcessExited };
-                m_fUpdateBreakpoints = false;
-                m_cStopped = 0;
-                m_fTerminating = false;
-                m_cEvalThreads = 0;
-                m_tdBuiltin = null;
-                m_scratchPad = new ScratchPadArea(this);
-                m_fakeAssemblyAddressNext = c_fakeAddressStart;
-                m_threadDispatch = null;
+                _events = Queue.Synchronized(new Queue());
+                _threads = new ArrayList();
+                _assemblies = new ArrayList();
+                _appDomains = new ArrayList();
+                _breakpoints = ArrayList.Synchronized(new ArrayList());
+                _executionPaused = true;
+                _eventDispatch = new AutoResetEvent(false);
+                _eventExecutionPaused = new ManualResetEvent(true);
+                _eventProcessExited = new ManualResetEvent(false);
+                _eventsStopped = new EventWaitHandle[] { _eventExecutionPaused, _eventProcessExited };
+                _fUpdateBreakpoints = false;
+                _cStopped = 0;
+                _terminating = false;
+                _cEvalThreads = 0;
+                _tdBuiltin = null;
+                _scratchPad = new ScratchPadArea(this);
+                _fakeAssemblyAddressNext = c_fakeAddressStart;
+                _threadDispatch = null;
 
-                m_corDebug.RegisterProcess(this);
+                _corDebug.RegisterProcess(this);
             }
             catch (Exception)
             {
-                NanoFrameworkPackage.WindowPane.OutputStringAsLine(Resources.ResourceStrings.DeploymentErrorDeviceErrors);
+                NanoFrameworkPackage.MessageCentre.DebugMessage(Resources.ResourceStrings.DeploymentErrorDeviceErrors);
                 throw;
             }
         }
 
         private void UnInit()
         {
-            if (m_assemblies != null)
+            if (_assemblies != null)
             {
-                foreach (CorDebugAssembly assembly in m_assemblies)
+                foreach (CorDebugAssembly assembly in _assemblies)
                 {
                     ((IDisposable)assembly).Dispose();
                 }
 
-                m_assemblies = null;
+                _assemblies = null;
             }
 
-            if(m_win32process != null)
+            if(_win32process != null)
             {
-                m_win32process.EnableRaisingEvents = false;
+                _win32process.EnableRaisingEvents = false;
 
                 // If the process hasn't already exited, we'll wait another 2 sec and kill it.
-                for (int i = 1; !m_win32process.HasExited && i <= 2; i++)
+                for (int i = 1; !_win32process.HasExited && i <= 2; i++)
                 {
                     if (i == 1)
                     {
@@ -223,7 +213,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     {
                         try
                         { 
-                            m_win32process.Kill();
+                            _win32process.Kill();
                         }
                         catch(Win32Exception)
                         {
@@ -237,8 +227,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     }
                 }
 
-                m_win32process.Dispose();
-                m_win32process = null;
+                _win32process.Dispose();
+                _win32process = null;
             }
 
             if (_debugPort != null)
@@ -247,35 +237,35 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 _debugPort = null;
             }
 
-            m_appDomains = null;
-            m_events = null;
-            m_threads = null;
-            m_assemblyPaths = null;
-            m_breakpoints = null;
-            m_fExecutionPaused = false;
-            m_eventDispatch = null;
-            m_fUpdateBreakpoints = false;
-            m_cStopped = 0;
-            m_fLaunched = false;
-            m_fTerminating = false;
-            m_fDetaching = false;
-            m_dummyThreadEvent = null;
-            m_cEvalThreads = 0;
-            m_tdBuiltin = null;
-            m_scratchPad = null;
+            _appDomains = null;
+            _events = null;
+            _threads = null;
+            _assemblyPaths = null;
+            _breakpoints = null;
+            _executionPaused = false;
+            _eventDispatch = null;
+            _fUpdateBreakpoints = false;
+            _cStopped = 0;
+            _fLaunched = false;
+            _terminating = false;
+            _detaching = false;
+            _dummyThreadEvent = null;
+            _cEvalThreads = 0;
+            _tdBuiltin = null;
+            _scratchPad = null;
 
-            m_threadDispatch = null;
+            _threadDispatch = null;
 
-            if (m_corDebug != null)
+            if (_corDebug != null)
             {
-                m_corDebug.UnregisterProcess(this);
-                m_corDebug = null;
+                _corDebug.UnregisterProcess(this);
+                _corDebug = null;
             }
         }
 
         public void DirtyBreakpoints()
         {
-            m_fUpdateBreakpoints = true;
+            _fUpdateBreakpoints = true;
 
             if (!IsExecutionPaused)
             {
@@ -290,14 +280,14 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 if (_engine != null)
                 {
                     _engine.OnMessage -= new MessageEventHandler(OnMessage);
-                    _engine.OnCommand -= new CommandEventHandler(OnCommand);
+                    _engine.OnCommand -= new CommandEventHandler(OnCommandAsync);
                     _engine.OnNoise -= new NoiseEventHandler(OnNoise);
                     _engine.OnProcessExit -= new EventHandler(OnProcessExit);
 
                     try
                     {
                         _engine.Stop();
-                        _engine.Dispose();
+                        //_engine.Dispose();
                     }
                     catch
                     {
@@ -305,23 +295,23 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         // throws anything from NullReferenceException, ArgumentNullException, IOException, etc.
                     }
 
-                    _engine = null;
+                    //_engine = null;
                     GC.WaitForPendingFinalizers();
                 }
             }
         }
 
-        private void EnsureProcessIsInInitializedStateAsync()
+        private void EnsureProcessIsInInitializedState()
         {
-            if (!IsDeviceInInitializeState())
+            if (!_engine.IsDeviceInInitializeState())
             {
                 bool fSucceeded = false;
 
-                NanoFrameworkPackage.StatusBar.Update(Resources.ResourceStrings.Rebooting);
+                NanoFrameworkPackage.MessageCentre.StartProgressMessage(Resources.ResourceStrings.Rebooting);
 
                 AttachToEngine();
 
-                _engine.RebootDeviceAsync(RebootOption.RebootClrWaitForDebugger).Wait();
+                _engine.RebootDevice(RebootOption.RebootClrWaitForDebugger);
 
                 // TODO
                 //if(m_engine.PortDefinition is PortDefinition_Tcp)
@@ -335,20 +325,19 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     {
                         if(_engine.ConnectionSource == ConnectionSource.nanoCLR)
                         {
-                            if(IsDeviceInInitializeState())
+                            if (_engine.IsDeviceInInitializeState())
                             {
                                 fSucceeded = true;
                                 break;
                             }
 
-                            _engine.RebootDeviceAsync(RebootOption.RebootClrWaitForDebugger);
+                            _engine.RebootDevice(RebootOption.RebootClrWaitForDebugger);
 
                             Thread.Yield();
                         }
                         else if(_engine.ConnectionSource == ConnectionSource.nanoBooter)
                         {
-                            var executeMemory = _engine.ExecuteMemoryAsync(0); // tell nanoBooter to enter CLR
-                            executeMemory.Wait();
+                            _engine.ExecuteMemory(0); // tell nanoBooter to enter CLR
 
                             Thread.Yield();
                         }
@@ -361,20 +350,18 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 
                 if (!ShuttingDown && !fSucceeded)
                 {
-                    NanoFrameworkPackage.StatusBar.Clear();
+                    NanoFrameworkPackage.MessageCentre.StopProgressMessage();
                     throw new Exception(Resources.ResourceStrings.CouldNotReconnect);
                 }
             }
 
-            NanoFrameworkPackage.StatusBar.Clear();
-
-            NanoFrameworkPackage.WindowPane.OutputString(Resources.ResourceStrings.TargetInitializeSuccess);
+            NanoFrameworkPackage.MessageCentre.StopProgressMessage(Resources.ResourceStrings.TargetInitializeSuccess);
         }
 
         public Engine AttachToEngine()
         {
-            int c_maxRetries     = 30;
-            int c_retrySleepTime = 300;
+            int c_maxRetries     = 5;
+            int c_retrySleepTime = 5000;
 
             for(int retry=0; retry<c_maxRetries; retry++)
             {
@@ -386,12 +373,11 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     {
                         if (_engine == null)
                         {
-                            _engine = Device.DebugEngine;
+                            _engine = Device.DebugEngine;// new Engine(Device.Parent, Device as INanoDevice);
                             _engine.StopDebuggerOnConnect = true;
-                            _engine.Start();
 
                             _engine.OnMessage += new MessageEventHandler(OnMessage);
-                            _engine.OnCommand += new CommandEventHandler(OnCommand);
+                            _engine.OnCommand += new CommandEventHandler(OnCommandAsync);
                             _engine.OnNoise   += new NoiseEventHandler(OnNoise);
                             _engine.OnProcessExit += new EventHandler(OnProcessExit);
                         }
@@ -409,16 +395,16 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     {
                         if(_engine.ConnectionSource == ConnectionSource.nanoBooter)
                         {
-                            _engine.ExecuteMemoryAsync(0).Wait();
+                            _engine.ExecuteMemory(0);
                             Thread.Yield();
                         }
                         _engine.ThrowOnCommunicationFailure = true;
-                        _engine.SetExecutionModeAsync( WireProtocol.Commands.Debugging_Execution_ChangeConditions.c_SourceLevelDebugging, 0 ).Wait();
+                        _engine.SetExecutionMode( Commands.DebuggingExecutionChangeConditions.State.SourceLevelDebugging, 0 );
                         break;
                     }
 
-                    // only detach-reattach after 10 retries (10 seconds)
-                    if((retry % 10) == 9) 
+                    // only detach-reattach after 2 retries (10 seconds)
+                    if((retry % 2) == 1) 
                         DetachFromEngine();
 
                     Thread.Yield();
@@ -444,18 +430,18 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         public void EnqueueEvent(ManagedCallbacks.ManagedCallback cb)
         {
-            m_events.Enqueue(cb);
-            m_eventDispatch.Set();
+            _events.Enqueue(cb);
+            _eventDispatch.Set();
         }
 
         public void EnqueueEvents(List<ManagedCallbacks.ManagedCallback> callbacks)
         {
             for (int i = 0; i < callbacks.Count; i++)
             {
-                m_events.Enqueue(callbacks[i]);
+                _events.Enqueue(callbacks[i]);
             }
 
-            m_eventDispatch.Set();
+            _eventDispatch.Set();
         }
 
         private bool FlushEvent()
@@ -465,11 +451,11 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
             lock(this)
             {
-                if(m_cStopped == 0 && AnyQueuedEvents)
+                if(_cStopped == 0 && AnyQueuedEvents)
                 {
-                    Interlocked.Increment( ref m_cStopped );
+                    Interlocked.Increment( ref _cStopped );
 
-                    mc = (ManagedCallbacks.ManagedCallback)m_events.Dequeue();
+                    mc = (ManagedCallbacks.ManagedCallback)_events.Dequeue();
                 }
             }
 
@@ -477,7 +463,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             {
                 DebugAssert(this.ShuttingDown || this.IsExecutionPaused || mc is ManagedCallbacks.ManagedCallbackDebugMessage);
 
-                mc.Dispatch( m_corDebug.ManagedCallback );
+                mc.Dispatch( _corDebug.ManagedCallback );
                 fContinue = true;
             }
 
@@ -495,66 +481,75 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         {
             get
             {
-                DebugAssert(!(m_fTerminating && m_fDetaching));
+                DebugAssert(!(_terminating && _detaching));
 
-                return m_fTerminating || m_fDetaching;
+                return _terminating || _detaching;
             }
         }
 
-        [MethodImpl(MethodImplOptions.Synchronized)]
+        //[MethodImpl(MethodImplOptions.Synchronized)]
         private void UpdateExecutionIfNecessary()
         {
-            DebugAssert(m_cStopped >= 0);
+            //_classSemaphore.Wait();
 
-            if(m_cStopped > 0)
+            try
             {
-                PauseExecution();
-            }
-            else if(!AnyQueuedEvents)
-            {
-                if(IsExecutionPaused)
+                DebugAssert(_cStopped >= 0);
+
+                if (_cStopped > 0)
                 {
-                    /*
-                     * cStopped count is not maintained on the nanoCLR.
-                     * There is a race condition where we try to resume execution
-                     * while the nanoCLR is telling us that a breakpoint is hit.  Specifically,
-                     * the following can occur.
-                     *
-                     * 1.  CorDebug tells nanoCLR to resume
-                     * 2.  nanoCLR hits a breakpoint
-                     * 3.  CorDebug tells nanoCLR to stop
-                     * 4.  CorDebug tells nanoCLR to resume
-                     * 5.  CorDebug is notified that breakpoint is hit.
-                     *
-                     * Draining breakpoints is necessary here to avoid the race condition
-                     * that step 4 should not be allowed to occur until all breakpoints are drained.
-                     * This amounts to breakpoints being skipped.
-                     *
-                     * Note the asymmetry here.  CorDebug can at any time tell nanoCLR to stop, and be sure that execution
-                     * is stopped.  But CorDebug should not tell nanoCLR to resume execution if there are any outstanding
-                     * breakpoints available, regardless of whether CorDebug has been notified yet.
-                     */
-                    DrainBreakpoints();
-
-                    if(!AnyQueuedEvents)
+                    PauseExecution();
+                }
+                else if (!AnyQueuedEvents)
+                {
+                    if (IsExecutionPaused)
                     {
-                        ResumeExecution();
+                        /*
+                         * cStopped count is not maintained on the nanoCLR.
+                         * There is a race condition where we try to resume execution
+                         * while the nanoCLR is telling us that a breakpoint is hit.  Specifically,
+                         * the following can occur.
+                         *
+                         * 1.  CorDebug tells nanoCLR to resume
+                         * 2.  nanoCLR hits a breakpoint
+                         * 3.  CorDebug tells nanoCLR to stop
+                         * 4.  CorDebug tells nanoCLR to resume
+                         * 5.  CorDebug is notified that breakpoint is hit.
+                         *
+                         * Draining breakpoints is necessary here to avoid the race condition
+                         * that step 4 should not be allowed to occur until all breakpoints are drained.
+                         * This amounts to breakpoints being skipped.
+                         *
+                         * Note the asymmetry here.  CorDebug can at any time tell nanoCLR to stop, and be sure that execution
+                         * is stopped.  But CorDebug should not tell nanoCLR to resume execution if there are any outstanding
+                         * breakpoints available, regardless of whether CorDebug has been notified yet.
+                         */
+                        DrainBreakpointsAsync().Wait();
+
+                        if (!AnyQueuedEvents)
+                        {
+                            ResumeExecution();
+                        }
                     }
                 }
-            }
 
-            DebugAssert(m_cStopped >= 0);
+                DebugAssert(_cStopped >= 0);
+            }
+            finally
+            {
+                //_classSemaphore.Release();
+            }
         }
 
         private void DispatchEvents()
         {
-            NanoFrameworkPackage.WindowPane.InternalErrorMessage(false, Resources.ResourceStrings.DispatchEvents);
+            NanoFrameworkPackage.MessageCentre.InternalErrorMessage(false, Resources.ResourceStrings.DispatchEvents);
 
             try
             {
                 while (IsAttachedToEngine && !ShuttingDown)
                 {
-                    m_eventDispatch.WaitOne();
+                    _eventDispatch.WaitOne();
                     FlushEvents();
 
                     UpdateExecutionIfNecessary();
@@ -562,7 +557,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             }
             catch (Exception e)
             {
-                NanoFrameworkPackage.WindowPane.OutputStringAsLine(Resources.ResourceStrings.DispatchEventsFailed);
+                NanoFrameworkPackage.MessageCentre.DebugMessage(Resources.ResourceStrings.DispatchEventsFailed);
 
                 DebugAssert(!(IsAttachedToEngine && !ShuttingDown), "Event dispatch failed:" + e.Message);
                 this.ICorDebugProcess.Terminate(0);
@@ -571,87 +566,49 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         private void EnqueueStartupEventsAndWait()
         {
-            DebugAssert(m_pid != 0);    //cpde will fail
+            DebugAssert(_pid != 0);    //cpde will fail
             DebugAssert(Device != null);
 
             EnqueueEvent(new ManagedCallbacks.ManagedCallbackProcess(this, ManagedCallbacks.ManagedCallbackProcess.EventType.CreateProcess));
 
             CorDebugAppDomain appDomain = new CorDebugAppDomain(this, 1);
-            m_appDomains.Add(appDomain);
+            _appDomains.Add(appDomain);
 
             EnqueueEvent(new ManagedCallbacks.ManagedCallbackAppDomain(appDomain, ManagedCallbacks.ManagedCallbackAppDomain.EventType.CreateAppDomain));
 
-            if (m_fLaunched)
-            {
-                //the sdm tries to resumeProcess through the DE, but cpde doesn't propagate that message to our
-                //Debug Port.  As a result, we have to create a dummy thread, just so that cpde can resume it.
-                //We wait for initialization to be complete, by getting signaled by the dummy thread.
-                NanoFrameworkPackage.WindowPane.InternalErrorMessage(false, Resources.ResourceStrings.WaitingForWakeup);
-                WaitDummyThread();
-            }
+            WaitDummyThread();
 
             //Dispatch the CreateProcess/CreateAppDomain events, so that VS will hopefully shut down nicely from now on
             FlushEvents();
 
-            DebugAssert(m_cStopped == 0);
+            DebugAssert(_cStopped == 0);
             DebugAssert(!AnyQueuedEvents);
         }
 
-        private uint GetDeviceState()
-        {
-            try
-            {
-                var setExecutionMode = _engine.SetExecutionModeAsync(0, 0);
-                setExecutionMode.Wait();
-
-                if (setExecutionMode.Result.success)
-                {
-                    return (setExecutionMode.Result.currentExecutionMode & WireProtocol.Commands.Debugging_Execution_ChangeConditions.c_State_Mask);
-                }
-            }
-            catch
-            {
-            }
-
-            return WireProtocol.Commands.Debugging_Execution_ChangeConditions.c_State_Mask; // error condition
-        }
-
-        internal bool IsDeviceInExitedState()
-        {
-            return GetDeviceState() == WireProtocol.Commands.Debugging_Execution_ChangeConditions.c_State_ProgramExited;
-        }
-
-        internal bool IsDeviceInInitializeState()
-        {
-            return GetDeviceState() == WireProtocol.Commands.Debugging_Execution_ChangeConditions.c_State_Initialize;
-        }
-
-
         private void StartClr()
         {
-            NanoFrameworkPackage.WindowPane.OutputStringAsLine(String.Format(Resources.ResourceStrings.RestartingClr));
             try
             {
                 EnqueueStartupEventsAndWait();
                 
-                NanoFrameworkPackage.WindowPane.OutputStringAsLine(String.Format(Resources.ResourceStrings.AttachingToDevice));
+                NanoFrameworkPackage.MessageCentre.DebugMessage(String.Format(Resources.ResourceStrings.AttachingToDevice));
 
                 if (AttachToEngine() == null)
                 {
-                    NanoFrameworkPackage.WindowPane.OutputStringAsLine(String.Format(Resources.ResourceStrings.DeploymentErrorReconnect));
+                    NanoFrameworkPackage.MessageCentre.DebugMessage(String.Format(Resources.ResourceStrings.DeploymentErrorReconnect));
                     
                     throw new Exception(Resources.ResourceStrings.DebugEngineAttachmentFailure);
                 }
 
                 CorDebugBreakpointBase breakpoint = new CLREventsBreakpoint(this);
 
-                if (m_fLaunched)
+                if (_fLaunched)
                 {
                     //This will reboot the device if start debugging was done without a deployment
     
-                    NanoFrameworkPackage.WindowPane.OutputStringAsLine(String.Format(Resources.ResourceStrings.WaitingDeviceInitialization));
+                    NanoFrameworkPackage.MessageCentre.DebugMessage(String.Format(Resources.ResourceStrings.WaitingDeviceInitialization));
 
-                    EnsureProcessIsInInitializedStateAsync();
+                    EnsureProcessIsInInitializedState();
                 }
                 else
                 {
@@ -661,12 +618,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     UpdateAssemblies();
                     UpdateThreadList();
 
-                    if (m_threads.Count == 0)
+                    if (_threads.Count == 0)
                     {
                         //Check to see if the device has exited
-                        if (IsDeviceInExitedState())
+                        if (_engine.IsDeviceInExitedState())
                         {
-                            NanoFrameworkPackage.WindowPane.OutputStringAsLine(Resources.ResourceStrings.DebuggingTargetNotFound);
+                            NanoFrameworkPackage.MessageCentre.DebugMessage(Resources.ResourceStrings.DebuggingTargetNotFound);
                             throw new ProcessExitException();
                         }
                     }
@@ -674,7 +631,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             }
             catch(Exception)
             {
-                NanoFrameworkPackage.WindowPane.OutputStringAsLine(Resources.ResourceStrings.InitializationFailed);
+                NanoFrameworkPackage.MessageCentre.DebugMessage(Resources.ResourceStrings.InitializationFailed);
                 throw;
             }
         }
@@ -691,16 +648,13 @@ namespace nanoFramework.Tools.VisualStudio.Extension
           when a real breakpoint gets hit, when execution is stopped via BreakAll, etc..
          */
 
-            NanoFrameworkPackage.WindowPane.InternalErrorMessage(Resources.ResourceStrings.RunningThreadsInformation);
+            NanoFrameworkPackage.MessageCentre.InternalErrorMessage(Resources.ResourceStrings.RunningThreadsInformation);
 
-            var getThreadList = _engine.GetThreadListAsync();
-            getThreadList.Wait();
-
-            uint[] threads = getThreadList.Result; 
+            uint[] threads = _engine.GetThreadList();
 
             if (threads != null)
             {
-                ArrayList threadsDeleted = (ArrayList)m_threads.Clone();
+                ArrayList threadsDeleted = (ArrayList)_threads.Clone();
 
                 //Find new threads to create
                 foreach (uint pid in threads)
@@ -729,42 +683,42 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         {
             try
             {
-                if (m_pid == 0)
+                if (_pid == 0)
                     throw new Exception(Resources.ResourceStrings.BogusCorDebugProcess);
 
                 this.Init(corDebug, fLaunch);
 
-                m_threadDispatch = new Thread(delegate()
+                _threadDispatch = new Thread(delegate()
                 {
                     try
                     {
-                        NanoFrameworkPackage.StatusBar.Update(Resources.ResourceStrings.DebuggingStarting);
+                        NanoFrameworkPackage.MessageCentre.StartProgressMessage(Resources.ResourceStrings.DebuggingStarting);
                         this.StartClr();
                         this.DispatchEvents();
                     }
                     catch (Exception ex)
                     {
-                        NanoFrameworkPackage.StatusBar.Clear();
+                        NanoFrameworkPackage.MessageCentre.StopProgressMessage();
                         this.ICorDebugProcess.Terminate(0);
-                        NanoFrameworkPackage.WindowPane.OutputStringAsLine(String.Format(Resources.ResourceStrings.DebuggerThreadTerminated, ex.Message));
+                        NanoFrameworkPackage.MessageCentre.DebugMessage(String.Format(Resources.ResourceStrings.DebuggerThreadTerminated, ex.Message));
                     }
                     finally
                     {
                         DebugAssert(ShuttingDown);
 
-                        m_eventProcessExited.Set();
+                        _eventProcessExited.Set();
 
-                        if (m_fTerminating)
+                        if (_terminating)
                         {
                             ManagedCallbacks.ManagedCallbackProcess mc = new ManagedCallbacks.ManagedCallbackProcess(this, ManagedCallbacks.ManagedCallbackProcess.EventType.ExitProcess);
 
-                            mc.Dispatch(m_corDebug.ManagedCallback);
+                            mc.Dispatch(_corDebug.ManagedCallback);
                         }
 
                         StopDebugging();
                     }
                 });
-                m_threadDispatch.Start();
+                _threadDispatch.Start();
             }
             catch (Exception)
             {
@@ -786,14 +740,14 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 AD_PROCESS_ID id = new AD_PROCESS_ID();
 
                 id.ProcessIdType = (uint) AD_PROCESS_ID_TYPE.AD_PROCESS_ID_SYSTEM;
-                id.dwProcessId = m_pid;
+                id.dwProcessId = _pid;
                 return id;
             }
         }
 
         public bool IsInEval
         {
-            get { return m_cEvalThreads > 0; }
+            get { return _cEvalThreads > 0; }
         }
 
         public class ScratchPadArea
@@ -809,7 +763,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             private void ReallocScratchPad(int size)
             {
                 DebugAssert(m_scratchPad != null && m_scratchPad.Length < size);
-                m_process.Engine.ResizeScratchPadAsync(size).Wait();
+                m_process.Engine.ResizeScratchPad(size);
 
                 //Refresh scratch pad values
                 for (int iScratchPad = 0; iScratchPad < m_scratchPad.Length; iScratchPad++)
@@ -822,10 +776,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                         if (val != null)
                         {
-                            var getScratchPadValue = m_process.Engine.GetScratchPadValueAsync(iScratchPad);
-                            getScratchPadValue.Wait();
-
-                            RuntimeValue rtv = getScratchPadValue.Result;
+                            RuntimeValue rtv = m_process.Engine.GetScratchPadValue(iScratchPad);
 
                             val.RuntimeValue = rtv;
                         }
@@ -876,7 +827,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             {
                 if (m_scratchPad != null && m_scratchPad.Length > 0)
                 {
-                    m_process.Engine.ResizeScratchPadAsync(0).Wait();
+                    m_process.Engine.ResizeScratchPad(0);
                     m_scratchPad = null;
                 }
             }
@@ -895,10 +846,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                 if (val == null)
                 {
-                    var getScratchPadValue = m_process.Engine.GetScratchPadValueAsync(index);
-                    getScratchPadValue.Wait();
-
-                    val = CorDebugValue.CreateValue(getScratchPadValue.Result, appDomain);
+                    val = CorDebugValue.CreateValue(m_process.Engine.GetScratchPadValue(index), appDomain);
                     wr.Target = val;
                 }
 
@@ -908,7 +856,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         public CorDebugThread GetThread(uint id)
         {
-            foreach (CorDebugThread thread in m_threads)
+            foreach (CorDebugThread thread in _threads)
             {
                 if (id == thread.ID)
                     return thread;
@@ -919,17 +867,17 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         public void AddThread(CorDebugThread thread)
         {
-            DebugAssert(!m_threads.Contains(thread));
+            DebugAssert(!_threads.Contains(thread));
 
-            m_threads.Add(thread);
+            _threads.Add(thread);
             if (thread.IsVirtualThread)
             {
-                if (m_cEvalThreads == 0)
+                if (_cEvalThreads == 0)
                 {
-                    Engine.SetExecutionModeAsync(WireProtocol.Commands.Debugging_Execution_ChangeConditions.c_NoCompaction | WireProtocol.Commands.Debugging_Execution_ChangeConditions.c_PauseTimers, 0).Wait();
+                    Engine.SetExecutionMode(Commands.DebuggingExecutionChangeConditions.State.NoCompaction | Commands.DebuggingExecutionChangeConditions.State.PauseTimers, 0);
                 }
 
-                m_cEvalThreads++;
+                _cEvalThreads++;
             }
             else
             {
@@ -939,20 +887,20 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         public void RemoveThread(CorDebugThread thread)
         {
-            if (m_threads.Contains(thread))
+            if (_threads.Contains(thread))
             {
                 thread.Exited = true;
 
-                m_threads.Remove(thread);
+                _threads.Remove(thread);
                 if (thread.IsVirtualThread)
                 {
                     CorDebugEval eval = thread.CurrentEval;
                     eval.EndEval(CorDebugEval.EvalResult.Complete, false);
 
-                    m_cEvalThreads--;
-                    if (m_cEvalThreads == 0)
+                    _cEvalThreads--;
+                    if (_cEvalThreads == 0)
                     {
-                        Engine.SetExecutionModeAsync(0, WireProtocol.Commands.Debugging_Execution_ChangeConditions.c_NoCompaction | WireProtocol.Commands.Debugging_Execution_ChangeConditions.c_PauseTimers).Wait();
+                        Engine.SetExecutionMode(0, Commands.DebuggingExecutionChangeConditions.State.NoCompaction | Commands.DebuggingExecutionChangeConditions.State.PauseTimers);
                     }
                 }
                 else
@@ -964,63 +912,69 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         public bool IsExecutionPaused
         {
-            get { return m_fExecutionPaused; }
+            get { return _executionPaused; }
 
-            [MethodImpl(MethodImplOptions.Synchronized)]
+            ////[MethodImpl(MethodImplOptions.Synchronized)]
             set
             {
-                m_fExecutionPaused = value;
+                //_classSemaphore.Wait();
 
-                if (m_fExecutionPaused)
-                    m_eventExecutionPaused.Set();
-                else
-                    m_eventExecutionPaused.Reset();
+                try
+                {
+                    _executionPaused = value;
+
+                    if (_executionPaused)
+                        _eventExecutionPaused.Set();
+                    else
+                        _eventExecutionPaused.Reset();
+                }
+                finally
+                {
+                    //_classSemaphore.Release();
+                }
             }
         }
 
-        [MethodImpl(MethodImplOptions.Synchronized)]
+        ////[MethodImpl(MethodImplOptions.Synchronized)]
         public void PauseExecution()
         {
             if (!IsExecutionPaused)
             {
-                var pauseExecution = _engine.PauseExecutionAsync();
-                pauseExecution.Wait();
-
-                if (pauseExecution.Result)
+                if (_engine.PauseExecution())
                 {
 #if NO_THREAD_CREATED_EVENTS
-                    UpdateThreadList();
+                UpdateThreadList();
 #endif
                     IsExecutionPaused = true;
                 }
                 else
                 {
-                    DebugAssert(m_fTerminating);
+                    DebugAssert(_terminating);
                 }
 
-                m_eventExecutionPaused.Set();
+                _eventExecutionPaused.Set();
             }
         }
 
-        [MethodImpl(MethodImplOptions.Synchronized)]
+        //[MethodImpl(MethodImplOptions.Synchronized)]
         private void ResumeExecution(bool fForce)
         {
-            if( (fForce || IsExecutionPaused) && this.IsDebugging)
+            if ((fForce || IsExecutionPaused) && this.IsDebugging)
             {
-                foreach (CorDebugThread thread in m_threads)
+                foreach (CorDebugThread thread in _threads)
                 {
                     thread.ResumingExecution();
                 }
 
-                if (m_cEvalThreads == 0)
+                if (_cEvalThreads == 0)
                 {
                     ScratchPad.Clear();
                 }
 
                 UpdateBreakpoints();
-                Engine.ResumeExecutionAsync().Wait();
+                Engine.ResumeExecution();
 
-                SetCurrentAppDomain( null );
+                SetCurrentAppDomain(null);
 
                 IsExecutionPaused = false;
             }
@@ -1033,23 +987,23 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         public CorDebugAssembly AssemblyFromIdx(uint idx)
         {
-            return CorDebugAssembly.AssemblyFromIdx( idx, m_assemblies );
+            return CorDebugAssembly.AssemblyFromIdx( idx, _assemblies );
         }
 
         public CorDebugAssembly AssemblyFromIndex(uint index)
         {
-            return CorDebugAssembly.AssemblyFromIndex( index, m_assemblies );
+            return CorDebugAssembly.AssemblyFromIndex( index, _assemblies );
         }
 
         public void RegisterBreakpoint(object o, bool fRegister)
         {
             if (fRegister)
             {
-                m_breakpoints.Add(o);
+                _breakpoints.Add(o);
             }
             else
             {
-                m_breakpoints.Remove(o);
+                _breakpoints.Remove(o);
             }
 
             DirtyBreakpoints();
@@ -1057,9 +1011,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         internal ArrayList GetBreakpoints( Type t, CorDebugAppDomain appDomain )
         {
-            ArrayList al = new ArrayList( m_breakpoints.Count );
+            ArrayList al = new ArrayList( _breakpoints.Count );
 
-            foreach(CorDebugBreakpointBase breakpoint in m_breakpoints)
+            foreach(CorDebugBreakpointBase breakpoint in _breakpoints)
             {
                 if(t.IsAssignableFrom( breakpoint.GetType() ))
                 {
@@ -1079,7 +1033,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             ArrayList breakpoints = new ArrayList( 1 );
             if( IsDebugging )
             {
-                foreach( CorDebugBreakpointBase breakpoint in m_breakpoints )
+                foreach( CorDebugBreakpointBase breakpoint in _breakpoints )
                 {
                     if( breakpoint.IsMatch( breakpointDef ) )
                     {
@@ -1124,21 +1078,21 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         public void UpdateBreakpoints()
         {
-            if(!IsAttachedToEngine || !m_fUpdateBreakpoints || ShuttingDown)
+            if(!IsAttachedToEngine || !_fUpdateBreakpoints || ShuttingDown)
                 return;
 
             //Function breakpoints are set for each AppDomain.
             //No need to send all duplicates to the nanoCLR
-            ArrayList al = new ArrayList( m_breakpoints.Count );
-            for(int i = 0; i < m_breakpoints.Count; i++)
+            ArrayList al = new ArrayList( _breakpoints.Count );
+            for(int i = 0; i < _breakpoints.Count; i++)
             {
-                CorDebugBreakpointBase breakpoint1 = ((CorDebugBreakpointBase)m_breakpoints[i]);
+                CorDebugBreakpointBase breakpoint1 = ((CorDebugBreakpointBase)_breakpoints[i]);
 
                 bool fDuplicate = false;
 
                 for(int j = 0; j < i; j++)
                 {
-                    CorDebugBreakpointBase breakpoint2 = ((CorDebugBreakpointBase)m_breakpoints[j]);
+                    CorDebugBreakpointBase breakpoint2 = ((CorDebugBreakpointBase)_breakpoints[j]);
 
                     if(breakpoint1.Equals( breakpoint2 ))
                     {
@@ -1155,13 +1109,13 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
             BreakpointDef[] breakpointDefs = (BreakpointDef[])al.ToArray( typeof( BreakpointDef ) );
 
-            Engine.SetBreakpointsAsync(breakpointDefs).Wait();
-            m_fUpdateBreakpoints = false;
+            Engine.SetBreakpoints(breakpointDefs);
+            _fUpdateBreakpoints = false;
         }
 
         private void StoreAssemblyPaths(string[] args)
         {
-            DebugAssert(m_assemblyPaths == null);
+            DebugAssert(_assemblyPaths == null);
 
             ArrayList al = new ArrayList(args.Length);
 
@@ -1183,13 +1137,13 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         public string[] AssemblyPaths
         {
-            get { return m_assemblyPaths; }
+            get { return _assemblyPaths; }
             set
             {
-                if (m_assemblyPaths != null)
+                if (_assemblyPaths != null)
                     throw new ArgumentException("already stored assembly paths");
 
-                m_assemblyPaths = value;
+                _assemblyPaths = value;
             }
         }
 
@@ -1201,24 +1155,25 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         */
         private void DummyThreadStart(IntPtr ptr)
         {
-            m_dummyThreadEvent.Set();
+            Thread.Yield();
+            _dummyThreadEvent.Set();
         }
 
         private void CreateDummyThread(out IntPtr threadHandle, out uint threadId)
         {
-            m_dummyThreadDelegate = new Utility.Kernel32.CreateThreadCallback(DummyThreadStart);
-            m_dummyThreadEvent = new AutoResetEvent(false);
+            _dummyThreadDelegate = new Utility.Kernel32.CreateThreadCallback(DummyThreadStart);
+            _dummyThreadEvent = new AutoResetEvent(false);
 
-            threadHandle = Utility.Kernel32.CreateThread(IntPtr.Zero, 0, m_dummyThreadDelegate, IntPtr.Zero, Utility.Kernel32.CREATE_SUSPENDED, out threadId);
+            threadHandle = Utility.Kernel32.CreateThread(IntPtr.Zero, 0, _dummyThreadDelegate, IntPtr.Zero, Utility.Kernel32.CREATE_SUSPENDED, out threadId);
         }
 
         private void WaitDummyThread()
         {
-            if (m_dummyThreadEvent == null)
+            if (_dummyThreadEvent == null)
                 throw new Exception("The device debuggee proxy thread is not initialized");
-            m_dummyThreadEvent.WaitOne();
-            m_dummyThreadEvent = null;
-            m_dummyThreadDelegate = null;
+            _dummyThreadEvent.WaitOne();
+            _dummyThreadEvent = null;
+            _dummyThreadDelegate = null;
         }
 
         //private void CreateEmulatorProcess(
@@ -1236,7 +1191,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         //    uint        debuggingFlags
         //    )
         //{
-        //    NanoFrameworkPackage.WindowPane.OutputStringAsLine(String.Format(Resources.ResourceStrings.EmulatorCommandLine, lpCommandLine));
+        //    NanoFrameworkPackage.MessageCentre.DebugMessage(String.Format(Resources.ResourceStrings.EmulatorCommandLine, lpCommandLine));
 
         //    try
         //    {
@@ -1250,8 +1205,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         //        emuProcess.StartInfo.RedirectStandardInput = false;
 
         //        // Set our event handler to asynchronously read the emulator's outputs.
-        //        emuProcess.OutputDataReceived += new DataReceivedEventHandler(VsPackage.MessageCentre.OutputMsgHandler);
-        //        emuProcess.ErrorDataReceived += new DataReceivedEventHandler(VsPackage.MessageCentre.ErrorMsgHandler);
+        //        emuProcess.OutputDataReceived += new DataReceivedEventHandler(NanoFrameworkPackage.MessageCentre.OutputMsgHandler);
+        //        emuProcess.ErrorDataReceived += new DataReceivedEventHandler(NanoFrameworkPackage.MessageCentre.ErrorMsgHandler);
 
         //        emuProcess.StartInfo.WorkingDirectory = lpCurrentDirectory;
 
@@ -1288,13 +1243,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
             if (!fDidDeploy)
             {
-                var reboot = Engine.RebootDeviceAsync(RebootOption.RebootClrWaitForDebugger);
-                reboot.Wait();
+                Engine.RebootDevice(RebootOption.RebootClrWaitForDebugger);
             }
 
             DebugAssert(_debugPort == port);
 
-            lpProcessInformation.dwProcessId = m_pid;
+            lpProcessInformation.dwProcessId = _pid;
 
             CreateDummyThread(out lpProcessInformation.hThread, out lpProcessInformation.dwThreadId);
         }
@@ -1331,10 +1285,10 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             string deployDeviceName = args[args.Length-1];
 
             //Extract deployDeviceName
-            if (!deployDeviceName.StartsWith(CorDebugProcess.c_DeployDeviceName))
-                throw new Exception(String.Format("\"{0}\" does not appear to be a valid nanoFramework device name", CorDebugProcess.c_DeployDeviceName));
+            if (!deployDeviceName.StartsWith(CorDebugProcess.DeployDeviceName))
+                throw new Exception(String.Format("\"{0}\" does not appear to be a valid nanoFramework device name", CorDebugProcess.DeployDeviceName));
 
-            deployDeviceName = deployDeviceName.Substring(CorDebugProcess.c_DeployDeviceName.Length);
+            deployDeviceName = deployDeviceName.Substring(CorDebugProcess.DeployDeviceName.Length);
             cb.RemoveArguments(args.Length - 1, 1);
 
             lpCommandLine = cb.ToString();
@@ -1352,31 +1306,28 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         internal ulong FakeLoadAssemblyIntoMemory( CorDebugAssembly assembly )
         {
-            ulong address = m_fakeAssemblyAddressNext;
+            ulong address = _fakeAssemblyAddressNext;
 
             uint size;
 
             assembly.ICorDebugModule.GetSize(out size);
 
-            m_fakeAssemblyAddressNext += size;
+            _fakeAssemblyAddressNext += size;
 
             return address;
         }
 
         private void LoadAssemblies()
         {
-            NanoFrameworkPackage.WindowPane.DebugMessage(Resources.ResourceStrings.LoadAssemblies);
+            NanoFrameworkPackage.MessageCentre.DebugMessage(Resources.ResourceStrings.LoadAssemblies);
 
-            CancellationTokenSource cts = new CancellationTokenSource();
-
-            var resolveAllAssemblies = Engine.ResolveAllAssembliesAsync(cts.Token);
-            resolveAllAssemblies.Wait();
-
-            List<WireProtocol.Commands.DebuggingResolveAssembly> assemblies = resolveAllAssemblies.Result;
+            List<WireProtocol.Commands.DebuggingResolveAssembly> assemblies = Engine.ResolveAllAssemblies();
             string[] assemblyPathsT = new string[1];
             Pdbx.PdbxFile.Resolver resolver = new Pdbx.PdbxFile.Resolver();
 
-            if (!m_fLaunched)
+            DebugAssert(assemblies == null || assemblies.Count == 0);
+
+            if (!_fLaunched)
             {
                 //Find mscorlib
                 WireProtocol.Commands.DebuggingResolveAssembly a = null;
@@ -1392,23 +1343,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 }
 
                 DebugAssert(reply.Name == "mscorlib");
-
-                //Add assemblyDirectories
-                string asyVersion = "v4.3";
-                if (AssemblyPaths != null)
-                {
-                    Regex versionExpr = new Regex(@"\\(v[\d]+\.[\d]+)\\");
-                    for (int i = 0; i < AssemblyPaths.Length; i++)
-                    {
-                        Match m = versionExpr.Match(AssemblyPaths[i]);
-
-                        if (m.Success)
-                        {
-                            asyVersion = m.Groups[1].Value;
-                            break;
-                        }
-                    }
-                }
 
                 //PlatformInfo platformInfo = new PlatformInfo(asyVersion); // by not specifying any runtime information, we will look for the most suitable version
                 // TODO need to point to debug output folder
@@ -1433,21 +1367,21 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     }
                     else
                     {
-                        resolver.AssemblyPaths = m_assemblyPaths;
+                        resolver.AssemblyPaths = _assemblyPaths;
                     }
 
                     Pdbx.PdbxFile pdbxFile = resolver.Resolve(reply.Name, reply.Version, Engine.IsTargetBigEndian); //Pdbx.PdbxFile.Open(reply.Name, reply.m_version, assemblyPaths);
 
                     assembly = new CorDebugAssembly(this, reply.Name, pdbxFile, nanoCLR_TypeSystem.IdxAssemblyFromIndex(a.Idx));
 
-                    m_assemblies.Add(assembly);
+                    _assemblies.Add(assembly);
                 }
             }
         }
 
         public CorDebugAppDomain GetAppDomainFromId( uint id )
         {
-            foreach(CorDebugAppDomain appDomain in m_appDomains)
+            foreach(CorDebugAppDomain appDomain in _appDomains)
             {
                 if(appDomain.Id == id)
                 {
@@ -1462,20 +1396,20 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         {
             CorDebugAppDomain appDomain = new CorDebugAppDomain(this, id);
 
-            m_appDomains.Add(appDomain);
+            _appDomains.Add(appDomain);
             EnqueueEvent(new ManagedCallbacks.ManagedCallbackAppDomain(appDomain, ManagedCallbacks.ManagedCallbackAppDomain.EventType.CreateAppDomain));
         }
 
         private void RemoveAppDomain(CorDebugAppDomain appDomain)
         {
             EnqueueEvent(new ManagedCallbacks.ManagedCallbackAppDomain(appDomain, ManagedCallbacks.ManagedCallbackAppDomain.EventType.ExitAppDomain));
-            m_appDomains.Remove(appDomain);
+            _appDomains.Remove(appDomain);
         }
 
         public void UpdateAssemblies()
         {
-            NanoFrameworkPackage.WindowPane.InternalErrorMessage(Resources.ResourceStrings.LoadedAssembliesInformation);
-            lock (m_appDomains)
+            NanoFrameworkPackage.MessageCentre.InternalErrorMessage(Resources.ResourceStrings.LoadedAssembliesInformation);
+            lock (_appDomains)
             {
                 LoadAssemblies();
 
@@ -1483,10 +1417,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                 if (Engine.Capabilities.AppDomains)
                 {
-                    var getAppDomains = Engine.GetAppDomainsAsync();
-                    getAppDomains.Wait();
-
-                    appDomains = getAppDomains.Result.Data;
+                    appDomains = Engine.GetAppDomains().Data;
                 }
 
                 //Search for new appDomains
@@ -1500,16 +1431,16 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     }
                 }
 
-                for (int iAppDomain = 0; iAppDomain < m_appDomains.Count; iAppDomain++)
+                for (int iAppDomain = 0; iAppDomain < _appDomains.Count; iAppDomain++)
                 {
-                    CorDebugAppDomain appDomain = (CorDebugAppDomain)m_appDomains[iAppDomain];
+                    CorDebugAppDomain appDomain = (CorDebugAppDomain)_appDomains[iAppDomain];
                     appDomain.UpdateAssemblies();
                 }
 
                 //Search for dead appDomains
-                for (int iAppDomain = m_appDomains.Count - 1; iAppDomain >= 0; iAppDomain--)
+                for (int iAppDomain = _appDomains.Count - 1; iAppDomain >= 0; iAppDomain--)
                 {
-                    CorDebugAppDomain appDomain = (CorDebugAppDomain)m_appDomains[iAppDomain];
+                    CorDebugAppDomain appDomain = (CorDebugAppDomain)_appDomains[iAppDomain];
 
                     if (Array.IndexOf(appDomains, appDomain.Id) < 0)
                     {
@@ -1523,11 +1454,11 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         {
 #if DEBUG
             //cpde should remove all breakpoints (except for our one internal breakpoint)
-            DebugAssert(m_breakpoints.Count == 1);
-            DebugAssert(m_breakpoints[0] is CLREventsBreakpoint);
-            DebugAssert(m_cEvalThreads == 0);
+            DebugAssert(_breakpoints.Count == 1);
+            DebugAssert(_breakpoints[0] is CLREventsBreakpoint);
+            DebugAssert(_cEvalThreads == 0);
 
-            foreach (CorDebugThread thread in m_threads)
+            foreach (CorDebugThread thread in _threads)
             {
                 //cpde should abort all func-eval
                 DebugAssert(!thread.IsVirtualThread);
@@ -1537,16 +1468,15 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 #endif
 
             //We need to kill the
-            m_breakpoints.Clear();
+            _breakpoints.Clear();
             DirtyBreakpoints();
             ResumeExecution();
 
-            var setExecutionMode = _engine.SetExecutionModeAsync(0, WireProtocol.Commands.Debugging_Execution_ChangeConditions.c_SourceLevelDebugging);
-            setExecutionMode.Wait();
-            
-            DebugAssert((setExecutionMode.Result.currentExecutionMode & WireProtocol.Commands.Debugging_Execution_ChangeConditions.c_PauseTimers  ) == 0);
-            DebugAssert((setExecutionMode.Result.currentExecutionMode & WireProtocol.Commands.Debugging_Execution_ChangeConditions.c_NoCompaction ) == 0);
-            DebugAssert((setExecutionMode.Result.currentExecutionMode & WireProtocol.Commands.Debugging_Execution_ChangeConditions.c_Stopped      ) == 0);
+            _engine.SetExecutionMode(0, Commands.DebuggingExecutionChangeConditions.State.SourceLevelDebugging);
+
+            //DebugAssert((setExecutionMode.Result.currentExecutionMode & WireProtocol.Commands.DebuggingExecutionChangeConditions.State.PauseTimers  ) == 0);
+            //DebugAssert((setExecutionMode.Result.currentExecutionMode & WireProtocol.Commands.DebuggingExecutionChangeConditions.State.NoCompaction ) == 0);
+            //DebugAssert((setExecutionMode.Result.currentExecutionMode & WireProtocol.Commands.DebuggingExecutionChangeConditions.State.Stopped      ) == 0);
         }
 
         private void OnTerminate()
@@ -1572,7 +1502,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         if (IsDebugging)
                         {
                             //Should terminating a device simply be a detach?
-                            if (m_fDetaching)
+                            if (_detaching)
                             {
                                 OnDetach();
                             }
@@ -1588,7 +1518,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             }
             catch (Exception ex)
             {
-                NanoFrameworkPackage.WindowPane.InternalErrorMessage(false, "Exception while terminating CorDebugProcess: " + ex.Message);
+                NanoFrameworkPackage.MessageCentre.InternalErrorMessage(false, "Exception while terminating CorDebugProcess: " + ex.Message);
             }
             finally
             {
@@ -1596,24 +1526,24 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             }
         }
 
-        public void OnMessage(WireProtocol.IncomingMessage msg, string text)
+        public void OnMessage(IncomingMessage msg, string text)
         {
-            if (m_threads != null && m_threads.Count > 0)
+            if (_threads != null && _threads.Count > 0)
             {
-                if(m_appDomains != null && m_appDomains.Count > 0)
+                if(_appDomains != null && _appDomains.Count > 0)
                 {
-                  EnqueueEvent( new ManagedCallbacks.ManagedCallbackDebugMessage( (CorDebugThread)m_threads[0], (CorDebugAppDomain)m_appDomains[0], "nanoCLR_Message", text, LoggingLevelEnum.LStatusLevel0 ) );
+                  EnqueueEvent( new ManagedCallbacks.ManagedCallbackDebugMessage( (CorDebugThread)_threads[0], (CorDebugAppDomain)_appDomains[0], "nanoCLR_Message", text, LoggingLevelEnum.LStatusLevel0 ) );
                 }
             }
             else
             {
-                NanoFrameworkPackage.WindowPane.DebugMessage(text);
+                NanoFrameworkPackage.MessageCentre.DebugMessage(text);
             }
 
         }
 
-        [MethodImpl(MethodImplOptions.Synchronized)]
-        public void DrainBreakpoints()
+        //[MethodImpl(MethodImplOptions.Synchronized)]
+        public async System.Threading.Tasks.Task DrainBreakpointsAsync()
         {
             bool fStopExecution = false;
             bool fAnyBreakpoints = false;
@@ -1622,44 +1552,50 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
             if (Engine == null) return;
 
-            do
+            await _breakpointsSemaphore.WaitAsync();
+
+            try
             {
-                var breakpointStatus = Engine.GetBreakpointStatusAsync();
-                breakpointStatus.Wait();
-
-                bp = breakpointStatus.Result;
-
-                if(bp == null || bp.m_flags == 0)
+                do
                 {
-                    break;
+                    bp = Engine.GetBreakpointStatus();
+
+                    if (bp == null || bp.m_flags == 0)
+                    {
+                        break;
+                    }
+
+                    fLastBreakpoint = (bp.m_flags & BreakpointDef.c_LAST_BREAKPOINT) != 0;
+
+                    //clear c_LAST_BREAKPOINT flags because so derived breakpoint classes don't need to care
+                    bp.m_flags = (ushort)(bp.m_flags & ~BreakpointDef.c_LAST_BREAKPOINT);
+
+                    bool fStopExecutionT = BreakpointHit(bp);
+
+                    fStopExecution = fStopExecution || fStopExecutionT;
+                    fAnyBreakpoints = true;
+                } while (!fLastBreakpoint);
+
+                if (fAnyBreakpoints)
+                {
+                    if (!fStopExecution)
+                    {
+                        DebugAssert(!this.IsExecutionPaused);
+                        //Force execution to resume, even though IsExecutionPaused state is not set
+                        //hitting a breakpoint requires the nanoCLR to be stopped.  Setting IsExecutionPaused = true
+                        //just to force resumeExecution to succeed is wrong, and will result in a race condition
+                        //where Stop is waiting for a synchronous stop, will succeed while execution is about to be resumed.
+                        ResumeExecution(true);
+                    }
+                    else
+                    {
+                        IsExecutionPaused = true;
+                    }
                 }
-
-                fLastBreakpoint = (bp.m_flags & BreakpointDef.c_LAST_BREAKPOINT) != 0;
-
-                //clear c_LAST_BREAKPOINT flags because so derived breakpoint classes don't need to care
-                bp.m_flags = (ushort)(bp.m_flags & ~BreakpointDef.c_LAST_BREAKPOINT);
-
-                bool fStopExecutionT = BreakpointHit( bp );
-
-                fStopExecution = fStopExecution || fStopExecutionT;
-                fAnyBreakpoints = true;
-            } while (!fLastBreakpoint);
-
-            if (fAnyBreakpoints)
+            }
+            finally
             {
-                if (!fStopExecution)
-                {
-                    DebugAssert(!this.IsExecutionPaused);
-                    //Force execution to resume, even though IsExecutionPaused state is not set
-                    //hitting a breakpoint requires the nanoCLR to be stopped.  Setting IsExecutionPaused = true
-                    //just to force resumeExecution to succeed is wrong, and will result in a race condition
-                    //where Stop is waiting for a synchronous stop, will succeed while execution is about to be resumed.
-                    ResumeExecution(true);
-                }
-                else
-                {
-                    IsExecutionPaused = true;
-                }
+                _breakpointsSemaphore.Release();
             }
         }
 
@@ -1671,37 +1607,37 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 Monitor.Enter(this, ref lockTaken);
                 if (lockTaken)
                 {
-                    Interlocked.Increment(ref m_cStopped); //also don't dispatch events
+                    Interlocked.Increment(ref _cStopped); //also don't dispatch events
                 }
             }
             else
             {
-                Interlocked.Decrement(ref m_cStopped);
-                m_eventDispatch.Set();                 //just in case there events needing dispatch.
+                Interlocked.Decrement(ref _cStopped);
+                _eventDispatch.Set();                 //just in case there events needing dispatch.
                 Monitor.Exit(this);
             }
         }
 
-        [MethodImpl(MethodImplOptions.Synchronized)]
-        public void OnCommand(WireProtocol.IncomingMessage msg, bool fReply)
+        //[MethodImpl(MethodImplOptions.Synchronized)]
+        public async void OnCommandAsync(IncomingMessage msg, bool fReply)
         {
-            switch(msg.Header.Cmd)
+            switch (msg.Header.Cmd)
             {
-                case WireProtocol.Commands.c_Debugging_Execution_BreakpointHit:
-                    DrainBreakpoints();
+                case Commands.c_Debugging_Execution_BreakpointHit:
+                    await DrainBreakpointsAsync();
                     break;
-                case WireProtocol.Commands.c_Monitor_ProgramExit:
+                case Commands.c_Monitor_ProgramExit:
                     this.ICorDebugProcess.Terminate(0);
                     break;
-                case WireProtocol.Commands.c_Monitor_Ping:
-                case WireProtocol.Commands.c_Debugging_Button_Report:
-                case WireProtocol.Commands.c_Debugging_Lcd_NewFrame:
-                case WireProtocol.Commands.c_Debugging_Lcd_NewFrameData:
-                case WireProtocol.Commands.c_Debugging_Value_GetStack:
+                case Commands.c_Monitor_Ping:
+                case Commands.c_Debugging_Button_Report:
+                case Commands.c_Debugging_Lcd_NewFrame:
+                case Commands.c_Debugging_Lcd_NewFrameData:
+                case Commands.c_Debugging_Value_GetStack:
                     //nop
                     break;
                 default:
-                    NanoFrameworkPackage.WindowPane.InternalErrorMessage(false, "Unexpected command=" + msg.Header.Cmd);
+                    NanoFrameworkPackage.MessageCentre.InternalErrorMessage(false, "Unexpected command=" + msg.Header.Cmd);
                     break;
             }
         }
@@ -1710,15 +1646,15 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         {
             if(buf != null && (offset + count) <= buf.Length)
             {
-                NanoFrameworkPackage.WindowPane.InternalErrorMessage( System.Text.UTF8Encoding.UTF8.GetString(buf, offset, count) );
+                NanoFrameworkPackage.MessageCentre.InternalErrorMessage( System.Text.UTF8Encoding.UTF8.GetString(buf, offset, count) );
             }
         }
 
         private ArrayList GetAllNonVirtualThreads()
         {
-            ArrayList al = new ArrayList(m_threads.Count);
+            ArrayList al = new ArrayList(_threads.Count);
 
-            foreach (CorDebugThread thread in m_threads)
+            foreach (CorDebugThread thread in _threads)
             {
                 if (!thread.IsVirtualThread)
                     al.Add(thread);
@@ -1765,7 +1701,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
             BuiltinType builtInType = new BuiltinType( assm, tkCLR, c );
 
-            m_tdBuiltin[o] = builtInType;
+            _tdBuiltin[o] = builtInType;
         }
 
         public BuiltinType ResolveBuiltInType(object o)
@@ -1774,11 +1710,11 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
             CorDebugAssembly assmCorLib = null;
 
-            if (m_tdBuiltin == null)
+            if (_tdBuiltin == null)
             {
-                m_tdBuiltin = new Hashtable();
+                _tdBuiltin = new Hashtable();
 
-                foreach (CorDebugAssembly assm in m_assemblies)
+                foreach (CorDebugAssembly assm in _assemblies)
                 {
                     if (assm.Name == "mscorlib")
                     {
@@ -1816,41 +1752,32 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 AddBuiltInType(RuntimeDataType.DATATYPE_TRANSPARENT_PROXY, assmCorLib, "System.Runtime.Remoting.Proxies.__TransparentProxy" );
             }
 
-            return (BuiltinType)m_tdBuiltin[o];
+            return (BuiltinType)_tdBuiltin[o];
         }
 
-        private bool AnyQueuedEvents
-        {
-            get { return m_events.Count > 0; }
-        }
+        private bool AnyQueuedEvents => _events.Count > 0;
 
-        private ICorDebugProcess ICorDebugProcess
-        {
-            get {return (ICorDebugProcess)this;}
-        }
+        private ICorDebugProcess ICorDebugProcess => (ICorDebugProcess)this;
 
-        private ICorDebugController ICorDebugController
-        {
-            get { return (ICorDebugController)this; }
-        }
+        private ICorDebugController ICorDebugController => (ICorDebugController)this;
 
         #region ICorDebugController Members
 
         int ICorDebugController.Stop(uint dwTimeout)
         {
-            Interlocked.Increment(ref m_cStopped);
-            m_eventDispatch.Set();
+            Interlocked.Increment(ref _cStopped);
+            _eventDispatch.Set();
 
-            DebugAssert(IsExecutionPaused || Thread.CurrentThread != m_threadDispatch );
-            EventWaitHandle.WaitAny(m_eventsStopped);
+            DebugAssert(IsExecutionPaused || Thread.CurrentThread != _threadDispatch );
+            EventWaitHandle.WaitAny(_eventsStopped);
 
             return COM_HResults.S_OK;
         }
 
         int ICorDebugController.Continue(int fIsOutOfBand)
         {
-            Interlocked.Decrement(ref m_cStopped);
-            m_eventDispatch.Set();
+            Interlocked.Decrement(ref _cStopped);
+            _eventDispatch.Set();
 
             return COM_HResults.S_OK;
         }
@@ -1869,9 +1796,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
             if (thread == null || !thread.SuspendThreadEvents)
             {
-                lock (m_events.SyncRoot)
+                lock (_events.SyncRoot)
                 {
-                    foreach (ManagedCallbacks.ManagedCallback mc in m_events)
+                    foreach (ManagedCallbacks.ManagedCallback mc in _events)
                     {
                         ManagedCallbacks.ManagedCallbackThread mct = mc as ManagedCallbacks.ManagedCallbackThread;
 
@@ -1926,12 +1853,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         int ICorDebugController.Detach()
         {
-            lock (m_syncTerminatingObject)
+            lock (_syncTerminatingObject)
             {
                 if (!ShuttingDown)
                 {
-                    m_fDetaching = true;
-                    m_eventDispatch.Set();
+                    _detaching = true;
+                    _eventDispatch.Set();
                 }
             }
 
@@ -1940,15 +1867,15 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         int ICorDebugController.Terminate(uint exitCode)
         {
-            lock (m_syncTerminatingObject)
+            lock (_syncTerminatingObject)
             {
                 if (!ShuttingDown)
                 {
-                    m_fTerminating = true;
+                    _terminating = true;
 
                     if (IsDebugging)
                     {
-                        m_eventDispatch.Set();
+                        _eventDispatch.Set();
                     }
                     else
                     {
@@ -2032,7 +1959,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         int ICorDebugProcess.GetID(out uint pdwProcessId)
         {
-            pdwProcessId = m_pid;
+            pdwProcessId = _pid;
 
             return COM_HResults.S_OK;
         }
@@ -2096,9 +2023,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             else if (address >= c_fakeAddressStart)
             {
                 //find the assembly loaded at this addres (all fake, of course)
-                for (int iAssembly = 0; iAssembly < m_assemblies.Count; iAssembly++)
+                for (int iAssembly = 0; iAssembly < _assemblies.Count; iAssembly++)
                 {
-                    CorDebugAssembly assembly = (CorDebugAssembly)m_assemblies[iAssembly];
+                    CorDebugAssembly assembly = (CorDebugAssembly)_assemblies[iAssembly];
 
                     ulong baseAddress;
                     uint assemblySize;
@@ -2115,14 +2042,13 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             }
             else
             {
-                var readMemory = this.Engine.ReadMemoryAsync((uint)address, size);
-                readMemory.Wait();
+                var readMemory = this.Engine.ReadMemory((uint)address, size);
 
-                if (readMemory.Result.success)
+                if (readMemory.Success)
                 {
-                    DebugAssert(readMemory.Result.buffer.Length == size);
+                    DebugAssert(readMemory.Buffer.Length == size);
 
-                    readMemory.Result.buffer.CopyTo(buffer, 0);
+                    readMemory.Buffer.CopyTo(buffer, 0);
                     read = size;
                 }
             }
@@ -2136,10 +2062,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
             if (address < c_fakeAddressStart)
             {
-                var writeMemory = this.Engine.WriteMemoryAsync((uint)address, buffer);
-                writeMemory.Wait();
+                var writeMemory = this.Engine.WriteMemory((uint)address, buffer);
 
-                if (writeMemory.Result.success)
+                if (writeMemory.Success)
                 {
                     written = size;
                 }
@@ -2172,7 +2097,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         int ICorDebugProcess.EnumerateAppDomains(out ICorDebugAppDomainEnum ppAppDomains)
         {
-            ppAppDomains = new CorDebugEnum(m_appDomains, typeof(ICorDebugAppDomain), typeof(ICorDebugAppDomainEnum));
+            ppAppDomains = new CorDebugEnum(_appDomains, typeof(ICorDebugAppDomain), typeof(ICorDebugAppDomainEnum));
 
             return COM_HResults.S_OK;
         }
@@ -2278,7 +2203,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         int Microsoft.VisualStudio.Debugger.Interop.IDebugProcess2.GetProcessId(out Guid pguidProcessId)
         {
-            pguidProcessId = m_guidProcessId;
+            pguidProcessId = GuidProcessId;
             return COM_HResults.S_OK;
         }
 
@@ -2303,7 +2228,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         int Microsoft.VisualStudio.Debugger.Interop.IDebugProcess2.EnumPrograms(out IEnumDebugPrograms2 ppEnum)
         {
-            ArrayList appDomains = m_appDomains;
+            ArrayList appDomains = _appDomains;
 
             if(!this.IsAttachedToEngine)
             {
@@ -2356,7 +2281,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
             if ((Fields & enum_PROCESS_INFO_FIELDS.PIF_FLAGS) != 0)
             {
-                if(m_fExecutionPaused)
+                if(_executionPaused)
                     pi.Flags = enum_PROCESS_INFO_FLAGS.PIFLAG_PROCESS_STOPPED;
                 else
                     pi.Flags = enum_PROCESS_INFO_FLAGS.PIFLAG_PROCESS_RUNNING;
@@ -2433,12 +2358,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         private static void DebugAssert(bool condition, string message, string detailedMessage)
         {
-            NanoFrameworkPackage.WindowPane.InternalErrorMessage(condition, String.Format("message: {0}\r\nDetailed Message: {1}", message, detailedMessage));
+            NanoFrameworkPackage.MessageCentre.InternalErrorMessage(condition, String.Format("message: {0}\r\nDetailed Message: {1}", message, detailedMessage));
         }
 
         private static void DebugAssert(bool condition, string message)
         {
-            NanoFrameworkPackage.WindowPane.InternalErrorMessage(condition, message);
+            NanoFrameworkPackage.MessageCentre.InternalErrorMessage(condition, message);
         }
 
         private static void DebugAssert(bool condition)

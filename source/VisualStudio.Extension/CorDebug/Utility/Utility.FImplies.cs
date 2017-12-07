@@ -4,11 +4,13 @@
 // See LICENSE file in the project root for full license information.
 //
 
-using System;
-
 namespace nanoFramework.Tools.VisualStudio.Extension
 {
-    public class ProcessExitException : Exception
+    public partial class Utility
     {
+        public static bool FImplies(bool b1, bool b2)
+        {
+            return !b1 || b2;
+        }
     }
 }

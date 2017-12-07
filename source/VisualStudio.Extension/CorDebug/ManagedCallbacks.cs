@@ -1,7 +1,13 @@
-using System;
-using System.Runtime.InteropServices;
+//
+// Copyright (c) 2017 The nanoFramework project contributors
+// Portions Copyright (c) Microsoft Corporation.  All rights reserved.
+// See LICENSE file in the project root for full license information.
+//
+
 using CorDebugInterop;
+using System;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 
 namespace nanoFramework.Tools.VisualStudio.Extension
 {

@@ -1,45 +1,50 @@
-using System;
-using System.Runtime.InteropServices;
-using CorDebugInterop;
-using System.Diagnostics;
-using System.Collections;
+//
+// Copyright (c) 2017 The nanoFramework project contributors
+// Portions Copyright (c) Microsoft Corporation.  All rights reserved.
+// See LICENSE file in the project root for full license information.
+//
+
 using nanoFramework.Tools.Debugger;
+using System;
+using System.Collections;
+using System.Diagnostics;
+using System.Runtime.InteropServices;
 
 namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
 {
     public class MetaDataImport : IMetaDataImport2, IMetaDataAssemblyImport
     {
-        private readonly CorDebugAssembly m_assembly;
-        private readonly Engine m_engine;
-        private readonly Guid m_guidModule;
-        private IntPtr m_fakeSig;
-        private readonly int m_cbFakeSig;
-        private ArrayList m_alEnums;
-        private int m_handleEnumNext = 1;
-        private bool m_fAlert = false;
+        private readonly CorDebugAssembly _assembly;
+        private readonly Engine _engine;
+        private readonly Guid _guidModule;
+        private IntPtr _fakeSig;
+        private readonly int _cbFakeSig;
+        private ArrayList _alEnums;
+        private int _handleEnumNext = 1;
+        private bool _alert = false;
 
         public MetaDataImport (CorDebugAssembly assembly)
         {
-            m_assembly = assembly;
-            m_engine = m_assembly.Process.Engine;
-            m_guidModule = Guid.NewGuid ();
-            m_alEnums = new ArrayList();
+            _assembly = assembly;
+            _engine = _assembly.Process.Engine;
+            _guidModule = Guid.NewGuid ();
+            _alEnums = new ArrayList();
 
             byte[] fakeSig = new byte[] { (byte)CorCallingConvention.IMAGE_CEE_CS_CALLCONV_DEFAULT, 0x0 /*count of params*/, (byte)CorElementType.ELEMENT_TYPE_VOID};
-            m_cbFakeSig = fakeSig.Length;
-            m_fakeSig = Marshal.AllocCoTaskMem (m_cbFakeSig);
-            Marshal.Copy (fakeSig, 0, m_fakeSig, m_cbFakeSig);
+            _cbFakeSig = fakeSig.Length;
+            _fakeSig = Marshal.AllocCoTaskMem (_cbFakeSig);
+            Marshal.Copy (fakeSig, 0, _fakeSig, _cbFakeSig);
         }
 
         ~MetaDataImport ()
         {
-            Marshal.FreeCoTaskMem (m_fakeSig);            
+            Marshal.FreeCoTaskMem (_fakeSig);            
         }                            
 
         [Conditional("DEBUG")]
         private void NotImpl()
         {
-            Debug.Assert(!m_fAlert, "IMDI NotImpl");
+            Debug.Assert(!_alert, "IMDI NotImpl");
         }
 
         private class HCorEnum
@@ -81,16 +86,16 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
 
         private HCorEnum CreateEnum(int[] tokens)
         {
-            HCorEnum hce = new HCorEnum(m_handleEnumNext, tokens);
-            m_alEnums.Add(hce);
-            m_handleEnumNext++;
+            HCorEnum hce = new HCorEnum(_handleEnumNext, tokens);
+            _alEnums.Add(hce);
+            _handleEnumNext++;
 
             return hce;
         }
 
         private HCorEnum HCorEnumFromHandle(int handle)
         {
-            foreach (HCorEnum hce in m_alEnums)
+            foreach (HCorEnum hce in _alEnums)
             {
                 if (hce.m_handle == handle)
                     return hce;
@@ -172,7 +177,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
         {
             HCorEnum hce = HCorEnumFromHandle(hEnum.ToInt32());
             if (hce != null)
-                m_alEnums.Remove(hce);
+                _alEnums.Remove(hce);
         }        
         #endregion
 
@@ -216,11 +221,11 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
         public int GetScopeProps (IntPtr szName, uint cchName, IntPtr pchName, IntPtr pmvid)
         {
             // MetaDataImport.GetScopeProps is not implemented
-            m_assembly.ICorDebugAssembly.GetName (cchName, pchName, szName);
+            _assembly.ICorDebugAssembly.GetName (cchName, pchName, szName);
 
             if (pmvid != IntPtr.Zero)
             {
-                byte [] guidModule = m_guidModule.ToByteArray();
+                byte [] guidModule = _guidModule.ToByteArray();
                 Marshal.Copy (guidModule, 0, pmvid, guidModule.Length);
             }
 
@@ -237,12 +242,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
         public int GetTypeDefProps (uint td, IntPtr szTypeDef, uint cchTypeDef, IntPtr pchTypeDef, IntPtr pdwTypeDefFlags, IntPtr ptkExtends)
         {
             uint tk     = nanoCLR_TypeSystem.SymbollessSupport.nanoCLRTokenFromTypeDefToken(td);
-            uint index  = nanoCLR_TypeSystem.ClassMemberIndexFromnanoCLRToken (td, m_assembly);
+            uint index  = nanoCLR_TypeSystem.ClassMemberIndexFromnanoCLRToken (td, _assembly);
 
-            var getTypeName = m_engine.GetTypeNameAsync(index);
-            getTypeName.Wait();
-
-            string name = getTypeName.Result;
+            string name = _engine.GetTypeName(index);
 
             Utility.MarshalString (name, cchTypeDef, pchTypeDef, szTypeDef);
             Utility.MarshalInt (pchTypeDef, 0);
@@ -354,13 +356,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
         {
             uint tk = nanoCLR_TypeSystem.SymbollessSupport.nanoCLRTokenFromMethodDefToken (mb);
 
-            uint md = nanoCLR_TypeSystem.ClassMemberIndexFromnanoCLRToken (tk, m_assembly);
+            uint md = nanoCLR_TypeSystem.ClassMemberIndexFromnanoCLRToken (tk, _assembly);
 
-            var resolveMethod = m_engine.ResolveMethodAsync(md);
-            resolveMethod.Wait();
-
-            Debugger.WireProtocol.Commands.Debugging_Resolve_Method.Result resolvedMethod = resolveMethod.Result;
-
+            Debugger.WireProtocol.Commands.Debugging_Resolve_Method.Result resolvedMethod = _engine.ResolveMethod(md);
 
             string name = null;
             uint tkClass = 0;
@@ -377,8 +375,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
             Utility.MarshalInt(pdwAttr, (int)CorMethodAttr.mdStatic);
             Utility.MarshalInt(pulCodeRVA, 0);
             Utility.MarshalInt(pdwImplFlags, 0);
-            Utility.MarshalInt(pcbSigBlob, m_cbFakeSig);
-            Utility.MarshalInt(ppvSigBlob, m_fakeSig.ToInt32 ());
+            Utility.MarshalInt(pcbSigBlob, _cbFakeSig);
+            Utility.MarshalInt(ppvSigBlob, _fakeSig.ToInt32 ());
 
             return COM_HResults.S_OK;
         }
@@ -607,7 +605,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
 
         public int GetAssemblyProps (uint mda, IntPtr ppbPublicKey, IntPtr pcbPublicKey, IntPtr pulHashAlgId, IntPtr szName, uint cchName, IntPtr pchName, IntPtr pMetaData, IntPtr pdwAssemblyFlags)
         {
-            m_assembly.ICorDebugAssembly.GetName(cchName, pchName, szName);
+            _assembly.ICorDebugAssembly.GetName(cchName, pchName, szName);
             return COM_HResults.S_OK;
         }
 

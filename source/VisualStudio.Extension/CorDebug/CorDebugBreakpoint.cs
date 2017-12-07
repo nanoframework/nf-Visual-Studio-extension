@@ -1,7 +1,12 @@
-using System;
-using System.Runtime.InteropServices;
+//
+// Copyright (c) 2017 The nanoFramework project contributors
+// Portions Copyright (c) Microsoft Corporation.  All rights reserved.
+// See LICENSE file in the project root for full license information.
+//
+
 using CorDebugInterop;
 using nanoFramework.Tools.Debugger.WireProtocol;
+using System;
 using BreakpointDef = nanoFramework.Tools.Debugger.WireProtocol.Commands.Debugging_Execution_BreakpointDef;
 
 namespace nanoFramework.Tools.VisualStudio.Extension

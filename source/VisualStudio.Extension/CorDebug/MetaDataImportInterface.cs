@@ -1,6 +1,11 @@
+//
+// Copyright (c) 2017 The nanoFramework project contributors
+// Portions Copyright (c) Microsoft Corporation.  All rights reserved.
+// See LICENSE file in the project root for full license information.
+//
+
 using System;
 using System.Diagnostics;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
@@ -237,28 +242,28 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
         //arrays into IntPtr
         //which are optional ref parameters???
         //STDMETHOD_(void, CloseEnum)
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         void CloseEnum(IntPtr hEnum
                         );
 
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         int CountEnum(IntPtr hEnum,
                        IntPtr pulCount
                        );
 
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         int ResetEnum(IntPtr hEnum,
                        uint ulPos
                        );
 
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         int EnumTypeDefs(IntPtr phEnum,
                           IntPtr rTypeDefs,
                           uint cMax,
                           IntPtr pcTypeDefs
                           );
 
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         int EnumInterfaceImpls(IntPtr phEnum,
                                 uint td,
                                 IntPtr rImpls,
@@ -266,7 +271,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
                                 IntPtr pcImpls
                                 );
 
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         int EnumTypeRefs(IntPtr phEnum,
                           IntPtr rTypeRefs,
                           uint cMax,
@@ -274,7 +279,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
                           );
 
         // S_OK or error.
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         int FindTypeDefByName(
                               [MarshalAs(UnmanagedType.LPWStr)]
                                string szTypeDef,      // [IN] Name of the Type.
@@ -283,7 +288,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
                                );
 
         // S_OK or error.
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         int GetScopeProps(IntPtr szName,            // [OUT] Put the name here.
                            uint cchName,            // [IN] Size of name buffer in wide chars.
                            IntPtr pchName,          // [OUT] Put size of name (wide chars) here.
@@ -291,13 +296,13 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
                            );
 
         // S_OK.
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         int GetModuleFromScope(
                             IntPtr pmd             // [OUT] Put mdModule token here.        
                                 );
 
         // S_OK or error.
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         int GetTypeDefProps(
                              uint td,                       // [IN] TypeDef token for inquiry.      
                              IntPtr szTypeDef,              // [OUT] Put name here.        
@@ -308,14 +313,14 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
                              );
 
         // S_OK or error.
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         int GetInterfaceImplProps(uint iiImpl,                 // [IN] InterfaceImpl token.
                                    IntPtr pClass,              // [OUT] Put implementing class token here.
                                    IntPtr ptkIface             // [OUT] Put implemented interface token here.
                                    );
 
         // S_OK or error.
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         int GetTypeRefProps(uint tr,                         // [IN] TypeRef token.
                              IntPtr ptkResolutionScope,      // [OUT] Resolution scope, ModuleRef or AssemblyRef.
                              IntPtr szName,                  // [OUT] Name of the TypeRef.
@@ -323,7 +328,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
                              IntPtr pchName                  // [OUT] Size of Name.
                              );
 
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         int ResolveTypeRef(uint tr,
                             IntPtr riid,
                             [MarshalAs(UnmanagedType.IUnknown)] 
@@ -332,7 +337,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
                             );
 
         // S_OK, S_FALSE, or error.        
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         int EnumMembers(IntPtr phEnum,             // [IN|OUT] Pointer to the enum.
                          uint cl,                  // [IN] TypeDef to scope the enumeration.
                          IntPtr rMembers,          // [OUT] Put MemberDefs here.
@@ -341,7 +346,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
                          );
 
         // S_OK, S_FALSE, or error.
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         int EnumMembersWithName(IntPtr phEnum,                      // [IN|OUT] Pointer to the enum.
                                  uint cl,                           // [IN] TypeDef to scope the enumeration.
                                  [MarshalAs(UnmanagedType.LPWStr)]
@@ -352,7 +357,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
                                  );
 
         // S_OK, S_FALSE, or error.
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         int EnumMethods(IntPtr phEnum,               // [IN|OUT] Pointer to the enum.
                          uint cl,                    // [IN] TypeDef to scope the enumeration.
                          IntPtr rMethods,            // [OUT] Put MethodDefs here.
@@ -361,7 +366,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
                          );
 
         // S_OK, S_FALSE, or error.
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         int EnumMethodsWithName(IntPtr phEnum,                // [IN|OUT] Pointer to the enum.
                                  uint cl,                     // [IN] TypeDef to scope the enumeration.
                                  [MarshalAs(UnmanagedType.LPWStr)]
@@ -372,7 +377,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
                                  );
 
         // S_OK, S_FALSE, or error.
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         int EnumFields(IntPtr phEnum,             // [IN|OUT] Pointer to the enum.
                         uint cl,                  // [IN] TypeDef to scope the enumeration.
                         IntPtr rFields,           // [OUT] Put FieldDefs here.
@@ -381,7 +386,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
                         );
 
         // S_OK, S_FALSE, or error.
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         int EnumFieldsWithName(IntPtr phEnum,                 // [IN|OUT] Pointer to the enum.
                                 uint cl,                      // [IN] TypeDef to scope the enumeration.
                                 [MarshalAs(UnmanagedType.LPWStr)]
@@ -392,7 +397,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
                                 );
 
         // S_OK, S_FALSE, or error.
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         int EnumParams(IntPtr phEnum,           // [IN|OUT] Pointer to the enum.
                         uint mb,                // [IN] MethodDef to scope the enumeration.
                         IntPtr rParams,         // [OUT] Put ParamDefs here.
@@ -401,7 +406,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
                         );
 
         // S_OK, S_FALSE, or error.
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         int EnumMemberRefs(IntPtr phEnum,                // [IN|OUT] Pointer to the enum.
                             uint tkParent,               // [IN] Parent token to scope the enumeration.
                             IntPtr rMemberRefs,          // [OUT] Put MemberRefs here.
@@ -410,7 +415,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
                             );
 
         // S_OK, S_FALSE, or error
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         int EnumMethodImpls(IntPtr phEnum,             // [IN|OUT] Pointer to the enum.
                              uint td,                  // [IN] TypeDef to scope the enumeration.
                              IntPtr rMethodBody,       // [OUT] Put Method Body tokens here.
@@ -420,7 +425,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
                              );
 
         // S_OK, S_FALSE, or error.
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         int EnumPermissionSets(IntPtr phEnum,              // [IN|OUT] Pointer to the enum.
                                 uint tk,                   // [IN] if !NIL, token to scope the enumeration.
                                 int dwActions,             // [IN] if !0, return only these actions.
@@ -429,7 +434,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
                                 IntPtr pcTokens            // [OUT] Put # put here.
                                 );
 
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         int FindMember(uint td,                     // [IN] given typedef    
                         [MarshalAs(UnmanagedType.LPWStr)]
                         string szName,              // [IN] member name
@@ -438,7 +443,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
                         IntPtr pmb                  // [OUT] matching memberdef
                         );
 
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         int FindMethod(uint td,                    // [IN] given typedef
                         [MarshalAs(UnmanagedType.LPWStr)]
                         string szName,             // [IN] member name
@@ -447,7 +452,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
                         IntPtr pmb                 // [OUT] matching memberdef
                         );
 
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         int FindField(uint td,                     // [IN] given typedef
                        [MarshalAs(UnmanagedType.LPWStr)]
                        string szName,              // [IN] member name
@@ -456,7 +461,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
                        IntPtr pmb                  // [OUT] matching memberdef
                        );
 
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         int FindMemberRef(uint td,                   // [IN] given typeRef
                            [MarshalAs(UnmanagedType.LPWStr)]
                            string szName,            // [IN] member name
@@ -465,7 +470,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
                            IntPtr pmr                // [OUT] matching memberref
                            );
 
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         int GetMethodProps(uint mb,                 // The method for which to get props.
                             IntPtr pClass,          // Put method's class here.
                             IntPtr szMethod,        // Put method's name here.
@@ -479,7 +484,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
                             );
 
         // S_OK or error.
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         int GetMemberRefProps(uint mr,                   // [IN] given memberref
                                IntPtr ptk,               // [OUT] Put classref or classdef here.
                                IntPtr szMember,          // [OUT] buffer to fill for member's name
@@ -490,7 +495,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
                                );
 
         // S_OK, S_FALSE, or error.
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         int EnumProperties(IntPtr phEnum,                // [IN|OUT] Pointer to the enum.
                             uint td,                     // [IN] TypeDef to scope the enumeration.
                             IntPtr rProperties,          // [OUT] Put Properties here.
@@ -499,7 +504,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
                             );
 
         // S_OK, S_FALSE, or error.
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         int EnumEvents(IntPtr phEnum,             // [IN|OUT] Pointer to the enum.    
                         uint td,                  // [IN] TypeDef to scope the enumeration.
                         IntPtr rEvents,           // [OUT] Put events here.
@@ -508,7 +513,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
                         );
 
         // S_OK, S_FALSE, or error.
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         int GetEventProps(uint ev,                       // [IN] event token
                            IntPtr pClass,                // [OUT] typedef containing the event declarion.
                            IntPtr szEvent,               // [OUT] Event name
@@ -525,7 +530,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
                            );
 
         // S_OK, S_FALSE, or error.
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         int EnumMethodSemantics(IntPtr phEnum,              // [IN|OUT] Pointer to the enum.
                                  uint mb,                   // [IN] MethodDef to scope the enumeration.
                                  IntPtr rEventProp,         // [OUT] Put Event/Property here.
@@ -534,13 +539,13 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
                                  );
 
         // S_OK, S_FALSE, or error.
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         int GetMethodSemantics(uint mb,                       // [IN] method token
                                 uint tkEventProp,             // [IN] event/property token.
                                 IntPtr pdwSemanticFlags       // [OUT] the role flags for the method/propevent pair
                                 );
 
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         int GetClassLayout(uint td,                     // [IN] give typedef
                             IntPtr pdwPackSize,         // [OUT] 1, 2, 4, 8, or 16
                             IntPtr rFieldOffset,        // [OUT] field offset array
@@ -549,20 +554,20 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
                             IntPtr pulClassSize         // [OUT] the size of the class
                             );
 
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         int GetFieldMarshal(uint tk,                    // [IN] given a field's memberdef
                              IntPtr ppvNativeType,      // [OUT] native type of this field
                              IntPtr pcbNativeType       // [OUT] the count of bytes of *ppvNativeType
                              );
 
         // S_OK or error.
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         int GetRVA(uint tk,                       // Member for which to set offset
                     IntPtr pulCodeRVA,            // The offset
                     IntPtr pdwImplFlags           // the implementation flags
         );
 
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         int GetPermissionSetProps(uint pm,                        // [IN] the permission token.
                                    IntPtr pdwAction,              // [OUT] CorDeclSecurity.
                                    IntPtr ppvPermission,          // [OUT] permission blob.
@@ -570,14 +575,14 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
                                    );
 
         // S_OK or error.
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         int GetSigFromToken(uint mdSig,             // [IN] Signature token.
                              IntPtr ppvSig,         // [OUT] return pointer to token.
                              IntPtr pcbSig          // [OUT] return size of signature.
                              );
 
         // S_OK or error.
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         int GetModuleRefProps(uint mur,                  // [IN] moduleref token.
                                IntPtr szName,            // [OUT] buffer to fill with the moduleref name.
                                uint cchName,             // [IN] size of szName in wide characters.
@@ -585,7 +590,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
                                );
 
         // S_OK or error.
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         int EnumModuleRefs(IntPtr phEnum,               // [IN|OUT] pointer to the enum.
                             IntPtr rModuleRefs,         // [OUT] put modulerefs here.
                             uint cmax,                  // [IN] max memberrefs to put.
@@ -593,20 +598,20 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
                             );
 
         // S_OK or error.
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         int GetTypeSpecFromToken(uint typespec,         // [IN] TypeSpec token.
                                   IntPtr ppvSig,        // [OUT] return pointer to TypeSpec signature
                                   IntPtr pcbSig         // [OUT] return size of signature.
                                   );
 
         // Not Recommended! May be removed!
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         int GetNameFromToken(uint tk,                    // [IN] Token to get name from.  Must have a name.
                               IntPtr pszUtf8NamePtr      // [OUT] Return pointer to UTF8 name in heap.
                               );
 
         // S_OK, S_FALSE, or error.
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         int EnumUnresolvedMethods(IntPtr phEnum,               // [IN|OUT] Pointer to the enum.
                                    IntPtr rMethods,            // [OUT] Put MemberDefs here.
                                    uint cMax,                  // [IN] Max MemberDefs to put.
@@ -614,7 +619,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
                                    );
 
         // S_OK or error.
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         int GetUserString(uint stk,                    // [IN] String token.
                            IntPtr szString,            // [OUT] Copy of string.
                            uint cchString,             // [IN] Max chars of room in szString.
@@ -622,7 +627,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
                            );
 
         // S_OK or error.
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         int GetPinvokeMap(uint tk,                         // [IN] FieldDef or MethodDef.
                            IntPtr pdwMappingFlags,         // [OUT] Flags used for mapping.
                            IntPtr szImportName,            // [OUT] Import name.
@@ -632,7 +637,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
                            );
 
         // S_OK or error.
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         int EnumSignatures(IntPtr phEnum,                    // [IN|OUT] pointer to the enum.
                             IntPtr rSignatures,              // [OUT] put signatures here.
                             uint cmax,                       // [IN] max signatures to put.
@@ -640,7 +645,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
                             );
 
         // S_OK or error.
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         int EnumTypeSpecs(IntPtr phEnum,                    // [IN|OUT] pointer to the enum.
                            IntPtr rTypeSpecs,               // [OUT] put TypeSpecs here.
                            uint cmax,                       // [IN] max TypeSpecs to put.
@@ -648,7 +653,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
                            );
 
         // S_OK or error.
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         int EnumUserStrings(IntPtr phEnum,                 // [IN/OUT] pointer to the enum.
                              IntPtr rStrings,              // [OUT] put Strings here.
                              uint cmax,                    // [IN] max Strings to put.
@@ -656,14 +661,14 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
                              );
 
         // S_OK or error.
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         int GetParamForMethodIndex(uint md,                     // [IN] Method token.
                                     uint ulParamSeq,            // [IN] Parameter sequence.
                                     IntPtr ppd                  // [IN] Put Param token here.
                                     );
 
         // S_OK or error.
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         int EnumUserStrings(IntPtr phEnum,                   // [IN, OUT] COR enumerator.
                              uint tk,                        // [IN] Token to scope the enumeration, 0 for all.
                              uint tkType,                    // [IN] Type of interest, 0 for all.
@@ -673,7 +678,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
                              );
 
         // S_OK or error.
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         int GetCustomAttributeProps(uint cv,                       // [IN] CustomAttribute token.
                                      IntPtr ptkObj,                // [OUT, OPTIONAL] Put object token here.
                                      IntPtr ptkType,               // [OUT, OPTIONAL] Put AttrType token here.
@@ -681,14 +686,14 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
                                      IntPtr pcbSize                // [OUT, OPTIONAL] Put size of date here.
                                      );
 
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         int FindTypeRef(uint tkResolutionScope,                      // [IN] ModuleRef, AssemblyRef or TypeRef.
                          [MarshalAs(UnmanagedType.LPWStr)]
                          string szName,                              // [IN] TypeRef Name.
                          IntPtr ptr                                  // [OUT] matching TypeRef.
                          );
 
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         int GetMemberProps(uint mb,                           // The member for which to get props.
                             IntPtr pClass,                    // Put member's class here.
                             IntPtr szMember,                  // Put member's name here.
@@ -704,7 +709,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
                             IntPtr pcchValue                  // [OUT] size of constant string in chars, 0 for non-strings.
                             );
 
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         int GetFieldProps(uint mb,                       // The field for which to get props.
                            IntPtr pClass,                // Put field's class here.
                            IntPtr szField,               // Put field's name here.
@@ -719,7 +724,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
                            );
 
         // S_OK, S_FALSE, or error.
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         int GetPropertyProps(uint prop,                            // [IN] property token
                               IntPtr pClass,                       // [OUT] typedef containing the property declarion.
                               IntPtr szProperty,                   // [OUT] Property name
@@ -739,7 +744,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
                               );
 
         // S_OK or error.
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         int GetParamProps(uint tk,                          // [IN]The Parameter.
                            IntPtr pmd,                      // [OUT] Parent Method token.
                            IntPtr pulSequence,              // [OUT] Parameter sequence.
@@ -753,7 +758,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
                            );
 
         // S_OK or error.
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         int GetCustomAttributeByName(uint tkObj,               // [IN] Object with Custom Attribute.
                                       [MarshalAs(UnmanagedType.LPWStr)]
             string szName,                                     // [IN] Name of desired Custom Attribute.
@@ -762,25 +767,25 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
                                       );
 
         // True or False.   
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         int IsValidToken(uint tk                               // [IN] Given token.
                           );
 
         // S_OK or error.
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         int GetNestedClassProps(uint tdNestedClass,            // [IN] NestedClass token.
                                  IntPtr ptdEnclosingClass      // [OUT] EnclosingClass token.
                                  );
 
         // S_OK or error.
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         int GetNativeCallConvFromSig(IntPtr pvSig,                     // [IN] Pointer to signature.
                                       uint cbSig,                      // [IN] Count of signature bytes.
                                       IntPtr pCallConv                 // [OUT] Put calling conv here (see CorPinvokemap).
                                       );
 
         // S_OK or error.
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         int IsGlobal(uint pd,                             // [IN] Type, Field, or Method token.
                       IntPtr pbGlobal                     // [OUT] Put 1 if global, 0 otherwise.
                       );
@@ -797,28 +802,28 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
         //how they are used
         //arrays into IntPtr
         //which are optional ref parameters???
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         new void CloseEnum(IntPtr hEnum
                         );
 
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         new int CountEnum(IntPtr hEnum,
                            IntPtr pulCount
                        );
 
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         new int ResetEnum(IntPtr hEnum,
                            uint ulPos
                        );
 
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         new int EnumTypeDefs(IntPtr phEnum,
                               IntPtr rTypeDefs,
                           uint cMax,
                           IntPtr pcTypeDefs
                           );
 
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         new int EnumInterfaceImpls(IntPtr phEnum,
                                     uint td,
                                 IntPtr rImpls,
@@ -826,7 +831,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
                                 IntPtr pcImpls
                                 );
 
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         new int EnumTypeRefs(IntPtr phEnum,
                               IntPtr rTypeRefs,
                           uint cMax,
@@ -834,7 +839,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
                           );
 
         // S_OK or error.
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         new int FindTypeDefByName([MarshalAs(UnmanagedType.LPWStr)]
                                string szTypeDef,          // [IN] Name of the Type.
                               uint tkEnclosingClass,      // [IN] TypeDef/TypeRef for Enclosing class.
@@ -842,7 +847,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
                               );
 
         // S_OK or error.
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         new int GetScopeProps(IntPtr szName,               // [OUT] Put the name here.
                                uint cchName,               // [IN] Size of name buffer in wide chars.
                            IntPtr pchName,                 // [OUT] Put size of name (wide chars) here.
@@ -850,12 +855,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
                            );
 
         // S_OK.
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         new int GetModuleFromScope(IntPtr pmd              // [OUT] Put mdModule token here.        
                                     );
 
         // S_OK or error.
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         new int GetTypeDefProps(uint td,                        // [IN] TypeDef token for inquiry.      
                                  IntPtr szTypeDef,              // [OUT] Put name here.        
                              uint cchTypeDef,                   // [IN] size of name buffer in wide chars.        
@@ -865,14 +870,14 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
                              );
 
         // S_OK or error.
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         new int GetInterfaceImplProps(uint iiImpl,               // [IN] InterfaceImpl token.
                                        IntPtr pClass,            // [OUT] Put implementing class token here.
                                    IntPtr ptkIface               // [OUT] Put implemented interface token here.
                                    );
 
         // S_OK or error.
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         new int GetTypeRefProps(uint tr,                           // [IN] TypeRef token.
                                  IntPtr ptkResolutionScope,        // [OUT] Resolution scope, ModuleRef or AssemblyRef.
                              IntPtr szName,                        // [OUT] Name of the TypeRef.
@@ -880,7 +885,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
                              IntPtr pchName                        // [OUT] Size of Name.
                              );
 
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         new int ResolveTypeRef(uint tr,
                                 IntPtr riid,
                             [MarshalAs(UnmanagedType.IUnknown)] 
@@ -889,7 +894,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
                             );
 
         // S_OK, S_FALSE, or error.        
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         new int EnumMembers(IntPtr phEnum,              // [IN|OUT] Pointer to the enum.
                              uint cl,                   // [IN] TypeDef to scope the enumeration.
                          IntPtr rMembers,               // [OUT] Put MemberDefs here.
@@ -898,7 +903,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
                          );
 
         // S_OK, S_FALSE, or error.
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         new int EnumMembersWithName(IntPtr phEnum,              // [IN|OUT] Pointer to the enum.
                                      uint cl,                   // [IN] TypeDef to scope the enumeration.
                                  [MarshalAs(UnmanagedType.LPWStr)]
@@ -909,7 +914,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
                                  );
 
         // S_OK, S_FALSE, or error.
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         new int EnumMethods(IntPtr phEnum,         // [IN|OUT] Pointer to the enum.
                              uint cl,              // [IN] TypeDef to scope the enumeration.
                          IntPtr rMethods,          // [OUT] Put MethodDefs here.
@@ -918,7 +923,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
                          );
 
         // S_OK, S_FALSE, or error.
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         new int EnumMethodsWithName(IntPtr phEnum,                    // [IN|OUT] Pointer to the enum.
                                      uint cl,                         // [IN] TypeDef to scope the enumeration.
                                  [MarshalAs(UnmanagedType.LPWStr)]
@@ -929,7 +934,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
                                  );
 
         // S_OK, S_FALSE, or error.
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         new int EnumFields(IntPtr phEnum,             // [IN|OUT] Pointer to the enum.
                             uint cl,                  // [IN] TypeDef to scope the enumeration.
                         IntPtr rFields,               // [OUT] Put FieldDefs here.
@@ -938,7 +943,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
                         );
 
         // S_OK, S_FALSE, or error.
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         new int EnumFieldsWithName(IntPtr phEnum,          // [IN|OUT] Pointer to the enum.
                                     uint cl,               // [IN] TypeDef to scope the enumeration.
                                 [MarshalAs(UnmanagedType.LPWStr)]
@@ -949,7 +954,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
                                 );
 
         // S_OK, S_FALSE, or error.
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         new int EnumParams(IntPtr phEnum,            // [IN|OUT] Pointer to the enum.
                             uint mb,                 // [IN] MethodDef to scope the enumeration.
                         IntPtr rParams,              // [OUT] Put ParamDefs here.
@@ -958,7 +963,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
                         );
 
         // S_OK, S_FALSE, or error.
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         new int EnumMemberRefs(IntPtr phEnum,           // [IN|OUT] Pointer to the enum.
                                 uint tkParent,          // [IN] Parent token to scope the enumeration.
                             IntPtr rMemberRefs,         // [OUT] Put MemberRefs here.
@@ -967,7 +972,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
                             );
 
         // S_OK, S_FALSE, or error
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         new int EnumMethodImpls(IntPtr phEnum,             // [IN|OUT] Pointer to the enum.
                                  uint td,                  // [IN] TypeDef to scope the enumeration.
                              IntPtr rMethodBody,           // [OUT] Put Method Body tokens here.
@@ -977,7 +982,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
                              );
 
         // S_OK, S_FALSE, or error.
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         new int EnumPermissionSets(IntPtr phEnum,            // [IN|OUT] Pointer to the enum.
                                     uint tk,                 // [IN] if !NIL, token to scope the enumeration.
                                 int dwActions,               // [IN] if !0, return only these actions.
@@ -986,7 +991,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
                                 IntPtr pcTokens              // [OUT] Put # put here.
                                 );
 
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         new int FindMember(uint td,               // [IN] given typedef    
                             [MarshalAs(UnmanagedType.LPWStr)]
                         string szName,            // [IN] member name
@@ -995,7 +1000,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
                         IntPtr pmb                // [OUT] matching memberdef
                         );
 
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         new int FindMethod(uint td,               // [IN] given typedef
                             [MarshalAs(UnmanagedType.LPWStr)]
                         string szName,            // [IN] member name
@@ -1004,7 +1009,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
                         IntPtr pmb                // [OUT] matching memberdef
                         );
 
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         new int FindField(uint td,               // [IN] given typedef
                            [MarshalAs(UnmanagedType.LPWStr)]
                        string szName,            // [IN] member name
@@ -1014,7 +1019,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
                        );
 
 
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         new int FindMemberRef(uint td,                // [IN] given typeRef
                                [MarshalAs(UnmanagedType.LPWStr)]
                            string szName,             // [IN] member name
@@ -1023,7 +1028,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
                            IntPtr pmr                 // [OUT] matching memberref
                            );
 
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         new int GetMethodProps(uint mb,              // The method for which to get props.
                                 IntPtr pClass,       // Put method's class here.
                             IntPtr szMethod,         // Put method's name here.
@@ -1037,7 +1042,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
                             );
 
         // S_OK or error.
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         new int GetMemberRefProps(uint mr,            // [IN] given memberref
                                    IntPtr ptk,        // [OUT] Put classref or classdef here.
                                IntPtr szMember,       // [OUT] buffer to fill for member's name
@@ -1048,7 +1053,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
                                );
 
         // S_OK, S_FALSE, or error.
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         new int EnumProperties(IntPtr phEnum,             // [IN|OUT] Pointer to the enum.
                                 uint td,                  // [IN] TypeDef to scope the enumeration.
                             IntPtr rProperties,           // [OUT] Put Properties here.
@@ -1057,7 +1062,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
                             );
 
         // S_OK, S_FALSE, or error.
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         new int EnumEvents(IntPtr phEnum,          // [IN|OUT] Pointer to the enum.    
                             uint td,               // [IN] TypeDef to scope the enumeration.
                         IntPtr rEvents,            // [OUT] Put events here.
@@ -1066,7 +1071,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
                         );
 
         // S_OK, S_FALSE, or error.
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         new int GetEventProps(uint ev,                   // [IN] event token
                                IntPtr pClass,            // [OUT] typedef containing the event declarion.
                            IntPtr szEvent,               // [OUT] Event name
@@ -1083,7 +1088,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
                            );
 
         // S_OK, S_FALSE, or error.
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         new int EnumMethodSemantics(IntPtr phEnum,       // [IN|OUT] Pointer to the enum.
                                      uint mb,            // [IN] MethodDef to scope the enumeration.
                                  IntPtr rEventProp,      // [OUT] Put Event/Property here.
@@ -1092,13 +1097,13 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
                                  );
 
         // S_OK, S_FALSE, or error.
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         new int GetMethodSemantics(uint mb,               // [IN] method token
                                     uint tkEventProp,     // [IN] event/property token.
                                 IntPtr pdwSemanticFlags   // [OUT] the role flags for the method/propevent pair
                                 );
 
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         new int GetClassLayout(uint td,                    // [IN] give typedef
                                 IntPtr pdwPackSize,        // [OUT] 1, 2, 4, 8, or 16
                             IntPtr rFieldOffset,           // [OUT] field offset array
@@ -1107,20 +1112,20 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
                             IntPtr pulClassSize            // [OUT] the size of the class
                             );
 
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         new int GetFieldMarshal(uint tk,                    // [IN] given a field's memberdef
                                  IntPtr ppvNativeType,      // [OUT] native type of this field
                              IntPtr pcbNativeType           // [OUT] the count of bytes of *ppvNativeType
                              );
 
         // S_OK or error.
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         new int GetRVA(uint tk,                    // Member for which to set offset
                         IntPtr pulCodeRVA,         // The offset
                     IntPtr pdwImplFlags            // the implementation flags
                     );
 
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         new int GetPermissionSetProps(uint pm,                  // [IN] the permission token.
                                        IntPtr pdwAction,        // [OUT] CorDeclSecurity.
                                    IntPtr ppvPermission,        // [OUT] permission blob.
@@ -1128,14 +1133,14 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
                                    );
 
         // S_OK or error.
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         new int GetSigFromToken(uint mdSig,                     // [IN] Signature token.
                                  IntPtr ppvSig,                 // [OUT] return pointer to token.
                              IntPtr pcbSig                      // [OUT] return size of signature.
                              );
 
         // S_OK or error.
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         new int GetModuleRefProps(uint mur,               // [IN] moduleref token.
                                    IntPtr szName,         // [OUT] buffer to fill with the moduleref name.
                                uint cchName,              // [IN] size of szName in wide characters.
@@ -1143,7 +1148,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
                                );
 
         // S_OK or error.
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         new int EnumModuleRefs(IntPtr phEnum,           // [IN|OUT] pointer to the enum.
                                 IntPtr rModuleRefs,     // [OUT] put modulerefs here.
                             uint cmax,                  // [IN] max memberrefs to put.
@@ -1151,20 +1156,20 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
                             );
 
         // S_OK or error.
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         new int GetTypeSpecFromToken(uint typespec,           // [IN] TypeSpec token.
                                       IntPtr ppvSig,          // [OUT] return pointer to TypeSpec signature
                                   IntPtr pcbSig               // [OUT] return size of signature.
                                   );
 
         // Not Recommended! May be removed!
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         new int GetNameFromToken(uint tk,                           // [IN] Token to get name from.  Must have a name.
                                   IntPtr pszUtf8NamePtr             // [OUT] Return pointer to UTF8 name in heap.
                               );
 
         // S_OK, S_FALSE, or error.
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         new int EnumUnresolvedMethods(IntPtr phEnum,               // [IN|OUT] Pointer to the enum.
                                        IntPtr rMethods,            // [OUT] Put MemberDefs here.
                                    uint cMax,                      // [IN] Max MemberDefs to put.
@@ -1172,7 +1177,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
                                    );
 
         // S_OK or error.
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         new int GetUserString(uint stk,                       // [IN] String token.
                                IntPtr szString,               // [OUT] Copy of string.
                            uint cchString,                    // [IN] Max chars of room in szString.
@@ -1180,7 +1185,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
                            );
 
         // S_OK or error.
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         new int GetPinvokeMap(uint tk,                    // [IN] FieldDef or MethodDef.
                                IntPtr pdwMappingFlags,    // [OUT] Flags used for mapping.
                            IntPtr szImportName,           // [OUT] Import name.
@@ -1190,7 +1195,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
                            );
 
         // S_OK or error.
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         new int EnumSignatures(IntPtr phEnum,               // [IN|OUT] pointer to the enum.
                                 IntPtr rSignatures,         // [OUT] put signatures here.
                             uint cmax,                      // [IN] max signatures to put.
@@ -1198,7 +1203,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
                             );
 
         // S_OK or error.
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         new int EnumTypeSpecs(IntPtr phEnum,              // [IN|OUT] pointer to the enum.
                                IntPtr rTypeSpecs,         // [OUT] put TypeSpecs here.
                            uint cmax,                     // [IN] max TypeSpecs to put.
@@ -1206,7 +1211,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
                            );
 
         // S_OK or error.
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         new int EnumUserStrings(IntPtr phEnum,               // [IN/OUT] pointer to the enum.
                                  IntPtr rStrings,            // [OUT] put Strings here.
                              uint cmax,                      // [IN] max Strings to put.
@@ -1214,14 +1219,14 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
                              );
 
         // S_OK or error.
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         new int GetParamForMethodIndex(uint md,                   // [IN] Method token.
                                         uint ulParamSeq,          // [IN] Parameter sequence.
                                     IntPtr ppd                    // [IN] Put Param token here.
                                     );
 
         // S_OK or error.
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         new int EnumUserStrings(IntPtr phEnum,                // [IN, OUT] COR enumerator.
                                  uint tk,                     // [IN] Token to scope the enumeration, 0 for all.
                              uint tkType,                     // [IN] Type of interest, 0 for all.
@@ -1231,7 +1236,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
                              );
 
         // S_OK or error.
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         new int GetCustomAttributeProps(uint cv,                 // [IN] CustomAttribute token.
                                          IntPtr ptkObj,          // [OUT, OPTIONAL] Put object token here.
                                      IntPtr ptkType,             // [OUT, OPTIONAL] Put AttrType token here.
@@ -1239,14 +1244,14 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
                                      IntPtr pcbSize              // [OUT, OPTIONAL] Put size of date here.
                                      );
 
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         new int FindTypeRef(uint tkResolutionScope,            // [IN] ModuleRef, AssemblyRef or TypeRef.
                              [MarshalAs(UnmanagedType.LPWStr)]
                          string szName,                        // [IN] TypeRef Name.
                          IntPtr ptr                            // [OUT] matching TypeRef.
                          );
 
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         new int GetMemberProps(uint mb,                       // The member for which to get props.
                                 IntPtr pClass,                // Put member's class here.
                             IntPtr szMember,                  // Put member's name here.
@@ -1262,7 +1267,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
                             IntPtr pcchValue                  // [OUT] size of constant string in chars, 0 for non-strings.
                             );
 
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         new int GetFieldProps(uint mb,                    // The field for which to get props.
                                IntPtr pClass,             // Put field's class here.
                            IntPtr szField,                // Put field's name here.
@@ -1277,7 +1282,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
                            );
 
         // S_OK, S_FALSE, or error.
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         new int GetPropertyProps(uint prop,                    // [IN] property token
                                   IntPtr pClass,               // [OUT] typedef containing the property declarion.
                               IntPtr szProperty,               // [OUT] Property name
@@ -1297,7 +1302,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
                               );
 
         // S_OK or error.
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         new int GetParamProps(uint tk,                       // [IN]The Parameter.
                                IntPtr pmd,                   // [OUT] Parent Method token.
                            IntPtr pulSequence,               // [OUT] Parameter sequence.
@@ -1311,7 +1316,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
                            );
 
         // S_OK or error.
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         new int GetCustomAttributeByName(uint tkObj,             // [IN] Object with Custom Attribute.
                                           [MarshalAs(UnmanagedType.LPWStr)]
                                       string szName,             // [IN] Name of desired Custom Attribute.
@@ -1320,31 +1325,31 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
                                       );
 
         // True or False.   
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         new int IsValidToken(uint tk                            // [IN] Given token.
                               );
 
         // S_OK or error.
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         new int GetNestedClassProps(uint tdNestedClass,                  // [IN] NestedClass token.
                                      IntPtr ptdEnclosingClass            // [OUT] EnclosingClass token.
                                  );
 
         // S_OK or error.
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         new int GetNativeCallConvFromSig(IntPtr pvSig,                     // [IN] Pointer to signature.
                                           uint cbSig,                      // [IN] Count of signature bytes.
                                       IntPtr pCallConv                     // [OUT] Put calling conv here (see CorPinvokemap).
                                       );
 
         // S_OK or error.
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         new int IsGlobal(uint pd,                     // [IN] Type, Field, or Method token.
                       IntPtr pbGlobal                 // [OUT] Put 1 if global, 0 otherwise.
                       );
         #endregion
 
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         int EnumGenericParams(IntPtr phEnum,                   // [IN|OUT] Pointer to the enum.    
                                uint tk,                        // [IN] TypeDef or MethodDef whose generic parameters are requested
                                IntPtr rGenericParams,          // [OUT] Put GenericParams here.   
@@ -1353,7 +1358,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
                                );
 
         // S_OK or error.
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         int GetGenericParamProps(uint gp,                       // [IN] GenericParam
                                   IntPtr pulParamSeq,           // [OUT] Index of the type parameter
                                   IntPtr pdwParamFlags,         // [OUT] Flags, for future use (e.g. variance)
@@ -1364,14 +1369,14 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
                                   IntPtr pchName                // [OUT] Put size of name (wide chars) here.
                                   );
 
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         int GetMethodSpecProps(uint mi,                   // [IN] The method instantiation
                                 IntPtr tkParent,          // [OUT] MethodDef or MemberRef
                                 IntPtr ppvSigBlob,        // [OUT] point to the blob value of meta data   
                                 IntPtr pcbSigBlob         // [OUT] actual size of signature blob  
                                 );
 
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         int EnumGenericParamConstraints(IntPtr phEnum,                       // [IN|OUT] Pointer to the enum.    
                                          uint tk,                            // [IN] GenericParam whose constraints are requested
                                          IntPtr rGenericParamConstraints,    // [OUT] Put GenericParamConstraints here.   
@@ -1380,26 +1385,26 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
                                          );
 
         // S_OK or error.
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         int GetGenericParamConstraintProps(uint gpc,                     // [IN] GenericParamConstraint
                                             IntPtr ptGenericParam,       // [OUT] GenericParam that is constrained
                                             IntPtr ptkConstraintType     // [OUT] TypeDef/Ref/Spec constraint
                                             );
 
         // S_OK or error.
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         int GetPEKind(IntPtr pdwPEKind,        // [OUT] The kind of PE (0 - not a PE)
                        IntPtr pdwMAchine       // [OUT] Machine as defined in NT header
                        );
 
         // S_OK or error.
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         int GetVersionString(IntPtr pwzBuf,             // [OUT[ Put version string here.
                               int ccBufSize,            // [IN] size of the buffer, in wide chars
                               IntPtr pccBufSize         // [OUT] Size of the version string, wide chars, including terminating nul.
                               );
 
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         int EnumMethodSpecs(IntPtr phEnum,                         // [IN|OUT] Pointer to the enum.    
                             uint tk,                               // [IN] MethodDef or MemberRef whose MethodSpecs are requested
                             IntPtr rMethodSpecs,                   // [OUT] Put MethodSpecs here.   
@@ -1412,7 +1417,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
     [ComVisible(true)]
     public interface IMetaDataAssemblyImport
     {
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         // S_OK or error.
         int GetAssemblyProps(uint mda,                   // [IN] The Assembly for which to get the properties.
                               IntPtr ppbPublicKey,       // [OUT] Pointer to the public key.
@@ -1425,7 +1430,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
                               IntPtr pdwAssemblyFlags    // [OUT] Flags.        
                               );
 
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         // S_OK or error.
         int GetAssemblyRefProps(uint mdar,                     // [IN] The AssemblyRef for which to get the properties.
                                  IntPtr ppbPublicKeyOrToken,   // [OUT] Pointer to the public key or token.
@@ -1439,7 +1444,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
                                  IntPtr pdwAssemblyRefFlags    // [OUT] Flags.
                                  );
 
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         // S_OK or error.
         int GetFileProps(uint mdf,                     // [IN] The File for which to get the properties.
                           IntPtr szName,               // [OUT] Buffer to fill with name.
@@ -1450,7 +1455,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
                           IntPtr pdwFileFlags          // [OUT] Flags.
                           );
 
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         // S_OK or error.
         int GetExportedTypeProps(uint mdct,                     // [IN] The ExportedType for which to get the properties.
                                   IntPtr szName,                // [OUT] Buffer to fill with name.
@@ -1461,7 +1466,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
                                   IntPtr pdwExportedTypeFlags   // [OUT] Flags.
                                   );
 
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         // S_OK or error.
         int GetManifestResourceProps(uint mdmr,                    // [IN] The ManifestResource for which to get the properties.
                                       IntPtr szName,               // [OUT] Buffer to fill with name.
@@ -1472,7 +1477,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
                                       IntPtr pdwResourceFlags      // [OUT] Flags.
                                       );
 
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         // S_OK or error
         int EnumAssemblyRefs(IntPtr phEnum,             // [IN|OUT] Pointer to the enum.
                               IntPtr rAssemblyRefs,     // [OUT] Put AssemblyRefs here.
@@ -1480,7 +1485,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
                               IntPtr pcTokens           // [OUT] Put # put here.
                               );
 
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         // S_OK or error
         int EnumFiles(IntPtr phEnum,              // [IN|OUT] Pointer to the enum.
                        IntPtr rFiles,             // [OUT] Put Files here.
@@ -1488,7 +1493,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
                        IntPtr pcTokens            // [OUT] Put # put here.
                        );
 
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         // S_OK or error
         int EnumExportedTypes(IntPtr phEnum,           // [IN|OUT] Pointer to the enum.
                                IntPtr rExportedTypes,  // [OUT] Put ExportedTypes here.
@@ -1496,7 +1501,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
                                IntPtr pcTokens         // [OUT] Put # put here.
                                );
 
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         // S_OK or error
         int EnumManifestResources(IntPtr phEnum,                // [IN|OUT] Pointer to the enum.
                                    IntPtr rManifestResources,   // [OUT] Put ManifestResources here.
@@ -1504,12 +1509,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
                                    IntPtr pcTokens              // [OUT] Put # put here.
                                    );
 
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         // S_OK or error
         int GetAssemblyFromScope(IntPtr ptkAssembly   // [OUT] Put token here.
                                   );
 
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         // S_OK or error
         int FindExportedTypeByName([MarshalAs(UnmanagedType.LPWStr)]
                                    string szName,                         // [IN] Name of the ExportedType.
@@ -1517,18 +1522,18 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
                                    IntPtr ptkExportedType                 // [OUT] Put the ExportedType token here.
                                    );
 
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         // S_OK or error
         int FindManifestResourceByName([MarshalAs(UnmanagedType.LPWStr)]
                                        string szName,               // [IN] Name of the ManifestResource.
                                        IntPtr ptkManifestResource   // [OUT] Put the ManifestResource token here.
                                        );
 
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         void CloseEnum(IntPtr hEnum    // Enum to be closed.
                         );
 
-        [MethodImpl(MethodImplOptions.PreserveSig)]
+        //[MethodImpl(MethodImplOptions.PreserveSig)]
         // S_OK or error
         int FindAssembliesByName([MarshalAs(UnmanagedType.LPWStr)]
                 string szAppBase,                                    // [IN] optional - can be NULL

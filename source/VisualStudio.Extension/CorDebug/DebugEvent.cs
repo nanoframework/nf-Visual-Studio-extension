@@ -1,11 +1,9 @@
-using System;
-using System.IO;
-using System.Reflection;
-using System.Diagnostics;
-using System.Collections;
-using System.Runtime.InteropServices;
-using CorDebugInterop;
-using Microsoft.Win32;
+//
+// Copyright (c) 2017 The nanoFramework project contributors
+// Portions Copyright (c) Microsoft Corporation.  All rights reserved.
+// See LICENSE file in the project root for full license information.
+//
+
 using Microsoft.VisualStudio.Debugger.Interop;
 
 namespace nanoFramework.Tools.VisualStudio.Extension

@@ -1,8 +1,12 @@
-using System;
-using System.Runtime.InteropServices;
-using System.Diagnostics;
+//
+// Copyright (c) 2017 The nanoFramework project contributors
+// Portions Copyright (c) Microsoft Corporation.  All rights reserved.
+// See LICENSE file in the project root for full license information.
+//
+
 using CorDebugInterop;
 using nanoFramework.Tools.Debugger;
+using System.Diagnostics;
 
 namespace nanoFramework.Tools.VisualStudio.Extension
 {
@@ -111,10 +115,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             uint fd = nanoCLR_TypeSystem.ClassMemberIndexFromCLRToken(fieldDef, this.Assembly);
             this.Process.SetCurrentAppDomain( this.AppDomain );
 
-            var getField = this.Engine.GetStaticFieldValueAsync(fd);
-            getField.Wait();
-
-            RuntimeValue rtv = getField.Result;
+            RuntimeValue rtv = this.Engine.GetStaticFieldValue(fd);
             ppValue = CorDebugValue.CreateValue(rtv, this.AppDomain);
 
             return COM_HResults.S_OK;
@@ -142,10 +143,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
             if (this.HasSymbols)
             {
-                var setJMC = this.Engine.Info_SetJMCAsync(fJMC, ReflectionDefinition.Kind.REFLECTION_TYPE, this.TypeDef_Index);
-                setJMC.Wait();
-
-                if (setJMC.Result)
+                if (this.Engine.Info_SetJMC(fJMC, ReflectionDefinition.Kind.REFLECTION_TYPE, this.TypeDef_Index))
                 {
                     if(!m_assembly.IsFrameworkAssembly)
                     {

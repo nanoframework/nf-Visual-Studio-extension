@@ -1,13 +1,16 @@
+//
+// Copyright (c) 2017 The nanoFramework project contributors
+// Portions Copyright (c) Microsoft Corporation.  All rights reserved.
+// See LICENSE file in the project root for full license information.
+//
+
 using CorDebugInterop;
 using Microsoft.VisualStudio.Debugger.Interop;
 using Microsoft.VisualStudio.OLE.Interop;
 using nanoFramework.Tools.Debugger;
 using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.Runtime.InteropServices;
-using System.Threading.Tasks;
 
 namespace nanoFramework.Tools.VisualStudio.Extension
 {
@@ -20,50 +23,17 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         //This can't be shared with other debugPorts, for remote attaching to multiple processes....???
         protected uint _pidNext;
 
-        public DebugPort(PortFilter portFilter, DebugPortSupplier portSupplier)
+        public NanoDeviceBase Device { get; protected set; }
+
+        public DebugPort(NanoDeviceBase device, DebugPortSupplier portSupplier)
         {
-            _name = NameFromPortFilter(portFilter);
+            _name = device.Description;
             DebugPortSupplier = portSupplier;
-            PortFilter = portFilter;
+            Device = device;
             _cpDebugPortEvents2 = new ConnectionPoint(this, typeof(IDebugPortEvents2).GUID);
             _alProcesses = ArrayList.Synchronized(new ArrayList(1));
             _pidNext = 1;
             _guid = Guid.NewGuid();
-        }
-
-        internal CorDebugProcess TryAddProcess(string name)
-        {            
-            CorDebugProcess process = null;
-
-            // TODO check this mess
-            //PortDefinition portDefinition = null;
-
-            ////this is kind of bogus.  How should the attach dialog be organized????
-
-            //switch (m_portFilter)
-            //{
-            //    case PortFilter.TcpIp:
-            //        for (int retry = 0; retry < 5; retry++)
-            //        {
-            //            try
-            //            {
-            //                portDefinition = PortDefinition.CreateInstanceForTcp(name);
-            //                break;
-            //            }
-            //            catch (System.Net.Sockets.SocketException)
-            //            {
-            //                System.Threading.Thread.Sleep(1000);
-            //            }
-            //        }
-            //        break;
-            //}
-
-            //if (portDefinition != null)
-            //{
-                //process = this.EnsureProcess(portDefinition);
-            //}
-
-            return process;
         }
 
         public bool ContainsProcess(CorDebugProcess process)
@@ -71,28 +41,26 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             return _alProcesses.Contains(process);
         }
 
-        public async Task RefreshProcessesAsync()
+        public void RefreshProcesses()
         {
-            //var nanoDeviceCommService = await NanoFrameworkPackage.Instance.GetServiceAsync(typeof(NanoDeviceCommService)) as INanoDeviceCommService;
+            ArrayList processes = new ArrayList(_alProcesses.Count + NanoFrameworkPackage.NanoDeviceCommService.DebugClient.NanoFrameworkDevices.Count);
 
-            //ArrayList processes = new ArrayList(_alProcesses.Count + nanoDeviceCommService.DebugClient.NanoFrameworkDevices.Count);
+            foreach (NanoDeviceBase device in NanoFrameworkPackage.NanoDeviceCommService.DebugClient.NanoFrameworkDevices)
+            {
+                CorDebugProcess process = EnsureProcess(device);
 
-            //foreach(NanoDeviceBase device in nanoDeviceCommService.DebugClient.NanoFrameworkDevices)
-            //{
-            //    CorDebugProcess process = EnsureProcess(device);
+                processes.Add(process);
+            }
 
-            //    processes.Add(process);
-            //}
+            for (int i = _alProcesses.Count - 1; i >= 0; i--)
+            {
+                CorDebugProcess process = (CorDebugProcess)_alProcesses[i];
 
-            //for(int i = _alProcesses.Count - 1; i >= 0; i--)
-            //{
-            //    CorDebugProcess process = (CorDebugProcess)_alProcesses[i];
-                
-            //    if (!processes.Contains(process))
-            //    {
-            //        RemoveProcess(process);
-            //    }
-            //}
+                if (!processes.Contains(process))
+                {
+                    RemoveProcess(process);
+                }
+            }
         }
 
         public DebugPortSupplier DebugPortSupplier { [System.Diagnostics.DebuggerHidden]get; protected set; }
@@ -160,8 +128,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             get { return _guid; }
         }
 
-        public PortFilter PortFilter { get;  }
-
         public string Name
         {
             [System.Diagnostics.DebuggerHidden]
@@ -173,7 +139,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             if (string.IsNullOrEmpty(deviceName))
                 throw new Exception("DebugPort.GetDeviceProcess() called with no argument");
 
-            NanoFrameworkPackage.StatusBar.Update(String.Format(Resources.ResourceStrings.StartDeviceSearch, deviceName, eachSecondRetryMaxCount));
+            NanoFrameworkPackage.MessageCentre.StartProgressMessage(String.Format(Resources.ResourceStrings.StartDeviceSearch, deviceName, eachSecondRetryMaxCount));
 
             CorDebugProcess process = this.InternalGetDeviceProcess(deviceName);
             if (process != null)
@@ -187,10 +153,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 process = this.InternalGetDeviceProcess(deviceName);
             }
 
-
-            NanoFrameworkPackage.StatusBar.Clear();
-
-            NanoFrameworkPackage.WindowPane.OutputStringThreadSafe(String.Format((process == null) 
+            NanoFrameworkPackage.MessageCentre.StopProgressMessage(String.Format((process == null) 
                                                                     ? Resources.ResourceStrings.DeviceFound
                                                                     : Resources.ResourceStrings.DeviceNotFound,
                                                                   deviceName));
@@ -209,7 +172,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         {
             CorDebugProcess process = null;
 
-            RefreshProcessesAsync().Wait();
+            RefreshProcesses();
             
             for(int i = 0; i < _alProcesses.Count; i++)
             {
@@ -229,22 +192,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             //}
                             
             return process;
-        }
-
-        public static string NameFromPortFilter(PortFilter portFilter)
-        {
-            switch (portFilter)
-            {
-                case PortFilter.Serial:
-                    return "Serial";
-                //case Debugger.PortFilter.Usb:
-                //    return "USB";
-                //case Debugger.PortFilter.TcpIp:
-                //    return "TCP/IP";
-                default:
-                    Debug.Assert(false);
-                    return "";
-            }
         }
 
         public string GetDeviceName(NanoDeviceBase device)
@@ -354,7 +301,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         int Microsoft.VisualStudio.Debugger.Interop.IDebugPort2.EnumProcesses(out IEnumDebugProcesses2 ppEnum)
         {
-            RefreshProcessesAsync().Wait();
+            RefreshProcesses();
             ppEnum = new CorDebugEnum(_alProcesses, typeof(IDebugProcess2), typeof(IEnumDebugProcesses2));
             return COM_HResults.S_OK;
         }
@@ -379,6 +326,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         int Microsoft.VisualStudio.Debugger.Interop.IDebugPortEx2.LaunchSuspended(string pszExe, string pszArgs, string pszDir, string bstrEnv, uint hStdInput, uint hStdOutput, uint hStdError, out IDebugProcess2 ppPortProcess)
         {
+            System.Windows.Forms.MessageBox.Show("Hello from LaunchSuspended!");
+
             ppPortProcess = null;
             return COM_HResults.S_OK;
         }
@@ -443,7 +392,5 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         }
 
         #endregion
-
-        public bool EnablePermiscuousWinUSB { get; set; }
     }
 }

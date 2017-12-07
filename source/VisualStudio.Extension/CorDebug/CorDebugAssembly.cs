@@ -1,92 +1,84 @@
+//
+// Copyright (c) 2017 The nanoFramework project contributors
+// Portions Copyright (c) Microsoft Corporation.  All rights reserved.
+// See LICENSE file in the project root for full license information.
+//
+
+using CorDebugInterop;
+using nanoFramework.Tools.Debugger;
+using nanoFramework.Tools.VisualStudio.Extension.MetaData;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Runtime.InteropServices;
-using System.Reflection;
 using System.IO;
-using CorDebugInterop;
-using nanoFramework.Tools.VisualStudio.Extension.MetaData;
-using nanoFramework.Tools.Debugger;
+using System.Runtime.InteropServices;
 
 namespace nanoFramework.Tools.VisualStudio.Extension
 {
     public class CorDebugAssembly : ICorDebugAssembly, ICorDebugModule, ICorDebugModule2, IDisposable
     {
-        CorDebugAppDomain m_appDomain;
-        CorDebugProcess m_process;
-        Hashtable m_htTokenCLRToPdbx;
-        Hashtable m_htTokennanoCLRToPdbx;
-        Pdbx.PdbxFile m_pdbxFile;
-        Pdbx.Assembly m_pdbxAssembly;
-        IMetaDataImport m_iMetaDataImport;
-        uint m_idx;
-        string m_name;
-        string m_path;
-        ulong m_dummyBaseAddress;
-        FileStream m_fileStream;
-        CorDebugAssembly m_primaryAssembly;
-        bool m_isFrameworkAssembly;
+        CorDebugAppDomain _appDomain;
+        CorDebugProcess _process;
+        Hashtable _htTokenCLRToPdbx;
+        Hashtable _htTokennanoCLRToPdbx;
+        Pdbx.PdbxFile _pdbxFile;
+        Pdbx.Assembly _pdbxAssembly;
+        IMetaDataImport _iMetaDataImport;
+        uint _idx;
+        string _name;
+        string _path;
+        ulong _dummyBaseAddress;
+        FileStream _fileStream;
+        CorDebugAssembly _primaryAssembly;
+        bool _isFrameworkAssembly;
+
+        // this list holds the official assemblies name
+        List<string> frameworkAssemblies_v1_0 = new List<string> {
+            "mscorlib",
+            "nanoframework.runtime.events",
+            "nanoframework.runtime.native",
+            "windows.devices.adc",
+            "windows.devices.gpio",
+            "windows.devices.i2c",
+            "windows.devices.pwm",
+            "windows.devices.serialcommunication",
+            "windows.devices.spi",
+            "windows.storage.streams",
+        };
+
+
 
         public CorDebugAssembly( CorDebugProcess process, string name, Pdbx.PdbxFile pdbxFile, uint idx )
         {
-            m_process = process;
-            m_appDomain = null;
-            m_name = name;
-            m_pdbxFile = pdbxFile;
-            m_pdbxAssembly = (pdbxFile != null) ? pdbxFile.Assembly : null;
-            m_htTokenCLRToPdbx = new Hashtable();
-            m_htTokennanoCLRToPdbx = new Hashtable();
-            m_idx = idx;
-            m_primaryAssembly = null;
-            m_isFrameworkAssembly = false;
+            _process = process;
+            _appDomain = null;
+            _name = name;
+            _pdbxFile = pdbxFile;
+            _pdbxAssembly = (pdbxFile != null) ? pdbxFile.Assembly : null;
+            _htTokenCLRToPdbx = new Hashtable();
+            _htTokennanoCLRToPdbx = new Hashtable();
+            _idx = idx;
+            _primaryAssembly = null;
+            _isFrameworkAssembly = false;
 
-            if(m_pdbxAssembly != null)
+            if(_pdbxAssembly != null)
             {
                 if (!string.IsNullOrEmpty(pdbxFile.PdbxPath))
                 {
-                    string pth = pdbxFile.PdbxPath.ToLower();
+                    string pdbxPath = pdbxFile.PdbxPath.ToLower();
 
-                    if (pth.Contains(@"\buildoutput\"))
+                    // pdbx files are supposed to be in the 'packages' folder
+                    if (pdbxPath.Contains(@"\packages\"))
                     {
-#region V4_1_FRAMEWORK_ASSEMBLIES
-                        List<string> frameworkAssemblies = new List<string> {
-                                "mfdpwsclient",
-                                "mfdpwsdevice",
-                                "mfdpwsextensions",
-                                "mfwsstack",
-                                "microsoft.spot.graphics",
-                                "microsoft.spot.hardware",
-                                "microsoft.spot.hardware.serialport",
-                                "microsoft.spot.hardware.usb",
-                                "microsoft.spot.ink",
-                                "microsoft.spot.io",
-                                "microsoft.spot.native",
-                                "microsoft.spot.net",
-                                "microsoft.spot.net.security",
-                                "microsoft.spot.time",
-                                "microsoft.spot.tinycore",
-                                "microsoft.spot.touch",
-                                "mscorlib",
-                                "system.http",
-                                "system.io",
-                                "system.net.security",
-                                "system",
-                                "system.xml.legacy",
-                                "system.xml", 
-                                                             };
-#endregion // V4_1_FRAMEWORK_ASSEMBLIES
 
-                        m_isFrameworkAssembly = (frameworkAssemblies.Contains(name.ToLower()));
-                    }
-                    else
-                    {
-                        m_isFrameworkAssembly = pdbxFile.PdbxPath.ToLower().Contains(@"\microsoft .net micro framework\");
+                        _isFrameworkAssembly = (frameworkAssemblies_v1_0.Contains(name.ToLower()));
                     }
                 }
 
-                m_pdbxAssembly.CorDebugAssembly = this;
-                foreach(Pdbx.Class c in m_pdbxAssembly.Classes)
+                _pdbxAssembly.CorDebugAssembly = this;
+
+                foreach(Pdbx.Class c in _pdbxAssembly.Classes)
                 {
                     AddTokenToHashtables( c.Token, c );
                     foreach(Pdbx.Field field in c.Fields)
@@ -114,31 +106,31 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         private bool IsPrimaryAssembly
         {
-            get { return m_primaryAssembly == null; }
+            get { return _primaryAssembly == null; }
         }
 
         public bool IsFrameworkAssembly
         {
-            get { return m_isFrameworkAssembly; }
+            get { return _isFrameworkAssembly; }
         }
 
         private FileStream EnsureFileStream()
         {
             if(this.IsPrimaryAssembly)
             {
-                if(m_path != null && m_fileStream == null)
+                if(_path != null && _fileStream == null)
                 {
-                    m_fileStream = File.OpenRead( m_path );
+                    _fileStream = File.OpenRead( _path );
 
-                    m_dummyBaseAddress = m_process.FakeLoadAssemblyIntoMemory( this );
+                    _dummyBaseAddress = _process.FakeLoadAssemblyIntoMemory( this );
                 }
 
-                return m_fileStream;
+                return _fileStream;
             }
             else
             {
-                FileStream fileStream = m_primaryAssembly.EnsureFileStream();
-                m_dummyBaseAddress = m_primaryAssembly.m_dummyBaseAddress;
+                FileStream fileStream = _primaryAssembly.EnsureFileStream();
+                _dummyBaseAddress = _primaryAssembly._dummyBaseAddress;
 
                 return fileStream;
             }
@@ -150,8 +142,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             IMetaDataImport iMetaDataImport = this.MetaDataImport;
 
             CorDebugAssembly assm = (CorDebugAssembly)MemberwiseClone();
-            assm.m_appDomain = appDomain;
-            assm.m_primaryAssembly = this;
+            assm._appDomain = appDomain;
+            assm._primaryAssembly = this;
 
             return assm;
         }
@@ -189,33 +181,30 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         public string Name
         {
-            get { return m_name; }
+            get { return _name; }
         }
 
         public bool HasSymbols
         {
-            get { return m_pdbxAssembly != null; }
+            get { return _pdbxAssembly != null; }
         }
 
         private void AddTokenToHashtables( Pdbx.Token token, object o )
         {
-            m_htTokenCLRToPdbx[token.CLR] = o;
-            m_htTokennanoCLRToPdbx[token.nanoCLR] = o;
+            _htTokenCLRToPdbx[token.CLR] = o;
+            _htTokennanoCLRToPdbx[token.nanoCLR] = o;
         }
 
         private string FindAssemblyOnDisk()
         {
-            if (m_path == null && m_pdbxAssembly != null)
+            if (_path == null && _pdbxAssembly != null)
             {
+
                 string[] pathsToTry = new string[]
-            {
-                // Look next to pdbx file
-                Path.Combine( Path.GetDirectoryName( m_pdbxFile.PdbxPath ), m_pdbxAssembly.FileName ),
-                // look next to the dll for the SDK (C:\Program Files\Microsoft .NET Micro Framework\<version>\Assemblies\le|be)
-                Path.Combine( Path.GetDirectoryName( m_pdbxFile.PdbxPath ), @"..\" + m_pdbxAssembly.FileName ),
-                // look next to the dll for the PK (SPOCLIENT\buildoutput\public\<buildtype>\client\pe\le|be)
-                Path.Combine( Path.GetDirectoryName( m_pdbxFile.PdbxPath ), @"..\..\dll\" + m_pdbxAssembly.FileName ),
-            };
+                {
+                    // Look next to pdbx file
+                    Path.Combine( Path.GetDirectoryName( _pdbxFile.PdbxPath ), _pdbxAssembly.FileName ),
+                };
 
                 for (int iPath = 0; iPath < pathsToTry.Length; iPath++)
                 {
@@ -224,18 +213,18 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     if (File.Exists(path))
                     {
                         //is this the right file?
-                        m_path = path;
+                        _path = path;
                         break;
                     }
                 }
             }
 
-            return m_path;
+            return _path;
         }
 
         private IMetaDataImport FindMetadataImport()
         {
-            Debug.Assert( m_iMetaDataImport == null );
+            Debug.Assert( _iMetaDataImport == null );
 
             IMetaDataDispenser mdd = new CorMetaDataDispenser() as IMetaDataDispenser;
             object pImport = null;
@@ -264,41 +253,41 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         {
             get
             {
-                if(m_iMetaDataImport == null)
+                if(_iMetaDataImport == null)
                 {
                     if(HasSymbols)
                     {
-                        m_iMetaDataImport = FindMetadataImport();
+                        _iMetaDataImport = FindMetadataImport();
                     }
 
-                    if(m_iMetaDataImport == null)
+                    if(_iMetaDataImport == null)
                     {
-                        m_pdbxFile = null;
-                        m_pdbxAssembly = null;
-                        m_iMetaDataImport = new MetaDataImport( this );
+                        _pdbxFile = null;
+                        _pdbxAssembly = null;
+                        _iMetaDataImport = new MetaDataImport( this );
                     }
                 }
 
-                return m_iMetaDataImport;
+                return _iMetaDataImport;
             }
         }
 
         public CorDebugProcess Process
         {
             [System.Diagnostics.DebuggerHidden]
-            get { return m_process; }
+            get { return _process; }
         }
 
         public CorDebugAppDomain AppDomain
         {
             [System.Diagnostics.DebuggerHidden]
-            get { return m_appDomain; }
+            get { return _appDomain; }
         }
 
         public uint Idx
         {
             [System.Diagnostics.DebuggerHidden]
-            get { return m_idx; }
+            get { return _idx; }
         }
 
         private CorDebugFunction GetFunctionFromToken( uint tk, Hashtable ht )
@@ -317,23 +306,20 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         public CorDebugFunction GetFunctionFromTokenCLR( uint tk )
         {
-            return GetFunctionFromToken( tk, m_htTokenCLRToPdbx );
+            return GetFunctionFromToken( tk, _htTokenCLRToPdbx );
         }
 
         public CorDebugFunction GetFunctionFromTokennanoCLR( uint tk )
         {
             if(HasSymbols)
             {
-                return GetFunctionFromToken( tk, m_htTokennanoCLRToPdbx );
+                return GetFunctionFromToken( tk, _htTokennanoCLRToPdbx );
             }
             else
             {
                 uint index = nanoCLR_TypeSystem.ClassMemberIndexFromnanoCLRToken( tk, this );
 
-                var resolveMethod = this.Process.Engine.ResolveMethodAsync(index);
-                resolveMethod.Wait();
-
-                Debugger.WireProtocol.Commands.Debugging_Resolve_Method.Result resolvedMethod = resolveMethod.Result;
+                Debugger.WireProtocol.Commands.Debugging_Resolve_Method.Result resolvedMethod = this.Process.Engine.ResolveMethod(index);
                 Debug.Assert( nanoCLR_TypeSystem.IdxAssemblyFromIndex( resolvedMethod.m_td ) == this.Idx );
 
                 uint tkMethod = nanoCLR_TypeSystem.SymbollessSupport.MethodDefTokenFromnanoCLRToken( tk );
@@ -347,7 +333,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         public Pdbx.ClassMember GetPdbxClassMemberFromTokenCLR( uint tk )
         {
-            return m_htTokenCLRToPdbx[tk] as Pdbx.ClassMember;
+            return _htTokenCLRToPdbx[tk] as Pdbx.ClassMember;
         }
 
         private CorDebugClass GetClassFromToken( uint tk, Hashtable ht )
@@ -364,13 +350,13 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         public CorDebugClass GetClassFromTokenCLR( uint tk )
         {
-            return GetClassFromToken( tk, m_htTokenCLRToPdbx );
+            return GetClassFromToken( tk, _htTokenCLRToPdbx );
         }
 
         public CorDebugClass GetClassFromTokennanoCLR( uint tk )
         {
             if(HasSymbols)
-                return GetClassFromToken( tk, m_htTokennanoCLRToPdbx );
+                return GetClassFromToken( tk, _htTokennanoCLRToPdbx );
             else
                 return new CorDebugClass( this, nanoCLR_TypeSystem.SymbollessSupport.TypeDefTokenFromnanoCLRToken( tk ) );
         }
@@ -392,17 +378,17 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         {
             if(IsPrimaryAssembly)
             {
-                if(m_iMetaDataImport != null && !(m_iMetaDataImport is MetaDataImport))
+                if(_iMetaDataImport != null && !(_iMetaDataImport is MetaDataImport))
                 {
-                    Marshal.ReleaseComObject( m_iMetaDataImport );
+                    Marshal.ReleaseComObject( _iMetaDataImport );
                 }
 
-                m_iMetaDataImport = null;
+                _iMetaDataImport = null;
 
-                if(m_fileStream != null)
+                if(_fileStream != null)
                 {
-                    ((IDisposable)m_fileStream).Dispose();
-                    m_fileStream = null;
+                    ((IDisposable)_fileStream).Dispose();
+                    _fileStream = null;
                 }
             }
 
@@ -422,7 +408,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         int ICorDebugAssembly.GetAppDomain( out ICorDebugAppDomain ppAppDomain )
         {
-            ppAppDomain = m_appDomain;
+            ppAppDomain = _appDomain;
 
             return COM_HResults.S_OK;            
         }
@@ -443,7 +429,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         int ICorDebugAssembly.GetName( uint cchName, IntPtr pcchName, IntPtr szName )
         {
-            string name = m_path != null ? m_path : m_name;
+            string name = _path != null ? _path : _name;
 
             Utility.MarshalString( name, cchName, pcchName, szName );
 
@@ -464,7 +450,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         int ICorDebugModule.GetBaseAddress( out ulong pAddress )
         {
             EnsureFileStream();
-            pAddress = m_dummyBaseAddress;
+            pAddress = _dummyBaseAddress;
 
             return COM_HResults.S_OK;            
         }
@@ -541,7 +527,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         int ICorDebugModule.GetToken( out uint pToken )
         {
-            pToken = m_pdbxAssembly.Token.CLR;
+            pToken = _pdbxAssembly.Token.CLR;
 
             return COM_HResults.S_OK;
         }
@@ -597,15 +583,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
             if (this.HasSymbols)
             {
-                var setJMC = this.Process.Engine.Info_SetJMCAsync(fJMC, ReflectionDefinition.Kind.REFLECTION_ASSEMBLY, nanoCLR_TypeSystem.IndexFromIdxAssemblyIdx(this.Idx));
-                setJMC.Wait();
-
-                if (setJMC.Result)
+                if (this.Process.Engine.Info_SetJMC(fJMC, ReflectionDefinition.Kind.REFLECTION_ASSEMBLY, nanoCLR_TypeSystem.IndexFromIdxAssemblyIdx(this.Idx)))
                 {
-                    if(!this.m_isFrameworkAssembly)
+                    if(!this._isFrameworkAssembly)
                     {
                         //now update the debugger JMC state...
-                        foreach (Pdbx.Class c in this.m_pdbxAssembly.Classes)
+                        foreach (Pdbx.Class c in this._pdbxAssembly.Classes)
                         {
                             foreach (Pdbx.Method m in c.Methods)
                             {

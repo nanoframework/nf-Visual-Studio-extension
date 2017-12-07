@@ -1,3 +1,9 @@
+//
+// Copyright (c) 2017 The nanoFramework project contributors
+// Portions Copyright (c) Microsoft Corporation.  All rights reserved.
+// See LICENSE file in the project root for full license information.
+//
+
 using CorDebugInterop;
 using Microsoft.VisualStudio.Debugger.Interop;
 using nanoFramework.Tools.Debugger;
@@ -5,17 +11,11 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Threading;
 using WireProtocol = nanoFramework.Tools.Debugger.WireProtocol;
 
 namespace nanoFramework.Tools.VisualStudio.Extension
 {
-    public class CorDebugAppDomain : ICorDebugAppDomain, 
-                                     ICorDebugAppDomain2,
-                                     IDebugProgram2,
-                                     IDebugProgramEx2,
-                                     IDebugProgramNode2,
-                                     IDebugCOMPlusProgramNode2
+    public class CorDebugAppDomain : ICorDebugAppDomain, ICorDebugAppDomain2, IDebugProgram2, IDebugProgramEx2, IDebugProgramNode2, IDebugCOMPlusProgramNode2
     {
         public const uint c_AppDomainId_ForNoAppDomainSupport = 1;
 
@@ -60,10 +60,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
             if(this.Process.Engine.Capabilities.AppDomains)
             {
-                var resolveAppDomain = this.Process.Engine.ResolveAppDomainAsync(m_id);
-                resolveAppDomain.Wait();
-
-                WireProtocol.Commands.Debugging_Resolve_AppDomain.Reply reply = resolveAppDomain.Result;
+                WireProtocol.Commands.Debugging_Resolve_AppDomain.Reply reply = this.Process.Engine.ResolveAppDomain(m_id);
 
                 if (reply != null)
                 {
@@ -79,18 +76,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             }
             else
             {
-                using (CancellationTokenSource cts = new CancellationTokenSource())
+                List<WireProtocol.Commands.DebuggingResolveAssembly> reply = this.Process.Engine.ResolveAllAssemblies();
+                assemblies = new uint[reply.Count];
+
+                for (int iAssembly = 0; iAssembly < assemblies.Length; iAssembly++)
                 {
-                    var resolveAllAssemblies = this.Process.Engine.ResolveAllAssembliesAsync(cts.Token);
-                    resolveAllAssemblies.Wait();
-
-                    List<WireProtocol.Commands.DebuggingResolveAssembly> reply = resolveAllAssemblies.Result;
-                    assemblies = new uint[reply.Count];
-
-                    for (int iAssembly = 0; iAssembly < assemblies.Length; iAssembly++)
-                    {
-                        assemblies[iAssembly] = reply[iAssembly].Idx;
-                    }
+                    assemblies[iAssembly] = reply[iAssembly].Idx;
                 }
             }
 

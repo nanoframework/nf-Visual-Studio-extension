@@ -1,11 +1,15 @@
+//
+// Copyright (c) 2017 The nanoFramework project contributors
+// Portions Copyright (c) Microsoft Corporation.  All rights reserved.
+// See LICENSE file in the project root for full license information.
+//
+
+using CorDebugInterop;
+using nanoFramework.Tools.Debugger;
 using System;
-using System.Collections;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
-using CorDebugInterop;
 using WireProtocol = nanoFramework.Tools.Debugger.WireProtocol;
-using nanoFramework.Tools.Debugger;
-using System.Threading;
 
 namespace nanoFramework.Tools.VisualStudio.Extension
 {
@@ -146,13 +150,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         private CorDebugValue GetStackFrameValue (uint dwIndex, Engine.StackValueKind kind)
         {
-            using (CancellationTokenSource cts = new CancellationTokenSource())
-            {
-                var frameValue = this.Engine.GetStackFrameValueAsync(m_chain.Thread.ID, m_depthnanoCLR, kind, dwIndex, cts.Token);
-                frameValue.Wait();
+            var stackFrameValue = this.Engine.GetStackFrameValue(m_chain.Thread.ID, m_depthnanoCLR, kind, dwIndex);
 
-                return CorDebugValue.CreateValue(frameValue.Result, this.AppDomain);
-            }
+            return CorDebugValue.CreateValue(stackFrameValue, this.AppDomain);
         }
 
         public uint Flags
@@ -327,10 +327,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         {
             uint ip = this.Function.GetILnanoCLRFromILCLR( nOffset );
 
-            var setIPO = Engine.SetIPOfStackFrameAsync(this.Thread.ID, m_depthnanoCLR, ip, 0/*compute eval depth*/);
-            setIPO.Wait();
-
-            if (setIPO.Result)
+            if (Engine.SetIPOfStackFrame(this.Thread.ID, m_depthnanoCLR, ip, 0/*compute eval depth*/))
             {
                 m_call.m_IP = ip;
                 this.m_IP = nOffset;

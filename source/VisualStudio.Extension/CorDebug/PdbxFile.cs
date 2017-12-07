@@ -1,3 +1,9 @@
+//
+// Copyright (c) 2017 The nanoFramework project contributors
+// Portions Copyright (c) Microsoft Corporation.  All rights reserved.
+// See LICENSE file in the project root for full license information.
+//
+
 #pragma warning disable 0219
 
 namespace nanoFramework.Tools.VisualStudio.Extension.Serialization.PdbxFile
@@ -186,7 +192,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.Serialization.PdbxFile
             WriteStartElement(n, ns, o, false, null);
             if (needType) WriteXsiType(@"IL", @"");
             WriteElementString(@"CLR", @"", ((global::System.String)o.@CLR_String));
-            WriteElementString(@"nanoCLR", @"", ((global::System.String)o.nanoCLR_String));
+            WriteElementString(@"nanoCLR", @"", ((global::System.String)o.@nanoCLR_String));
             WriteEndElement(o);
         }
 
@@ -211,7 +217,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.Serialization.PdbxFile
             WriteStartElement(n, ns, o, false, null);
             if (needType) WriteXsiType(@"Token", @"");
             WriteElementString(@"CLR", @"", ((global::System.String)o.@CLR_String));
-            WriteElementString(@"nanoCLR", @"", ((global::System.String)o.nanoCLR_String));
+            WriteElementString(@"nanoCLR", @"", ((global::System.String)o.@nanoCLR_String));
             WriteEndElement(o);
         }
 
@@ -763,21 +769,21 @@ namespace nanoFramework.Tools.VisualStudio.Extension.Serialization.PdbxFile
                         }
                         paramsRead[0] = true;
                     }
-                    else if (!paramsRead[1] && ((object)Reader.LocalName == (object)id17_TinyCLR && (object)Reader.NamespaceURI == (object)id2_Item))
+                    else if (!paramsRead[1] && ((object)Reader.LocalName == (object)id17_nanoCLR && (object)Reader.NamespaceURI == (object)id2_Item))
                     {
                         {
-                            o.nanoCLR_String = Reader.ReadElementString();
+                            o.@nanoCLR_String = Reader.ReadElementString();
                         }
                         paramsRead[1] = true;
                     }
                     else
                     {
-                        UnknownNode((object)o, @":CLR, :TinyCLR");
+                        UnknownNode((object)o, @":CLR, :nanoCLR");
                     }
                 }
                 else
                 {
-                    UnknownNode((object)o, @":CLR, :TinyCLR");
+                    UnknownNode((object)o, @":CLR, :nanoCLR");
                 }
                 Reader.MoveToContent();
                 CheckReaderCount(ref whileIterations8, ref readerCount8);
@@ -831,21 +837,21 @@ namespace nanoFramework.Tools.VisualStudio.Extension.Serialization.PdbxFile
                         }
                         paramsRead[0] = true;
                     }
-                    else if (!paramsRead[1] && ((object)Reader.LocalName == (object)id17_TinyCLR && (object)Reader.NamespaceURI == (object)id2_Item))
+                    else if (!paramsRead[1] && ((object)Reader.LocalName == (object)id17_nanoCLR && (object)Reader.NamespaceURI == (object)id2_Item))
                     {
                         {
-                            o.nanoCLR_String = Reader.ReadElementString();
+                            o.@nanoCLR_String = Reader.ReadElementString();
                         }
                         paramsRead[1] = true;
                     }
                     else
                     {
-                        UnknownNode((object)o, @":CLR, :TinyCLR");
+                        UnknownNode((object)o, @":CLR, :nanoCLR");
                     }
                 }
                 else
                 {
-                    UnknownNode((object)o, @":CLR, :TinyCLR");
+                    UnknownNode((object)o, @":CLR, :nanoCLR");
                 }
                 Reader.MoveToContent();
                 CheckReaderCount(ref whileIterations9, ref readerCount9);
@@ -1008,7 +1014,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.Serialization.PdbxFile
         {
         }
 
-        string id17_TinyCLR;
+        string id17_nanoCLR;
         string id9_Fields;
         string id13_HasByteCode;
         string id18_VersionStruct;
@@ -1033,7 +1039,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.Serialization.PdbxFile
 
         protected override void InitIDs()
         {
-            id17_TinyCLR = Reader.NameTable.Add(@"TinyCLR");
+            id17_nanoCLR = Reader.NameTable.Add(@"nanoCLR");
             id9_Fields = Reader.NameTable.Add(@"Fields");
             id13_HasByteCode = Reader.NameTable.Add(@"HasByteCode");
             id18_VersionStruct = Reader.NameTable.Add(@"VersionStruct");

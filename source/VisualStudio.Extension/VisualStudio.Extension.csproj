@@ -43,6 +43,7 @@
     <CodeAnalysisRuleSet>
     </CodeAnalysisRuleSet>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -56,10 +57,10 @@
     <CodeAnalysisRuleSet>
     </CodeAnalysisRuleSet>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="CorDebug\Boolean.cs" />
-    <Compile Include="CorDebug\CommandLineBuilder.cs" />
+    <Compile Include="CorDebug\Utility\Boolean.cs" />
     <Compile Include="CorDebug\COM_HResults.cs" />
     <Compile Include="CorDebug\ConnectionPoint.cs" />
     <Compile Include="CorDebug\CorDebug.cs" />
@@ -91,22 +92,23 @@
     <Compile Include="CorDebug\Pdbx.cs" />
     <Compile Include="CorDebug\PdbxFile.cs" />
     <Compile Include="CorDebug\ProcessExitException.cs" />
-    <Compile Include="CorDebug\Utility.FImplies.cs" />
-    <Compile Include="CorDebug\Utility.InRange.cs" />
-    <Compile Include="CorDebug\Utility.Kernel32.cs" />
-    <Compile Include="CorDebug\Utility.MarshalInt.cs" />
-    <Compile Include="CorDebug\Utility.MarshalString.cs" />
-    <Compile Include="CorDebug\Utility.XmlDeserialize.cs" />
+    <Compile Include="MessageCentre\MessageCentre.cs" />
+    <Compile Include="MessageCentre\MessageCentreBase.cs" />
+    <Compile Include="CorDebug\Utility\Utility.FImplies.cs" />
+    <Compile Include="CorDebug\Utility\Utility.InRange.cs" />
+    <Compile Include="CorDebug\Utility\Utility.Kernel32.cs" />
+    <Compile Include="CorDebug\Utility\Utility.MarshalInt.cs" />
+    <Compile Include="CorDebug\Utility\Utility.MarshalString.cs" />
+    <Compile Include="CorDebug\Utility\Utility.XmlDeserialize.cs" />
+    <Compile Include="DebugLauncher\CommandLineBuilder.cs" />
     <Compile Include="DebugLauncher\NanoDebuggerLaunchProvider.cs" />
     <Compile Include="DeployProvider\DeployState.cs" />
     <Compile Include="DeployProvider\DeployProvider.cs" />
-    <Compile Include="Extensions\IVsStatusbarExtensions.cs" />
     <Compile Include="Extensions\TaskExtensions.cs" />
     <Compile Include="NanoDeviceCommService\NanoDeviceCommService.cs" />
     <Compile Include="NanoDeviceCommService\SNanoDeviceCommService.cs" />
     <Compile Include="NanoDeviceCommService\INanoDeviceCommService.cs" />
     <Compile Include="Extensions\VersionExtensions.cs" />
-    <Compile Include="Extensions\IVsOutputWindowPaneExtensions.cs" />
     <Compile Include="NanoFrameworkMonikers.cs" />
     <Compile Include="ProjectSystem\GlobalPropertiesProvider.cs" />
     <Compile Include="ProjectSystem\NanoCSharpProjectConfigured.cs" />
@@ -114,9 +116,8 @@
     <Compile Include="ProjectSystem\ProjectProperties.cs" />
     <Compile Include="ProjectSystem\ProjectTreePropertiesProvider.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ProvideDebugLanguageAttribute.cs" />
+    <Compile Include="ProvideDebugEngineAttribute.cs" />
     <Compile Include="ProvideDebugPortSupplierAttribute.cs" />
-    <Compile Include="ProvideExpressLoadKeyAttribute.cs" />
     <Compile Include="Resources\ResourceStrings.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -139,12 +140,11 @@
     <Compile Include="ToolWindow.DeviceExplorer\ViewModel\ViewModelLocator.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="..\packages\nanoFramework.CoreLibrary.1.0.0-preview028\nanoFramework.CoreLibrary.1.0.0-preview028.nupkg">
-      <Link>Packages\nanoFramework.CoreLibrary.1.0.0-preview028.nupkg</Link>
+    <Content Include="..\packages\nanoFramework.CoreLibrary.1.0.0-preview038\nanoFramework.CoreLibrary.1.0.0-preview038.nupkg">
+      <Link>Packages\nanoFramework.CoreLibrary.1.0.0-preview038.nupkg</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
-    <Content Include="nanoFramework.DebugEngine.pkgdef" />
     <Content Include="Targets\NFProjectSystem.MDP.targets">
       <SubType>Designer</SubType>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -300,6 +300,11 @@
       <HintPath>..\packages\Microsoft.VisualStudio.Shell.Interop.12.0.12.0.30110\lib\Microsoft.VisualStudio.Shell.Interop.12.0.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Microsoft.VisualStudio.Shell.Interop.12.1.DesignTime, Version=12.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+      <HintPath>..\packages\Microsoft.VisualStudio.Shell.Interop.12.1.DesignTime.12.1.30328\lib\Microsoft.VisualStudio.Shell.Interop.12.1.DesignTime.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Microsoft.VisualStudio.Shell.Interop.14.0.DesignTime, Version=14.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </Reference>
@@ -337,6 +342,9 @@
     </Reference>
     <Reference Include="Microsoft.Win32.Primitives, Version=4.0.2.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Win32.Primitives.4.3.0\lib\net46\Microsoft.Win32.Primitives.dll</HintPath>
+    </Reference>
+    <Reference Include="nanoFramework.Tools.Debugger, Version=0.5.0.0, Culture=neutral, PublicKeyToken=e520bb6b53f04733, processorArchitecture=MSIL">
+      <HintPath>..\packages\nanoFramework.Tools.Debugger.Net.0.5.0-preview053\lib\net46\nanoFramework.Tools.Debugger.dll</HintPath>
     </Reference>
     <!-- reference this assembly when Configuration is Release (on Debug reference the project directly instead) -->
     <Reference Include="PresentationCore" />
@@ -452,10 +460,6 @@
       <Project>{101d57ad-d22f-4905-a992-de15e723f164}</Project>
       <Name>nanoFramework.Tools.DebugLibrary.Net</Name>
     </ProjectReference>-->
-    <ProjectReference Include="..\..\nf-debugger\source\nanoFramework.Tools.DebugLibrary.Net\nanoFramework.Tools.DebugLibrary.Net.csproj">
-      <Project>{101D57AD-D22F-4905-A992-DE15E723F164}</Project>
-      <Name>nanoFramework.Tools.DebugLibrary.Net</Name>
-    </ProjectReference>
     <ProjectReference Include="..\CSharp.AssemblyInfoTemplate\CSharp.AssemblyInfoTemplate.csproj">
       <Project>{EF2FEEDF-2D22-49F7-A51C-F6D4155A7932}</Project>
       <Name>CSharp.AssemblyInfoTemplate</Name>
@@ -665,6 +669,7 @@
     <EmbeddedResource Include="Resources\ResourceStrings.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>ResourceStrings.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="VSPackage.resx">
       <MergeWithCTO>true</MergeWithCTO>

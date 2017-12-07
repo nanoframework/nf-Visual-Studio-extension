@@ -28,11 +28,11 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
             try
             {
-                //ActivateDebugEngine();
+                ActivateDebugEngine();
             }
             catch (Exception e)
             {
-                NanoFrameworkPackage.WindowPane.InternalErrorMessage(false, String.Format("Unable to register debug engine: {0}", e.Message));
+                NanoFrameworkPackage.MessageCentre.InternalErrorMessage(false, String.Format("Unable to register debug engine: {0}", e.Message));
             }
         }
 

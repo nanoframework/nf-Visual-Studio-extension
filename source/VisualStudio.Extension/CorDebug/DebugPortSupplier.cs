@@ -1,6 +1,14 @@
+//
+// Copyright (c) 2017 The nanoFramework project contributors
+// Portions Copyright (c) Microsoft Corporation.  All rights reserved.
+// See LICENSE file in the project root for full license information.
+//
+
 using Microsoft.VisualStudio.Debugger.Interop;
 using nanoFramework.Tools.Debugger;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.InteropServices;
 
 namespace nanoFramework.Tools.VisualStudio.Extension
@@ -9,44 +17,35 @@ namespace nanoFramework.Tools.VisualStudio.Extension
     [ComVisible(true), Guid("78E48437-246C-4CA2-B66F-4B65AEED8500")]
     public class DebugPortSupplier : IDebugPortSupplier2, IDebugPortSupplierEx2, IDebugPortSupplierDescription2
     {
+        public const string PortSupplierId = "D7240956-FE4A-4324-93C9-C56975AF351E";
+
         // This Guid needs to match PortSupplierGuid
-        public static Guid PortSupplierGuid = new Guid("D7240956-FE4A-4324-93C9-C56975AF351E");
-        private static DebugPortSupplierPrivate s_portSupplier;        
+        public static Guid PortSupplierGuid => new Guid(PortSupplierId);
+
+        private static DebugPortSupplierPrivate s_portSupplier;
 
         private class DebugPortSupplierPrivate : DebugPortSupplier
         {                        
-            private DebugPort[] _ports;
+            //private DebugPort[] _ports;
             private IDebugCoreServer2 _server;
+            List<DebugPort> _ports = new List<DebugPort>();
 
             public DebugPortSupplierPrivate() : base(true)
             {
-                _ports = new DebugPort[] {
-                                            //new DebugPort(PortFilter.Emulator, this),
-                                            //new DebugPort(PortFilter.Usb, this),
-                                            new DebugPort(PortFilter.Serial, this),
-                                            //new DebugPort(PortFilter.TcpIp, this),
-                                            };
 
+                NanoDeviceBase device = NanoFrameworkPackage.NanoDeviceCommService.DebugClient.NanoFrameworkDevices[0];
+
+                _ports.Add(new DebugPort(device, this));
             }
-            
+
+
+            //public DebugPortSupplierPrivate() : base(true)
+            //{
+            //}
+
             public override DebugPort FindPort(string name)
             {
-                for(int i = 0; i < _ports.Length; i++)
-                {
-                    DebugPort port = _ports[i];
-
-                    if (String.Compare(port.Name, name, true) == 0)
-                    {
-                        return port;
-                    }
-                }
-
-                return null;
-            }
-
-            public override DebugPort[] Ports
-            {
-                get {return (DebugPort[])_ports.Clone();}
+                return _ports.FirstOrDefault(p => p.Name == name);
             }
 
             public override IDebugCoreServer2 CoreServer
@@ -55,15 +54,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 get { return _server; }
             }
 
-            private DebugPort DebugPortFromPortFilter(PortFilter portFilter)
+            public override DebugPort[] Ports
             {
-                foreach (DebugPort port in _ports)
-                {
-                    if (port.PortFilter == portFilter)
-                        return port;
-                }
-
-                return null;
+                get { return (DebugPort[])_ports.ToArray().Clone(); }
             }
 
             #region IDebugPortSupplier2 Members
@@ -76,43 +69,44 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
             new public int EnumPorts(out IEnumDebugPorts2 ppEnum)
             {
-                ppEnum = new CorDebugEnum(_ports, typeof(IDebugPort2), typeof(IEnumDebugPorts2));
+                List<IDebugPort2> ports = new List<IDebugPort2>();
+
+                foreach(NanoDeviceBase device in NanoFrameworkPackage.NanoDeviceCommService.DebugClient.NanoFrameworkDevices)
+                {
+                    ports.Add(new DebugPort(device, this));
+                }
+
+                ppEnum = new CorDebugEnum(ports, typeof(IDebugPort2), typeof(IEnumDebugPorts2));
                 return COM_HResults.S_OK;
             }
 
             new public int AddPort(IDebugPortRequest2 pRequest, out IDebugPort2 ppPort)
             {
-                string name;
 
+                string name;
                 pRequest.GetPortName(out name);
                 ppPort = FindPort(name);
 
-                if (ppPort == null)
+                if (ppPort != null)
                 {
-                    DebugPort port = _ports[(int)PortFilter.TcpIp];
-                    //hack, hack.  Abusing the Attach to dialog box to force the NetworkDevice port to 
-                    //look for a nanoCLR process
-                    if (port.TryAddProcess(name) != null)
-                    {
-                        ppPort = port;
-                    }
+                    return COM_HResults.S_OK;
                 }
 
-                return COM_HResults.BOOL_TO_HRESULT_FAIL( ppPort != null );                
+                return COM_HResults.E_FAIL;
             }
 
             new public int GetPort(ref Guid guidPort, out IDebugPort2 ppPort)
             {
-                ppPort = null;
-                foreach (DebugPort port in _ports)
+                Guid guidPortToFind = guidPort;
+
+                ppPort = _ports.FirstOrDefault(p => p.PortId == guidPortToFind);
+
+                if (ppPort != null)
                 {
-                    if (guidPort.Equals(port.PortId))
-                    {
-                        ppPort = port;
-                        break;
-                    }
+                    return COM_HResults.S_OK;
                 }
-                return COM_HResults.S_OK;
+
+                return COM_HResults.E_FAIL;
             }
 
             #endregion
@@ -142,7 +136,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 }
             }
         }
-
         public virtual DebugPort[] Ports
         {
             get { return s_portSupplier.Ports; }

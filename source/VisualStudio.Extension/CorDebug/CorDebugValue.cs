@@ -1,3 +1,9 @@
+//
+// Copyright (c) 2017 The nanoFramework project contributors
+// Portions Copyright (c) Microsoft Corporation.  All rights reserved.
+// See LICENSE file in the project root for full license information.
+//
+
 using CorDebugInterop;
 using nanoFramework.Tools.Debugger;
 using System;
@@ -610,11 +616,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         {
             Debug.Assert( value <= uint.MaxValue );
 
-            var assign = m_rtv.AssignAsync((uint)value);
-            assign.Wait();
-
-            RuntimeValue rtvNew = assign.Result;
-
+            RuntimeValue rtvNew = m_rtv.Assign((uint)value);
             this.RuntimeValue = rtvNew;
 
             return COM_HResults.S_OK;            
@@ -799,15 +801,13 @@ namespace nanoFramework.Tools.VisualStudio.Extension
          * It is left to support VS 2005.
          * We cannot remove this function since it is part of ICorDebugArrayValue interface.
          */
+         // FIXME
         
         int ICorDebugArrayValue.GetElementType( out CorElementType pType )
         {
             if (this.Count != 0)
             {
-                var getElement = m_rtv.GetElementAsync(0);
-                getElement.Wait();
-
-                pType = getElement.Result.CorElementType;
+                pType = m_rtv.GetElement(0).CorElementType;
             }
             else
             {
@@ -861,21 +861,15 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
             Debug.Assert( cdim == 1 );
 
-            var getElement = m_rtv.GetElementAsync(indices[0]);
-            getElement.Wait();
-
-            ppValue = CreateValue(getElement.Result);
+            ppValue = CreateValue(m_rtv.GetElement(indices[0]));
 
             return COM_HResults.S_OK;   
         }
 
         int ICorDebugArrayValue.GetElementAtPosition( uint nPosition, out ICorDebugValue ppValue )
         {
-            var getElement = m_rtv.GetElementAsync(nPosition);
-            getElement.Wait();
-
             //Cache values?
-            ppValue = CreateValue(getElement.Result);
+            ppValue = CreateValue(m_rtv.GetElement(nPosition));
 
             return COM_HResults.S_OK;
         }
@@ -911,10 +905,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 {
                     if (m_rtv.IsBoxed)
                     {
-                        var getField = m_rtv.GetFieldAsync(1, 0);
-                        getField.Wait();
-
-                        RuntimeValue rtv = getField.Result;
+                        RuntimeValue rtv = m_rtv.GetField(1, 0);
 
                         Debug.Assert(rtv.IsPrimitive);
 
@@ -1001,11 +992,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         int ICorDebugObjectValue.GetFieldValue( ICorDebugClass pClass, uint fieldDef, out ICorDebugValue ppValue )
         {
-            var getField = m_rtv.GetFieldAsync(0, nanoCLR_TypeSystem.ClassMemberIndexFromCLRToken(fieldDef, ((CorDebugClass)pClass).Assembly));
-            getField.Wait();
-
             //cache fields?
-            RuntimeValue rtv = getField.Result;
+            RuntimeValue rtv = m_rtv.GetField(0, nanoCLR_TypeSystem.ClassMemberIndexFromCLRToken(fieldDef, ((CorDebugClass)pClass).Assembly));
 
             ppValue = CreateValue( rtv );
 
@@ -1014,10 +1002,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         int ICorDebugObjectValue.GetVirtualMethod( uint memberRef, out ICorDebugFunction ppFunction )
         {
-            var getVirtualMethod = Engine.GetVirtualMethodAsync(nanoCLR_TypeSystem.ClassMemberIndexFromCLRToken(memberRef, this.m_class.Assembly), this.m_rtv);
-            getVirtualMethod.Wait();
-
-            uint mdVirtual = getVirtualMethod.Result;
+            uint mdVirtual = Engine.GetVirtualMethod(nanoCLR_TypeSystem.ClassMemberIndexFromCLRToken(memberRef, this.m_class.Assembly), this.m_rtv);
 
             ppFunction = nanoCLR_TypeSystem.CorDebugFunctionFromMethodIndex( mdVirtual, this.m_appDomain );
 

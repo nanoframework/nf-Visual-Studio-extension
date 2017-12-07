@@ -1,13 +1,17 @@
+//
+// Copyright (c) 2017 The nanoFramework project contributors
+// Portions Copyright (c) Microsoft Corporation.  All rights reserved.
+// See LICENSE file in the project root for full license information.
+//
+
+using CorDebugInterop;
+using nanoFramework.Tools.Debugger;
 using System;
 using System.Collections;
 using System.Diagnostics;
-using System.Runtime.InteropServices;
-using System.Reflection;
-using CorDebugInterop;
-using nanoFramework.Tools.Debugger;
 
 namespace nanoFramework.Tools.VisualStudio.Extension
-{    
+{
     public class CorDebugFunction : ICorDebugFunction , ICorDebugFunction2
     {
         CorDebugClass    m_class;
@@ -290,10 +294,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             {
                 if(fJMC != this.m_pdbxMethod.IsJMC && m_pdbxMethod.CanSetJMC)
                 {
-                    var setJMC = this.Engine.Info_SetJMCAsync(fJMC, ReflectionDefinition.Kind.REFLECTION_METHOD, this.MethodDef_Index);
-                    setJMC.Wait();
-
-                    if (setJMC.Result)
+                    if (this.Engine.Info_SetJMC(fJMC, ReflectionDefinition.Kind.REFLECTION_METHOD, this.MethodDef_Index))
                     {
                         if( !this.Assembly.IsFrameworkAssembly)
                         {

@@ -1,3 +1,9 @@
+//
+// Copyright (c) 2017 The nanoFramework project contributors
+// Portions Copyright (c) Microsoft Corporation.  All rights reserved.
+// See LICENSE file in the project root for full license information.
+//
+
 using CorDebugInterop;
 using Microsoft.VisualStudio.Debugger.Interop;
 using System;
@@ -10,14 +16,17 @@ namespace nanoFramework.Tools.VisualStudio.Extension
     [ComVisible(true), Guid("1031CDC5-1845-4930-963D-0013FE18F23B")]
     public class CorDebug : ICorDebug, IDebugRemoteCorDebug
     {
+        public const string EngineId = "B9FBFF29-0842-4F5D-82CE-F38C0B3C1F3E";
+
         // This Guid needs to match EngineGuid
-        public static Guid EngineGuid = new Guid("B9FBFF29-0842-4F5D-82CE-F38C0B3C1F3E");
+        public static Guid EngineGuid => new Guid(EngineId);
 
         private ArrayList _processes;
         private ICorDebugManagedCallback _callback;
 
         public CorDebug()
         {
+            //System.Windows.Forms.MessageBox.Show("Hello from nF DE!");
             _processes = new ArrayList(1);
         }
 
@@ -121,20 +130,20 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 CorDebugProcess process = CorDebugProcess.CreateProcessEx(pPort, lpApplicationName, lpCommandLine, lpProcessAttributes, lpThreadAttributes, bInheritHandles, dwCreationFlags, lpEnvironment, lpCurrentDirectory, ref lpStartupInfo, ref lpProcessInformation, debuggingFlags);
 
                 // StartDebugging() will either get a connected device into a debuggable state and start the dispatch thread, or throw.
-                process.StartDebugging(this, true);
+                process.StartDebugging(this, false);
                 ppProcess = process;
 
                 return COM_HResults.S_OK;
             }
             catch (ProcessExitException)
             {
-                NanoFrameworkPackage.WindowPane.OutputStringAsLine(Resources.ResourceStrings.InitializeProcessFailedProcessDied);
+                NanoFrameworkPackage.MessageCentre.DebugMessage(Resources.ResourceStrings.InitializeProcessFailedProcessDied);
                 return COM_HResults.S_FALSE;
             }
             catch (Exception ex)
             {
-                NanoFrameworkPackage.WindowPane.OutputStringAsLine(Resources.ResourceStrings.InitializeProcessFailed);
-                NanoFrameworkPackage.WindowPane.InternalErrorMessage(false, ex.Message);
+                NanoFrameworkPackage.MessageCentre.DebugMessage(Resources.ResourceStrings.InitializeProcessFailed);
+                NanoFrameworkPackage.MessageCentre.InternalErrorMessage(false, ex.Message);
                 return COM_HResults.S_FALSE;
             }
         }
@@ -144,7 +153,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             ppProcess = null;
             try
             {
-                NanoFrameworkPackage.WindowPane.OutputStringAsLine(Resources.ResourceStrings.Attach);
+                NanoFrameworkPackage.MessageCentre.DebugMessage(Resources.ResourceStrings.Attach);
                 AD_PROCESS_ID pid = new AD_PROCESS_ID();
 
                 pid.ProcessIdType = (uint) AD_PROCESS_ID_TYPE.AD_PROCESS_ID_SYSTEM;
@@ -164,13 +173,13 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             }
             catch (ProcessExitException)
             {
-                NanoFrameworkPackage.WindowPane.OutputStringAsLine(Resources.ResourceStrings.AttachFailedProcessDied);
+                NanoFrameworkPackage.MessageCentre.DebugMessage(Resources.ResourceStrings.AttachFailedProcessDied);
                 return COM_HResults.S_FALSE;
             }
             catch (Exception ex)
             {
-                NanoFrameworkPackage.WindowPane.OutputStringAsLine(Resources.ResourceStrings.AttachFailed);
-                NanoFrameworkPackage.WindowPane.InternalErrorMessage(false, ex.Message);
+                NanoFrameworkPackage.MessageCentre.DebugMessage(Resources.ResourceStrings.AttachFailed);
+                NanoFrameworkPackage.MessageCentre.InternalErrorMessage(false, ex.Message);
                 return COM_HResults.S_FALSE;
             }
        }
