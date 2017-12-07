@@ -105,7 +105,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     // retry 5 times with a 200ms interval between retries
                     while (retryCount++ < _numberOfRetries && deviceIsInInitializeState)
                     {
-                        if (!await device.DebugEngine.IsDeviceInInitializeStateAsync())
+                        if (!device.DebugEngine.IsDeviceInInitializeState())
                         {
                             // done here
                             deviceIsInInitializeState = false;
@@ -228,13 +228,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         // reboot device
                         await outputPaneWriter.WriteLineAsync("Rebooting nanoCLR on device.");
 
-                        await ThreadHelper.JoinableTaskFactory.RunAsync(async () => { await device.DebugEngine.RebootDeviceAsync(RebootOption.RebootClrOnly); });
-                        await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+                        device.DebugEngine.RebootDevice(RebootOption.RebootClrOnly);
 
                         // yield to give the UI thread a chance to respond to user input
                         await Task.Yield();
 
-                        await NanoDeviceCommService.Device.GetDeviceInfoAsync(true);
+                        NanoDeviceCommService.Device.GetDeviceInfo(true);
 
                         // yield to give the UI thread a chance to respond to user input
                         await Task.Yield();
