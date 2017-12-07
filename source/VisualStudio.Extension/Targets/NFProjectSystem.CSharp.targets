@@ -1,5 +1,15 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <PropertyGroup>
+    <TargetingClr2Framework>true</TargetingClr2Framework>
+    <_TargetFrameworkDirectories>xxxx</_TargetFrameworkDirectories>
+    <_FullFrameworkReferenceAssemblyPaths>xxx</_FullFrameworkReferenceAssemblyPaths>
+    <!--<TargetFrameworkVersion>v1.0</TargetFrameworkVersion>-->
+    <TargetFrameworkMoniker>.NETnanoFramework,Version=$(TargetFrameworkVersion)</TargetFrameworkMoniker>
+    <GenerateManifests>true</GenerateManifests>
+  </PropertyGroup>
+  
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 
   <PropertyGroup>
@@ -44,6 +54,12 @@
     <PropertyPageSchema Include="
                         $(MSBuildThisFileDirectory)Rules\general.xaml;
                         $(MSBuildThisFileDirectory)Rules\NanoFrameworkPropertyPage.xaml;
+                        ">
+      <Context>Project</Context>
+    </PropertyPageSchema>
+
+    <PropertyPageSchema Include="
+                        $(MSBuildThisFileDirectory)Rules\NanoDebugger.xaml
                         ">
       <Context>Project</Context>
     </PropertyPageSchema>

@@ -14,7 +14,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         /// </summary>
         /// <param name="pane"></param>
         /// <param name="pszOutputString">Version value to compare to.</param>
-        public static bool Equals(this Debugger.WireProtocol.Commands.DebuggingResolveAssembly.Version version, Version value)
+        public static bool Equals(this Tools.Debugger.WireProtocol.Commands.DebuggingResolveAssembly.Version version, Version value)
         {
             return (version.MajorVersion == value.Major &&
                     version.MinorVersion == value.Minor &&

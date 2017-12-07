@@ -42,6 +42,8 @@
     <CreateVsixContainer>True</CreateVsixContainer>
     <CodeAnalysisRuleSet>
     </CodeAnalysisRuleSet>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -54,8 +56,52 @@
     <CreateVsixContainer>True</CreateVsixContainer>
     <CodeAnalysisRuleSet>
     </CodeAnalysisRuleSet>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="CorDebug\Utility\Boolean.cs" />
+    <Compile Include="CorDebug\COM_HResults.cs" />
+    <Compile Include="CorDebug\ConnectionPoint.cs" />
+    <Compile Include="CorDebug\CorDebug.cs" />
+    <Compile Include="CorDebug\CorDebugAppDomain.cs" />
+    <Compile Include="CorDebug\CorDebugAssembly.cs" />
+    <Compile Include="CorDebug\CorDebugBreakpoint.cs" />
+    <Compile Include="CorDebug\CorDebugBreakpointStepper.cs" />
+    <Compile Include="CorDebug\CorDebugChain.cs" />
+    <Compile Include="CorDebug\CorDebugClass.cs" />
+    <Compile Include="CorDebug\CorDebugCode.cs" />
+    <Compile Include="CorDebug\CorDebugEnum.cs" />
+    <Compile Include="CorDebug\CorDebugEval.cs" />
+    <Compile Include="CorDebug\CorDebugFrame.cs" />
+    <Compile Include="CorDebug\CorDebugFunction.cs" />
+    <Compile Include="CorDebug\CorDebugProcess.cs" />
+    <Compile Include="CorDebug\CorDebugStepper.cs" />
+    <Compile Include="CorDebug\CorDebugThread.cs" />
+    <Compile Include="CorDebug\CorDebugType.cs" />
+    <Compile Include="CorDebug\CorDebugValue.cs" />
+    <Compile Include="CorDebug\DebugEvent.cs" />
+    <Compile Include="CorDebug\DebuggerInteropConstants.cs" />
+    <Compile Include="CorDebug\DebugPort.cs" />
+    <Compile Include="CorDebug\DebugPortSupplier.cs" />
+    <Compile Include="CorDebug\ICorDebugInterop.cs" />
+    <Compile Include="CorDebug\ManagedCallbacks.cs" />
+    <Compile Include="CorDebug\MetaDataImport.cs" />
+    <Compile Include="CorDebug\MetaDataImportInterface.cs" />
+    <Compile Include="CorDebug\nanoCLR_TypeSystem.cs" />
+    <Compile Include="CorDebug\Pdbx.cs" />
+    <Compile Include="CorDebug\PdbxFile.cs" />
+    <Compile Include="CorDebug\ProcessExitException.cs" />
+    <Compile Include="MessageCentre\MessageCentre.cs" />
+    <Compile Include="MessageCentre\MessageCentreBase.cs" />
+    <Compile Include="CorDebug\Utility\Utility.FImplies.cs" />
+    <Compile Include="CorDebug\Utility\Utility.InRange.cs" />
+    <Compile Include="CorDebug\Utility\Utility.Kernel32.cs" />
+    <Compile Include="CorDebug\Utility\Utility.MarshalInt.cs" />
+    <Compile Include="CorDebug\Utility\Utility.MarshalString.cs" />
+    <Compile Include="CorDebug\Utility\Utility.XmlDeserialize.cs" />
+    <Compile Include="DebugLauncher\CommandLineBuilder.cs" />
+    <Compile Include="DebugLauncher\NanoDebuggerLaunchProvider.cs" />
     <Compile Include="DeployProvider\DeployState.cs" />
     <Compile Include="DeployProvider\DeployProvider.cs" />
     <Compile Include="Extensions\TaskExtensions.cs" />
@@ -63,7 +109,6 @@
     <Compile Include="NanoDeviceCommService\SNanoDeviceCommService.cs" />
     <Compile Include="NanoDeviceCommService\INanoDeviceCommService.cs" />
     <Compile Include="Extensions\VersionExtensions.cs" />
-    <Compile Include="Extensions\IVsOutputWindowPaneExtensions.cs" />
     <Compile Include="NanoFrameworkMonikers.cs" />
     <Compile Include="ProjectSystem\GlobalPropertiesProvider.cs" />
     <Compile Include="ProjectSystem\NanoCSharpProjectConfigured.cs" />
@@ -71,6 +116,8 @@
     <Compile Include="ProjectSystem\ProjectProperties.cs" />
     <Compile Include="ProjectSystem\ProjectTreePropertiesProvider.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ProvideDebugEngineAttribute.cs" />
+    <Compile Include="ProvideDebugPortSupplierAttribute.cs" />
     <Compile Include="Resources\ResourceStrings.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -93,8 +140,8 @@
     <Compile Include="ToolWindow.DeviceExplorer\ViewModel\ViewModelLocator.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="..\packages\nanoFramework.CoreLibrary.1.0.0-preview028\nanoFramework.CoreLibrary.1.0.0-preview028.nupkg">
-      <Link>Packages\nanoFramework.CoreLibrary.1.0.0-preview028.nupkg</Link>
+    <Content Include="..\packages\nanoFramework.CoreLibrary.1.0.0-preview038\nanoFramework.CoreLibrary.1.0.0-preview038.nupkg">
+      <Link>Packages\nanoFramework.CoreLibrary.1.0.0-preview038.nupkg</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
@@ -124,15 +171,16 @@
     <Content Include="Resources\Ping.16.16.png" />
     <None Include="FodyWeavers.xml" />
     <Resource Include="Resources\DeviceConnected.16.16.png" />
-    <Content Include="NanoFrameworkMoniker.vsct">
+    <VSCTCompile Include="NanoFrameworkMoniker.vsct">
       <SubType>Designer</SubType>
-    </Content>
+    </VSCTCompile>
     <Resource Include="Resources\NanoFramework.16.16.png" />
     <Content Include="NanoFrameworkMoniker.imagemanifest">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
-    <VSCTCompile Include="ToolWindow.DeviceExplorer\DeviceExplorerPackage.vsct">
+    <VSCTCompile Include="NanoFrameworkPackage.vsct">
       <ResourceName>Menus.ctmenu</ResourceName>
+      <SubType>Designer</SubType>
     </VSCTCompile>
     <None Include="app.config" />
     <Content Include="Targets\NFProjectSystem.props">
@@ -191,6 +239,18 @@
       <HintPath>..\packages\Microsoft.VisualStudio.CoreUtility.15.4.27004\lib\net45\Microsoft.VisualStudio.CoreUtility.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Microsoft.VisualStudio.Debugger.Engine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.VisualStudio.Debugger.Engine.15.0.26606\lib\net45\Microsoft.VisualStudio.Debugger.Engine.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.VisualStudio.Debugger.Interop.11.0, Version=11.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.VisualStudio.Debugger.Interop.11.0.11.0.50727\lib\Microsoft.VisualStudio.Debugger.Interop.11.0.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.VisualStudio.Debugger.InteropA, Version=9.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+      <HintPath>..\packages\Microsoft.VisualStudio.Debugger.InteropA.9.0.21022\lib\Microsoft.VisualStudio.Debugger.InteropA.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Microsoft.VisualStudio.ImageCatalog, Version=15.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
     <Reference Include="Microsoft.VisualStudio.Imaging, Version=15.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.VisualStudio.Imaging.15.4.27004\lib\net45\Microsoft.VisualStudio.Imaging.dll</HintPath>
@@ -240,6 +300,11 @@
       <HintPath>..\packages\Microsoft.VisualStudio.Shell.Interop.12.0.12.0.30110\lib\Microsoft.VisualStudio.Shell.Interop.12.0.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Microsoft.VisualStudio.Shell.Interop.12.1.DesignTime, Version=12.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+      <HintPath>..\packages\Microsoft.VisualStudio.Shell.Interop.12.1.DesignTime.12.1.30328\lib\Microsoft.VisualStudio.Shell.Interop.12.1.DesignTime.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Microsoft.VisualStudio.Shell.Interop.14.0.DesignTime, Version=14.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </Reference>
@@ -279,7 +344,7 @@
       <HintPath>..\packages\Microsoft.Win32.Primitives.4.3.0\lib\net46\Microsoft.Win32.Primitives.dll</HintPath>
     </Reference>
     <Reference Include="nanoFramework.Tools.Debugger, Version=0.5.0.0, Culture=neutral, PublicKeyToken=e520bb6b53f04733, processorArchitecture=MSIL">
-      <HintPath>..\packages\nanoFramework.Tools.Debugger.Net.0.5.0-preview030\lib\net46\nanoFramework.Tools.Debugger.dll</HintPath>
+      <HintPath>..\packages\nanoFramework.Tools.Debugger.Net.0.5.0-preview054\lib\net46\nanoFramework.Tools.Debugger.dll</HintPath>
     </Reference>
     <!-- reference this assembly when Configuration is Release (on Debug reference the project directly instead) -->
     <Reference Include="PresentationCore" />
@@ -497,6 +562,12 @@
       <VSIXSubPath>nanoFramework\v1.0\Rules\</VSIXSubPath>
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
+    <Content Include="Rules\NanoDebugger.xaml">
+      <SubType>Designer</SubType>
+      <InstallRoot>MSBuild</InstallRoot>
+      <VSIXSubPath>nanoFramework\v1.0\Rules\</VSIXSubPath>
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
     <Content Include="Rules\debugger_general.xaml">
       <SubType>Designer</SubType>
       <InstallRoot>MSBuild</InstallRoot>
@@ -583,6 +654,9 @@
     <XamlPropertyRule Include="Rules\none.xaml">
       <SubType>Designer</SubType>
     </XamlPropertyRule>
+    <XamlPropertyRule Include="Rules\NanoDebugger.xaml">
+      <SubType>Designer</SubType>
+    </XamlPropertyRule>
     <XamlPropertyRule Include="Rules\scc.xaml">
       <SubType>Designer</SubType>
     </XamlPropertyRule>
@@ -595,11 +669,13 @@
     <EmbeddedResource Include="Resources\ResourceStrings.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>ResourceStrings.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="VSPackage.resx">
       <MergeWithCTO>true</MergeWithCTO>
     </EmbeddedResource>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(VSToolsPath)\VSSDK\Microsoft.VsSDK.targets" Condition="'$(VSToolsPath)' != ''" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

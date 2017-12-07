@@ -272,7 +272,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
                     // reset property to force that device capabilities are retrieved on next connection
                     LastDeviceConnectedHash = 0;
 
-                    await SelectedDevice.DebugEngine.RebootDeviceAsync(RebootOption.NormalReboot).ConfigureAwait(true);
+                    SelectedDevice.DebugEngine.RebootDevice(RebootOption.NormalReboot);
                 });
             }
         }

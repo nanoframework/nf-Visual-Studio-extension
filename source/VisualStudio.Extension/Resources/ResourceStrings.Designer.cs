@@ -19,7 +19,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.Resources {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "4.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "15.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class ResourceStrings {
@@ -61,7 +61,124 @@ namespace nanoFramework.Tools.VisualStudio.Extension.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to ERROR: Timeout waiting for device to leave initialization state. Try reset the device and reconnect in Device Explorer tool window..
+        ///   Looks up a localized string similar to Attempting to attach to the nanoDevice for debugging....
+        /// </summary>
+        internal static string Attach {
+            get {
+                return ResourceManager.GetString("Attach", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Attach failed..
+        /// </summary>
+        internal static string AttachFailed {
+            get {
+                return ResourceManager.GetString("AttachFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Attach failed because  an internal error caused the process to terminate..
+        /// </summary>
+        internal static string AttachFailedProcessDied {
+            get {
+                return ResourceManager.GetString("AttachFailedProcessDied", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Attaching to nanoDevice....
+        /// </summary>
+        internal static string AttachingToDevice {
+            get {
+                return ResourceManager.GetString("AttachingToDevice", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to CorDebugProcess not properly initialized (m_pid == 0).
+        /// </summary>
+        internal static string BogusCorDebugProcess {
+            get {
+                return ResourceManager.GetString("BogusCorDebugProcess", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Could not reconnect to the debugging target after rebooting it..
+        /// </summary>
+        internal static string CouldNotReconnect {
+            get {
+                return ResourceManager.GetString("CouldNotReconnect", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Debugger engine could not attach to the nanoDevice target..
+        /// </summary>
+        internal static string DebugEngineAttachmentFailure {
+            get {
+                return ResourceManager.GetString("DebugEngineAttachmentFailure", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The debugger engine thread has terminated unexpectedly with error &apos;{0}&apos;..
+        /// </summary>
+        internal static string DebuggerThreadTerminated {
+            get {
+                return ResourceManager.GetString("DebuggerThreadTerminated", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to nanoDevice debugging starting....
+        /// </summary>
+        internal static string DebuggingStarting {
+            get {
+                return ResourceManager.GetString("DebuggingStarting", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The nanoDevice target could not be found..
+        /// </summary>
+        internal static string DebuggingTargetNotFound {
+            get {
+                return ResourceManager.GetString("DebuggingTargetNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Deployment error: the debugging failed to initialize because of device errors..
+        /// </summary>
+        internal static string DeploymentErrorDeviceErrors {
+            get {
+                return ResourceManager.GetString("DeploymentErrorDeviceErrors", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Deployment error: failed to (re)connect debugger engine to nanoDevice target..
+        /// </summary>
+        internal static string DeploymentErrorReconnect {
+            get {
+                return ResourceManager.GetString("DeploymentErrorReconnect", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Device &quot;{0}&quot; identified.
+        /// </summary>
+        internal static string DeviceFound {
+            get {
+                return ResourceManager.GetString("DeviceFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to ERROR: Timeout waiting for nanoDevice to leave initialization state. Try reset the device and reconnect in Device Explorer tool window..
         /// </summary>
         internal static string DeviceInitializationTimeout {
             get {
@@ -70,7 +187,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Device is initialized.
+        ///   Looks up a localized string similar to nanoDevice is initialized.
         /// </summary>
         internal static string DeviceInitialized {
             get {
@@ -79,7 +196,115 @@ namespace nanoFramework.Tools.VisualStudio.Extension.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Waiting for device to initialize....
+        ///   Looks up a localized string similar to Device &quot;{0}&quot; was not found.
+        /// </summary>
+        internal static string DeviceNotFound {
+            get {
+                return ResourceManager.GetString("DeviceNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The debugger engine is listening to debug events from the nanoDevice target.
+        /// </summary>
+        internal static string DispatchEvents {
+            get {
+                return ResourceManager.GetString("DispatchEvents", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The debugger engine failed to receive any debug events from the nanoDevice target.
+        /// </summary>
+        internal static string DispatchEventsFailed {
+            get {
+                return ResourceManager.GetString("DispatchEventsFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The nanoDevice target and the debugger engine failed to initialize because of unspecified device errors..
+        /// </summary>
+        internal static string InitializationFailed {
+            get {
+                return ResourceManager.GetString("InitializationFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The initialization of the debugging process failed..
+        /// </summary>
+        internal static string InitializeProcessFailed {
+            get {
+                return ResourceManager.GetString("InitializeProcessFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The initialization of the debugging process failed because an internal error caused the process to terminate..
+        /// </summary>
+        internal static string InitializeProcessFailedProcessDied {
+            get {
+                return ResourceManager.GetString("InitializeProcessFailedProcessDied", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The nanoDevice runtime is loading the application assemblies and starting execution..
+        /// </summary>
+        internal static string LoadAssemblies {
+            get {
+                return ResourceManager.GetString("LoadAssemblies", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Updating information about assemblies on the debugging target..
+        /// </summary>
+        internal static string LoadedAssembliesInformation {
+            get {
+                return ResourceManager.GetString("LoadedAssembliesInformation", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The debugging target is not in an initialized state; rebooting....
+        /// </summary>
+        internal static string Rebooting {
+            get {
+                return ResourceManager.GetString("Rebooting", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Updating thread list.
+        /// </summary>
+        internal static string RunningThreadsInformation {
+            get {
+                return ResourceManager.GetString("RunningThreadsInformation", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Waiting for the nanoDevice target {0} to connect to the debugger engine....
+        /// </summary>
+        internal static string StartDeviceSearch {
+            get {
+                return ResourceManager.GetString("StartDeviceSearch", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The nanoDevice target initialized successfully..
+        /// </summary>
+        internal static string TargetInitializeSuccess {
+            get {
+                return ResourceManager.GetString("TargetInitializeSuccess", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Waiting for nanoDevice to initialize....
         /// </summary>
         internal static string WaitingDeviceInitialization {
             get {

@@ -43,8 +43,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             if (deviceId != null)
             {
                 // check if this device is available
-                device = DebugClient.NanoFrameworkDevices.First(d => d.Description == deviceId);
-
+                device = DebugClient.NanoFrameworkDevices.FirstOrDefault(d => d.Description == deviceId);
             }
 
             Device = device;
@@ -59,7 +58,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             }
             else
             {
-                return await DebugClient.NanoFrameworkDevices.First(d => d.Description == deviceId).DebugEngine.ConnectAsync(timeout, true);
+                return await DebugClient.NanoFrameworkDevices.FirstOrDefault(d => d.Description == deviceId).DebugEngine.ConnectAsync(timeout, true);
             }
         }
     }
