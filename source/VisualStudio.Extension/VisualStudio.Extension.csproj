@@ -344,7 +344,7 @@
       <HintPath>..\packages\Microsoft.Win32.Primitives.4.3.0\lib\net46\Microsoft.Win32.Primitives.dll</HintPath>
     </Reference>
     <Reference Include="nanoFramework.Tools.Debugger, Version=0.5.0.0, Culture=neutral, PublicKeyToken=e520bb6b53f04733, processorArchitecture=MSIL">
-      <HintPath>..\packages\nanoFramework.Tools.Debugger.Net.0.5.0-preview054\lib\net46\nanoFramework.Tools.Debugger.dll</HintPath>
+      <HintPath>..\packages\nanoFramework.Tools.Debugger.Net.0.5.0-preview056\lib\net46\nanoFramework.Tools.Debugger.dll</HintPath>
     </Reference>
     <!-- reference this assembly when Configuration is Release (on Debug reference the project directly instead) -->
     <Reference Include="PresentationCore" />
