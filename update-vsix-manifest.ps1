@@ -1,4 +1,4 @@
-$publishVersion = $Env:GitVersion_MajorMinorPatch
+$publishVersion = $Env:GitVersion_MajorMinorPatch+"."+$Env:GitVersion_PreReleaseNumber
 
 # Regular expression pattern to find the version in the build number 
 # and then apply it to the assemblies
