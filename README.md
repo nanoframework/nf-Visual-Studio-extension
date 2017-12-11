@@ -25,7 +25,7 @@ Join our Slack community by filling in this [invite form](https://nanoframework.
 
 **nanoFramework** Visual Studio extension is distributed through Visual Studio Marketplace. This is for the stable version.
 
-In case you want to be in the bleeding edge of technology and use the new stuff (or interested in trying out preview versions and provide valuable feedback) you can do that by adding the **nanoFramework** Vsix feed hosted in [MyGet](https://www.myget.org/feed/Packages/nanoframework-dev).
+In case you want to be in the bleeding edge of technology and use the new stuff (or interested in trying out preview versions and provide valuable feedback) you can do that by adding the **nanoFramework** Vsix feed hosted in [MyGet](https://www.myget.org/gallery/nanoframework-dev).
 
 Please follow the instructions [here](http://docs.myget.org/docs/walkthrough/getting-started-with-vsix#Working_with_your_Vsix_feed) on how to add the feed to your Visual Studio instance. 
 Use this URL for the feed: `https://www.myget.org/F/nanoframework-dev/vsix/`.
