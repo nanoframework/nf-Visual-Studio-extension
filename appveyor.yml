@@ -55,7 +55,7 @@
 
       gitversion /l console /output buildserver /updateAssemblyInfo source\VisualStudio.Extension\Properties\AssemblyInfo.cs /ensureassemblyinfo
 
-      .\update-vsix-manifest.ps1
+      .\update-vsix-manifest.ps1 $env:GitVersion_MajorMinorPatch
 
   build_script:
   - ps: >-
@@ -149,7 +149,7 @@
 
       gitversion /l console /output buildserver /updateAssemblyInfo source\VisualStudio.Extension\Properties\AssemblyInfo.cs /ensureassemblyinfo
 
-      .\update-vsix-manifest.ps1
+      .\update-vsix-manifest.ps1 $env:GitVersion_Major"."$env:GitVersion_Minor"."$env:GitVersion_CommitsSinceVersionSource
 
   build_script:
   - ps: >-
@@ -253,7 +253,7 @@
 
       gitversion /l console /output buildserver /updateAssemblyInfo source\VisualStudio.Extension\Properties\AssemblyInfo.cs /ensureassemblyinfo
 
-      .\update-vsix-manifest.ps1
+      .\update-vsix-manifest.ps1 $env:GitVersion_Major"."$env:GitVersion_Minor"."$env:GitVersion_CommitsSinceVersionSource
 
   build_script:
   - ps: >-

@@ -6,7 +6,7 @@ assembly-informational-format: '{LegacySemVerPadded}'
 major-version-bump-message: '\+semver:\s?(breaking|major)'
 minor-version-bump-message: '\+semver:\s?(feature|minor)'
 patch-version-bump-message: '\+semver:\s?(fix|patch)'
-commit-message-incrementing: MergeMessageOnly
+commit-message-incrementing: Enabled
 branches:
   master:
     mode: ContinuousDelivery
