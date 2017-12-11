@@ -284,18 +284,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     _engine.OnNoise -= new NoiseEventHandler(OnNoise);
                     _engine.OnProcessExit -= new EventHandler(OnProcessExit);
 
-                    try
-                    {
-                        _engine.Stop();
-                        //_engine.Dispose();
-                    }
-                    catch
-                    {
-                        // Depending on when we get called, stopping the engine 
-                        // throws anything from NullReferenceException, ArgumentNullException, IOException, etc.
-                    }
-
-                    //_engine = null;
                     GC.WaitForPendingFinalizers();
                 }
             }
@@ -487,58 +475,48 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             }
         }
 
-        //[MethodImpl(MethodImplOptions.Synchronized)]
         private void UpdateExecutionIfNecessary()
         {
-            //_classSemaphore.Wait();
+            DebugAssert(_cStopped >= 0);
 
-            try
+            if (_cStopped > 0)
             {
-                DebugAssert(_cStopped >= 0);
+                PauseExecution();
+            }
+            else if (!AnyQueuedEvents)
+            {
+                if (IsExecutionPaused)
+                {
+                    /*
+                        * cStopped count is not maintained on the nanoCLR.
+                        * There is a race condition where we try to resume execution
+                        * while the nanoCLR is telling us that a breakpoint is hit.  Specifically,
+                        * the following can occur.
+                        *
+                        * 1.  CorDebug tells nanoCLR to resume
+                        * 2.  nanoCLR hits a breakpoint
+                        * 3.  CorDebug tells nanoCLR to stop
+                        * 4.  CorDebug tells nanoCLR to resume
+                        * 5.  CorDebug is notified that breakpoint is hit.
+                        *
+                        * Draining breakpoints is necessary here to avoid the race condition
+                        * that step 4 should not be allowed to occur until all breakpoints are drained.
+                        * This amounts to breakpoints being skipped.
+                        *
+                        * Note the asymmetry here.  CorDebug can at any time tell nanoCLR to stop, and be sure that execution
+                        * is stopped.  But CorDebug should not tell nanoCLR to resume execution if there are any outstanding
+                        * breakpoints available, regardless of whether CorDebug has been notified yet.
+                        */
+                    DrainBreakpointsAsync().Wait();
 
-                if (_cStopped > 0)
-                {
-                    PauseExecution();
-                }
-                else if (!AnyQueuedEvents)
-                {
-                    if (IsExecutionPaused)
+                    if (!AnyQueuedEvents)
                     {
-                        /*
-                         * cStopped count is not maintained on the nanoCLR.
-                         * There is a race condition where we try to resume execution
-                         * while the nanoCLR is telling us that a breakpoint is hit.  Specifically,
-                         * the following can occur.
-                         *
-                         * 1.  CorDebug tells nanoCLR to resume
-                         * 2.  nanoCLR hits a breakpoint
-                         * 3.  CorDebug tells nanoCLR to stop
-                         * 4.  CorDebug tells nanoCLR to resume
-                         * 5.  CorDebug is notified that breakpoint is hit.
-                         *
-                         * Draining breakpoints is necessary here to avoid the race condition
-                         * that step 4 should not be allowed to occur until all breakpoints are drained.
-                         * This amounts to breakpoints being skipped.
-                         *
-                         * Note the asymmetry here.  CorDebug can at any time tell nanoCLR to stop, and be sure that execution
-                         * is stopped.  But CorDebug should not tell nanoCLR to resume execution if there are any outstanding
-                         * breakpoints available, regardless of whether CorDebug has been notified yet.
-                         */
-                        DrainBreakpointsAsync().Wait();
-
-                        if (!AnyQueuedEvents)
-                        {
-                            ResumeExecution();
-                        }
+                        ResumeExecution();
                     }
                 }
+            }
 
-                DebugAssert(_cStopped >= 0);
-            }
-            finally
-            {
-                //_classSemaphore.Release();
-            }
+            DebugAssert(_cStopped >= 0);
         }
 
         private void DispatchEvents()
@@ -914,28 +892,17 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         {
             get { return _executionPaused; }
 
-            ////[MethodImpl(MethodImplOptions.Synchronized)]
             set
             {
-                //_classSemaphore.Wait();
+                _executionPaused = value;
 
-                try
-                {
-                    _executionPaused = value;
-
-                    if (_executionPaused)
-                        _eventExecutionPaused.Set();
-                    else
-                        _eventExecutionPaused.Reset();
-                }
-                finally
-                {
-                    //_classSemaphore.Release();
-                }
+                if (_executionPaused)
+                    _eventExecutionPaused.Set();
+                else
+                    _eventExecutionPaused.Reset();
             }
         }
 
-        ////[MethodImpl(MethodImplOptions.Synchronized)]
         public void PauseExecution()
         {
             if (!IsExecutionPaused)
@@ -1542,7 +1509,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         }
 
-        //[MethodImpl(MethodImplOptions.Synchronized)]
         public async System.Threading.Tasks.Task DrainBreakpointsAsync()
         {
             bool fStopExecution = false;
@@ -1618,7 +1584,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             }
         }
 
-        //[MethodImpl(MethodImplOptions.Synchronized)]
         public async void OnCommandAsync(IncomingMessage msg, bool fReply)
         {
             switch (msg.Header.Cmd)
