@@ -55,6 +55,8 @@
 
       gitversion /l console /output buildserver /updateAssemblyInfo source\VisualStudio.Extension\Properties\AssemblyInfo.cs /ensureassemblyinfo
 
+      .\update-vsix-manifest.ps1
+
   build_script:
   - ps: >-
 
@@ -146,6 +148,8 @@
       nuget restore source\nanoFramework.Tools.VisualStudio.sln
 
       gitversion /l console /output buildserver /updateAssemblyInfo source\VisualStudio.Extension\Properties\AssemblyInfo.cs /ensureassemblyinfo
+
+      .\update-vsix-manifest.ps1
 
   build_script:
   - ps: >-
@@ -248,6 +252,8 @@
       nuget restore source\nanoFramework.Tools.VisualStudio.sln
 
       gitversion /l console /output buildserver /updateAssemblyInfo source\VisualStudio.Extension\Properties\AssemblyInfo.cs /ensureassemblyinfo
+
+      .\update-vsix-manifest.ps1
 
   build_script:
   - ps: >-
