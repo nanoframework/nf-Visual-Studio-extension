@@ -1,4 +1,13 @@
-$publishVersion = $Env:GitVersion_MajorMinorPatch+"."+$Env:GitVersion_BuildMetaData
+if ($env:APPVEYOR_PULL_REQUEST_NUMBER)
+{
+    # version for pull requests
+    $publishVersion = $Env:GitVersion_MajorMinorPatch+"."+$Env:GitVersion_CommitsSinceVersionSource     
+}
+else 
+{
+    # version for commits other than PRs
+    $publishVersion = $Env:GitVersion_AssemblySemVer    
+}
 
 # Regular expression pattern to find the version in the build number 
 # and then apply it to the assemblies
