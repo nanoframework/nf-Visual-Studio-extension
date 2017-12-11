@@ -24,6 +24,6 @@ branches:
     tag: rc
   (pull|pull\-requests|pr)[/-]:
     tag: alpha
-    increment: Patch
+    increment: Patch    
 ignore:
   sha: []
