@@ -14,11 +14,15 @@ branches:
   develop:
     mode: ContinuousDeployment
     tag: preview
+    increment: Patch
     prevent-increment-of-merged-branch-version: false
     track-merge-target: true
   release:
     tag: rc
   (pull|pull\-requests|pr)[/-]:
+    mode: ContinuousDeployment
+    increment: Inherit
     tag: alpha
+    track-merge-target: true
 ignore:
   sha: []
