@@ -3,9 +3,8 @@
 
   <PropertyGroup>
     <TargetingClr2Framework>true</TargetingClr2Framework>
-    <_TargetFrameworkDirectories>xxxx</_TargetFrameworkDirectories>
-    <_FullFrameworkReferenceAssemblyPaths>xxx</_FullFrameworkReferenceAssemblyPaths>
-    <!--<TargetFrameworkVersion>v1.0</TargetFrameworkVersion>-->
+    <_TargetFrameworkDirectories>$(MSBuildThisFileDirectory)</_TargetFrameworkDirectories>
+    <_FullFrameworkReferenceAssemblyPaths>$(MSBuildThisFileDirectory)</_FullFrameworkReferenceAssemblyPaths>
     <TargetFrameworkMoniker>.NETnanoFramework,Version=$(TargetFrameworkVersion)</TargetFrameworkMoniker>
     <GenerateManifests>true</GenerateManifests>
   </PropertyGroup>
