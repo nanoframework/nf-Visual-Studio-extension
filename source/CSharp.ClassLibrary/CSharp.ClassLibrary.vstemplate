@@ -5,7 +5,6 @@
     <Description>A project for a nanoFramework class library (DLL) to be used in other projects.</Description>
     <Icon>CSLibrary.ico</Icon>
     <ProjectType>CSharp</ProjectType>
-    <RequiredFrameworkVersion>4.6</RequiredFrameworkVersion>
     <SortOrder>1000</SortOrder>
     <TemplateID>6DD46685-5662-4BE2-9E42-1A46A3209292</TemplateID>
     <CreateNewFolder>true</CreateNewFolder>
