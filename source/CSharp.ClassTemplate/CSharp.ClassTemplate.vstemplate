@@ -8,7 +8,6 @@
     <AppliesTo>CSharp</AppliesTo>
     <Icon>CSClassFile.ico</Icon>
     <TemplateID>2202056b-59a6-4362-b498-df418a940084</TemplateID>
-    <RequiredFrameworkVersion>4.6</RequiredFrameworkVersion>
     <NumberOfParentCategoriesToRollUp>1</NumberOfParentCategoriesToRollUp>
     <DefaultName>Class.cs</DefaultName>
     <ProjectType>CSharp</ProjectType>
