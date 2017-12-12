@@ -145,6 +145,7 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
+    <Content Include="Resources\nF-logo-128.png" />
     <Content Include="Targets\NFProjectSystem.MDP.targets">
       <SubType>Designer</SubType>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -506,10 +507,6 @@
   <ItemGroup>
     <Resource Include="Resources\DeviceDisconnected.16.16.png" />
     <Content Include="Resources\nanoFramework.ico">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <Content Include="Resources\nF-logo-32.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
