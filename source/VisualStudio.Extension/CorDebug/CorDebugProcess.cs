@@ -1292,7 +1292,15 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             string[] assemblyPathsT = new string[1];
             Pdbx.PdbxFile.Resolver resolver = new Pdbx.PdbxFile.Resolver();
 
-            DebugAssert(assemblies == null || assemblies.Count == 0);
+            DebugAssert(assemblies.Count > 0);
+
+            if(assemblies.Count == 0)
+            {
+                // if debug was started, presumably after a successful deployment, there have to be assemblies on the device
+                // so, if there are none, probably the command above failed, anyway we can't proceed with debugging
+
+                throw new Exception("Device is reporting no assemblies deployed. Can't debug!");
+            }
 
             if (!_fLaunched)
             {
