@@ -17,7 +17,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
     {
         private IVsOutputWindow     _outputWindow;
         private IVsOutputWindowPane _debugPane;
-        private IVsOutputWindowPane _deploymentMessagesPane;
+        private IVsOutputWindowPane _nanoFrameworkMessagesPane;
         private IVsStatusbar        _statusBar;
         private bool                _showInternalErrors;
 
@@ -34,14 +34,15 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             _outputWindow.CreatePane(ref tempId, "nanoFramework Extension", 0, 1);
 
             tempId = s_DeploymentMessagesPaneGuid;
-            _outputWindow.GetPane(ref tempId, out _deploymentMessagesPane);
+            _outputWindow.GetPane(ref tempId, out _nanoFrameworkMessagesPane);
 
-            _showInternalErrors = false;
             // TODO replace with project user option exposed in device explorer
-            //if (RegistryAccess.GetBoolValue(@"\NonVersionSpecific\UserInterface", "showInternalErrors", out m_fShowInternalErrors, false))
-            //{
-            //    this.Message(m_deploymentMessagesPane, "nanoFramework deployment internal errors will be reported.");
-            //}
+            _showInternalErrors = true;
+
+            if(_showInternalErrors)
+            {
+                this.Message(_nanoFrameworkMessagesPane, "nanoFramework internal errors will be reported.");
+            }
 
             _statusBar = Package.GetGlobalService(typeof(SVsStatusbar)) as IVsStatusbar;
         }
@@ -55,8 +56,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         {
             try
             {
-                if (_deploymentMessagesPane != null)
-                    _deploymentMessagesPane.Clear();
+                if (_nanoFrameworkMessagesPane != null)
+                    _nanoFrameworkMessagesPane.Clear();
             }
             catch (InvalidOperationException)
             {
@@ -65,7 +66,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         public override void DeploymentMessage(string message)
         {
-            this.Message(_deploymentMessagesPane, message);
+            this.Message(_nanoFrameworkMessagesPane, message);
         }
 
         public override void InternalErrorMessage(string message)
@@ -87,11 +88,11 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 if (skipFrames >= 0)
                 {
                     StackTrace st = new StackTrace(skipFrames + 1, true);
-                    this.Message(_deploymentMessagesPane, String.Format("[@ {0}: {1} @]", message, st.ToString()));
+                    this.Message(_nanoFrameworkMessagesPane, String.Format("[@ {0}: {1} @]", message, st.ToString()));
                 }
                 else
                 {
-                    this.Message(_deploymentMessagesPane, "[@ " + message + " @]");
+                    this.Message(_nanoFrameworkMessagesPane, "[@ " + message + " @]");
                 }
             }
         }
