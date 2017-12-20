@@ -29,6 +29,7 @@
     <!-- Remove these as they are not important or interfere with nanoFramework projects -->
     <ProjectCapability Remove="COMReferences" />
     <ProjectCapability Remove="OutputGroups" />
+    <ProjectCapability Include="SharedProjectReferences" />
     <ProjectCapability Remove="ProjectConfigurationsInferredFromUsage" />
     <ProjectCapability Include="ReferenceManagerAssemblies" />
     <ProjectCapability Remove="ReferenceManagerBrowse" />
