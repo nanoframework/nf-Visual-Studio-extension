@@ -88,11 +88,11 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 if (skipFrames >= 0)
                 {
                     StackTrace st = new StackTrace(skipFrames + 1, true);
-                    this.Message(_nanoFrameworkMessagesPane, String.Format("[@ {0}: {1} @]", message, st.ToString()));
+                    this.Message(_nanoFrameworkMessagesPane, $"{DateTime.Now.ToString("u")} [{message}: { st.ToString() }]");
                 }
                 else
                 {
-                    this.Message(_nanoFrameworkMessagesPane, "[@ " + message + " @]");
+                    this.Message(_nanoFrameworkMessagesPane, $"{DateTime.Now.ToString("u")} [{ message }]");
                 }
             }
         }
