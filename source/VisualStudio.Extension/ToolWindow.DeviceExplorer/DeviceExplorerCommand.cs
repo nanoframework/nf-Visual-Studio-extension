@@ -53,6 +53,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         public const int PingDeviceCommandID = 0x0202;
         public const int DeviceCapabilitiesID = 0x0203;
 
+        // 2nd group
+        public const int ShowInternalErrorsCommandID = 0x0300;
+
 
         INanoDeviceCommService NanoDeviceCommService;
 
@@ -139,7 +142,18 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             menuItem.Enabled = false;
             menuItem.Visible = true;
             menuCommandService.AddCommand(menuItem);
+
+            // Show Internal Errors
+            toolbarButtonCommandId = GenerateCommandID(ShowInternalErrorsCommandID);
+            menuItem = new MenuCommand(new EventHandler(
+                ShowInternalErrorsCommandHandler), toolbarButtonCommandId);
+            menuItem.Enabled = true;
+            menuItem.Visible = true;
+            menuItem.Checked = NanoFrameworkPackage.OptionShowInternalErrors;
+            menuCommandService.AddCommand(menuItem);
+
         }
+
 
         /// <summary>
         /// Shows the tool window when the menu item is clicked.
@@ -346,6 +360,16 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 // clear status bar
                 NanoFrameworkPackage.MessageCentre.StopProgressMessage();
             }
+        }
+
+        private void ShowInternalErrorsCommandHandler(object sender, EventArgs e)
+        {
+            // save 
+            NanoFrameworkPackage.OptionShowInternalErrors = (sender as MenuCommand).Checked;
+
+            // toggle button checked state
+            var currentCheckState = (sender as MenuCommand).Checked;
+            (sender as MenuCommand).Checked = !currentCheckState;
         }
 
         #endregion

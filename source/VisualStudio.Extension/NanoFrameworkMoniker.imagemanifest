@@ -11,6 +11,7 @@
     <ID Name="Ping" Value="50" />
     <ID Name="DeviceCapabilities" Value="70" />
     <ID Name="NanoFrameworkProject" Value="80" />
+    <ID Name="ShowInternalErrors" Value="90" />
   </Symbols>
   <Images>
     <Image Guid="$(NanoFrameworkCatalog)" ID="$(DeviceConnected)">
@@ -46,6 +47,12 @@
     <Image Guid="$(NanoFrameworkCatalog)" ID="$(NanoFrameworkProject)">
       <Source Uri="$(Resources)/NanoFrameworkProject.xaml"/>
       <Source Uri="$(Resources)/NanoFrameworkProject.16.16.png" >
+        <Size Value="16" />
+      </Source>
+    </Image>
+    <Image Guid="$(NanoFrameworkCatalog)" ID="$(ShowInternalErrors)">
+      <Source Uri="$(Resources)/ShowInternalErrors.xaml"/>
+      <Source Uri="$(Resources)/ShowInternalErrors.16.16.png" >
         <Size Value="16" />
       </Source>
     </Image>

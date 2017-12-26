@@ -18,6 +18,8 @@ using Microsoft.Practices.ServiceLocation;
 using Microsoft.VisualStudio.Threading;
 using System.Diagnostics;
 using System.Reflection;
+using Microsoft.VisualStudio.Shell.Settings;
+using Microsoft.VisualStudio.Settings;
 
 [assembly: ProjectTypeRegistration(projectTypeGuid: NanoFrameworkPackage.ProjectTypeGuid,
                                 displayName: "NanoCSharpProject",
@@ -71,6 +73,33 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         /// Path for nanoFramework Extension directory
         /// </summary>
         public static string NanoFrameworkExtensionDirectory { get; private set; }
+
+
+        #region user options related stuff
+
+        private const string SHOW_INTERNAL_ERRORS_KEY = "ShowInternalErrors";
+
+        /// <summary>
+        /// User option for outputting internal extension errors to the extension output pane.
+        /// The value is persisted.
+        /// Default is false.
+        /// </summary>
+        public static bool OptionShowInternalErrors
+        {
+            get
+            {
+                return s_instance._optionShowInternalErrors;
+            }
+
+            set
+            {
+                s_instance._optionShowInternalErrors = value;
+            }
+        }
+
+        private bool _optionShowInternalErrors = true;
+
+        #endregion
 
         public static INanoDeviceCommService NanoDeviceCommService
         {
@@ -173,6 +202,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
             ServiceLocator.Current.GetInstance<DeviceExplorerViewModel>().NanoDeviceCommService = await this.GetServiceAsync(typeof(NanoDeviceCommService)) as INanoDeviceCommService;
 
+            AddOptionKey(SHOW_INTERNAL_ERRORS_KEY);
+
             await base.InitializeAsync(cancellationToken, progress);
         }
 
@@ -272,5 +303,41 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         #endregion
 
+
+        #region handlers for user options
+
+        protected override void OnSaveOptions(string key, Stream stream)
+        {
+
+            if (key == SHOW_INTERNAL_ERRORS_KEY)
+            {
+                try
+                {
+                    using (StreamReader streamReader = new StreamReader(stream))
+                    {
+                        var value = streamReader.ReadToEnd();
+                        _optionShowInternalErrors = bool.Parse(value);
+                    }
+                }
+                catch { }
+            }
+        }
+
+        protected override void OnLoadOptions(string key, Stream stream)
+        {
+            if (key == SHOW_INTERNAL_ERRORS_KEY)
+            {
+                try
+                {
+                    using (StreamWriter streamWriter = new StreamWriter(stream))
+                    {
+                        streamWriter.Write(_optionShowInternalErrors);
+                    }
+                }
+                catch { }
+            }
+        }
+
+        #endregion
     }
 }
