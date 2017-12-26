@@ -449,7 +449,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
             if(mc != null)
             {
-                DebugAssert(this.ShuttingDown || this.IsExecutionPaused || mc is ManagedCallbacks.ManagedCallbackDebugMessage);
+                DebugAssert(this.ShuttingDown || this.IsExecutionPaused || mc is ManagedCallbacks.ManagedCallbackDebugMessage, "Error on FlushEvent");
 
                 mc.Dispatch( _corDebug.ManagedCallback );
                 fContinue = true;
@@ -469,7 +469,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         {
             get
             {
-                DebugAssert(!(_terminating && _detaching));
+                DebugAssert(!(_terminating && _detaching), "Error when shutting down.");
 
                 return _terminating || _detaching;
             }
@@ -477,7 +477,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         private void UpdateExecutionIfNecessary()
         {
-            DebugAssert(_cStopped >= 0);
+            DebugAssert(_cStopped >= 0, "Error on start updating execution: " + _cStopped.ToString());
 
             if (_cStopped > 0)
             {
@@ -516,7 +516,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 }
             }
 
-            DebugAssert(_cStopped >= 0);
+            DebugAssert(_cStopped >= 0, "Error on completing execution update: " + _cStopped.ToString());
         }
 
         private void DispatchEvents()
@@ -544,8 +544,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         private void EnqueueStartupEventsAndWait()
         {
-            DebugAssert(_pid != 0);    //cpde will fail
-            DebugAssert(Device != null);
+            DebugAssert(_pid != 0, "Error queueing start-up events. Process is not 0.");    //cpde will fail
+            DebugAssert(Device != null, "Error queueing start-up events.Device is null.");
 
             EnqueueEvent(new ManagedCallbacks.ManagedCallbackProcess(this, ManagedCallbacks.ManagedCallbackProcess.EventType.CreateProcess));
 
@@ -559,8 +559,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             //Dispatch the CreateProcess/CreateAppDomain events, so that VS will hopefully shut down nicely from now on
             FlushEvents();
 
-            DebugAssert(_cStopped == 0);
-            DebugAssert(!AnyQueuedEvents);
+            DebugAssert(_cStopped == 0, "Error queueing start-up events. Stopped is " + _cStopped.ToString());
+            DebugAssert(!AnyQueuedEvents, "Error queueing start-up events. There are no queued events.");
         }
 
         private void StartClr()
@@ -682,7 +682,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     }
                     finally
                     {
-                        DebugAssert(ShuttingDown);
+                        DebugAssert(ShuttingDown, "Error starting debug. Engine has shutting down flag set.");
 
                         _eventProcessExited.Set();
 
@@ -740,7 +740,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
             private void ReallocScratchPad(int size)
             {
-                DebugAssert(m_scratchPad != null && m_scratchPad.Length < size);
+                DebugAssert(m_scratchPad != null && m_scratchPad.Length < size, "Error reallocating scratchpad.");
                 m_process.Engine.ResizeScratchPad(size);
 
                 //Refresh scratch pad values
@@ -845,7 +845,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         public void AddThread(CorDebugThread thread)
         {
-            DebugAssert(!_threads.Contains(thread));
+            DebugAssert(!_threads.Contains(thread), "Error adding thread");
 
             _threads.Add(thread);
             if (thread.IsVirtualThread)
@@ -916,7 +916,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 }
                 else
                 {
-                    DebugAssert(_terminating);
+                    DebugAssert(_terminating, "Error pausing execution. Terminating flag is set.");
                 }
 
                 _eventExecutionPaused.Set();
@@ -1082,7 +1082,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         private void StoreAssemblyPaths(string[] args)
         {
-            DebugAssert(_assemblyPaths == null);
+            DebugAssert(_assemblyPaths == null, "Error storing assembly paths. Paths are null.");
 
             ArrayList al = new ArrayList(args.Length);
 
@@ -1213,7 +1213,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 Engine.RebootDevice(RebootOption.RebootClrWaitForDebugger);
             }
 
-            DebugAssert(_debugPort == port);
+            DebugAssert(_debugPort == port, "Error creating device process.");
 
             lpProcessInformation.dwProcessId = _pid;
 
@@ -1292,7 +1292,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             string[] assemblyPathsT = new string[1];
             Pdbx.PdbxFile.Resolver resolver = new Pdbx.PdbxFile.Resolver();
 
-            DebugAssert(assemblies.Count > 0);
+            DebugAssert(assemblies.Count > 0, "Error loading assemblies. Assemblies count is not 0.");
 
             if(assemblies.Count == 0)
             {
@@ -1317,7 +1317,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         break;
                 }
 
-                DebugAssert(reply.Name == "mscorlib");
+                DebugAssert(reply.Name == "mscorlib", "Error loading assemblies. Couldn't find mscorlib.");
 
                 //PlatformInfo platformInfo = new PlatformInfo(asyVersion); // by not specifying any runtime information, we will look for the most suitable version
                 // TODO need to point to debug output folder
@@ -1429,16 +1429,16 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         {
 #if DEBUG
             //cpde should remove all breakpoints (except for our one internal breakpoint)
-            DebugAssert(_breakpoints.Count == 1);
-            DebugAssert(_breakpoints[0] is CLREventsBreakpoint);
-            DebugAssert(_cEvalThreads == 0);
+            DebugAssert(_breakpoints.Count == 1, "Error detaching. Breakpoints count is 1.");
+            DebugAssert(_breakpoints[0] is CLREventsBreakpoint, "Error detaching. Breakpoint is not event breakpoint.");
+            DebugAssert(_cEvalThreads == 0, "Error detaching. Eval threads is zero.");
 
             foreach (CorDebugThread thread in _threads)
             {
                 //cpde should abort all func-eval
-                DebugAssert(!thread.IsVirtualThread);
+                DebugAssert(!thread.IsVirtualThread, "Error detaching. Found virtual thread.");
                 //cpde should resume all threads
-                DebugAssert(!thread.IsSuspended);
+                DebugAssert(!thread.IsSuspended, "Error detaching. Found suspended thread.");
             }
 #endif
 
@@ -1460,7 +1460,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         private void StopDebugging()
         {
-            DebugAssert(ShuttingDown);
+            DebugAssert(ShuttingDown, "Error stoping debug. Shutdown flag is set.");
 
             /*
              * this is called when debugging stops, either via terminate or detach.
@@ -1554,7 +1554,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 {
                     if (!fStopExecution)
                     {
-                        DebugAssert(!this.IsExecutionPaused);
+                        DebugAssert(!this.IsExecutionPaused, "Error draining breakpoints. Execution is not stopped.");
                         //Force execution to resume, even though IsExecutionPaused state is not set
                         //hitting a breakpoint requires the nanoCLR to be stopped.  Setting IsExecutionPaused = true
                         //just to force resumeExecution to succeed is wrong, and will result in a race condition
@@ -1679,7 +1679,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         public BuiltinType ResolveBuiltInType(object o)
         {
-            DebugAssert(o is CorElementType || o is ReflectionDefinition.Kind || o is Debugger.RuntimeDataType);
+            DebugAssert(o is CorElementType || o is ReflectionDefinition.Kind || o is Debugger.RuntimeDataType, "Error resolving built-in type.");
 
             CorDebugAssembly assmCorLib = null;
 
@@ -1696,7 +1696,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     }
                 }
 
-                DebugAssert(assmCorLib != null);
+                DebugAssert(assmCorLib != null, "Error resolving built-in type. Couldn't find mscorlib");
 
                 AddBuiltInType(CorElementType.ELEMENT_TYPE_BOOLEAN, assmCorLib, "System.Boolean");
                 AddBuiltInType(CorElementType.ELEMENT_TYPE_CHAR,    assmCorLib, "System.Char");
@@ -1741,7 +1741,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             Interlocked.Increment(ref _cStopped);
             _eventDispatch.Set();
 
-            DebugAssert(IsExecutionPaused || Thread.CurrentThread != _threadDispatch );
+            DebugAssert(IsExecutionPaused || Thread.CurrentThread != _threadDispatch, "Error stopping controller.");
             EventWaitHandle.WaitAny(_eventsStopped);
 
             return COM_HResults.S_OK;
@@ -1816,7 +1816,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             {
                 if (thread != threadExcept)
                 {
-                    DebugAssert(!thread.GetLastCorDebugThread().IsVirtualThread);
+                    DebugAssert(!thread.GetLastCorDebugThread().IsVirtualThread, "Error setting all threads to debug state.");
                     ((ICorDebugThread)thread).SetDebugState(state);
                 }
             }
@@ -1995,7 +1995,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             }
             else if (address >= c_fakeAddressStart)
             {
-                //find the assembly loaded at this addres (all fake, of course)
+                //find the assembly loaded at this address (all fake, of course)
                 for (int iAssembly = 0; iAssembly < _assemblies.Count; iAssembly++)
                 {
                     CorDebugAssembly assembly = (CorDebugAssembly)_assemblies[iAssembly];
@@ -2007,7 +2007,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                     if (address >= baseAddress && address < baseAddress + assemblySize)
                     {
-                        DebugAssert(address + size <= baseAddress + assemblySize);
+                        DebugAssert(address + size <= baseAddress + assemblySize, "Error reading memory.");
 
                         assembly.ReadMemory(address - baseAddress, size, buffer, out read);
                     }
@@ -2019,7 +2019,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                 if (readMemory.Success)
                 {
-                    DebugAssert(readMemory.Buffer.Length == size);
+                    DebugAssert(readMemory.Buffer.Length == size, "Error reading memory. Buffer length is different then size.");
 
                     readMemory.Buffer.CopyTo(buffer, 0);
                     read = size;
@@ -2206,7 +2206,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             if(!this.IsAttachedToEngine)
             {
                 //need to fake this in order to get the Attach Dialog to work.
-                DebugAssert( appDomains == null );
+                DebugAssert( appDomains == null, "Error enumerating programs. AppDomain is null.");
                 appDomains = new ArrayList();
                 appDomains.Add( new CorDebugAppDomain( this, 1 ) );
             }
@@ -2337,11 +2337,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         private static void DebugAssert(bool condition, string message)
         {
             NanoFrameworkPackage.MessageCentre.InternalErrorMessage(condition, message);
-        }
-
-        private static void DebugAssert(bool condition)
-        {
-            DebugAssert(condition, null);
         }
     }
 }

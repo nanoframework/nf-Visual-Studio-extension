@@ -36,10 +36,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             tempId = s_DeploymentMessagesPaneGuid;
             _outputWindow.GetPane(ref tempId, out _nanoFrameworkMessagesPane);
 
-            // TODO replace with project user option exposed in device explorer
-            _showInternalErrors = true;
-
-            if(_showInternalErrors)
+            if(NanoFrameworkPackage.OptionShowInternalErrors)
             {
                 this.Message(_nanoFrameworkMessagesPane, "nanoFramework internal errors will be reported.");
             }
