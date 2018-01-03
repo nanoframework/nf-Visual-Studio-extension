@@ -3,6 +3,6 @@
 namespace $rootnamespace$
 {
 	class $safeitemname$
-{
+	{
 	}
 }
