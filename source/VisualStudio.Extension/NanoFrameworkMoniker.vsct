@@ -15,6 +15,7 @@
       <IDSymbol name="DeviceCapabilities" value="70" />
       <IDSymbol name="NanoFrameworkProject" value="80" />
       <IDSymbol name="ShowInternalErrors" value="90" />
+      <IDSymbol name="DeviceErase" value="100" />
     </GuidSymbol>
   </Symbols>
 </CommandTable>
