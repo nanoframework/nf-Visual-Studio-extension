@@ -11,6 +11,7 @@ using nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel;
 using System;
 using System.ComponentModel.Design;
 using System.Text;
+using System.Threading;
 using System.Windows.Forms;
 using Task = System.Threading.Tasks.Task;
 
@@ -52,6 +53,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         // toolbar commands
         public const int PingDeviceCommandID = 0x0202;
         public const int DeviceCapabilitiesID = 0x0203;
+        public const int DeviceEraseID = 0x0205;
 
         // 2nd group
         public const int ShowInternalErrorsCommandID = 0x0300;
@@ -139,6 +141,14 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             toolbarButtonCommandId = GenerateCommandID(DeviceCapabilitiesID);
             menuItem = new MenuCommand( new EventHandler(
                 DeviceCapabilitiesCommandHandler), toolbarButtonCommandId);
+            menuItem.Enabled = false;
+            menuItem.Visible = true;
+            menuCommandService.AddCommand(menuItem);
+
+            // DeviceErase
+            toolbarButtonCommandId = GenerateCommandID(DeviceEraseID);
+            menuItem = new MenuCommand( new EventHandler(
+                DeviceEraseCommandHandler), toolbarButtonCommandId);
             menuItem.Enabled = false;
             menuItem.Visible = true;
             menuCommandService.AddCommand(menuItem);
@@ -361,6 +371,85 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 NanoFrameworkPackage.MessageCentre.StopProgressMessage();
             }
         }
+        
+        /// <summary>
+        /// Handler for DeviceEraseCommand
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="arguments"></param>
+        /// <remarks>OK to use async void because this is a top-level event-handler 
+        /// https://channel9.msdn.com/Series/Three-Essential-Tips-for-Async/Tip-1-Async-void-is-for-top-level-event-handlers-only
+        /// </remarks>
+        private async void DeviceEraseCommandHandler(object sender, EventArgs arguments)
+        {
+            // yield to give the UI thread a chance to respond to user input
+            await Task.Yield();
+
+            NanoFrameworkPackage.MessageCentre.StartProgressMessage($"Erasing {ViewModelLocator.DeviceExplorer.SelectedDevice.Description} deployment area...");
+
+            try
+            {
+                // disable the button
+                (sender as MenuCommand).Enabled = false;
+
+                // make sure this device is showing as selected in Device Explorer tree view
+                ViewModelLocator.DeviceExplorer.ForceNanoDeviceSelection().FireAndForget();
+
+                // connect to the device
+                if (await NanoDeviceCommService.Device.DebugEngine.ConnectAsync(5000))
+                {
+                    try
+                    {
+                        if (await NanoDeviceCommService.Device.EraseAsync(Debugger.EraseOptions.Deployment, CancellationToken.None))
+                        {
+                            NanoFrameworkPackage.MessageCentre.DebugMessage($"{ViewModelLocator.DeviceExplorer.SelectedDevice.Description} deployment area erased.");
+
+                            // reset the hash for the connected device so the deployment information can be refreshed, if and when requested
+                            ViewModelLocator.DeviceExplorer.LastDeviceConnectedHash = 0;
+
+                            // reboot device
+                            NanoDeviceCommService.Device.DebugEngine.RebootDevice(Debugger.RebootOption.RebootClrOnly);
+
+                            // yield to give the UI thread a chance to respond to user input
+                            await Task.Yield();
+                        }
+                        else
+                        {
+                            // report issue to user
+                            NanoFrameworkPackage.MessageCentre.DebugMessage($"Error erasing {ViewModelLocator.DeviceExplorer.SelectedDevice.Description} deployment area.");
+                        }
+                    }
+                    catch
+                    {
+                        // report issue to user
+                        NanoFrameworkPackage.MessageCentre.DebugMessage($"Error erasing {ViewModelLocator.DeviceExplorer.SelectedDevice.Description} deployment area.");
+
+                        return;
+                    }
+                }
+                else
+                {
+                    // reset property to force that device capabilities are retrieved on next connection
+                    ViewModelLocator.DeviceExplorer.LastDeviceConnectedHash = 0;
+
+                    NanoFrameworkPackage.MessageCentre.DebugMessage($"{ViewModelLocator.DeviceExplorer.SelectedDevice.Description} is not responding, please reboot the device.");
+
+                    return;
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+            finally
+            {
+                // enable the button
+                (sender as MenuCommand).Enabled = true;
+
+                // clear status bar
+                NanoFrameworkPackage.MessageCentre.StopProgressMessage();
+            }
+        }
 
         private void ShowInternalErrorsCommandHandler(object sender, EventArgs e)
         {
@@ -422,6 +511,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     menuCommandService.FindCommand(GenerateCommandID(PingDeviceCommandID)).Enabled = true;
                     // enable capabilities button
                     menuCommandService.FindCommand(GenerateCommandID(DeviceCapabilitiesID)).Enabled = true;
+                    // enable erase button
+                    menuCommandService.FindCommand(GenerateCommandID(DeviceEraseID)).Enabled = true;
                 }
                 else
                 {
@@ -430,6 +521,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     menuCommandService.FindCommand(GenerateCommandID(PingDeviceCommandID)).Enabled = false;
                     // disable capabilities button
                     menuCommandService.FindCommand(GenerateCommandID(DeviceCapabilitiesID)).Enabled = false;
+                    // disable erase button
+                    menuCommandService.FindCommand(GenerateCommandID(DeviceEraseID)).Enabled = false;
                 }
             }
             else
@@ -438,6 +531,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 menuCommandService.FindCommand(GenerateCommandID(PingDeviceCommandID)).Enabled = false;
                 // disable capabilities button
                 menuCommandService.FindCommand(GenerateCommandID(DeviceCapabilitiesID)).Enabled = false;
+                // disable erase button
+                menuCommandService.FindCommand(GenerateCommandID(DeviceEraseID)).Enabled = false;
             }
         }
 

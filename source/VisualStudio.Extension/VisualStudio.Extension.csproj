@@ -145,6 +145,7 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
+    <Resource Include="Resources\DeviceErase.16.16.png" />
     <Content Include="Resources\nF-logo-128.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <IncludeInVSIX>true</IncludeInVSIX>
@@ -520,6 +521,10 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <Page Include="Resources\DeviceErase.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Resources\NanoFrameworkProject.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
