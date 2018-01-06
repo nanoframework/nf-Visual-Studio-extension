@@ -1,11 +1,13 @@
 ﻿using System;
+using System.Threading;
 
 namespace $safeprojectname$
 {
-	public class Program
+    public class Program
     {
         public static void Main()
         {
+          Thread.Sleep(1000);	// Temporary dirty fix to enable correct debugging session
 	  // Insert your code below this line
 
 		
