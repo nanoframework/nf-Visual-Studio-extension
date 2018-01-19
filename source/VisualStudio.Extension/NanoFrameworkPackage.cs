@@ -107,7 +107,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             {
                 if (s_nanoDeviceCommService == null)
                 {
-                    s_nanoDeviceCommService = (s_instance as System.IServiceProvider).GetService(typeof(NanoDeviceCommService)) as INanoDeviceCommService;
+                    s_nanoDeviceCommService = (s_instance as IServiceProvider).GetService(typeof(NanoDeviceCommService)) as INanoDeviceCommService;
                 }
 
                 return s_nanoDeviceCommService;
