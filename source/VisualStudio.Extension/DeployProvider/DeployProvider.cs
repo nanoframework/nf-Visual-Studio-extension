@@ -225,6 +225,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         // reset the hash for the connected device so the deployment information can be refreshed
                         _viewModelLocator.DeviceExplorer.LastDeviceConnectedHash = 0;
 
+                        // give sometime to the CLR to reboot
+                        await Task.Delay(500);
+
                         // reboot device
                         await outputPaneWriter.WriteLineAsync("Rebooting nanoCLR on device.");
 
