@@ -80,14 +80,14 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             uint depthCLR = 0;
             for(int iFrame = m_frames.Length - 1; iFrame >= 0; iFrame--)
             {
-                m_frames[iFrame].m_depthCLR = depthCLR;
+                m_frames[iFrame]._depthCLR = depthCLR;
                 depthCLR++;
             }
         }
 
         public CorDebugThread Thread
         {
-            [System.Diagnostics.DebuggerHidden]
+            [DebuggerHidden]
             get { return m_thread; }
         }
 
@@ -98,7 +98,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         public uint NumFrames        
         {            
-            [System.Diagnostics.DebuggerHidden]
+            [DebuggerHidden]
             get {return (uint)m_frames.Length;}
         }
 
@@ -234,7 +234,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         int ICorDebugChain. GetActiveFrame( out ICorDebugFrame ppFrame )
         {
-            ppFrame = this.ActiveFrame;
+            ppFrame = ActiveFrame;
 
             return COM_HResults.S_OK;
         }
@@ -243,11 +243,11 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         {
             ulong u;
 
-            Debug.Assert( m_frames[0].m_depthCLR == (m_frames.Length - 1) );
-            Debug.Assert( m_frames[m_frames.Length - 1].m_depthCLR == 0 );
+            Debug.Assert( m_frames[0]._depthCLR == (m_frames.Length - 1) );
+            Debug.Assert( m_frames[m_frames.Length - 1]._depthCLR == 0 );
 
-            CorDebugFrame.GetStackRange( this.Thread, 0, out pStart, out u );
-            CorDebugFrame.GetStackRange( this.Thread, (uint)(m_frames.Length - 1), out u, out pEnd );
+            CorDebugFrame.GetStackRange(Thread, 0, out pStart, out u );
+            CorDebugFrame.GetStackRange(Thread, (uint)(m_frames.Length - 1), out u, out pEnd );
 
             return COM_HResults.S_OK;
         }

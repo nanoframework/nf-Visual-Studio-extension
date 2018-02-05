@@ -19,24 +19,19 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         const uint IP_NOT_INITIALIZED = uint.MaxValue;
         public const uint DEPTH_CLR_INVALID = uint.MaxValue;
 
-        CorDebugChain m_chain;
-        CorDebugFunction m_function;
-        uint m_IP;
-        uint m_depthnanoCLR;
-        internal uint m_depthCLR;
-        WireProtocol.Commands.Debugging_Thread_Stack.Reply.Call m_call;
-#if ALL_VALUES        
-        CorDebugValue[] m_valueLocals;
-        CorDebugValue[] m_valueArguments;
-        CorDebugValue[] m_valueEvalStack;
-#endif
+        CorDebugChain _chain;
+        CorDebugFunction _function;
+        uint _IP;
+        uint _depthnanoCLR;
+        internal uint _depthCLR;
+        WireProtocol.Commands.Debugging_Thread_Stack.Reply.Call _call;
 
         public CorDebugFrame(CorDebugChain chain, WireProtocol.Commands.Debugging_Thread_Stack.Reply.Call call, uint depth)
         {
-            m_chain = chain;
-            m_depthnanoCLR = depth;
-            m_call  = call;
-            m_IP = IP_NOT_INITIALIZED;
+            _chain = chain;
+            _depthnanoCLR = depth;
+            _call  = call;
+            _IP = IP_NOT_INITIALIZED;
         }
 
         public ICorDebugFrame ICorDebugFrame
@@ -56,43 +51,43 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         public CorDebugProcess Process
         {
-            [System.Diagnostics.DebuggerHidden]
-            get { return this.Chain.Thread.Process; }
+            [DebuggerHidden]
+            get { return Chain.Thread.Process; }
         }
 
         public CorDebugAppDomain AppDomain
         {
-            get { return this.Function.AppDomain; }
+            get { return Function.AppDomain; }
         }
 
         public Engine Engine
         {
-            [System.Diagnostics.DebuggerHidden]
-            get { return this.Process.Engine; }
+            [DebuggerHidden]
+            get { return Process.Engine; }
         }
         
         public CorDebugChain Chain
         {
-            [System.Diagnostics.DebuggerHidden]
-            get { return m_chain; }
+            [DebuggerHidden]
+            get { return _chain; }
         }
         
         public CorDebugThread Thread
         {
-            [System.Diagnostics.DebuggerHidden]
-            get { return m_chain.Thread; }
+            [DebuggerHidden]
+            get { return _chain.Thread; }
         }
         
         public uint DepthCLR
         {
-            [System.Diagnostics.DebuggerHidden]
-            get {return this.m_depthCLR;}
+            [DebuggerHidden]
+            get {return _depthCLR; }
         }
       
         public uint DepthnanoCLR
         {
-            [System.Diagnostics.DebuggerHidden]
-            get {return this.m_depthnanoCLR;}
+            [DebuggerHidden]
+            get {return _depthnanoCLR; }
         }
 
         public static uint AppDomainIdFromCall( Engine engine, WireProtocol.Commands.Debugging_Thread_Stack.Reply.Call call )
@@ -113,19 +108,19 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         {
             get
             {
-                if (m_function == null)
+                if (_function == null)
                 {
-                    uint appDomainId = AppDomainIdFromCall( this.Engine, m_call );
+                    uint appDomainId = AppDomainIdFromCall(Engine, _call );
 
                     CorDebugAppDomain appDomain = Process.GetAppDomainFromId( appDomainId );
-                    CorDebugAssembly assembly = appDomain.AssemblyFromIndex( m_call.m_md );;
+                    CorDebugAssembly assembly = appDomain.AssemblyFromIndex( _call.m_md );;
                     
-                    uint tkMethod = nanoCLR_TypeSystem.nanoCLRTokenFromMethodIndex (m_call.m_md);
+                    uint tkMethod = nanoCLR_TypeSystem.nanoCLRTokenFromMethodIndex (_call.m_md);
                                  
-                    m_function = assembly.GetFunctionFromTokennanoCLR(tkMethod);
+                    _function = assembly.GetFunctionFromTokennanoCLR(tkMethod);
                 }
 
-                return m_function;
+                return _function;
             }
         }
 
@@ -133,73 +128,36 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         {
             get
             {
-                if (m_IP == IP_NOT_INITIALIZED)
+                if (_IP == IP_NOT_INITIALIZED)
                 {
-                    m_IP = Function.HasSymbols ? Function.GetILCLRFromILnanoCLR (m_call.m_IP) : m_call.m_IP;
+                    _IP = Function.HasSymbols ? Function.GetILCLRFromILnanoCLR (_call.m_IP) : _call.m_IP;
                 }
 
-                return m_IP;
+                return _IP;
             }
         }
 
         public uint IP_nanoCLR
         {
-            [System.Diagnostics.DebuggerHidden]
-            get {return m_call.m_IP;}
+            [DebuggerHidden]
+            get {return _call.m_IP;}
         }
 
         private CorDebugValue GetStackFrameValue (uint dwIndex, Engine.StackValueKind kind)
         {
-            var stackFrameValue = this.Engine.GetStackFrameValue(m_chain.Thread.ID, m_depthnanoCLR, kind, dwIndex);
+            var stackFrameValue = Engine.GetStackFrameValue(_chain.Thread.ID, _depthnanoCLR, kind, dwIndex);
 
-            return CorDebugValue.CreateValue(stackFrameValue, this.AppDomain);
+            return CorDebugValue.CreateValue(stackFrameValue, AppDomain);
         }
 
         public uint Flags
         {
             get
             {
-                WireProtocol.Commands.Debugging_Thread_Stack.Reply.CallEx callEx = m_call as WireProtocol.Commands.Debugging_Thread_Stack.Reply.CallEx;
+                WireProtocol.Commands.Debugging_Thread_Stack.Reply.CallEx callEx = _call as WireProtocol.Commands.Debugging_Thread_Stack.Reply.CallEx;
                 return (callEx==null)? 0 : callEx.m_flags;
             }
         }
-
-#if ALL_VALUES
-        private CorDebugValue[] EnsureValues(ref CorDebugValue[] values, uint cInfo, Engine.StackValueKind kind)
-        {
-            if (values == null)
-            {
-                values = CorDebugValue.CreateValues(this.Engine.GetStackFrameValueAll(m_chain.Thread.ID, this.DepthnanoCLR, cInfo, kind), this.Process);
-            }
-
-            return values;
-        }
-
-        
-        private CorDebugValue[] Locals
-        {
-            get
-            {
-                return EnsureValues(ref m_valueLocals, m_function.PdbxMethod.NumLocal, Debugger.Engine.StackValueKind.Local);
-            }
-        }
-
-        private CorDebugValue[] Arguments
-        {
-            get
-            {
-                return EnsureValues(ref m_valueArguments, m_function.PdbxMethod.NumArg, Debugger.Engine.StackValueKind.Argument);
-            }
-        }
-
-        private CorDebugValue[] Evals
-        {
-            get
-            {
-                return EnsureValues(ref m_valueEvalStack, m_function.PdbxMethod.MaxStack, Debugger.Engine.StackValueKind.EvalStack);
-            }
-        }
-#endif 
        
         public static void GetStackRange(CorDebugThread thread, uint depthCLR, out ulong start, out ulong end)
         {
@@ -217,28 +175,28 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         int ICorDebugFrame.GetChain (out ICorDebugChain ppChain)
         {
-            ppChain = (ICorDebugChain)m_chain;
+            ppChain = (ICorDebugChain)_chain;
 
             return COM_HResults.S_OK;
         }
 
         int ICorDebugFrame.GetCaller (out ICorDebugFrame ppFrame)
         {
-            ppFrame = (ICorDebugFrame)m_chain.GetFrameFromDepthCLR (this.m_depthCLR - 1);
+            ppFrame = (ICorDebugFrame)_chain.GetFrameFromDepthCLR (_depthCLR - 1);
 
             return COM_HResults.S_OK;
         }
 
         int ICorDebugFrame.GetFunctionToken (out uint pToken)
         {
-            this.Function.ICorDebugFunction.GetToken (out pToken);
+            Function.ICorDebugFunction.GetToken (out pToken);
 
             return COM_HResults.S_OK;
         }
 
         int ICorDebugFrame.GetCallee (out ICorDebugFrame ppFrame)
         {
-            ppFrame = (ICorDebugFrame)m_chain.GetFrameFromDepthCLR (this.m_depthCLR + 1);
+            ppFrame = (ICorDebugFrame)_chain.GetFrameFromDepthCLR (_depthCLR + 1);
 
             return COM_HResults.S_OK;
         }
@@ -252,7 +210,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         int ICorDebugFrame.GetFunction (out ICorDebugFunction ppFunction)
         {
-            ppFunction = this.Function;
+            ppFunction = Function;
 
             return COM_HResults.S_OK;
         }
@@ -266,7 +224,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
        
         int ICorDebugFrame.GetStackRange (out ulong pStart, out ulong pEnd)
         {
-            GetStackRange(this.Thread, m_depthCLR, out pStart, out pEnd);
+            GetStackRange(Thread, _depthCLR, out pStart, out pEnd);
 
             return COM_HResults.S_OK;
         }
@@ -325,12 +283,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         int ICorDebugILFrame.SetIP( uint nOffset )
         {
-            uint ip = this.Function.GetILnanoCLRFromILCLR( nOffset );
+            uint ip = Function.GetILnanoCLRFromILCLR( nOffset );
 
-            if (Engine.SetIPOfStackFrame(this.Thread.ID, m_depthnanoCLR, ip, 0/*compute eval depth*/))
+            if (Engine.SetIPOfStackFrame(Thread.ID, _depthnanoCLR, ip, 0/*compute eval depth*/))
             {
-                m_call.m_IP = ip;
-                this.m_IP = nOffset;
+                _call.m_IP = ip;
+                _IP = nOffset;
             }
 
             return COM_HResults.S_OK;            
@@ -338,56 +296,35 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         int ICorDebugILFrame.EnumerateLocalVariables( out ICorDebugValueEnum ppValueEnum )
         {
-#if ALL_VALUES
-            ppValueEnum = new CorDebugEnum(this.Locals, typeof(ICorDebugValue), typeof(ICorDebugValueEnum));
-
-            return COM_HResults.S_OK;
-#else
             ppValueEnum = null;
 
             return COM_HResults.E_NOTIMPL;
-#endif           
         }
 
         int ICorDebugILFrame.GetLocalVariable( uint dwIndex, out ICorDebugValue ppValue )
         {
-            //Does getting all locals at once provide any savings???
-#if ALL_VALUES
-            ppValue = (CorDebugValue)this.Locals[(int)dwIndex];
-#else
             ppValue = GetStackFrameValue( dwIndex, Engine.StackValueKind.Local );
-#endif
 
             return COM_HResults.S_OK;            
         }
 
         int ICorDebugILFrame.EnumerateArguments( out ICorDebugValueEnum ppValueEnum )
         {
-#if ALL_VALUES
-            ppValueEnum = new CorDebugEnum(this.Locals, typeof(ICorDebugValue), typeof(ICorDebugValueEnum));
-
-            return COM_HResults.S_OK;     
-#else
             ppValueEnum = null;
 
             return COM_HResults.E_NOTIMPL;
-#endif                   
         }
 
         int ICorDebugILFrame.GetArgument( uint dwIndex, out ICorDebugValue ppValue )
         {
-#if ALL_VALUES
-            ppValue = (CorDebugValue)this.Arguments[(int)dwIndex];
-#else
             ppValue = GetStackFrameValue( dwIndex, Engine.StackValueKind.Argument );
-#endif
 
             return COM_HResults.S_OK;            
         }
 
         int ICorDebugILFrame.GetStackDepth( out uint pDepth )
         {
-            pDepth = m_depthCLR;
+            pDepth = _depthCLR;
 
             return COM_HResults.S_OK;            
         }
@@ -533,17 +470,17 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
     public class CorDebugInternalFrame : CorDebugFrame, ICorDebugInternalFrame
     {
-        CorDebugInternalFrameType m_type;
+        CorDebugInternalFrameType _type;
 
         public CorDebugInternalFrame( CorDebugChain chain, CorDebugInternalFrameType type )
             : base( chain, null, CorDebugFrame.DEPTH_CLR_INVALID )
         {
-            m_type = type;
+            _type = type;
         }
 
         public CorDebugInternalFrameType FrameType
         {
-            get { return m_type; }
+            get { return _type; }
         }
 
         public override CorDebugFunction Function
@@ -555,47 +492,47 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         int ICorDebugInternalFrame.GetChain( out ICorDebugChain ppChain )
         {
-            return this.ICorDebugFrame.GetChain( out ppChain );
+            return ICorDebugFrame.GetChain( out ppChain );
         }
 
         int ICorDebugInternalFrame.GetCode( out ICorDebugCode ppCode )
         {
-            return this.ICorDebugFrame.GetCode( out ppCode );
+            return ICorDebugFrame.GetCode( out ppCode );
         }
 
         int ICorDebugInternalFrame.GetFunction( out ICorDebugFunction ppFunction )
         {
-            return this.ICorDebugFrame.GetFunction( out ppFunction );
+            return ICorDebugFrame.GetFunction( out ppFunction );
         }
 
         int ICorDebugInternalFrame.GetFunctionToken( out uint pToken )
         {
-            return this.ICorDebugFrame.GetFunctionToken( out pToken );
+            return ICorDebugFrame.GetFunctionToken( out pToken );
         }
 
         int ICorDebugInternalFrame.GetStackRange( out ulong pStart, out ulong pEnd )
         {
-            return this.ICorDebugFrame.GetStackRange( out pStart, out pEnd );
+            return ICorDebugFrame.GetStackRange( out pStart, out pEnd );
         }
 
         int ICorDebugInternalFrame.GetCaller( out ICorDebugFrame ppFrame )
         {
-            return this.ICorDebugFrame.GetCaller( out ppFrame );
+            return ICorDebugFrame.GetCaller( out ppFrame );
         }
 
         int ICorDebugInternalFrame.GetCallee( out ICorDebugFrame ppFrame )
         {
-            return this.ICorDebugFrame.GetCallee( out ppFrame );
+            return ICorDebugFrame.GetCallee( out ppFrame );
         }
 
         int ICorDebugInternalFrame.CreateStepper( out ICorDebugStepper ppStepper )
         {
-            return this.ICorDebugFrame.CreateStepper( out ppStepper );
+            return ICorDebugFrame.CreateStepper( out ppStepper );
         }
 
         int ICorDebugInternalFrame.GetFrameType( out CorDebugInternalFrameType pType )
         {
-            pType = m_type;
+            pType = _type;
 
             return COM_HResults.S_OK;
         }

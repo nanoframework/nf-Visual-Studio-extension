@@ -64,7 +64,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             int pbIsJustMyCode;
             pcMap = 0;
 
-            this.m_function.ICorDebugFunction2.GetJMCStatus(out pbIsJustMyCode);
+            m_function.ICorDebugFunction2.GetJMCStatus(out pbIsJustMyCode);
 
             //
             // REQUIRED FOR 'JUST MY CODE'

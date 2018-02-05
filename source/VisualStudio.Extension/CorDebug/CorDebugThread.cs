@@ -29,7 +29,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             _eval = eval;
         }
 
-        public CorDebugEval CurrentEval { get;  }
+        public CorDebugEval CurrentEval { get { return _eval; }  }
 
         public bool Exited { get; set; }
 
@@ -37,7 +37,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         public void AttachVirtualThread(CorDebugThread thread)
         {
-            CorDebugThread threadLast = this.GetLastCorDebugThread();
+            CorDebugThread threadLast = GetLastCorDebugThread();
 
             threadLast.NextThread = thread;
             thread.PreviousThread = threadLast;
@@ -52,9 +52,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         public bool RemoveVirtualThread(CorDebugThread thread)
         {
             //can only remove last thread
-            CorDebugThread threadLast = this.GetLastCorDebugThread();
+            CorDebugThread threadLast = GetLastCorDebugThread();
 
-            Debug.Assert(threadLast.IsVirtualThread && !this.IsVirtualThread);
+            Debug.Assert(threadLast.IsVirtualThread && !IsVirtualThread);
             if (threadLast != thread)
                 return false;
 
@@ -71,13 +71,13 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         public Engine Engine
         {
-            [System.Diagnostics.DebuggerHidden]
+            [DebuggerHidden]
             get { return _process.Engine; }
         }
 
         public CorDebugProcess Process
         {
-            [System.Diagnostics.DebuggerHidden]
+            [DebuggerHidden]
             get { return _process; }
         }
 
@@ -103,13 +103,13 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         public uint ID
         {
-            [System.Diagnostics.DebuggerHidden]
+            [DebuggerHidden]
             get;
         }
 
         public void StoppedOnException()
         {
-            _currentException = CorDebugValue.CreateValue(Engine.GetThreadException(ID), this.AppDomain);
+            _currentException = CorDebugValue.CreateValue(Engine.GetThreadException(ID), AppDomain);
         }
 
         //This is the only thread that cpde knows about
@@ -151,11 +151,11 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                 if (fSuspend && !IsSuspended)
                 {
-                    this.Engine.SuspendThread(ID);
+                    Engine.SuspendThread(ID);
                 }
                 else if (!fSuspend && IsSuspended)
                 {
-                    this.Engine.ResumeThread(ID);
+                    Engine.ResumeThread(ID);
                 }
 
                 _fSuspended = fSuspend;
@@ -168,7 +168,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             {
                 if (_chain == null)
                 {
-                    Debugger.WireProtocol.Commands.Debugging_Thread_Stack.Reply ts = this.Engine.GetThreadStack(ID);
+                    Debugger.WireProtocol.Commands.Debugging_Thread_Stack.Reply ts = Engine.GetThreadStack(ID);
 
                     if (ts != null)
                     {
@@ -217,7 +217,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
             if (rv != null)
             {
-                ppObject = CorDebugValue.CreateValue(rv, this.AppDomain);
+                ppObject = CorDebugValue.CreateValue(rv, AppDomain);
             }
             else
             {
@@ -280,7 +280,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
             ArrayList chains = new ArrayList();
 
-            for (CorDebugThread thread = this.GetLastCorDebugThread(); thread != null; thread = thread.PreviousThread)
+            for (CorDebugThread thread = GetLastCorDebugThread(); thread != null; thread = thread.PreviousThread)
             {
                 CorDebugChain chain = thread.Chain;
 
@@ -318,7 +318,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         int ICorDebugThread.GetActiveFrame(out ICorDebugFrame ppFrame)
         {
             Debug.Assert(!IsVirtualThread);
-            ((ICorDebugChain)this.GetLastCorDebugThread().Chain).GetActiveFrame(out ppFrame);
+            ((ICorDebugChain)GetLastCorDebugThread().Chain).GetActiveFrame(out ppFrame);
 
             return COM_HResults.S_OK;
         }
@@ -326,7 +326,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         int ICorDebugThread.GetActiveChain(out ICorDebugChain ppChain)
         {
             Debug.Assert(!IsVirtualThread);
-            ppChain = this.GetLastCorDebugThread().Chain;
+            ppChain = GetLastCorDebugThread().Chain;
 
             return COM_HResults.S_OK;
         }
@@ -360,14 +360,14 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         int ICorDebugThread.GetCurrentException(out ICorDebugValue ppExceptionObject)
         {
-            ppExceptionObject = this.GetLastCorDebugThread()._currentException;
+            ppExceptionObject = GetLastCorDebugThread()._currentException;
 
             return COM_HResults.BOOL_TO_HRESULT_FALSE( ppExceptionObject != null );
         }
 
         int ICorDebugThread.GetAppDomain(out ICorDebugAppDomain ppAppDomain)
         {
-            ppAppDomain = ((CorDebugThread)this).AppDomain;
+            ppAppDomain = AppDomain;
 
             return COM_HResults.S_OK;
         }
@@ -408,7 +408,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         {
             CorDebugFrame frame = (CorDebugFrame)pFrame;
 
-            this.Engine.UnwindThread(this.ID, frame.DepthnanoCLR);
+            Engine.UnwindThread(ID, frame.DepthnanoCLR);
 
             return COM_HResults.S_OK;
         }

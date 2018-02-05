@@ -38,7 +38,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
             if(NanoFrameworkPackage.OptionShowInternalErrors)
             {
-                this.Message(_nanoFrameworkMessagesPane, "nanoFramework internal errors will be reported.");
+                Message(_nanoFrameworkMessagesPane, "nanoFramework internal errors will be reported.");
             }
 
             _statusBar = Package.GetGlobalService(typeof(SVsStatusbar)) as IVsStatusbar;
@@ -63,17 +63,17 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         public override void DeploymentMessage(string message)
         {
-            this.Message(_nanoFrameworkMessagesPane, message);
+            Message(_nanoFrameworkMessagesPane, message);
         }
 
         public override void InternalErrorMessage(string message)
         {
-            this.InternalErrorMessage(false, message);
+            InternalErrorMessage(false, message);
         }
 
         public override void InternalErrorMessage(bool assertion, string message)
         {
-            this.InternalErrorMessage(assertion, message, -1);
+            InternalErrorMessage(assertion, message, -1);
         }
 
         public override void InternalErrorMessage(bool assertion, string message, int skipFrames)
@@ -85,24 +85,24 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 if (skipFrames >= 0)
                 {
                     StackTrace st = new StackTrace(skipFrames + 1, true);
-                    this.Message(_nanoFrameworkMessagesPane, $"{DateTime.Now.ToString("u")} [{message}: { st.ToString() }]");
+                    Message(_nanoFrameworkMessagesPane, $"{DateTime.Now.ToString("u")} [{message}: { st.ToString() }]");
                 }
                 else
                 {
-                    this.Message(_nanoFrameworkMessagesPane, $"{DateTime.Now.ToString("u")} [{ message }]");
+                    Message(_nanoFrameworkMessagesPane, $"{DateTime.Now.ToString("u")} [{ message }]");
                 }
             }
         }
 
         public override void OutputMessageHandler(object sendingProcess, DataReceivedEventArgs outLine)
         {
-            this.DebugMessage(outLine.Data);
+            DebugMessage(outLine.Data);
         }
 
 
         public override void ErrorMessageHandler(object sendingProcess, DataReceivedEventArgs outLine)
         {
-            this.DebugMessage(outLine.Data);
+            DebugMessage(outLine.Data);
         }
 
         private void Message(IVsOutputWindowPane pane, String message)

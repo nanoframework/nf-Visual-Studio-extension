@@ -12,7 +12,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow
 
         public NFSerialDebugClientService(PortBase client)
         {
-            this.SerialDebugClient = client;
+            SerialDebugClient = client;
         }
 
     }

@@ -78,7 +78,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
             public bool CanSetJMC
             {
-                get { return this.HasByteCode; }
+                get { return HasByteCode; }
             }
         }
 
@@ -244,12 +244,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
             private void Initialize(string path)
             {
-                this.PdbxPath = path;
+                PdbxPath = path;
 
-                for(int iClass = 0; iClass < this.Assembly.Classes.Length; iClass++)
+                for(int iClass = 0; iClass < Assembly.Classes.Length; iClass++)
                 {
-                    Class c = this.Assembly.Classes[iClass];
-                    c.Assembly = this.Assembly;
+                    Class c = Assembly.Classes[iClass];
+                    c.Assembly = Assembly;
 
                     for(int iMethod = 0; iMethod < c.Methods.Length; iMethod++)
                     {

@@ -192,7 +192,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             // need to switch to the main thread to initialize the command handlers
             await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
-            DeviceExplorerCommand.Initialize(this, ViewModelLocator, await this.GetServiceAsync(typeof(NanoDeviceCommService)) as INanoDeviceCommService);
+            DeviceExplorerCommand.Initialize(this, ViewModelLocator, await GetServiceAsync(typeof(NanoDeviceCommService)) as INanoDeviceCommService);
             DeployProvider.Initialize(this, ViewModelLocator);
 
             // Enable debugger UI context
@@ -200,7 +200,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
             await TaskScheduler.Default;
 
-            ServiceLocator.Current.GetInstance<DeviceExplorerViewModel>().NanoDeviceCommService = await this.GetServiceAsync(typeof(NanoDeviceCommService)) as INanoDeviceCommService;
+            ServiceLocator.Current.GetInstance<DeviceExplorerViewModel>().NanoDeviceCommService = await GetServiceAsync(typeof(NanoDeviceCommService)) as INanoDeviceCommService;
 
             AddOptionKey(SHOW_INTERNAL_ERRORS_KEY);
 
@@ -252,7 +252,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         int Microsoft.VisualStudio.OLE.Interop.IOleCommandTarget.Exec(ref Guid cmdGroup, uint nCmdID, uint nCmdExecOpt, IntPtr pvaIn, IntPtr pvaOut)
         {
-            Microsoft.VisualStudio.OLE.Interop.IOleCommandTarget oleCommandTarget = (Microsoft.VisualStudio.OLE.Interop.IOleCommandTarget)this.GetService(typeof(Microsoft.VisualStudio.OLE.Interop.IOleCommandTarget));
+            Microsoft.VisualStudio.OLE.Interop.IOleCommandTarget oleCommandTarget = (Microsoft.VisualStudio.OLE.Interop.IOleCommandTarget)GetService(typeof(Microsoft.VisualStudio.OLE.Interop.IOleCommandTarget));
 
             if (oleCommandTarget != null)
             {
@@ -277,7 +277,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         int Microsoft.VisualStudio.OLE.Interop.IOleCommandTarget.QueryStatus(ref Guid cmdGroup, uint cCmds, Microsoft.VisualStudio.OLE.Interop.OLECMD[] prgCmds, IntPtr pCmdText)
         {
-            Microsoft.VisualStudio.OLE.Interop.IOleCommandTarget oleCommandTarget = (Microsoft.VisualStudio.OLE.Interop.IOleCommandTarget)this.GetService(typeof(Microsoft.VisualStudio.OLE.Interop.IOleCommandTarget));
+            Microsoft.VisualStudio.OLE.Interop.IOleCommandTarget oleCommandTarget = (Microsoft.VisualStudio.OLE.Interop.IOleCommandTarget)GetService(typeof(Microsoft.VisualStudio.OLE.Interop.IOleCommandTarget));
 
             if (oleCommandTarget != null)
             {

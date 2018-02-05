@@ -38,7 +38,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         public void StopProgressMessage()
         {
-            this.StopProgressMessage(null);
+            StopProgressMessage(null);
         }
     }
 

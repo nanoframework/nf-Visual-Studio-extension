@@ -70,11 +70,11 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         {
             this.package = package ?? throw new ArgumentNullException("Package can't be null.");
 
-            OleMenuCommandService commandService = this.ServiceProvider.GetService(typeof(IMenuCommandService)) as OleMenuCommandService;
+            OleMenuCommandService commandService = ServiceProvider.GetService(typeof(IMenuCommandService)) as OleMenuCommandService;
             if (commandService != null)
             {
                 var menuCommandID = new CommandID(CommandSet, CommandId);
-                var menuItem = new MenuCommand(this.ShowToolWindow, menuCommandID);
+                var menuItem = new MenuCommand(ShowToolWindow, menuCommandID);
                 commandService.AddCommand(menuItem);
             }
 
@@ -97,7 +97,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         {
             get
             {
-                return this.package;
+                return package;
             }
         }
 
@@ -124,7 +124,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         private void CreateToolbarHandlers()
         {
             // Create the handles for the toolbar commands
-            var menuCommandService = this.ServiceProvider.GetService(typeof(IMenuCommandService)) as OleMenuCommandService;
+            var menuCommandService = ServiceProvider.GetService(typeof(IMenuCommandService)) as OleMenuCommandService;
 
             CommandID toolbarButtonCommandId;
             MenuCommand menuItem;
@@ -175,7 +175,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             // Get the instance number 0 of this tool window. This window is single instance so this instance
             // is actually the only one.
             // The last flag is set to true so that if the tool window does not exists it will be created.
-            ToolWindowPane window = this.package.FindToolWindow(typeof(DeviceExplorer), 0, true);
+            ToolWindowPane window = package.FindToolWindow(typeof(DeviceExplorer), 0, true);
             if ((null == window) || (null == window.Frame))
             {
                 throw new NotSupportedException("Cannot create nanoFramework Device Explorer tool window.");
@@ -498,7 +498,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
             // get the menu command service to reach the toolbar commands
-            var menuCommandService = this.ServiceProvider.GetService(typeof(IMenuCommandService)) as OleMenuCommandService;
+            var menuCommandService = ServiceProvider.GetService(typeof(IMenuCommandService)) as OleMenuCommandService;
 
             // are there any devices available
             if (ViewModelLocator.DeviceExplorer.AvailableDevices.Count > 0)

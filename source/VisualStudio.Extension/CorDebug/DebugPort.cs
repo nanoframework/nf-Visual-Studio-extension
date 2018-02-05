@@ -141,7 +141,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
             NanoFrameworkPackage.MessageCentre.StartProgressMessage(String.Format(Resources.ResourceStrings.StartDeviceSearch, deviceName, eachSecondRetryMaxCount));
 
-            CorDebugProcess process = this.InternalGetDeviceProcess(deviceName);
+            CorDebugProcess process = InternalGetDeviceProcess(deviceName);
             if (process != null)
                 return process;
 
@@ -150,7 +150,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             for (int i = 0; i < eachSecondRetryMaxCount && process == null; i++)
             {
                 System.Threading.Thread.Sleep(1000);
-                process = this.InternalGetDeviceProcess(deviceName);
+                process = InternalGetDeviceProcess(deviceName);
             }
 
             NanoFrameworkPackage.MessageCentre.StopProgressMessage(String.Format((process == null) 
@@ -165,7 +165,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             if (string.IsNullOrEmpty(deviceName))
                 throw new Exception("DebugPort.GetDeviceProcess() called with no argument");
                             
-            return this.InternalGetDeviceProcess(deviceName);
+            return InternalGetDeviceProcess(deviceName);
         }
 
         private CorDebugProcess InternalGetDeviceProcess(string deviceName)
@@ -268,7 +268,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             IDebugEvent2 evt = new DebugEvent((uint) attributes);
             foreach (IDebugPortEvents2 dpe in _cpDebugPortEvents2.Sinks)
             {
-                dpe.Event(this.DebugPortSupplier.CoreServer, this, (IDebugProcess2)process, (IDebugProgram2) appDomain, evt, ref iidEvent);
+                dpe.Event(DebugPortSupplier.CoreServer, this, (IDebugProcess2)process, (IDebugProgram2) appDomain, evt, ref iidEvent);
             }
         }
 

@@ -36,7 +36,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         private new ushort Kind
         {
-            [System.Diagnostics.DebuggerHidden]
+            [DebuggerHidden]
             get { return base.Kind; }
             set
             {
@@ -71,12 +71,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         private void Activate( ushort kind )
         {            
             InitializeBreakpointDef();
-            Debug.Assert( !this.Active );
+            Debug.Assert( !Active);
             //currently, we don't support ignoring filters in a step.  cpde always seems to set this flag though.
             //So it may not be very important to support ignoring filters.
             Debug.Assert((m_interceptMask & CorDebugIntercept.INTERCEPT_EXCEPTION_FILTER) != 0);
-            this.Kind = kind;
-            this.Active = true;
+            Kind = kind;
+            Active = true;
         }
 
         public override bool ShouldBreak( BreakpointDef breakpointDef )
@@ -94,7 +94,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             {
                 if ((flags & BreakpointDef.c_STEP_IN) != 0)
                 {
-                    if (this.Process.Engine.Capabilities.ExceptionFilters && breakpointDef.m_depthExceptionHandler == BreakpointDef.c_DEPTH_STEP_INTERCEPT)
+                    if (Process.Engine.Capabilities.ExceptionFilters && breakpointDef.m_depthExceptionHandler == BreakpointDef.c_DEPTH_STEP_INTERCEPT)
                     {
                         reason = CorDebugStepReason.STEP_INTERCEPT;
                     }
@@ -109,7 +109,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 }
                 else
                 {
-                    if (this.Process.Engine.Capabilities.ExceptionFilters & breakpointDef.m_depthExceptionHandler == BreakpointDef.c_DEPTH_STEP_EXCEPTION_HANDLER)
+                    if (Process.Engine.Capabilities.ExceptionFilters & breakpointDef.m_depthExceptionHandler == BreakpointDef.c_DEPTH_STEP_EXCEPTION_HANDLER)
                     {
                         reason = CorDebugStepReason.STEP_EXCEPTION_HANDLER;
                     }
@@ -125,7 +125,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 if(dDepth > 0)
                     fStop = false;
                 else if(dDepth == 0)
-                    fStop = (this.Debugging_Execution_BreakpointDef.m_flags & BreakpointDef.c_STEP_OVER) != 0;
+                    fStop = (Debugging_Execution_BreakpointDef.m_flags & BreakpointDef.c_STEP_OVER) != 0;
                 else
                     fStop = true;
             }
@@ -133,7 +133,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             {
                 reason = CorDebugStepReason.STEP_EXIT;
 
-                this.Active = false;
+                Active = false;
                 fStop = false;
             }
             else
@@ -142,7 +142,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 throw new ApplicationException("Invalid stepper hit received");
             }
 
-            if(m_ranges != null && reason == CorDebugStepReason.STEP_NORMAL && breakpointDef.m_depth == this.Debugging_Execution_BreakpointDef.m_depth)
+            if(m_ranges != null && reason == CorDebugStepReason.STEP_NORMAL && breakpointDef.m_depth == Debugging_Execution_BreakpointDef.m_depth)
             {
                 foreach(COR_DEBUG_STEP_RANGE range in m_ranges)
                 {
@@ -159,7 +159,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             if(fStop && reason != CorDebugStepReason.STEP_EXIT)
             {
                 uint depth = breakpointDef.m_depth;
-                CorDebugFrame frame = this.m_thread.Chain.GetFrameFromDepthnanoCLR( depth );
+                CorDebugFrame frame = m_thread.Chain.GetFrameFromDepthnanoCLR( depth );
 
                 m_ranges = null;
                 Initialize( frame );
@@ -176,23 +176,23 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         public override void Hit( BreakpointDef breakpointDef )
         {
-            this.m_ranges = null;
-            this.Active = false;
-            this.Process.EnqueueEvent( new ManagedCallbacks.ManagedCallbackStepComplete( m_frame.Thread, this, m_reasonStopped ) );
+            m_ranges = null;
+            Active = false;
+            Process.EnqueueEvent( new ManagedCallbacks.ManagedCallbackStepComplete( m_frame.Thread, this, m_reasonStopped ) );
         }
 
         #region ICorDebugStepper Members
 
         int ICorDebugStepper.IsActive( out int pbActive )
         {
-            pbActive = Boolean.BoolToInt( this.Active );
+            pbActive = Boolean.BoolToInt(Active);
 
             return COM_HResults.S_OK;
         }
 
         int ICorDebugStepper.Deactivate()
         {
-            this.Active = false;
+            Active = false;
 
             return COM_HResults.S_OK;
         }
@@ -208,8 +208,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             for(int iRange = 0; iRange < m_ranges.Length; iRange++)
             {
                 COR_DEBUG_STEP_RANGE range = m_ranges[iRange];
-                m_ranges[iRange].startOffset = this.m_frame.Function.GetILnanoCLRFromILCLR( range.startOffset );
-                m_ranges[iRange].endOffset = this.m_frame.Function.GetILnanoCLRFromILCLR( range.endOffset );
+                m_ranges[iRange].startOffset = m_frame.Function.GetILnanoCLRFromILCLR( range.startOffset );
+                m_ranges[iRange].endOffset = m_frame.Function.GetILnanoCLRFromILCLR( range.endOffset );
             }
 
             Activate( Boolean.IntToBool( bStepIn ) ? BreakpointDef.c_STEP_IN : BreakpointDef.c_STEP_OVER );
@@ -258,16 +258,16 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         {
             // CorDebugStepper.SetJMC is not implemented
             bool fJMC = Boolean.IntToBool( fIsJMCStepper );
-            bool fJMCOld = (this.Debugging_Execution_BreakpointDef.m_flags & BreakpointDef.c_STEP_JMC) != 0;
+            bool fJMCOld = (Debugging_Execution_BreakpointDef.m_flags & BreakpointDef.c_STEP_JMC) != 0;
 
             if(fJMC != fJMCOld)
             {
                 if(fJMC)
-                    this.Debugging_Execution_BreakpointDef.m_flags |= BreakpointDef.c_STEP_JMC;
+                    Debugging_Execution_BreakpointDef.m_flags |= BreakpointDef.c_STEP_JMC;
                 else
-                    unchecked { this.Debugging_Execution_BreakpointDef.m_flags &= (ushort)(~BreakpointDef.c_STEP_JMC); }
+                    unchecked { Debugging_Execution_BreakpointDef.m_flags &= (ushort)(~BreakpointDef.c_STEP_JMC); }
 
-                this.Dirty();
+                Dirty();
             }
 
             return COM_HResults.S_OK;

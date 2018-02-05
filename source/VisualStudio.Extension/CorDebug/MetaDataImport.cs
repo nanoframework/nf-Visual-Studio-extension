@@ -73,7 +73,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
 
             public int Enum(IntPtr dest, uint cMax, IntPtr pct)
             {
-                int cItems = Math.Min((int)cMax, this.Count - m_iToken);
+                int cItems = Math.Min((int)cMax, Count - m_iToken);
                 
                 Marshal.WriteInt32(pct, cItems);
                 Marshal.Copy(m_tokens, m_iToken, pct, cItems);
