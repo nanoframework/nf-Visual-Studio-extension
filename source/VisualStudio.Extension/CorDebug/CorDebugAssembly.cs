@@ -44,6 +44,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             "windows.devices.pwm",
             "windows.devices.serialcommunication",
             "windows.devices.spi",
+            "windows.networking.sockets",
             "windows.storage.streams",
         };
 
