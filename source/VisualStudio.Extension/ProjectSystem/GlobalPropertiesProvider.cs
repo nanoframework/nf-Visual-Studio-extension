@@ -34,7 +34,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             Task.FromResult<IImmutableDictionary<string, string>>(
                 Empty.PropertiesMap.SetItem(
                     NanoCSharpProjectPathPropertyName,
-                    Path.Combine(Path.GetDirectoryName(this.GetType().Assembly.Location), "Targets")));
+                    Path.Combine(Path.GetDirectoryName(GetType().Assembly.Location), "Targets")));
 
     }
 }

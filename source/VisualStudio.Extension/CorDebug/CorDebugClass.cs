@@ -39,7 +39,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         public CorDebugAssembly Assembly
         {
-            [System.Diagnostics.DebuggerHidden]
+            [DebuggerHidden]
             get { return m_assembly; }
         }
 
@@ -48,7 +48,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             get 
             {
                 if(HasSymbols)
-                    return MetaData.Helper.ClassIsEnum( this.Assembly.MetaDataImport, m_pdbxClass.Token.CLR );
+                    return MetaData.Helper.ClassIsEnum(Assembly.MetaDataImport, m_pdbxClass.Token.CLR );
                 else
                     return false;
             }
@@ -56,25 +56,25 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         public Engine Engine
         {
-            [System.Diagnostics.DebuggerHidden]
-            get { return this.Process.Engine; }
+            [DebuggerHidden]
+            get { return Process.Engine; }
         }
 
         public CorDebugProcess Process
         {
-            [System.Diagnostics.DebuggerHidden]
-            get { return this.Assembly.Process; }
+            [DebuggerHidden]
+            get { return Assembly.Process; }
         }
 
         public CorDebugAppDomain AppDomain
         {
-            [System.Diagnostics.DebuggerHidden]
-            get { return this.Assembly.AppDomain; }
+            [DebuggerHidden]
+            get { return Assembly.AppDomain; }
         }
 
         public Pdbx.Class PdbxClass
         {
-            [System.Diagnostics.DebuggerHidden]
+            [DebuggerHidden]
             get {return m_pdbxClass;}
         }
 
@@ -89,7 +89,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             {
                 uint tk = HasSymbols ? m_pdbxClass.Token.nanoCLR : m_tkSymbolless;
 
-                return nanoCLR_TypeSystem.ClassMemberIndexFromnanoCLRToken (tk, this.Assembly);                
+                return nanoCLR_TypeSystem.ClassMemberIndexFromnanoCLRToken (tk, Assembly);                
             }
         }
 
@@ -112,11 +112,11 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         int ICorDebugClass. GetStaticFieldValue (uint fieldDef, ICorDebugFrame pFrame, out ICorDebugValue ppValue)
         {
             //Cache, and invalidate when necessary???
-            uint fd = nanoCLR_TypeSystem.ClassMemberIndexFromCLRToken(fieldDef, this.Assembly);
-            this.Process.SetCurrentAppDomain( this.AppDomain );
+            uint fd = nanoCLR_TypeSystem.ClassMemberIndexFromCLRToken(fieldDef, Assembly);
+            Process.SetCurrentAppDomain(AppDomain);
 
-            RuntimeValue rtv = this.Engine.GetStaticFieldValue(fd);
-            ppValue = CorDebugValue.CreateValue(rtv, this.AppDomain);
+            RuntimeValue rtv = Engine.GetStaticFieldValue(fd);
+            ppValue = CorDebugValue.CreateValue(rtv, AppDomain);
 
             return COM_HResults.S_OK;
         }
@@ -137,18 +137,18 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         {
             bool fJMC = Boolean.IntToBool(bIsJustMyCode);
 
-            Debug.Assert(Utility.FImplies(fJMC, this.HasSymbols));
+            Debug.Assert(Utility.FImplies(fJMC, HasSymbols));
 
             int hres = fJMC ? COM_HResults.E_FAIL : COM_HResults.S_OK;
 
-            if (this.HasSymbols)
+            if (HasSymbols)
             {
-                if (this.Engine.Info_SetJMC(fJMC, ReflectionDefinition.Kind.REFLECTION_TYPE, this.TypeDef_Index))
+                if (Engine.Info_SetJMC(fJMC, ReflectionDefinition.Kind.REFLECTION_TYPE, TypeDef_Index))
                 {
                     if(!m_assembly.IsFrameworkAssembly)
                     {
                         //now update the debugger JMC state...
-                        foreach (Pdbx.Method m in this.m_pdbxClass.Methods)
+                        foreach (Pdbx.Method m in m_pdbxClass.Methods)
                         {                    
                             m.IsJMC = fJMC;                    
                         }

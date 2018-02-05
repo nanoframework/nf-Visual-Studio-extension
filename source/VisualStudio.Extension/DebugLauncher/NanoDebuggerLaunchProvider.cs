@@ -47,7 +47,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             commandLine = string.Format("{0} \"{1}{2}\"", commandLine, CorDebugProcess.DeployDeviceName, deployDeviceName);
 
             // The properties that are available via DebuggerProperties are determined by the property XAML files in your project.
-            var debuggerProperties = await this.Properties.GetNanoDebuggerPropertiesAsync();
+            var debuggerProperties = await Properties.GetNanoDebuggerPropertiesAsync();
 
             var settings = new DebugLaunchSettings(launchOptions)
             {

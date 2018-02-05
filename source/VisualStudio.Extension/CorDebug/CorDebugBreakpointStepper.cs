@@ -48,7 +48,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         public virtual bool IsMatch( BreakpointDef breakpointDef )
         {
-            return breakpointDef.m_id == this.m_breakpointDef.m_id;
+            return breakpointDef.m_id == m_breakpointDef.m_id;
         }
 
         public ushort Kind
@@ -101,7 +101,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         public virtual bool Equals(CorDebugBreakpointBase breakpoint)
         {
-            return this.Equals( (object)breakpoint );
+            return Equals( (object)breakpoint );
         }
 
         public BreakpointDef Debugging_Execution_BreakpointDef
@@ -115,7 +115,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
     {
         public CLREventsBreakpoint(CorDebugProcess process) : base (process)
         {
-            this.Kind = BreakpointDef.c_EXCEPTION_THROWN |
+            Kind = BreakpointDef.c_EXCEPTION_THROWN |
                         BreakpointDef.c_EXCEPTION_CAUGHT |
 #if NO_THREAD_CREATED_EVENTS                                                
                         BreakpointDef.c_EVAL_COMPLETE    |
@@ -126,7 +126,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         BreakpointDef.c_ASSEMBLIES_LOADED | 
                         BreakpointDef.c_BREAK;
 
-            this.Active = true;
+            Active = true;
         }
 
         public override void Hit(BreakpointDef breakpointDef)
@@ -180,13 +180,13 @@ namespace nanoFramework.Tools.VisualStudio.Extension
               
         private void ThreadCreated(BreakpointDef breakpointDef)
         {
-            CorDebugThread thread = this.Process.GetThread(breakpointDef.m_pid);
+            CorDebugThread thread = Process.GetThread(breakpointDef.m_pid);
 
             Debug.Assert(thread == null || thread.IsVirtualThread);
             if (thread == null)
             {
-                thread = new CorDebugThread(this.Process, breakpointDef.m_pid, null);
-                this.Process.AddThread(thread);
+                thread = new CorDebugThread(Process, breakpointDef.m_pid, null);
+                Process.AddThread(thread);
             }
         }
 #endif
@@ -205,7 +205,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         private void ExceptionThrown(BreakpointDef breakpointDef)
         {
-            CorDebugThread thread = this.Process.GetThread(breakpointDef.m_pid);
+            CorDebugThread thread = Process.GetThread(breakpointDef.m_pid);
 
             thread.StoppedOnException();
 
@@ -213,7 +213,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             bool fIsEval        = thread.IsVirtualThread;
             bool fUnhandled     = (breakpointDef.m_depthExceptionHandler == BreakpointDef.c_DEPTH_UNCAUGHT);
 
-            if (this.Process.Engine.Capabilities.ExceptionFilters)
+            if (Process.Engine.Capabilities.ExceptionFilters)
             {
                 switch (breakpointDef.m_depthExceptionHandler)
                 {
@@ -291,7 +291,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         private void ExceptionCaught(BreakpointDef breakpointDef)
         {
-            CorDebugThread thread = this.Process.GetThread(breakpointDef.m_pid);
+            CorDebugThread thread = Process.GetThread(breakpointDef.m_pid);
 
             CorDebugFrame frame = thread.Chain.GetFrameFromDepthnanoCLR(breakpointDef.m_depth);
 
@@ -302,7 +302,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         private void AssembliesLoaded(BreakpointDef breakpointDef)
         {
-            this.Process.UpdateAssemblies();
+            Process.UpdateAssemblies();
         }
 
         private void Break(BreakpointDef breakpointDef)

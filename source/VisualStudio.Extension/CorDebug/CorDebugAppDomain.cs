@@ -58,9 +58,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             uint[] assemblies = null;            
             List<ManagedCallbacks.ManagedCallback> callbacks = new System.Collections.Generic.List<ManagedCallbacks.ManagedCallback>();
 
-            if(this.Process.Engine.Capabilities.AppDomains)
+            if(Process.Engine.Capabilities.AppDomains)
             {
-                WireProtocol.Commands.Debugging_Resolve_AppDomain.Reply reply = this.Process.Engine.ResolveAppDomain(m_id);
+                WireProtocol.Commands.Debugging_Resolve_AppDomain.Reply reply = Process.Engine.ResolveAppDomain(m_id);
 
                 if (reply != null)
                 {
@@ -76,7 +76,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             }
             else
             {
-                List<WireProtocol.Commands.DebuggingResolveAssembly> reply = this.Process.Engine.ResolveAllAssemblies();
+                List<WireProtocol.Commands.DebuggingResolveAssembly> reply = Process.Engine.ResolveAllAssemblies();
                 assemblies = new uint[reply.Count];
 
                 for (int iAssembly = 0; iAssembly < assemblies.Length; iAssembly++)
@@ -115,7 +115,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 if(assembly == null)
                 {
                     //Get the primary assembly from CorDebugProcess
-                    assembly = this.Process.AssemblyFromIdx( idx );
+                    assembly = Process.AssemblyFromIdx( idx );
                     
                     Debug.Assert( assembly != null );
 
@@ -134,7 +134,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 }
             }
 
-            this.Process.EnqueueEvents(callbacks);
+            Process.EnqueueEvents(callbacks);
 
             return callbacks.Count > 0;            
         }
@@ -224,57 +224,57 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         int ICorDebugAppDomain.Stop( uint dwTimeout )
         {
-            return this.ICorDebugController.Stop( dwTimeout );
+            return ICorDebugController.Stop( dwTimeout );
         }
 
         int ICorDebugAppDomain.Continue( int fIsOutOfBand )
         {
-            return this.ICorDebugController.Continue( fIsOutOfBand );
+            return ICorDebugController.Continue( fIsOutOfBand );
         }
 
         int ICorDebugAppDomain.IsRunning( out int pbRunning )
         {
-            return this.ICorDebugController.IsRunning( out pbRunning );
+            return ICorDebugController.IsRunning( out pbRunning );
         }
 
         int ICorDebugAppDomain.HasQueuedCallbacks( ICorDebugThread pThread, out int pbQueued )
         {
-            return this.ICorDebugController.HasQueuedCallbacks( pThread, out pbQueued );
+            return ICorDebugController.HasQueuedCallbacks( pThread, out pbQueued );
         }
 
         int ICorDebugAppDomain.EnumerateThreads( out ICorDebugThreadEnum ppThreads )
         {
-            return this.ICorDebugController.EnumerateThreads( out ppThreads );
+            return ICorDebugController.EnumerateThreads( out ppThreads );
         }
 
         int ICorDebugAppDomain.SetAllThreadsDebugState( CorDebugThreadState state, ICorDebugThread pExceptThisThread )
         {
-            return this.ICorDebugController.SetAllThreadsDebugState(state, pExceptThisThread);
+            return ICorDebugController.SetAllThreadsDebugState(state, pExceptThisThread);
         }
 
         int ICorDebugAppDomain.Detach()
         {
-            return this.ICorDebugController.Detach();
+            return ICorDebugController.Detach();
         }
 
         int ICorDebugAppDomain.Terminate( uint exitCode )
         {
-            return this.ICorDebugController.Terminate( exitCode );
+            return ICorDebugController.Terminate( exitCode );
         }
 
         int ICorDebugAppDomain.CanCommitChanges( uint cSnapshots, ref ICorDebugEditAndContinueSnapshot pSnapshots, out ICorDebugErrorInfoEnum pError )
         {
-            return this.ICorDebugController.CanCommitChanges( cSnapshots, ref pSnapshots, out pError );
+            return ICorDebugController.CanCommitChanges( cSnapshots, ref pSnapshots, out pError );
         }
 
         int ICorDebugAppDomain.CommitChanges( uint cSnapshots, ref ICorDebugEditAndContinueSnapshot pSnapshots, out ICorDebugErrorInfoEnum pError )
         {
-            return this.ICorDebugController.CommitChanges( cSnapshots, ref pSnapshots, out pError );
+            return ICorDebugController.CommitChanges( cSnapshots, ref pSnapshots, out pError );
         }
 
         int ICorDebugAppDomain.GetProcess( out ICorDebugProcess ppProcess )
         {
-            ppProcess = this.Process;
+            ppProcess = Process;
 
             return COM_HResults.S_OK;
         }
@@ -295,21 +295,21 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         int ICorDebugAppDomain.EnumerateBreakpoints( out ICorDebugBreakpointEnum ppBreakpoints )
         {            
-            ppBreakpoints = new CorDebugEnum(this.Process.GetBreakpoints(typeof(CorDebugBreakpoint), this), typeof(ICorDebugBreakpoint), typeof(ICorDebugBreakpointEnum));
+            ppBreakpoints = new CorDebugEnum(Process.GetBreakpoints(typeof(CorDebugBreakpoint), this), typeof(ICorDebugBreakpoint), typeof(ICorDebugBreakpointEnum));
 
             return COM_HResults.S_OK;
         }
 
         int ICorDebugAppDomain.EnumerateSteppers( out ICorDebugStepperEnum ppSteppers )
         {            
-            ppSteppers = new CorDebugEnum(this.Process.GetBreakpoints(typeof(CorDebugStepper), this), typeof(ICorDebugBreakpoint), typeof(ICorDebugBreakpointEnum));
+            ppSteppers = new CorDebugEnum(Process.GetBreakpoints(typeof(CorDebugStepper), this), typeof(ICorDebugBreakpoint), typeof(ICorDebugBreakpointEnum));
 
             return COM_HResults.S_OK;
         }
 
         int ICorDebugAppDomain.IsAttached( out int pbAttached )
         {
-            pbAttached = Boolean.BoolToInt(this.Process.IsAttachedToEngine);
+            pbAttached = Boolean.BoolToInt(Process.IsAttachedToEngine);
 
             return COM_HResults.S_OK;
         }

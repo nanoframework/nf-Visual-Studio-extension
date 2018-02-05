@@ -14,8 +14,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
     public abstract class CorDebugBreakpoint : CorDebugBreakpointBase, ICorDebugBreakpoint
     {
         public CorDebugBreakpoint (CorDebugAppDomain appDomain) : base (appDomain)
-        {       
-            this.Kind = BreakpointDef.c_HARD;
+        {
+            Kind = BreakpointDef.c_HARD;
         }
 
         protected abstract Type TypeToMarshal
@@ -25,23 +25,23 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         public override void Hit(BreakpointDef breakpointDef)
         {
-            CorDebugThread thread = this.Process.GetThread(breakpointDef.m_pid);
-                        
-            this.Process.EnqueueEvent(new ManagedCallbacks.ManagedCallbackBreakpoint(thread, this, this.TypeToMarshal));         
+            CorDebugThread thread = Process.GetThread(breakpointDef.m_pid);
+
+            Process.EnqueueEvent(new ManagedCallbacks.ManagedCallbackBreakpoint(thread, this, TypeToMarshal));         
         }
 
         #region ICorDebugBreakpoint Members
 
         int ICorDebugBreakpoint.Activate( int bActive )
         {
-            this.Active = Boolean.IntToBool( bActive );            
+            Active = Boolean.IntToBool( bActive );            
 
             return COM_HResults.S_OK;            
         }
 
         int ICorDebugBreakpoint.IsActive( out int pbActive )
         {
-            pbActive = Boolean.BoolToInt( this.Active );
+            pbActive = Boolean.BoolToInt(Active);
 
             return COM_HResults.S_OK;                        
         }
@@ -62,9 +62,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             m_il.nanoCLR = function.GetILnanoCLRFromILCLR(ilCLR);
 
             m_breakpointDef.m_IP  = m_il.nanoCLR;            
-            m_breakpointDef.m_md  = m_function.MethodDef_Index;            
+            m_breakpointDef.m_md  = m_function.MethodDef_Index;
 
-            this.Active = true;   
+            Active = true;   
         }
         
         protected override Type TypeToMarshal
@@ -83,8 +83,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
             if(bp == null) return false;
 
-            if(this.m_breakpointDef.m_IP != bp.m_breakpointDef.m_IP) return false;
-            if(this.m_breakpointDef.m_md != bp.m_breakpointDef.m_md) return false;
+            if(m_breakpointDef.m_IP != bp.m_breakpointDef.m_IP) return false;
+            if(m_breakpointDef.m_md != bp.m_breakpointDef.m_md) return false;
 
             return true;
         }
@@ -112,14 +112,14 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         int ICorDebugBreakpoint.Activate( int bActive )
         {
-            this.Active = Boolean.IntToBool( bActive );            
+            Active = Boolean.IntToBool( bActive );            
 
             return COM_HResults.S_OK;
         }
 
         int ICorDebugBreakpoint.IsActive( out int pbActive )
         {
-            pbActive = Boolean.BoolToInt( this.Active );            
+            pbActive = Boolean.BoolToInt(Active);            
 
             return COM_HResults.S_OK;
         }
