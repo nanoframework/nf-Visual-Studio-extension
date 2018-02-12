@@ -8,8 +8,7 @@ namespace $safeprojectname$
     {
         public static void Main()
         {
-            while (!Debugger.IsAttached) { Thread.Sleep(100); }    // Wait for debugger (only needed for debugging session)
-            Console.WriteLine("Program started");                  // You can remove this line once it outputs correctly on the console
+            Thread.Sleep(1000);  // Give some time to debugger to attach
 
             try
             {
@@ -21,10 +20,7 @@ namespace $safeprojectname$
             }
             finally    // Enter the infinite loop in all cases
             {
-                while (true)
-                {
-                    Thread.Sleep(200);
-                }
+                Thread.Sleep(Timeout.Infinite);
             }
         }
     }
