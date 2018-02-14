@@ -126,7 +126,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         else if (device.DebugEngine.ConnectionSource == Tools.Debugger.WireProtocol.ConnectionSource.nanoCLR)
                         {
                             // already running nanoCLR try rebooting the CLR
-                            device.DebugEngine.RebootDevice(RebootOption.RebootClrWaitForDebugger);
+                            device.DebugEngine.RebootDevice(RebootOptions.ClrOnly | RebootOptions.WaitForDebugger);
                         }
 
                         // wait before next pass
@@ -231,7 +231,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         // reboot device
                         await outputPaneWriter.WriteLineAsync("Rebooting nanoCLR on device.");
 
-                        device.DebugEngine.RebootDevice(RebootOption.RebootClrOnly);
+                        device.DebugEngine.RebootDevice(RebootOptions.ClrOnly);
 
                         // yield to give the UI thread a chance to respond to user input
                         await Task.Yield();

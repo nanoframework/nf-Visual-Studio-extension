@@ -408,7 +408,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                             ViewModelLocator.DeviceExplorer.LastDeviceConnectedHash = 0;
 
                             // reboot device
-                            NanoDeviceCommService.Device.DebugEngine.RebootDevice(Debugger.RebootOption.RebootClrOnly);
+                            NanoDeviceCommService.Device.DebugEngine.RebootDevice(Debugger.RebootOptions.ClrOnly | Debugger.RebootOptions.NoShutdown);
 
                             // yield to give the UI thread a chance to respond to user input
                             await Task.Yield();

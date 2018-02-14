@@ -298,7 +298,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                 AttachToEngine();
 
-                _engine.RebootDevice(RebootOption.RebootClrWaitForDebugger);
+                _engine.RebootDevice(RebootOptions.ClrOnly | RebootOptions.WaitForDebugger);
 
                 // TODO
                 //if(m_engine.PortDefinition is PortDefinition_Tcp)
@@ -318,7 +318,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                                 break;
                             }
 
-                            _engine.RebootDevice(RebootOption.RebootClrWaitForDebugger);
+                            _engine.RebootDevice(RebootOptions.ClrOnly | RebootOptions.WaitForDebugger);
 
                             Thread.Yield();
                         }
@@ -1212,7 +1212,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
             if (!fDidDeploy)
             {
-                Engine.RebootDevice(RebootOption.RebootClrWaitForDebugger);
+                Engine.RebootDevice(RebootOptions.ClrOnly | RebootOptions.WaitForDebugger);
             }
 
             DebugAssert(_debugPort == port, "Error creating device process.");
