@@ -18,10 +18,6 @@ namespace $safeprojectname$
             {
                 // Do whatever please you with the exception caught
             }
-            finally    // Enter the infinite loop in all cases
-            {
-                Thread.Sleep(Timeout.Infinite);
-            }
         }
     }
 }

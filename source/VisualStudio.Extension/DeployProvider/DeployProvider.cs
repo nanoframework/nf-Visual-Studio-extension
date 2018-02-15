@@ -126,7 +126,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         else if (device.DebugEngine.ConnectionSource == Tools.Debugger.WireProtocol.ConnectionSource.nanoCLR)
                         {
                             // already running nanoCLR try rebooting the CLR
-                            device.DebugEngine.RebootDevice(RebootOptions.ClrOnly | RebootOptions.WaitForDebugger);
+                            device.DebugEngine.RebootDevice(RebootOptions.ClrOnly);
                         }
 
                         // wait before next pass
