@@ -197,9 +197,6 @@
     <ProjectReference Include="..\..\nf-interpreter\src\CLR\Core\Hardware\Hardware.vcxproj">
       <Project>{5d50772e-dac8-407d-972f-37deb4450b72}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\..\nf-interpreter\src\CLR\Core\HeapPersistence\HeapPersistence.vcxproj">
-      <Project>{bc2245b0-32e0-410e-b3f2-e2bfa0b503b3}</Project>
-    </ProjectReference>
     <ProjectReference Include="..\..\nf-interpreter\src\CLR\Core\InterruptHandler\InterruptHandler.vcxproj">
       <Project>{d32ee397-7e49-452d-ac95-afcb3c962e3d}</Project>
     </ProjectReference>
