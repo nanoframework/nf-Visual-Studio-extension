@@ -1599,8 +1599,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     break;
                 case Commands.c_Monitor_Ping:
                 case Commands.c_Debugging_Button_Report:
-                case Commands.c_Debugging_Lcd_NewFrame:
-                case Commands.c_Debugging_Lcd_NewFrameData:
                 case Commands.c_Debugging_Value_GetStack:
                     //nop
                     break;
