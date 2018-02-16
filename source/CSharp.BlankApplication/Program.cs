@@ -8,8 +8,6 @@ namespace $safeprojectname$
     {
         public static void Main()
         {
-            Thread.Sleep(1000);  // Give some time to debugger to attach
-
             try
             {
                 // User code goes here
