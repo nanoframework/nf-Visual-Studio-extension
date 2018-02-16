@@ -6,6 +6,10 @@
 
 #include "stdafx.h"
 
+void HAL_EnterBooterMode()
+{
+}
+
 bool g_fDoNotUninitializeDebuggerPort = false;
 
 // All solutions are expected to provide an implementation of this
