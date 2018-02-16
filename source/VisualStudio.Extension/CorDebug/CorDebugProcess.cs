@@ -293,10 +293,11 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             if (!_engine.IsDeviceInInitializeState())
             {
                 bool fSucceeded = false;
+                bool forceConnect = false;
 
                 NanoFrameworkPackage.MessageCentre.StartProgressMessage(Resources.ResourceStrings.Rebooting);
 
-                AttachToEngine();
+                AttachToEngine(true);
 
                 _engine.RebootDevice(RebootOptions.ClrOnly | RebootOptions.WaitForDebugger);
 
@@ -306,9 +307,15 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 //    DetachFromEngine();
                 //}
 
-                for(int retries=0; retries<5; retries++)
+                for(int retries = 0; retries < 5; retries++)
                 {
-                    if (AttachToEngine() != null)
+                    if((retries % 2) != 0)
+                    {
+                        // force connect on odd attempts
+                        forceConnect = true;
+                    }
+
+                    if (AttachToEngine(forceConnect) != null)
                     {
                         if(_engine.ConnectionSource == ConnectionSource.nanoCLR)
                         {
@@ -320,6 +327,11 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                             _engine.RebootDevice(RebootOptions.ClrOnly | RebootOptions.WaitForDebugger);
 
+                            forceConnect = false;
+
+                            // better pause here to allow the reboot to occur
+                            Thread.Sleep(500);
+
                             Thread.Yield();
                         }
                         else if(_engine.ConnectionSource == ConnectionSource.nanoBooter)
@@ -330,6 +342,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         }
                         else
                         {
+                            forceConnect = true;
                             Thread.Yield();
                         }
                     }
@@ -345,7 +358,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             NanoFrameworkPackage.MessageCentre.StopProgressMessage(Resources.ResourceStrings.TargetInitializeSuccess);
         }
 
-        public Engine AttachToEngine()
+        public Engine AttachToEngine(bool forceConnection)
         {
             int c_maxRetries     = 5;
             int c_retrySleepTime = 5000;
@@ -375,7 +388,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         }
                     }
 
-                    var connect = _engine.ConnectAsync(c_retrySleepTime, true, ConnectionSource.Unknown);
+                    var connect = _engine.ConnectAsync(c_retrySleepTime, forceConnection, ConnectionSource.Unknown);
                     connect.Wait();
 
                     if (connect.Result)
@@ -571,7 +584,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 
                 NanoFrameworkPackage.MessageCentre.DebugMessage(String.Format(Resources.ResourceStrings.AttachingToDevice));
 
-                if (AttachToEngine() == null)
+                if (AttachToEngine(true) == null)
                 {
                     NanoFrameworkPackage.MessageCentre.DebugMessage(String.Format(Resources.ResourceStrings.DeploymentErrorReconnect));
                     
@@ -587,6 +600,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     NanoFrameworkPackage.MessageCentre.DebugMessage(String.Format(Resources.ResourceStrings.WaitingDeviceInitialization));
 
                     EnsureProcessIsInInitializedState();
+
+                    // need to update the assemblies right here or the collection won't be populated when we need it ahead
+                    UpdateAssemblies();
                 }
                 else
                 {

@@ -130,7 +130,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 CorDebugProcess process = CorDebugProcess.CreateProcessEx(pPort, lpApplicationName, lpCommandLine, lpProcessAttributes, lpThreadAttributes, bInheritHandles, dwCreationFlags, lpEnvironment, lpCurrentDirectory, ref lpStartupInfo, ref lpProcessInformation, debuggingFlags);
 
                 // StartDebugging() will either get a connected device into a debuggable state and start the dispatch thread, or throw.
-                process.StartDebugging(this, false);
+                process.StartDebugging(this, true);
                 ppProcess = process;
 
                 return COM_HResults.S_OK;
