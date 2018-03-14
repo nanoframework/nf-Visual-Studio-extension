@@ -132,6 +132,19 @@
         </Strings>
       </Button>
       
+
+      <!-- NetworkConfig for Device Explorer toolbar -->
+      <Button guid="guidDeviceExplorerCmdSet" id="idNetworkConfigCommand" priority="0x0101" type="Button">
+        <Parent guid="guidDeviceExplorerCmdSet" id="DeviceExplorerToolbarGroupID"/>
+        <Icon guid="NanoFrameworkCatalog" id="NetworkConfig" />
+        <CommandFlag>IconIsMoniker</CommandFlag>
+        <CommandFlag>DefaultDisabled</CommandFlag>
+        <Strings>
+          <CommandName>NetworkConfigCommand</CommandName>
+          <ButtonText>Edit Network Configuration</ButtonText>
+        </Strings>
+      </Button>
+      
       <!-- buttons for the 2nd menu -->
       
       <!-- Show internal errors for nF extension -->
@@ -173,6 +186,7 @@
       <IDSymbol name="idPingDeviceCommand" value="0x0202" />
       <IDSymbol name="idDeviceCapabilitiesCommand" value="0x0203" />
       <IDSymbol name="idDeviceEraseCommand" value="0x0205" />
+      <IDSymbol name="idNetworkConfigCommand" value="0x0207" />
       <IDSymbol name="idShowInternalErrorsCommand" value="0x0300" />
     </GuidSymbol>
 

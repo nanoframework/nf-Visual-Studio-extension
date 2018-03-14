@@ -76,5 +76,13 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 return new ImageMoniker { Guid = ManifestGuid, Id = 100 };
             }
         }
+
+        public static ImageMoniker NetworkConfig
+        {
+            get
+            {
+                return new ImageMoniker { Guid = ManifestGuid, Id = 110 };
+            }
+        }
     }
 }
