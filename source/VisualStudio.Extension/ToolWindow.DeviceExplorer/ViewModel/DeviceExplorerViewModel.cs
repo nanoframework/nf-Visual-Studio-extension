@@ -14,6 +14,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
+using System.Net;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
@@ -41,13 +42,14 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
 
         // for serial devices we wait 10 seconds for the device to be available again
         private const int SerialDeviceReconnectMaximumAttempts = 4 * 10;
+        private DeviceConfiguration.NetworkConfigurationProperties _deviceNetworkConfiguration;
 
         // keep this here otherwise Fody won't be able to properly implement INotifyPropertyChanging
 #pragma warning disable 67
         public event PropertyChangingEventHandler PropertyChanging;
 #pragma warning restore 67
 
-        private bool _deviceEnumerationCompleted { get;  set; }
+        private bool _deviceEnumerationCompleted { get; set; }
 
         /// <summary>
         /// Sets if Device Explorer should auto-select a device when there is only a single one in the available list.
@@ -57,7 +59,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
         /// <summary>
         /// VS Package.
         /// </summary>
-        public Package Package { get;  set; }
+        public Package Package { get; set; }
 
         /// <summary>
         /// Gets the service provider from the owner package.
@@ -115,7 +117,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
             // save status
             _deviceEnumerationCompleted = true;
 
-            SelectedTransportType = TransportType.Serial;
+            SelectedTransportType = Debugger.WireProtocol.TransportType.Serial;
 
             UpdateAvailableDevices();
         }
@@ -124,7 +126,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
         {
             switch (SelectedTransportType)
             {
-                case TransportType.Serial:
+                case Debugger.WireProtocol.TransportType.Serial:
                     //BusySrv.ShowBusy(Res.GetString("HC_Searching"));
                     AvailableDevices = new ObservableCollection<NanoDeviceBase>(NanoDeviceCommService.DebugClient.NanoFrameworkDevices);
                     NanoDeviceCommService.DebugClient.NanoFrameworkDevices.CollectionChanged += NanoFrameworkDevices_CollectionChanged;
@@ -132,7 +134,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
                     //BusySrv.HideBusy();
                     break;
 
-                case TransportType.Usb:
+                case Debugger.WireProtocol.TransportType.Usb:
                     //BusySrv.ShowBusy(Res.GetString("HC_Searching"));
                     //AvailableDevices = new ObservableCollection<NanoDeviceBase>(UsbDebugService.NanoFrameworkDevices);
                     //NanoDeviceCommService.NanoFrameworkDevicesCollectionChanged += NanoDeviceCommService_NanoFrameworkDevicesCollectionChanged;
@@ -141,7 +143,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
                     //BusySrv.HideBusy();
                     break;
 
-                case TransportType.TcpIp:
+                case Debugger.WireProtocol.TransportType.TcpIp:
                     // TODO
                     //BusySrv.ShowBusy("Not implemented yet! Why not give it a try??");
                     //await Task.Delay(2500);
@@ -168,14 +170,14 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
 
         private void NanoFrameworkDevices_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
-             // handle this according to the selected device type 
+            // handle this according to the selected device type 
             switch (SelectedTransportType)
             {
                 //case TransportType.Usb:
                 //    AvailableDevices = new ObservableCollection<NanoDeviceBase>(UsbDebugService.NanoFrameworkDevices);
                 //    break;
 
-                case TransportType.Serial:
+                case Debugger.WireProtocol.TransportType.Serial:
                     AvailableDevices = new ObservableCollection<NanoDeviceBase>(NanoDeviceCommService.DebugClient.NanoFrameworkDevices);
                     break;
 
@@ -185,7 +187,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
             }
 
             MessengerInstance.Send(new NotificationMessage(""), MessagingTokens.NanoDevicesCollectionHasChanged);
-            
+
             // handle auto-select option
             if (_deviceEnumerationCompleted || NanoDeviceCommService.DebugClient.IsDevicesEnumerationComplete)
             {
@@ -213,7 +215,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
                     else
                     {
                         // we have more than one now, was there any device already selected?
-                        if(SelectedDevice != null)
+                        if (SelectedDevice != null)
                         {
                             // maintain selection
                             ForceNanoDeviceSelection(AvailableDevices.FirstOrDefault(d => d.Description == SelectedDevice.Description)).FireAndForget();
@@ -280,9 +282,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
 
         #region Transport
 
-        public List<TransportType> AvailableTransportTypes { get; set; }
+        public List<Debugger.WireProtocol.TransportType> AvailableTransportTypes { get; set; }
 
-        public TransportType SelectedTransportType { get; set; }
+        public Debugger.WireProtocol.TransportType SelectedTransportType { get; set; }
 
         public void OnSelectedTransportTypeChanged()
         {
@@ -309,6 +311,11 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
 
         #endregion
 
+        # region Network configuration dialog
+
+        public DeviceConfiguration.NetworkConfigurationProperties DeviceNetworkConfiguration { get; set; }
+
+        #endregion
 
         #region messaging tokens
 
