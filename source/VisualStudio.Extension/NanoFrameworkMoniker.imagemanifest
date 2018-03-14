@@ -13,6 +13,7 @@
     <ID Name="NanoFrameworkProject" Value="80" />
     <ID Name="ShowInternalErrors" Value="90" />
     <ID Name="DeviceErase" Value="100" />
+    <ID Name="NetworkConfig" Value="110" />
   </Symbols>
   <Images>
     <Image Guid="$(NanoFrameworkCatalog)" ID="$(DeviceConnected)">
@@ -60,6 +61,12 @@
     <Image Guid="$(NanoFrameworkCatalog)" ID="$(DeviceErase)">
       <Source Uri="$(Resources)/DeviceErase.xaml"/>
       <Source Uri="$(Resources)/DeviceErase.16.16.png" >
+        <Size Value="16" />
+      </Source>
+    </Image>
+    <Image Guid="$(NanoFrameworkCatalog)" ID="$(NetworkConfig)">
+      <Source Uri="$(Resources)/NetworkConfig.xaml"/>
+      <Source Uri="$(Resources)/NetworkConfig.16.16.png" >
         <Size Value="16" />
       </Source>
     </Image>

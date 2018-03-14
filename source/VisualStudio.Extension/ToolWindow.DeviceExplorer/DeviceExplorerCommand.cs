@@ -54,6 +54,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         public const int PingDeviceCommandID = 0x0202;
         public const int DeviceCapabilitiesID = 0x0203;
         public const int DeviceEraseID = 0x0205;
+        public const int NetworkConfigID = 0x0207;
 
         // 2nd group
         public const int ShowInternalErrorsCommandID = 0x0300;
@@ -149,6 +150,14 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             toolbarButtonCommandId = GenerateCommandID(DeviceEraseID);
             menuItem = new MenuCommand( new EventHandler(
                 DeviceEraseCommandHandler), toolbarButtonCommandId);
+            menuItem.Enabled = false;
+            menuItem.Visible = true;
+            menuCommandService.AddCommand(menuItem);
+
+            // NetworkConfig
+            toolbarButtonCommandId = GenerateCommandID(NetworkConfigID);
+            menuItem = new MenuCommand( new EventHandler(
+                NetworkConfigCommandHandler), toolbarButtonCommandId);
             menuItem.Enabled = false;
             menuItem.Visible = true;
             menuCommandService.AddCommand(menuItem);
@@ -451,6 +460,82 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             }
         }
 
+        /// <summary>
+        /// Handler for NetworkConfigCommand
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="arguments"></param>
+        /// <remarks>OK to use async void because this is a top-level event-handler 
+        /// https://channel9.msdn.com/Series/Three-Essential-Tips-for-Async/Tip-1-Async-void-is-for-top-level-event-handlers-only
+        /// </remarks>
+        private async void NetworkConfigCommandHandler(object sender, EventArgs arguments)
+        {
+            // yield to give the UI thread a chance to respond to user input
+            await Task.Yield();
+
+            try
+            {
+                // disable the button
+                (sender as MenuCommand).Enabled = false;
+
+                // make sure this device is showing as selected in Device Explorer tree view
+                ViewModelLocator.DeviceExplorer.ForceNanoDeviceSelection().FireAndForget();
+
+                // connect to the device
+                if (await NanoDeviceCommService.Device.DebugEngine.ConnectAsync(5000))
+                {
+                    try
+                    {
+                        var networkConfiguration = NanoDeviceCommService.Device.DebugEngine.GetNetworkConfiguratonProperties();
+
+                        if (networkConfiguration != null)
+                        {
+                            ViewModelLocator.DeviceExplorer.DeviceNetworkConfiguration = networkConfiguration;
+
+                            // yield to give the UI thread a chance to respond to user input
+                            await Task.Yield();
+
+                            // show network configuration dialogue
+                            var networkConfigDialog = new NetworkConfigurationDialog();
+                            networkConfigDialog.HasMinimizeButton = false;
+                            networkConfigDialog.HasMaximizeButton = false;
+                            networkConfigDialog.ShowModal();
+                        }
+                        else
+                        {
+                            // report issue to user
+                            NanoFrameworkPackage.MessageCentre.DebugMessage($"Error updating {ViewModelLocator.DeviceExplorer.SelectedDevice.Description} network configuration.");
+                        }
+                    }
+                    catch
+                    {
+                        // report issue to user
+                        NanoFrameworkPackage.MessageCentre.DebugMessage($"Error updating {ViewModelLocator.DeviceExplorer.SelectedDevice.Description} network configuration.");
+
+                        return;
+                    }
+                }
+                else
+                {
+                    NanoFrameworkPackage.MessageCentre.DebugMessage($"{ViewModelLocator.DeviceExplorer.SelectedDevice.Description} is not responding, please reboot the device.");
+
+                    return;
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+            finally
+            {
+                // enable the button
+                (sender as MenuCommand).Enabled = true;
+
+                // clear status bar
+                NanoFrameworkPackage.MessageCentre.StopProgressMessage();
+            }
+        }
+
         private void ShowInternalErrorsCommandHandler(object sender, EventArgs e)
         {
             // save 
@@ -513,6 +598,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     menuCommandService.FindCommand(GenerateCommandID(DeviceCapabilitiesID)).Enabled = true;
                     // enable erase button
                     menuCommandService.FindCommand(GenerateCommandID(DeviceEraseID)).Enabled = true;
+                    // enable network config button
+                    menuCommandService.FindCommand(GenerateCommandID(NetworkConfigID)).Enabled = true;
                 }
                 else
                 {
@@ -523,6 +610,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     menuCommandService.FindCommand(GenerateCommandID(DeviceCapabilitiesID)).Enabled = false;
                     // disable erase button
                     menuCommandService.FindCommand(GenerateCommandID(DeviceEraseID)).Enabled = false;
+                    // disable network config button
+                    menuCommandService.FindCommand(GenerateCommandID(NetworkConfigID)).Enabled = true;
                 }
             }
             else
@@ -533,6 +622,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 menuCommandService.FindCommand(GenerateCommandID(DeviceCapabilitiesID)).Enabled = false;
                 // disable erase button
                 menuCommandService.FindCommand(GenerateCommandID(DeviceEraseID)).Enabled = false;
+                // disable network config button
+                menuCommandService.FindCommand(GenerateCommandID(NetworkConfigID)).Enabled = true;
             }
         }
 
