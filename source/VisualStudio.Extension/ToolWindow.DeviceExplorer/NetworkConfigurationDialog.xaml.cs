@@ -153,7 +153,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             NanoFrameworkPackage.MessageCentre.StartProgressMessage($"Uploading network configuration to {(DataContext as DeviceExplorerViewModel).SelectedDevice.Description}...");
 
             // save network configuration to target...
-            if ((DataContext as DeviceExplorerViewModel).SelectedDevice.DebugEngine.WriteDeviceConfiguration(networkConfigurationToSave))
+            if ((DataContext as DeviceExplorerViewModel).SelectedDevice.DebugEngine.UpdateDeviceConfiguration(networkConfigurationToSave))
             {
                 NanoFrameworkPackage.MessageCentre.DebugMessage($"{(DataContext as DeviceExplorerViewModel).SelectedDevice.Description} network configuration updated.");
                 NanoFrameworkPackage.MessageCentre.StopProgressMessage();
