@@ -611,7 +611,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     // disable erase button
                     menuCommandService.FindCommand(GenerateCommandID(DeviceEraseID)).Enabled = false;
                     // disable network config button
-                    menuCommandService.FindCommand(GenerateCommandID(NetworkConfigID)).Enabled = true;
+                    menuCommandService.FindCommand(GenerateCommandID(NetworkConfigID)).Enabled = false;
                 }
             }
             else
@@ -623,7 +623,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 // disable erase button
                 menuCommandService.FindCommand(GenerateCommandID(DeviceEraseID)).Enabled = false;
                 // disable network config button
-                menuCommandService.FindCommand(GenerateCommandID(NetworkConfigID)).Enabled = true;
+                menuCommandService.FindCommand(GenerateCommandID(NetworkConfigID)).Enabled = false;
             }
         }
 
