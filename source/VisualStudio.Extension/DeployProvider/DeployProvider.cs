@@ -172,7 +172,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                         foreach (IAssemblyReference reference in referencedAssemblies)
                         {
-                            assemblyList.Add((await reference.GetFullPathAsync(), $" v{await reference.Metadata.GetEvaluatedPropertyValueAsync("Version")}"));
+                            string verString = await reference.Metadata.GetEvaluatedPropertyValueAsync("Version");
+                            assemblyList.Add((await reference.GetFullPathAsync(), $" v{verString}"));
                         }
 
                         // loop through each project that is set to build
@@ -180,15 +181,51 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         {
                             if (await project.GetReferenceOutputAssemblyAsync())
                             {
-                                assemblyList.Add((await project.GetFullPathAsync(), $" v{await project.Metadata.GetEvaluatedPropertyValueAsync("Version")}"));
+                                string verString = await project.Metadata.GetEvaluatedPropertyValueAsync("Version");
+
+                                // add the referenced project output to the assembly list
+                                assemblyList.Add((await project.GetFullPathAsync(), $" v{verString}"));
+
+                                // get the referenced assemblies for this referenced project
+
+                                // need to reach the UnconfiguredProject using reflection
+
+                                // get the unresolved reference for this referenced project
+                                var unresolvedDependency = await Properties.ConfiguredProject.Services.ProjectReferences.GetUnresolvedReferenceAsync(project);
+
+                                // get the type info for the PropertiesContext 
+                                var projectPropertiesContextType = unresolvedDependency.PropertiesContext.GetType().GetTypeInfo();
+                                // get the fields from the Type
+                                var fields = projectPropertiesContextType.GetFields(BindingFlags.NonPublic | BindingFlags.Instance);
+
+                                // get FieldInfo for the 'project' field
+                                var projectField = fields.FirstOrDefault(propInfo => propInfo.Name == "project");
+                                
+                                // get the field value
+                                var projectValue = projectField.GetValue(unresolvedDependency.PropertiesContext);
+
+                                // load the configured project for this referenced project
+                                var configuredProject = await ((UnconfiguredProject)projectValue).GetSuggestedConfiguredProjectAsync();
+
+                                // get the resolved references for the referenced project
+                                var referencedProjectReferencedAssemblies = await configuredProject.Services.AssemblyReferences.GetResolvedReferencesAsync();
+
+                                // add those to the assembly list
+                                foreach (IAssemblyReference reference in referencedProjectReferencedAssemblies)
+                                {
+                                    string versionString = await reference.Metadata.GetEvaluatedPropertyValueAsync("Version");
+                                    assemblyList.Add((await reference.GetFullPathAsync(), $" v{versionString}"));
+                                }
                             }
                         }
 
                         // now add the executable to this list
                         assemblyList.Add((targetPath, $" v{ executableVersionInfo.ProductVersion }"));
 
+                        // if there are referenced project, the assembly list contains repeated assemblies so need to use Linq Distinct()
+
                         // build a list with the PE files corresponding to each DLL and EXE
-                        List<(string path, string version)> peCollection = assemblyList.Select(a => (a.path.Replace(".dll", ".pe").Replace(".exe", ".pe"), a.version)).ToList();
+                        List<(string path, string version)> peCollection = assemblyList.Distinct().Select(a => (a.path.Replace(".dll", ".pe").Replace(".exe", ".pe"), a.version)).ToList();
 
                         // Keep track of total assembly size
                         long totalSizeOfAssemblies = 0;
