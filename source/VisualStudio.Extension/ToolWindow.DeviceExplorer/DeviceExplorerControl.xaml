@@ -17,7 +17,7 @@
              d:DesignHeight="300" d:DesignWidth="300"
              x:Name="DeviceExplorer">
     <UserControl.DataContext>
-        <!--It's OK to use this static resource this way becuase it has been added programaticaly in the VS package constructor.-->
+        <!--It's OK to use this static resource this way because it has been added programatically in the VS package constructor.-->
         <Binding Mode="OneWay" Path="DeviceExplorer" Source="{StaticResource Locator}"/>
     </UserControl.DataContext>
 
@@ -95,26 +95,35 @@
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
-                        
+
                         <imaging:CrispImage Grid.Row="0" Grid.Column="0" Width="32" Height="32" HorizontalAlignment="Left" Margin="0" Focusable="False" 
                                             Moniker="{x:Static nfCatalog:NanoFrameworkMonikers.NanoFramework}" 
                                             theming:ImageThemingUtilities.ImageBackgroundColor="{Binding Background, ElementName=BackgroundInvert, Converter={StaticResource BrushToColorConverter}}" />
-                        
+
                         <StackPanel Grid.Row="0" Grid.Column="1"  HorizontalAlignment="Left" Orientation="Vertical">
-                            <!--<TextBlock Margin="10,0,0,0" VerticalAlignment="Center" Style="{StaticResource {x:Static vsfx:VsResourceKeys.ThemedDialogTextBoxStyleKey}}">Visit our website <Hyperlink NavigateUri="http//www.nanoframework.net" Style="{StaticResource {x:Static vsfx:VsResourceKeys.ThemedDialogHyperlinkStyleKey}}">here</Hyperlink>!</TextBlock>-->
-                            <TextBlock Margin="10,0,0,0" VerticalAlignment="Center">
-                                Join our Slack community 
-                                <Hyperlink Style="{StaticResource {x:Static vsfx:VsResourceKeys.ThemedDialogHyperlinkStyleKey}}"
-                                           NavigateUri="https://nanoframework.wordpress.com/slack-invite-form/"
-                                           RequestNavigate="Hyperlink_RequestNavigate" >
-                                    here</Hyperlink>.
+                            <TextBlock Margin="10,0,0,0" VerticalAlignment="Center" Style="{StaticResource {x:Static vsfx:VsResourceKeys.ThemedDialogTextBoxStyleKey}}">
+                                Visit our <Hyperlink NavigateUri="http//www.nanoframework.net" Style="{StaticResource {x:Static vsfx:VsResourceKeys.ThemedDialogHyperlinkStyleKey}}">website</Hyperlink>!
                             </TextBlock>
-                            <TextBlock Margin="10,0,0,0" VerticalAlignment="Center">
-                                Engage with the community 
+                            <TextBlock Margin="10,0,0,0" VerticalAlignment="Center" Style="{StaticResource {x:Static vsfx:VsResourceKeys.ThemedDialogTextBoxStyleKey}}">
+                                Search the  
                                 <Hyperlink Style="{StaticResource {x:Static vsfx:VsResourceKeys.ThemedDialogHyperlinkStyleKey}}"
-                                           NavigateUri="https://nanoframework.slack.com" 
+                                           NavigateUri="http://docs.nanoframework.net/api/index.html" 
                                            RequestNavigate="Hyperlink_RequestNavigate" >
-                                    here</Hyperlink>.
+                                    API reference</Hyperlink>.
+                            </TextBlock>
+                            <TextBlock Margin="10,0,0,0" VerticalAlignment="Center" Style="{StaticResource {x:Static vsfx:VsResourceKeys.ThemedDialogTextBoxStyleKey}}">
+                                Take advantage of our    
+                                <Hyperlink Style="{StaticResource {x:Static vsfx:VsResourceKeys.ThemedDialogHyperlinkStyleKey}}"
+                                           NavigateUri="http://docs.nanoframework.net/articles/intro.html" 
+                                           RequestNavigate="Hyperlink_RequestNavigate" >
+                                    knowledge base</Hyperlink>.
+                            </TextBlock>                            
+                            <TextBlock Margin="10,0,0,0" VerticalAlignment="Center">
+                                Join the community in the 
+                                <Hyperlink Style="{StaticResource {x:Static vsfx:VsResourceKeys.ThemedDialogHyperlinkStyleKey}}"
+                                           NavigateUri="https://join.slack.com/t/nanoframework/shared_invite/enQtMzI3OTg4MTk0NTgwLWQ0ODQ3ZWIwZjgxZWFmNjU3MDIwN2E2YzM2OTdhMWRiY2Q3M2NlOTk2N2IwNTM3MmRlMmQ2NTRlNjZlYzJlMmY"
+                                           RequestNavigate="Hyperlink_RequestNavigate" >
+                                    Slack workspace</Hyperlink>.
                             </TextBlock>
                         </StackPanel>
 
