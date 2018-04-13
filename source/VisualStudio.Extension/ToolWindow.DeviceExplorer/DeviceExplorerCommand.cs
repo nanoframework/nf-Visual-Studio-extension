@@ -486,11 +486,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 {
                     try
                     {
-                        var networkConfiguration = NanoDeviceCommService.Device.DebugEngine.GetNetworkConfiguratonProperties();
+                        // for now, just get the 1st network configuration, if exists
+                        var networkConfigurations = NanoDeviceCommService.Device.DebugEngine.GetAllNetworkConfigurations();
 
-                        if (networkConfiguration != null)
+                        if (networkConfigurations.Count > 0)
                         {
-                            ViewModelLocator.DeviceExplorer.DeviceNetworkConfiguration = networkConfiguration;
+                            ViewModelLocator.DeviceExplorer.DeviceNetworkConfiguration = networkConfigurations[0];
 
                             // yield to give the UI thread a chance to respond to user input
                             await Task.Yield();
