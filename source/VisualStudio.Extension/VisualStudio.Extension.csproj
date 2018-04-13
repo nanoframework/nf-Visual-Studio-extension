@@ -365,7 +365,7 @@
       <HintPath>..\packages\Microsoft.Win32.Primitives.4.3.0\lib\net46\Microsoft.Win32.Primitives.dll</HintPath>
     </Reference>
     <Reference Include="nanoFramework.Tools.Debugger, Version=0.5.0.0, Culture=neutral, PublicKeyToken=e520bb6b53f04733, processorArchitecture=MSIL">
-      <HintPath>..\packages\nanoFramework.Tools.Debugger.Net.0.5.0-preview078\lib\net46\nanoFramework.Tools.Debugger.dll</HintPath>
+      <HintPath>..\packages\nanoFramework.Tools.Debugger.Net.0.5.0-preview083\lib\net46\nanoFramework.Tools.Debugger.dll</HintPath>
     </Reference>
     <!-- reference this assembly when Configuration is Release (on Debug reference the project directly instead) -->
     <Reference Include="PresentationCore" />
@@ -387,6 +387,7 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="System.ComponentModel.Composition" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Composition.AttributedModel, Version=1.0.32.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Composition.AttributedModel.1.1.0\lib\portable-net45+win8+wp8+wpa81\System.Composition.AttributedModel.dll</HintPath>
     </Reference>

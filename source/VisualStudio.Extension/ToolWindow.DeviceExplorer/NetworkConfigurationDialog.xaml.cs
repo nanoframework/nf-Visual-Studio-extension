@@ -16,6 +16,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
     using System.Linq;
     using System.Windows.Controls;
     using System.Windows.Threading;
+    using System.Net.NetworkInformation;
 
     /// <summary>
     /// Interaction logic for DeviceExplorerControl.
@@ -49,8 +50,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
             // set IPv4 addresses
             // DHCP ?
-            if ((networkConfiguration.StartupAddressMode == DeviceConfiguration.AddressMode.DHCP) ||
-                (networkConfiguration.StartupAddressMode == DeviceConfiguration.AddressMode.Invalid))
+            if ((networkConfiguration.StartupAddressMode == AddressMode.DHCP) ||
+                (networkConfiguration.StartupAddressMode == AddressMode.Invalid))
             {
                 IPv4Automatic.IsChecked = true;
             }
@@ -64,8 +65,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             }
 
             // DNS auto?
-            if((networkConfiguration.IPv4DNS1Address.Equals(IPAddress.None) && networkConfiguration.IPv4DNS2Address.Equals(IPAddress.None)) ||
-                (networkConfiguration.IPv4DNS1Address.Equals(_InvalidIPv4) && networkConfiguration.IPv4DNS2Address.Equals(_InvalidIPv4)))
+            if((networkConfiguration.IPv4DNSAddress1.Equals(IPAddress.None) && networkConfiguration.IPv4DNSAddress2.Equals(IPAddress.None)) ||
+                (networkConfiguration.IPv4DNSAddress1.Equals(_InvalidIPv4) && networkConfiguration.IPv4DNSAddress2.Equals(_InvalidIPv4)))
             {
                 IPv4DnsAutomatic.IsChecked = true;
             }
@@ -73,8 +74,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             {
                 IPv4DnsManual.IsChecked = true;
 
-                IPv4Dns1Address.SetAddress(networkConfiguration.IPv4DNS1Address);
-                IPv4Dns2Address.SetAddress(networkConfiguration.IPv4DNS2Address);
+                IPv4Dns1Address.SetAddress(networkConfiguration.IPv4DNSAddress1);
+                IPv4Dns2Address.SetAddress(networkConfiguration.IPv4DNSAddress2);
             }
 
             // MAC address
@@ -95,7 +96,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             if(IPv4Automatic.IsChecked.GetValueOrDefault())
             {
                 // IPv4 from DHCP
-                networkConfigurationToSave.StartupAddressMode = DeviceConfiguration.AddressMode.DHCP;
+                networkConfigurationToSave.StartupAddressMode = AddressMode.DHCP;
 
                 // clear remaining options
                 networkConfigurationToSave.IPv4Address = IPAddress.None;
@@ -105,7 +106,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             else
             {
                 // IPv4 has static configuration
-                networkConfigurationToSave.StartupAddressMode = DeviceConfiguration.AddressMode.Static;
+                networkConfigurationToSave.StartupAddressMode = AddressMode.Static;
 
                 // clear remaining options
                 networkConfigurationToSave.IPv4Address = IPv4Address.GetAddress();
@@ -118,14 +119,14 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             {
                 // IPv4 DNS is provided by DHCP
                 // clear DNS addresses
-                networkConfigurationToSave.IPv4DNS1Address = IPAddress.None;
-                networkConfigurationToSave.IPv4DNS2Address = IPAddress.None;
+                networkConfigurationToSave.IPv4DNSAddress1 = IPAddress.None;
+                networkConfigurationToSave.IPv4DNSAddress2 = IPAddress.None;
             }
             else
             {
                 // IPv4 DNS is static
-                networkConfigurationToSave.IPv4DNS1Address = IPv4Dns1Address.GetAddress();
-                networkConfigurationToSave.IPv4DNS2Address = IPv4Dns2Address.GetAddress();
+                networkConfigurationToSave.IPv4DNSAddress1 = IPv4Dns1Address.GetAddress();
+                networkConfigurationToSave.IPv4DNSAddress2 = IPv4Dns2Address.GetAddress();
             }
 
             // IPv6 options are not being handled for now
@@ -133,8 +134,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             networkConfigurationToSave.IPv6Address = IPAddress.None;
             networkConfigurationToSave.IPv6NetMask = IPAddress.None;
             networkConfigurationToSave.IPv6GatewayAddress = IPAddress.None;
-            networkConfigurationToSave.IPv6DNS1Address = IPAddress.None;
-            networkConfigurationToSave.IPv6DNS2Address = IPAddress.None;
+            networkConfigurationToSave.IPv6DNSAddress1 = IPAddress.None;
+            networkConfigurationToSave.IPv6DNSAddress2 = IPAddress.None;
 
             // update MAC address
             try
@@ -153,7 +154,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             NanoFrameworkPackage.MessageCentre.StartProgressMessage($"Uploading network configuration to {(DataContext as DeviceExplorerViewModel).SelectedDevice.Description}...");
 
             // save network configuration to target...
-            if ((DataContext as DeviceExplorerViewModel).SelectedDevice.DebugEngine.UpdateDeviceConfiguration(networkConfigurationToSave))
+            if ((DataContext as DeviceExplorerViewModel).SelectedDevice.DebugEngine.UpdateDeviceConfiguration(networkConfigurationToSave, 0))
             {
                 NanoFrameworkPackage.MessageCentre.DebugMessage($"{(DataContext as DeviceExplorerViewModel).SelectedDevice.Description} network configuration updated.");
                 NanoFrameworkPackage.MessageCentre.StopProgressMessage();
