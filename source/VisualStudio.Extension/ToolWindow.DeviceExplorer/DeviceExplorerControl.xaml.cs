@@ -49,7 +49,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         private void DevicesTreeView_SelectedItemChanged(object sender, System.Windows.RoutedPropertyChangedEventArgs<object> e)
         {
-            // if user has selected the 'devices' TreeViewItem (colapsing the tree view...)
+            // if user has selected the 'devices' TreeViewItem (collapsing the tree view...)
             if (e.NewValue.GetType().Equals(typeof(TreeViewItem)))
             {
                 // clear selected device
