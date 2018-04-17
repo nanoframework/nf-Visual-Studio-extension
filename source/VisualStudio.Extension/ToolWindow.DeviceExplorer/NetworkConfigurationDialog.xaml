@@ -107,6 +107,14 @@
                     <!--MAC address-->
                     <Label Grid.Row="0" Grid.Column="0" HorizontalAlignment="Left" Content="MAC address:" Margin="-6,0,0,0" />
                     <xctk:MaskedTextBox Grid.Row="0" Grid.Column="1" HorizontalAlignment="Left" Height="23" Mask="AA\:AA\:AA\:AA\:AA\:AA" VerticalAlignment="Top" Width="120" Margin="0,3,0,0" x:Name="MACAddress"/>
+                    
+                    <!--Interface type-->
+                    <Label Grid.Row="1" Grid.Column="0" HorizontalAlignment="Left" Content="Interface type:" Margin="-6,0,0,0" />
+                    <ComboBox Grid.Row="1" Grid.Column="1" HorizontalAlignment="Left" Height="23" Width="120" SelectedIndex="0" IsEnabled="False">
+                        <ListBoxItem Content="Ethernet" Tag="6"/>
+                        <ListBoxItem Content="Wireless 802.11" Tag="71"/>
+                    </ComboBox>
+                    <!--<xctk:MaskedTextBox Grid.Row="1" Grid.Column="1" HorizontalAlignment="Left" Height="23" Mask="AA\:AA\:AA\:AA\:AA\:AA" VerticalAlignment="Top" Width="120" Margin="0,3,0,0" x:Name="InterfaceType"/>-->
 
                 </Grid>
             </TabItem>

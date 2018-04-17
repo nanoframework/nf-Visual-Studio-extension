@@ -129,6 +129,10 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 networkConfigurationToSave.IPv4DNSAddress2 = IPv4Dns2Address.GetAddress();
             }
 
+            // network interface type is fixed for Ethernet for now
+            // FIXME
+            networkConfigurationToSave.InterfaceType = Debugger.NetworkInterfaceType.Ethernet;
+
             // IPv6 options are not being handled for now
             // FIXME
             networkConfigurationToSave.IPv6Address = IPAddress.None;
