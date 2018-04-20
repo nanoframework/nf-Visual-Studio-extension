@@ -492,26 +492,24 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         if (networkConfigurations.Count > 0)
                         {
                             ViewModelLocator.DeviceExplorer.DeviceNetworkConfiguration = networkConfigurations[0];
-
-                            // yield to give the UI thread a chance to respond to user input
-                            await Task.Yield();
-
-                            // show network configuration dialogue
-                            var networkConfigDialog = new NetworkConfigurationDialog();
-                            networkConfigDialog.HasMinimizeButton = false;
-                            networkConfigDialog.HasMaximizeButton = false;
-                            networkConfigDialog.ShowModal();
                         }
                         else
                         {
-                            // report issue to user
-                            NanoFrameworkPackage.MessageCentre.DebugMessage($"Error updating {ViewModelLocator.DeviceExplorer.SelectedDevice.Description} network configuration.");
+                            ViewModelLocator.DeviceExplorer.DeviceNetworkConfiguration = new Debugger.DeviceConfiguration.NetworkConfigurationProperties();
                         }
+                        // yield to give the UI thread a chance to respond to user input
+                        await Task.Yield();
+
+                        // show network configuration dialogue
+                        var networkConfigDialog = new NetworkConfigurationDialog();
+                        networkConfigDialog.HasMinimizeButton = false;
+                        networkConfigDialog.HasMaximizeButton = false;
+                        networkConfigDialog.ShowModal();
                     }
                     catch
                     {
                         // report issue to user
-                        NanoFrameworkPackage.MessageCentre.DebugMessage($"Error updating {ViewModelLocator.DeviceExplorer.SelectedDevice.Description} network configuration.");
+                        NanoFrameworkPackage.MessageCentre.DebugMessage($"Error reading {ViewModelLocator.DeviceExplorer.SelectedDevice.Description} configurations.");
 
                         return;
                     }
