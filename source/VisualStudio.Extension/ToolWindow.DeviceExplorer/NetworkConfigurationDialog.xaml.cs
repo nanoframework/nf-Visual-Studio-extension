@@ -59,14 +59,13 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             {
                 IPv4Manual.IsChecked = true;
 
-                IPv4Address.SetAddress(networkConfiguration.IPv4Address);
-                IPv4NetMask.SetAddress(networkConfiguration.IPv4NetMask);
-                IPv4GatewayAddress.SetAddress(networkConfiguration.IPv4GatewayAddress);
+                IPv4Address.SetAddress(networkConfiguration.IPv4Address ?? IPAddress.None);
+                IPv4NetMask.SetAddress(networkConfiguration.IPv4NetMask ?? IPAddress.None);
+                IPv4GatewayAddress.SetAddress(networkConfiguration.IPv4GatewayAddress ?? IPAddress.None);
             }
 
-            // DNS auto?
-            if((networkConfiguration.IPv4DNSAddress1.Equals(IPAddress.None) && networkConfiguration.IPv4DNSAddress2.Equals(IPAddress.None)) ||
-                (networkConfiguration.IPv4DNSAddress1.Equals(_InvalidIPv4) && networkConfiguration.IPv4DNSAddress2.Equals(_InvalidIPv4)))
+            // DNS is automatic?
+            if (networkConfiguration.AutomaticDNS)
             {
                 IPv4DnsAutomatic.IsChecked = true;
             }
@@ -74,12 +73,15 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             {
                 IPv4DnsManual.IsChecked = true;
 
-                IPv4Dns1Address.SetAddress(networkConfiguration.IPv4DNSAddress1);
-                IPv4Dns2Address.SetAddress(networkConfiguration.IPv4DNSAddress2);
+                IPv4Dns1Address.SetAddress(networkConfiguration.IPv4DNSAddress1?? IPAddress.None);
+                IPv4Dns2Address.SetAddress(networkConfiguration.IPv4DNSAddress2 ?? IPAddress.None);
             }
 
             // MAC address
-            MACAddress.Text = String.Join("", networkConfiguration.MacAddress.Select(a => a.ToString("X2")));
+            if (networkConfiguration.MacAddress != null)
+            {
+                MACAddress.Text = String.Join("", networkConfiguration.MacAddress.Select(a => a.ToString("X2")));
+            }
         }
 
         private void CancelButton_Click(object sender, System.Windows.RoutedEventArgs e)
@@ -117,7 +119,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             // IPv4 DNS options
             if(IPv4DnsAutomatic.IsChecked.GetValueOrDefault())
             {
-                // IPv4 DNS is provided by DHCP
+                // IPv4 DNS is automatic and provided by DHCP server
+                networkConfigurationToSave.AutomaticDNS = true;
+
                 // clear DNS addresses
                 networkConfigurationToSave.IPv4DNSAddress1 = IPAddress.None;
                 networkConfigurationToSave.IPv4DNSAddress2 = IPAddress.None;
@@ -125,6 +129,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             else
             {
                 // IPv4 DNS is static
+                networkConfigurationToSave.AutomaticDNS = true;
+
                 networkConfigurationToSave.IPv4DNSAddress1 = IPv4Dns1Address.GetAddress();
                 networkConfigurationToSave.IPv4DNSAddress2 = IPv4Dns2Address.GetAddress();
             }
