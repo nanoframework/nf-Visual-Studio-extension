@@ -95,10 +95,10 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
             // get value of MSBuildProject property from ConfiguredProject object
             // this result is of type Microsoft.Build.Evaluation.Project
-            var projectResult = ((System.Threading.Tasks.Task<Microsoft.Build.Evaluation.Project>)buildProject.GetValue(Properties.ConfiguredProject));
+            var projectResult = await ((System.Threading.Tasks.Task<Microsoft.Build.Evaluation.Project>)buildProject.GetValue(Properties.ConfiguredProject));
 
             // we want the target path property
-            var targetPath = projectResult.Result.Properties.First(p => p.Name == "TargetPath").EvaluatedValue;
+            var targetPath = projectResult.Properties.First(p => p.Name == "TargetPath").EvaluatedValue;
 
             // build a list with the full path for each DLL, referenced DLL and EXE
             List<string> assemblyList = new List<string>();

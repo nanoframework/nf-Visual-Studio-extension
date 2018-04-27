@@ -6,6 +6,8 @@
 
 using CorDebugInterop;
 using Microsoft.VisualStudio.Debugger.Interop;
+using Microsoft.VisualStudio.Shell;
+using Microsoft.VisualStudio.Threading;
 using nanoFramework.Tools.Debugger;
 using nanoFramework.Tools.Debugger.Extensions;
 using nanoFramework.Tools.Debugger.WireProtocol;
@@ -388,23 +390,27 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         }
                     }
 
-                    var connect = _engine.ConnectAsync(c_retrySleepTime, forceConnection, ConnectionSource.Unknown);
-                    connect.Wait();
+                    var connect = ThreadHelper.JoinableTaskFactory.Run(
+                        async () =>
+                        {
+                           return await  _engine.ConnectAsync(c_retrySleepTime, forceConnection, ConnectionSource.Unknown);
+                        }
+                    );
 
-                    if (connect.Result)
+                    if (connect)
                     {
-                        if(_engine.ConnectionSource == ConnectionSource.nanoBooter)
+                        if (_engine.ConnectionSource == ConnectionSource.nanoBooter)
                         {
                             _engine.ExecuteMemory(0);
                             Thread.Yield();
                         }
                         _engine.ThrowOnCommunicationFailure = true;
-                        _engine.SetExecutionMode( Commands.DebuggingExecutionChangeConditions.State.SourceLevelDebugging, 0 );
+                        _engine.SetExecutionMode(Commands.DebuggingExecutionChangeConditions.State.SourceLevelDebugging, 0);
                         break;
                     }
 
                     // only detach-reattach after 2 retries (10 seconds)
-                    if((retry % 2) == 1) 
+                    if ((retry % 2) == 1) 
                         DetachFromEngine();
 
                     Thread.Yield();

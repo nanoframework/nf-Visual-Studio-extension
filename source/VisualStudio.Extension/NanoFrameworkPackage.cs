@@ -224,18 +224,18 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             string executable = string.Empty;
             string options = string.Empty;
 
-            LaunchDebugTarget(executable, options);
+            var dummyWait = LaunchDebugTargetAsync(executable, options);
 
             return 0;
         }
 
-        private void LaunchDebugTarget(string filePath, string options)
+        private async System.Threading.Tasks.Task LaunchDebugTargetAsync(string filePath, string options)
         {
             ////////////////////////////////////////////////////////
             //  EXPERIMENTAL to launch debug from VS command line //
             ////////////////////////////////////////////////////////
-
-            IVsDebugger4 debugger = (IVsDebugger4)GetService(typeof(IVsDebugger));
+            await JoinableTaskFactory.SwitchToMainThreadAsync();
+            IVsDebugger4 debugger = (IVsDebugger4)GetServiceAsync(typeof(IVsDebugger));
             VsDebugTargetInfo4[] debugTargets = new VsDebugTargetInfo4[1];
             debugTargets[0].dlo = (uint)DEBUG_LAUNCH_OPERATION.DLO_CreateProcess;
             debugTargets[0].bstrExe = typeof(CorDebugProcess).Assembly.Location;

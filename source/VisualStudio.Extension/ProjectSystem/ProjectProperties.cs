@@ -66,6 +66,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         }
 
         static uint debugEngineCmdUICookie = 0;
+
         private void ActivateDebugEngine()
         {
             // The debug engine will not work unless we enable a CmdUIContext using the engine's GUID.
