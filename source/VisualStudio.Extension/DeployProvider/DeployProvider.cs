@@ -159,10 +159,10 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                         // get value of MSBuildProject property from ConfiguredProject object
                         // this result is of type Microsoft.Build.Evaluation.Project
-                        var projectResult = ((System.Threading.Tasks.Task<Microsoft.Build.Evaluation.Project>)buildProject.GetValue(Properties.ConfiguredProject));
+                        var projectResult = await ((System.Threading.Tasks.Task<Microsoft.Build.Evaluation.Project>)buildProject.GetValue(Properties.ConfiguredProject));
 
                         // we want the target path property
-                        var targetPath = projectResult.Result.Properties.First(p => p.Name == "TargetPath").EvaluatedValue;
+                        var targetPath = projectResult.Properties.First(p => p.Name == "TargetPath").EvaluatedValue;
 
                         // get version information of executable
                         var executableVersionInfo = FileVersionInfo.GetVersionInfo(targetPath);
@@ -213,7 +213,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                                 await outputPaneWriter.WriteLineAsync($"Adding {Path.GetFileNameWithoutExtension(peItem.path) + peItem.version} ({length.ToString()} bytes) to deployment bundle");
                                 byte[] buffer = new byte[length];
 
-                                fs.Read(buffer, 0, (int)fs.Length);
+                                await fs.ReadAsync(buffer, 0, (int)fs.Length);
                                 assemblies.Add(buffer);
 
                                 // Increment totalizer
