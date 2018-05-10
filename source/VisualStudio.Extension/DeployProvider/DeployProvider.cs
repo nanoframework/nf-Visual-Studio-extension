@@ -234,25 +234,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                         // reset the hash for the connected device so the deployment information can be refreshed
                         _viewModelLocator.DeviceExplorer.LastDeviceConnectedHash = 0;
-
-                        // give sometime to the CLR to reboot
-                        await Task.Delay(500);
-
-                        // reboot device
-                        await outputPaneWriter.WriteLineAsync("Rebooting nanoCLR on device.");
-
-                        device.DebugEngine.RebootDevice(RebootOptions.ClrOnly);
-
-                        // yield to give the UI thread a chance to respond to user input
-                        await Task.Yield();
-
-                        NanoDeviceCommService.Device.GetDeviceInfo(true);
-
-                        // yield to give the UI thread a chance to respond to user input
-                        await Task.Yield();
-
-                        // provide feedback
-                        await outputPaneWriter.WriteLineAsync("Reboot successful, device information updated.");
                     }
                     else
                     {
