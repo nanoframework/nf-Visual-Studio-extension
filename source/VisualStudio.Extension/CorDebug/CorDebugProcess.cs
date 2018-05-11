@@ -7,7 +7,6 @@
 using CorDebugInterop;
 using Microsoft.VisualStudio.Debugger.Interop;
 using Microsoft.VisualStudio.Shell;
-using Microsoft.VisualStudio.Threading;
 using nanoFramework.Tools.Debugger;
 using nanoFramework.Tools.Debugger.Extensions;
 using nanoFramework.Tools.Debugger.WireProtocol;
@@ -19,7 +18,6 @@ using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using BreakpointDef = nanoFramework.Tools.Debugger.WireProtocol.Commands.Debugging_Execution_BreakpointDef;
-using WireProtocol = nanoFramework.Tools.Debugger.WireProtocol;
 
 namespace nanoFramework.Tools.VisualStudio.Extension
 {
@@ -295,11 +293,10 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             if (!_engine.IsDeviceInInitializeState())
             {
                 bool fSucceeded = false;
-                bool forceConnect = false;
 
                 NanoFrameworkPackage.MessageCentre.StartProgressMessage(Resources.ResourceStrings.Rebooting);
 
-                AttachToEngine(true);
+                AttachToEngine();
 
                 _engine.RebootDevice(RebootOptions.ClrOnly | RebootOptions.WaitForDebugger);
 
@@ -311,13 +308,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                 for(int retries = 0; retries < 5; retries++)
                 {
-                    if((retries % 2) != 0)
-                    {
-                        // force connect on odd attempts
-                        forceConnect = true;
-                    }
-
-                    if (AttachToEngine(forceConnect) != null)
+                    if (AttachToEngine() != null)
                     {
                         if(_engine.ConnectionSource == ConnectionSource.nanoCLR)
                         {
@@ -329,22 +320,24 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                             _engine.RebootDevice(RebootOptions.ClrOnly | RebootOptions.WaitForDebugger);
 
-                            forceConnect = false;
-
                             // better pause here to allow the reboot to occur
-                            Thread.Sleep(500);
+                            // use a back-off strategy of increasing the wait time to accommodate slower or less responsive targets (such as networked ones)
+                            Thread.Sleep(500 * (retries + 1));
 
                             Thread.Yield();
                         }
                         else if(_engine.ConnectionSource == ConnectionSource.nanoBooter)
                         {
-                            _engine.ExecuteMemory(0); // tell nanoBooter to enter CLR
+                            // this is telling nanoBooter to enter CLR
+                            _engine.ExecuteMemory(0);
 
                             Thread.Yield();
                         }
                         else
                         {
-                            forceConnect = true;
+                            // unknown connection source?!
+                            // shouldn't be here, but...
+                            // ...maybe this is caused by a comm timeout because the target is rebooting
                             Thread.Yield();
                         }
                     }
@@ -360,12 +353,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             NanoFrameworkPackage.MessageCentre.StopProgressMessage(Resources.ResourceStrings.TargetInitializeSuccess);
         }
 
-        public Engine AttachToEngine(bool forceConnection)
+        public Engine AttachToEngine()
         {
-            int c_maxRetries     = 5;
-            int c_retrySleepTime = 5000;
+            int maxRetries     = 5;
+            int retrySleepTime = 5000;
 
-            for(int retry=0; retry<c_maxRetries; retry++)
+            for(int retry = 0; retry < maxRetries; retry++)
             {
                 if(ShuttingDown) break;
                 
@@ -393,7 +386,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     var connect = ThreadHelper.JoinableTaskFactory.Run(
                         async () =>
                         {
-                           return await  _engine.ConnectAsync(c_retrySleepTime, forceConnection, ConnectionSource.Unknown);
+                           return await  _engine.ConnectAsync(retrySleepTime, true, ConnectionSource.Unknown);
                         }
                     );
 
@@ -590,7 +583,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 
                 NanoFrameworkPackage.MessageCentre.DebugMessage(String.Format(Resources.ResourceStrings.AttachingToDevice));
 
-                if (AttachToEngine(true) == null)
+                if (AttachToEngine() == null)
                 {
                     NanoFrameworkPackage.MessageCentre.DebugMessage(String.Format(Resources.ResourceStrings.DeploymentErrorReconnect));
                     
