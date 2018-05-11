@@ -162,12 +162,13 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
+    <Resource Include="Resources\Reboot.16.16.png" />
     <Content Include="Targets\NFProjectSystem.MDP.targets">
-      <SubType>Designer</SubType>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <IncludeInVSIX>true</IncludeInVSIX>
       <InstallRoot>MSBuild</InstallRoot>
       <VSIXSubPath>nanoFramework\v1.0\</VSIXSubPath>
+      <SubType>Designer</SubType>
     </Content>
     <Resource Include="Resources\NanoFrameworkProject.16.16.png" />
     <Content Include="Targets\NFProjectSystem.Default.props">
@@ -185,7 +186,7 @@
       <SubType>Designer</SubType>
     </Content>
     <Resource Include="Resources\DeviceCapabilities.16.16.png" />
-    <Content Include="Resources\Ping.16.16.png" />
+    <Resource Include="Resources\Ping.16.16.png" />
     <None Include="FodyWeavers.xml" />
     <Resource Include="Resources\DeviceConnected.16.16.png" />
     <VSCTCompile Include="NanoFrameworkMoniker.vsct">
@@ -591,6 +592,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Resource>
+    <Page Include="Resources\Reboot.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="ToolWindow.DeviceExplorer\NetworkConfigurationDialog.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

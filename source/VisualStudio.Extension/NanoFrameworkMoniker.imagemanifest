@@ -14,6 +14,7 @@
     <ID Name="ShowInternalErrors" Value="90" />
     <ID Name="DeviceErase" Value="100" />
     <ID Name="NetworkConfig" Value="110" />
+    <ID Name="Reboot" Value="120" />
   </Symbols>
   <Images>
     <Image Guid="$(NanoFrameworkCatalog)" ID="$(DeviceConnected)">
@@ -67,6 +68,12 @@
     <Image Guid="$(NanoFrameworkCatalog)" ID="$(NetworkConfig)">
       <Source Uri="$(Resources)/NetworkConfig.xaml"/>
       <Source Uri="$(Resources)/NetworkConfig.16.16.png" >
+        <Size Value="16" />
+      </Source>
+    </Image>
+    <Image Guid="$(NanoFrameworkCatalog)" ID="$(Reboot)">
+      <Source Uri="$(Resources)/Reboot.xaml"/>
+      <Source Uri="$(Resources)/Reboot.16.16.png" >
         <Size Value="16" />
       </Source>
     </Image>
