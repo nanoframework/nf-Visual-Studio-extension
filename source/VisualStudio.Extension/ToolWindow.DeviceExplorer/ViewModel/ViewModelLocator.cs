@@ -3,8 +3,8 @@
 // See LICENSE file in the project root for full license information.
 //
 
+using CommonServiceLocator;
 using GalaSoft.MvvmLight.Ioc;
-using Microsoft.Practices.ServiceLocation;
 
 namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
 {
