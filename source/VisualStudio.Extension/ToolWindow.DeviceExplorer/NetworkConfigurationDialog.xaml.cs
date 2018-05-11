@@ -5,18 +5,12 @@
 
 namespace nanoFramework.Tools.VisualStudio.Extension
 {
-    using GalaSoft.MvvmLight.Messaging;
-    using Microsoft.Practices.ServiceLocation;
     using Microsoft.VisualStudio.PlatformUI;
-    using Microsoft.VisualStudio.Shell;
     using nanoFramework.Tools.Debugger;
     using nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel;
     using System;
-    using System.Net;
     using System.Linq;
-    using System.Windows.Controls;
-    using System.Windows.Threading;
-    using System.Net.NetworkInformation;
+    using System.Net;
 
     /// <summary>
     /// Interaction logic for DeviceExplorerControl.

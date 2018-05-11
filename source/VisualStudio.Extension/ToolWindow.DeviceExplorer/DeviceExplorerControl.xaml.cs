@@ -6,7 +6,6 @@
 namespace nanoFramework.Tools.VisualStudio.Extension
 {
     using GalaSoft.MvvmLight.Messaging;
-    using Microsoft.Practices.ServiceLocation;
     using Microsoft.VisualStudio.Shell;
     using nanoFramework.Tools.Debugger;
     using nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel;
