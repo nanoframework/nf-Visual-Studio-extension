@@ -36,6 +36,11 @@ Use this URL for the feed: `https://www.myget.org/F/nanoframework-dev/vsix/`.
 The list of contributors to this project can be found at [CONTRIBUTORS](https://github.com/nanoframework/Home/blob/master/CONTRIBUTORS.md).
 
 
+## Icons
+
+The icons used in the extension are courtesy of [Icons8](https://icons8.com). Thank you very much for your great work!
+
+
 ## License
 
 The **nanoFramework** Visual Studio extension and associated tools are licensed under the [Apache 2.0 license](http://www.apache.org/licenses/LICENSE-2.0).
