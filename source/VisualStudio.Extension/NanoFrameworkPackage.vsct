@@ -131,7 +131,18 @@
           <ButtonText>Erase Device Deployment Area</ButtonText>
         </Strings>
       </Button>
-      
+
+      <!-- Reboot for Device Explorer toolbar -->
+      <Button guid="guidDeviceExplorerCmdSet" id="idRebootCommand" priority="0x0101" type="Button">
+        <Parent guid="guidDeviceExplorerCmdSet" id="DeviceExplorerToolbarGroupID"/>
+        <Icon guid="NanoFrameworkCatalog" id="Reboot" />
+        <CommandFlag>IconIsMoniker</CommandFlag>
+        <CommandFlag>DefaultDisabled</CommandFlag>
+        <Strings>
+          <CommandName>RebootCommand</CommandName>
+          <ButtonText>Reboot target device</ButtonText>
+        </Strings>
+      </Button>      
 
       <!-- NetworkConfig for Device Explorer toolbar -->
       <Button guid="guidDeviceExplorerCmdSet" id="idNetworkConfigCommand" priority="0x0101" type="Button">
@@ -183,10 +194,11 @@
       <IDSymbol name="DeviceExplorerToolbarID" value="0x1000" />
       <IDSymbol name="DeviceExplorerToolbarGroupID" value="0x1001" />
       <IDSymbol name="DeviceExplorerToolbarGroup2ID" value="0x1002" />
-      <IDSymbol name="idPingDeviceCommand" value="0x0202" />
-      <IDSymbol name="idDeviceCapabilitiesCommand" value="0x0203" />
-      <IDSymbol name="idDeviceEraseCommand" value="0x0205" />
-      <IDSymbol name="idNetworkConfigCommand" value="0x0207" />
+      <IDSymbol name="idPingDeviceCommand" value="0x0210" />
+      <IDSymbol name="idDeviceCapabilitiesCommand" value="0x0220" />
+      <IDSymbol name="idDeviceEraseCommand" value="0x0230" />
+      <IDSymbol name="idRebootCommand" value="0x0240" />
+      <IDSymbol name="idNetworkConfigCommand" value="0x0250" />
       <IDSymbol name="idShowInternalErrorsCommand" value="0x0300" />
     </GuidSymbol>
 

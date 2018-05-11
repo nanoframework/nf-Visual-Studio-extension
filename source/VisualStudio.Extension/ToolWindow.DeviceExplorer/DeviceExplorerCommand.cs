@@ -51,10 +51,11 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         public const int DeviceExplorerToolbarID = 0x1000;
 
         // toolbar commands
-        public const int PingDeviceCommandID = 0x0202;
-        public const int DeviceCapabilitiesID = 0x0203;
-        public const int DeviceEraseID = 0x0205;
-        public const int NetworkConfigID = 0x0207;
+        public const int PingDeviceCommandID = 0x0210;
+        public const int DeviceCapabilitiesID = 0x0220;
+        public const int DeviceEraseID = 0x0230;
+        public const int RebootID = 0x0240;
+        public const int NetworkConfigID = 0x0250;
 
         // 2nd group
         public const int ShowInternalErrorsCommandID = 0x0300;
@@ -150,6 +151,14 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             toolbarButtonCommandId = GenerateCommandID(DeviceEraseID);
             menuItem = new MenuCommand( new EventHandler(
                 DeviceEraseCommandHandler), toolbarButtonCommandId);
+            menuItem.Enabled = false;
+            menuItem.Visible = true;
+            menuCommandService.AddCommand(menuItem);
+
+            // Reboot
+            toolbarButtonCommandId = GenerateCommandID(RebootID);
+            menuItem = new MenuCommand( new EventHandler(
+                RebootCommandHandler), toolbarButtonCommandId);
             menuItem.Enabled = false;
             menuItem.Visible = true;
             menuCommandService.AddCommand(menuItem);
@@ -535,6 +544,71 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             }
         }
 
+        /// <summary>
+        /// Handler for RebootCommand
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="arguments"></param>
+        /// <remarks>OK to use async void because this is a top-level event-handler 
+        /// https://channel9.msdn.com/Series/Three-Essential-Tips-for-Async/Tip-1-Async-void-is-for-top-level-event-handlers-only
+        /// </remarks>
+        private async void RebootCommandHandler(object sender, EventArgs arguments)
+        {
+            // yield to give the UI thread a chance to respond to user input
+            await Task.Yield();
+
+            try
+            {
+                // disable the button
+                (sender as MenuCommand).Enabled = false;
+
+                // make sure this device is showing as selected in Device Explorer tree view
+                ViewModelLocator.DeviceExplorer.ForceNanoDeviceSelection().FireAndForget();
+
+                // connect to the device
+                if (await NanoDeviceCommService.Device.DebugEngine.ConnectAsync(5000))
+                {
+                    try
+                    {
+                        NanoDeviceCommService.Device.DebugEngine.RebootDevice(Debugger.RebootOptions.NormalReboot);
+
+                        NanoFrameworkPackage.MessageCentre.DebugMessage($"Sent reboot command to {ViewModelLocator.DeviceExplorer.SelectedDevice.Description}.");
+
+                        // reset the hash for the connected device so the deployment information can be refreshed, if and when requested
+                        ViewModelLocator.DeviceExplorer.LastDeviceConnectedHash = 0;
+
+                        // yield to give the UI thread a chance to respond to user input
+                        await Task.Yield();
+                    }
+                    catch
+                    {
+                        // report issue to user
+                        NanoFrameworkPackage.MessageCentre.DebugMessage($"Error sending reboot command to {ViewModelLocator.DeviceExplorer.SelectedDevice.Description}.");
+
+                        return;
+                    }
+                }
+                else
+                {
+                    // reset property to force that device capabilities are retrieved on next connection
+                    ViewModelLocator.DeviceExplorer.LastDeviceConnectedHash = 0;
+
+                    NanoFrameworkPackage.MessageCentre.DebugMessage($"{ViewModelLocator.DeviceExplorer.SelectedDevice.Description} is not responding, please reboot the device.");
+
+                    return;
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+            finally
+            {
+                // enable the button
+                (sender as MenuCommand).Enabled = true;
+            }
+        }
+
         private void ShowInternalErrorsCommandHandler(object sender, EventArgs e)
         {
             // save 
@@ -599,6 +673,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     menuCommandService.FindCommand(GenerateCommandID(DeviceEraseID)).Enabled = true;
                     // enable network config button
                     menuCommandService.FindCommand(GenerateCommandID(NetworkConfigID)).Enabled = true;
+                    // enable reboot button
+                    menuCommandService.FindCommand(GenerateCommandID(RebootID)).Enabled = true;
                 }
                 else
                 {
@@ -611,6 +687,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     menuCommandService.FindCommand(GenerateCommandID(DeviceEraseID)).Enabled = false;
                     // disable network config button
                     menuCommandService.FindCommand(GenerateCommandID(NetworkConfigID)).Enabled = false;
+                    // disable reboot button
+                    menuCommandService.FindCommand(GenerateCommandID(RebootID)).Enabled = false;
                 }
             }
             else
@@ -623,6 +701,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 menuCommandService.FindCommand(GenerateCommandID(DeviceEraseID)).Enabled = false;
                 // disable network config button
                 menuCommandService.FindCommand(GenerateCommandID(NetworkConfigID)).Enabled = false;
+                // disable reboot button
+                menuCommandService.FindCommand(GenerateCommandID(RebootID)).Enabled = false;
             }
         }
 
