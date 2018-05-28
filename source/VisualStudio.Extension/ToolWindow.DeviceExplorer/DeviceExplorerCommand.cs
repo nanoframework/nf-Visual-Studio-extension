@@ -78,9 +78,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 var menuCommandID = new CommandID(CommandSet, CommandId);
                 var menuItem = new MenuCommand(ShowToolWindow, menuCommandID);
                 commandService.AddCommand(menuItem);
+
+                OutputExtensionWelcomeMessage();
             }
-
-
         }
 
         /// <summary>
@@ -202,7 +202,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             IVsWindowFrame windowFrame = (IVsWindowFrame)window.Frame;
             Microsoft.VisualStudio.ErrorHandler.ThrowOnFailure(windowFrame.Show());
         }
-
 
         #region Command button handlers
 
@@ -710,6 +709,31 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
 
         #region helper methods and utilities
+
+        private void OutputExtensionWelcomeMessage()
+        {
+            // loaded 
+            NanoFrameworkPackage.MessageCentre.OutputMessage($"nanoFramework extension v{NanoFrameworkPackage.NanoFrameworkExtensionVersion.ToString()} loaded.");
+
+            // internal errors output
+            if (NanoFrameworkPackage.OptionShowInternalErrors)
+            {
+                NanoFrameworkPackage.MessageCentre.OutputMessage("internal errors will be reported.");
+            }
+
+            // intro messages
+            NanoFrameworkPackage.MessageCentre.OutputMessage("GitHub repo: https://github.com/nanoframework/Home");
+            NanoFrameworkPackage.MessageCentre.OutputMessage("Report issues: https://github.com/nanoframework/Home/issues");
+            NanoFrameworkPackage.MessageCentre.OutputMessage("Join our Slack workspace: https://join.slack.com/t/nanoframework/shared_invite/enQtMzI3OTg4MTk0NTgwLWQ0ODQ3ZWIwZjgxZWFmNjU3MDIwN2E2YzM2OTdhMWRiY2Q3M2NlOTk2N2IwNTM3MmRlMmQ2NTRlNjZlYzJlMmY");
+            NanoFrameworkPackage.MessageCentre.OutputMessage("Join our Hackster.io platform: https://www.hackster.io/nanoframework");
+            NanoFrameworkPackage.MessageCentre.OutputMessage(Environment.NewLine);
+            NanoFrameworkPackage.MessageCentre.OutputMessage("** Support nanoFramework project **");
+            NanoFrameworkPackage.MessageCentre.OutputMessage("Following us on Twitter: https://twitter.com/nanoframework");
+            NanoFrameworkPackage.MessageCentre.OutputMessage("Following our YouTube channel: https://www.youtube.com/channel/UC62nKcuCEhvUKHd9k9QEezQ");
+            NanoFrameworkPackage.MessageCentre.OutputMessage("Staring our GitHub repos: https://github.com/nanoframework/Home");
+            NanoFrameworkPackage.MessageCentre.OutputMessage("Adding a short review: https://marketplace.visualstudio.com/items?itemName=vs-publisher-1470366.nanoFrameworkVS2017Extension");
+            NanoFrameworkPackage.MessageCentre.OutputMessage(Environment.NewLine);
+        }
 
         /// <summary>
         /// Generates a <see cref="CommandID"/> specific for the Device Explorer menugroup

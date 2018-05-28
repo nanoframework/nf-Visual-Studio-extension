@@ -36,6 +36,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         public abstract void StopProgressMessage(string message);
 
+        /// <summary>
+        /// Writes a message to the nanoFramework output pane in Visual Studio.
+        /// </summary>
+        /// <param name="message">Message to write to nanoFramework output pane.</param>
+        public abstract void OutputMessage(string message);
+
         public void StopProgressMessage()
         {
             StopProgressMessage(null);
@@ -81,6 +87,10 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         }
 
         public override void StopProgressMessage(string message)
+        {
+        }
+
+        public override void OutputMessage(string message)
         {
         }
     }

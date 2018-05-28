@@ -36,11 +36,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             tempId = s_DeploymentMessagesPaneGuid;
             _outputWindow.GetPane(ref tempId, out _nanoFrameworkMessagesPane);
 
-            if(NanoFrameworkPackage.OptionShowInternalErrors)
-            {
-                Message(_nanoFrameworkMessagesPane, "nanoFramework internal errors will be reported.");
-            }
-
             _statusBar = Package.GetGlobalService(typeof(SVsStatusbar)) as IVsStatusbar;
         }
 
@@ -187,6 +182,11 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             catch (InvalidOperationException)
             {
             }
+        }
+
+        public override void OutputMessage(string message)
+        {
+            Message(_nanoFrameworkMessagesPane, message);
         }
     }
 }
