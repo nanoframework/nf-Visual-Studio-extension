@@ -14,6 +14,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
@@ -70,6 +71,11 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         /// Path for nanoFramework Extension directory
         /// </summary>
         public static string NanoFrameworkExtensionDirectory { get; private set; }
+
+        /// <summary>
+        /// Version of the nanoFramework Extension DLL
+        /// </summary>
+        public static Version NanoFrameworkExtensionVersion { get; private set; }
 
 
         #region user options related stuff
@@ -160,6 +166,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             var info = new FileInfo(assembly.Location).Directory;
             if (info == null) throw new Exception("Could not get assembly directory!");
             NanoFrameworkExtensionDirectory = info.FullName;
+
+            // fill the property of the DLL version
+            NanoFrameworkExtensionVersion = new AssemblyName(Assembly.GetExecutingAssembly().FullName).Version;
 
             s_instance = this;
         }
