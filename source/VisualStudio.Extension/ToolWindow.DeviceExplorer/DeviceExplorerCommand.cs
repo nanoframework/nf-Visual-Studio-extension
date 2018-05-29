@@ -183,7 +183,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             menuCommandService.AddCommand(menuItem);
         }
 
-
         /// <summary>
         /// Shows the tool window when the menu item is clicked.
         /// </summary>
@@ -203,6 +202,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             IVsWindowFrame windowFrame = (IVsWindowFrame)window.Frame;
             Microsoft.VisualStudio.ErrorHandler.ThrowOnFailure(windowFrame.Show());
         }
+
 
         #region Command button handlers
 
@@ -237,18 +237,18 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     switch (ViewModelLocator.DeviceExplorer.SelectedDevice.DebugEngine.ConnectionSource)
                     {
                         case Tools.Debugger.WireProtocol.ConnectionSource.Unknown:
-                            MessageCentre.DebugMessage($"No reply from {ViewModelLocator.DeviceExplorer.SelectedDevice.Description}");
+                            MessageCentre.OutputMessage($"No reply from {ViewModelLocator.DeviceExplorer.SelectedDevice.Description}");
                             break;
 
                         case Tools.Debugger.WireProtocol.ConnectionSource.nanoBooter:
                         case Tools.Debugger.WireProtocol.ConnectionSource.nanoCLR:
-                            MessageCentre.DebugMessage($"{ViewModelLocator.DeviceExplorer.SelectedDevice.Description} is active running {ViewModelLocator.DeviceExplorer.SelectedDevice.DebugEngine.ConnectionSource.ToString()}");
+                            MessageCentre.OutputMessage($"{ViewModelLocator.DeviceExplorer.SelectedDevice.Description} is active running {ViewModelLocator.DeviceExplorer.SelectedDevice.DebugEngine.ConnectionSource.ToString()}");
                             break;
                     }
                 }
                 else
                 {
-                    MessageCentre.DebugMessage($"{ViewModelLocator.DeviceExplorer.SelectedDevice.Description} is not responding, please reboot the device.");
+                    MessageCentre.OutputMessage($"{ViewModelLocator.DeviceExplorer.SelectedDevice.Description} is not responding, please reboot the device.");
                 }
             }
             catch (Exception ex)
@@ -323,7 +323,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                                 ViewModelLocator.DeviceExplorer.LastDeviceConnectedHash = 0;
 
                                 // report issue to user
-                                MessageCentre.DebugMessage($"Error retrieving device information from { ViewModelLocator.DeviceExplorer.SelectedDevice.Description}. Please reconnect device.");
+                                MessageCentre.OutputMessage($"Error retrieving device information from { ViewModelLocator.DeviceExplorer.SelectedDevice.Description}. Please reconnect device.");
 
                                 return;
                             }
@@ -334,7 +334,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                             ViewModelLocator.DeviceExplorer.LastDeviceConnectedHash = 0;
 
                             // report issue to user
-                            MessageCentre.DebugMessage($"Error retrieving device information from { ViewModelLocator.DeviceExplorer.SelectedDevice.Description}. Please reconnect device.");
+                            MessageCentre.OutputMessage($"Error retrieving device information from { ViewModelLocator.DeviceExplorer.SelectedDevice.Description}. Please reconnect device.");
 
                             return;
                         }
@@ -344,36 +344,36 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         // reset property to force that device capabilities are retrieved on next connection
                         ViewModelLocator.DeviceExplorer.LastDeviceConnectedHash = 0;
 
-                        MessageCentre.DebugMessage($"{ViewModelLocator.DeviceExplorer.SelectedDevice.Description} is not responding, please reboot the device.");
+                        MessageCentre.OutputMessage($"{ViewModelLocator.DeviceExplorer.SelectedDevice.Description} is not responding, please reboot the device.");
 
                         return;
                     }
                 }
 
-                MessageCentre.DebugMessage(string.Empty);
-                MessageCentre.DebugMessage(string.Empty);
-                MessageCentre.DebugMessage("System Information");
-                MessageCentre.DebugMessage(ViewModelLocator.DeviceExplorer.DeviceSystemInfo.ToString());
+                MessageCentre.OutputMessage(string.Empty);
+                MessageCentre.OutputMessage(string.Empty);
+                MessageCentre.OutputMessage("System Information");
+                MessageCentre.OutputMessage(ViewModelLocator.DeviceExplorer.DeviceSystemInfo.ToString());
 
-                MessageCentre.DebugMessage(string.Empty);
-                MessageCentre.DebugMessage(string.Empty);
-                MessageCentre.DebugMessage("--------------------------------");
-                MessageCentre.DebugMessage("::        Memory Map          ::");
-                MessageCentre.DebugMessage("--------------------------------");
-                MessageCentre.DebugMessage(ViewModelLocator.DeviceExplorer.DeviceMemoryMap.ToString());
+                MessageCentre.OutputMessage(string.Empty);
+                MessageCentre.OutputMessage(string.Empty);
+                MessageCentre.OutputMessage("--------------------------------");
+                MessageCentre.OutputMessage("::        Memory Map          ::");
+                MessageCentre.OutputMessage("--------------------------------");
+                MessageCentre.OutputMessage(ViewModelLocator.DeviceExplorer.DeviceMemoryMap.ToString());
 
-                MessageCentre.DebugMessage(string.Empty);
-                MessageCentre.DebugMessage(string.Empty);
-                MessageCentre.DebugMessage("-----------------------------------------------------------");
-                MessageCentre.DebugMessage("::                   Flash Sector Map                    ::");
-                MessageCentre.DebugMessage("-----------------------------------------------------------");
-                MessageCentre.DebugMessage(ViewModelLocator.DeviceExplorer.DeviceFlashSectorMap.ToString());
+                MessageCentre.OutputMessage(string.Empty);
+                MessageCentre.OutputMessage(string.Empty);
+                MessageCentre.OutputMessage("-----------------------------------------------------------");
+                MessageCentre.OutputMessage("::                   Flash Sector Map                    ::");
+                MessageCentre.OutputMessage("-----------------------------------------------------------");
+                MessageCentre.OutputMessage(ViewModelLocator.DeviceExplorer.DeviceFlashSectorMap.ToString());
 
-                MessageCentre.DebugMessage(string.Empty);
-                MessageCentre.DebugMessage(string.Empty);
-                MessageCentre.DebugMessage("Deployment Map");
-                MessageCentre.DebugMessage(ViewModelLocator.DeviceExplorer.DeviceDeploymentMap.ToString());
-                MessageCentre.DebugMessage(string.Empty);
+                MessageCentre.OutputMessage(string.Empty);
+                MessageCentre.OutputMessage(string.Empty);
+                MessageCentre.OutputMessage("Deployment Map");
+                MessageCentre.OutputMessage(ViewModelLocator.DeviceExplorer.DeviceDeploymentMap.ToString());
+                MessageCentre.OutputMessage(string.Empty);
 
             }
             catch (Exception ex)
@@ -420,7 +420,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     {
                         if (await NanoDeviceCommService.Device.EraseAsync(Debugger.EraseOptions.Deployment, CancellationToken.None))
                         {
-                            MessageCentre.DebugMessage($"{ViewModelLocator.DeviceExplorer.SelectedDevice.Description} deployment area erased.");
+                            MessageCentre.OutputMessage($"{ViewModelLocator.DeviceExplorer.SelectedDevice.Description} deployment area erased.");
 
                             // reset the hash for the connected device so the deployment information can be refreshed, if and when requested
                             ViewModelLocator.DeviceExplorer.LastDeviceConnectedHash = 0;
@@ -434,13 +434,13 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         else
                         {
                             // report issue to user
-                            MessageCentre.DebugMessage($"Error erasing {ViewModelLocator.DeviceExplorer.SelectedDevice.Description} deployment area.");
+                            MessageCentre.OutputMessage($"Error erasing {ViewModelLocator.DeviceExplorer.SelectedDevice.Description} deployment area.");
                         }
                     }
                     catch
                     {
                         // report issue to user
-                        MessageCentre.DebugMessage($"Error erasing {ViewModelLocator.DeviceExplorer.SelectedDevice.Description} deployment area.");
+                        MessageCentre.OutputMessage($"Error erasing {ViewModelLocator.DeviceExplorer.SelectedDevice.Description} deployment area.");
 
                         return;
                     }
@@ -450,7 +450,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     // reset property to force that device capabilities are retrieved on next connection
                     ViewModelLocator.DeviceExplorer.LastDeviceConnectedHash = 0;
 
-                    MessageCentre.DebugMessage($"{ViewModelLocator.DeviceExplorer.SelectedDevice.Description} is not responding, please reboot the device.");
+                    MessageCentre.OutputMessage($"{ViewModelLocator.DeviceExplorer.SelectedDevice.Description} is not responding, please reboot the device.");
 
                     return;
                 }
@@ -518,14 +518,14 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     catch
                     {
                         // report issue to user
-                        MessageCentre.DebugMessage($"Error reading {ViewModelLocator.DeviceExplorer.SelectedDevice.Description} configurations.");
+                        MessageCentre.OutputMessage($"Error reading {ViewModelLocator.DeviceExplorer.SelectedDevice.Description} configurations.");
 
                         return;
                     }
                 }
                 else
                 {
-                    MessageCentre.DebugMessage($"{ViewModelLocator.DeviceExplorer.SelectedDevice.Description} is not responding, please reboot the device.");
+                    MessageCentre.OutputMessage($"{ViewModelLocator.DeviceExplorer.SelectedDevice.Description} is not responding, please reboot the device.");
 
                     return;
                 }
@@ -572,7 +572,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     {
                         NanoDeviceCommService.Device.DebugEngine.RebootDevice(Debugger.RebootOptions.NormalReboot);
 
-                        MessageCentre.DebugMessage($"Sent reboot command to {ViewModelLocator.DeviceExplorer.SelectedDevice.Description}.");
+                        MessageCentre.OutputMessage($"Sent reboot command to {ViewModelLocator.DeviceExplorer.SelectedDevice.Description}.");
 
                         // reset the hash for the connected device so the deployment information can be refreshed, if and when requested
                         ViewModelLocator.DeviceExplorer.LastDeviceConnectedHash = 0;
@@ -583,7 +583,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     catch
                     {
                         // report issue to user
-                        MessageCentre.DebugMessage($"Error sending reboot command to {ViewModelLocator.DeviceExplorer.SelectedDevice.Description}.");
+                        MessageCentre.OutputMessage($"Error sending reboot command to {ViewModelLocator.DeviceExplorer.SelectedDevice.Description}.");
 
                         return;
                     }
@@ -593,7 +593,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     // reset property to force that device capabilities are retrieved on next connection
                     ViewModelLocator.DeviceExplorer.LastDeviceConnectedHash = 0;
 
-                    MessageCentre.DebugMessage($"{ViewModelLocator.DeviceExplorer.SelectedDevice.Description} is not responding, please reboot the device.");
+                    MessageCentre.OutputMessage($"{ViewModelLocator.DeviceExplorer.SelectedDevice.Description} is not responding, please reboot the device.");
 
                     return;
                 }
