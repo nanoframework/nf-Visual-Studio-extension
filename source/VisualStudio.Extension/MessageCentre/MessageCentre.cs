@@ -48,6 +48,10 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             });
         }
 
+        /// <summary>
+        /// Write a message to Visual Studio Debug output pane.
+        /// </summary>
+        /// <param name="message">Message to be outputted.</param>
         public static void DebugMessage(string message)
         {
             Message(_debugPane, message ?? "");
@@ -100,6 +104,10 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             DebugMessage(outLine.Data);
         }
 
+        /// <summary>
+        /// Write a message to the nanoFramework output pane.
+        /// </summary>
+        /// <param name="message">Message to be outputted.</param>
         public static void OutputMessage(string message)
         {
             Message(_nanoFrameworkMessagesPane, message);

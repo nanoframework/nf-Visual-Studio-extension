@@ -160,7 +160,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             // save network configuration to target...
             if ((DataContext as DeviceExplorerViewModel).SelectedDevice.DebugEngine.UpdateDeviceConfiguration(networkConfigurationToSave, 0))
             {
-                MessageCentre.DebugMessage($"{(DataContext as DeviceExplorerViewModel).SelectedDevice.Description} network configuration updated.");
+                MessageCentre.OutputMessage($"{(DataContext as DeviceExplorerViewModel).SelectedDevice.Description} network configuration updated.");
                 MessageCentre.StopProgressMessage();
 
                 // close on success
@@ -168,7 +168,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             }
             else
             {
-                MessageCentre.DebugMessage($"Error updating {(DataContext as DeviceExplorerViewModel).SelectedDevice.Description} network configuration.");
+                MessageCentre.OutputMessage($"Error updating {(DataContext as DeviceExplorerViewModel).SelectedDevice.Description} network configuration.");
                 MessageCentre.StopProgressMessage();
             }
         }
