@@ -78,8 +78,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 var menuCommandID = new CommandID(CommandSet, CommandId);
                 var menuItem = new MenuCommand(ShowToolWindow, menuCommandID);
                 commandService.AddCommand(menuItem);
-
-                OutputExtensionWelcomeMessage();
             }
         }
 
@@ -218,7 +216,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             // yield to give the UI thread a chance to respond to user input
             await Task.Yield();
 
-            NanoFrameworkPackage.MessageCentre.StartProgressMessage($"Pinging {ViewModelLocator.DeviceExplorer.SelectedDevice.Description}...");
+            MessageCentre.StartProgressMessage($"Pinging {ViewModelLocator.DeviceExplorer.SelectedDevice.Description}...");
             try
             {
                 // disable the button
@@ -236,18 +234,18 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     switch (ViewModelLocator.DeviceExplorer.SelectedDevice.DebugEngine.ConnectionSource)
                     {
                         case Tools.Debugger.WireProtocol.ConnectionSource.Unknown:
-                            NanoFrameworkPackage.MessageCentre.DebugMessage($"No reply from {ViewModelLocator.DeviceExplorer.SelectedDevice.Description}");
+                            MessageCentre.DebugMessage($"No reply from {ViewModelLocator.DeviceExplorer.SelectedDevice.Description}");
                             break;
 
                         case Tools.Debugger.WireProtocol.ConnectionSource.nanoBooter:
                         case Tools.Debugger.WireProtocol.ConnectionSource.nanoCLR:
-                            NanoFrameworkPackage.MessageCentre.DebugMessage($"{ViewModelLocator.DeviceExplorer.SelectedDevice.Description} is active running {ViewModelLocator.DeviceExplorer.SelectedDevice.DebugEngine.ConnectionSource.ToString()}");
+                            MessageCentre.DebugMessage($"{ViewModelLocator.DeviceExplorer.SelectedDevice.Description} is active running {ViewModelLocator.DeviceExplorer.SelectedDevice.DebugEngine.ConnectionSource.ToString()}");
                             break;
                     }
                 }
                 else
                 {
-                    NanoFrameworkPackage.MessageCentre.DebugMessage($"{ViewModelLocator.DeviceExplorer.SelectedDevice.Description} is not responding, please reboot the device.");
+                    MessageCentre.DebugMessage($"{ViewModelLocator.DeviceExplorer.SelectedDevice.Description} is not responding, please reboot the device.");
                 }
             }
             catch (Exception ex)
@@ -259,7 +257,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 // enable the button
                 (sender as MenuCommand).Enabled = true;
 
-                NanoFrameworkPackage.MessageCentre.StopProgressMessage();
+                MessageCentre.StopProgressMessage();
             }
         }
 
@@ -276,7 +274,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             // yield to give the UI thread a chance to respond to user input
             await Task.Yield();
 
-            NanoFrameworkPackage.MessageCentre.StartProgressMessage($"Querying {ViewModelLocator.DeviceExplorer.SelectedDevice.Description} capabilities...");
+            MessageCentre.StartProgressMessage($"Querying {ViewModelLocator.DeviceExplorer.SelectedDevice.Description} capabilities...");
 
             try
             {
@@ -322,7 +320,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                                 ViewModelLocator.DeviceExplorer.LastDeviceConnectedHash = 0;
 
                                 // report issue to user
-                                NanoFrameworkPackage.MessageCentre.DebugMessage($"Error retrieving device information from { ViewModelLocator.DeviceExplorer.SelectedDevice.Description}. Please reconnect device.");
+                                MessageCentre.DebugMessage($"Error retrieving device information from { ViewModelLocator.DeviceExplorer.SelectedDevice.Description}. Please reconnect device.");
 
                                 return;
                             }
@@ -333,7 +331,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                             ViewModelLocator.DeviceExplorer.LastDeviceConnectedHash = 0;
 
                             // report issue to user
-                            NanoFrameworkPackage.MessageCentre.DebugMessage($"Error retrieving device information from { ViewModelLocator.DeviceExplorer.SelectedDevice.Description}. Please reconnect device.");
+                            MessageCentre.DebugMessage($"Error retrieving device information from { ViewModelLocator.DeviceExplorer.SelectedDevice.Description}. Please reconnect device.");
 
                             return;
                         }
@@ -343,36 +341,36 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         // reset property to force that device capabilities are retrieved on next connection
                         ViewModelLocator.DeviceExplorer.LastDeviceConnectedHash = 0;
 
-                        NanoFrameworkPackage.MessageCentre.DebugMessage($"{ViewModelLocator.DeviceExplorer.SelectedDevice.Description} is not responding, please reboot the device.");
+                        MessageCentre.DebugMessage($"{ViewModelLocator.DeviceExplorer.SelectedDevice.Description} is not responding, please reboot the device.");
 
                         return;
                     }
                 }
 
-                NanoFrameworkPackage.MessageCentre.DebugMessage(string.Empty);
-                NanoFrameworkPackage.MessageCentre.DebugMessage(string.Empty);
-                NanoFrameworkPackage.MessageCentre.DebugMessage("System Information");
-                NanoFrameworkPackage.MessageCentre.DebugMessage(ViewModelLocator.DeviceExplorer.DeviceSystemInfo.ToString());
+                MessageCentre.DebugMessage(string.Empty);
+                MessageCentre.DebugMessage(string.Empty);
+                MessageCentre.DebugMessage("System Information");
+                MessageCentre.DebugMessage(ViewModelLocator.DeviceExplorer.DeviceSystemInfo.ToString());
 
-                NanoFrameworkPackage.MessageCentre.DebugMessage(string.Empty);
-                NanoFrameworkPackage.MessageCentre.DebugMessage(string.Empty);
-                NanoFrameworkPackage.MessageCentre.DebugMessage("--------------------------------");
-                NanoFrameworkPackage.MessageCentre.DebugMessage("::        Memory Map          ::");
-                NanoFrameworkPackage.MessageCentre.DebugMessage("--------------------------------");
-                NanoFrameworkPackage.MessageCentre.DebugMessage(ViewModelLocator.DeviceExplorer.DeviceMemoryMap.ToString());
+                MessageCentre.DebugMessage(string.Empty);
+                MessageCentre.DebugMessage(string.Empty);
+                MessageCentre.DebugMessage("--------------------------------");
+                MessageCentre.DebugMessage("::        Memory Map          ::");
+                MessageCentre.DebugMessage("--------------------------------");
+                MessageCentre.DebugMessage(ViewModelLocator.DeviceExplorer.DeviceMemoryMap.ToString());
 
-                NanoFrameworkPackage.MessageCentre.DebugMessage(string.Empty);
-                NanoFrameworkPackage.MessageCentre.DebugMessage(string.Empty);
-                NanoFrameworkPackage.MessageCentre.DebugMessage("-----------------------------------------------------------");
-                NanoFrameworkPackage.MessageCentre.DebugMessage("::                   Flash Sector Map                    ::");
-                NanoFrameworkPackage.MessageCentre.DebugMessage("-----------------------------------------------------------");
-                NanoFrameworkPackage.MessageCentre.DebugMessage(ViewModelLocator.DeviceExplorer.DeviceFlashSectorMap.ToString());
+                MessageCentre.DebugMessage(string.Empty);
+                MessageCentre.DebugMessage(string.Empty);
+                MessageCentre.DebugMessage("-----------------------------------------------------------");
+                MessageCentre.DebugMessage("::                   Flash Sector Map                    ::");
+                MessageCentre.DebugMessage("-----------------------------------------------------------");
+                MessageCentre.DebugMessage(ViewModelLocator.DeviceExplorer.DeviceFlashSectorMap.ToString());
 
-                NanoFrameworkPackage.MessageCentre.DebugMessage(string.Empty);
-                NanoFrameworkPackage.MessageCentre.DebugMessage(string.Empty);
-                NanoFrameworkPackage.MessageCentre.DebugMessage("Deployment Map");
-                NanoFrameworkPackage.MessageCentre.DebugMessage(ViewModelLocator.DeviceExplorer.DeviceDeploymentMap.ToString());
-                NanoFrameworkPackage.MessageCentre.DebugMessage(string.Empty);
+                MessageCentre.DebugMessage(string.Empty);
+                MessageCentre.DebugMessage(string.Empty);
+                MessageCentre.DebugMessage("Deployment Map");
+                MessageCentre.DebugMessage(ViewModelLocator.DeviceExplorer.DeviceDeploymentMap.ToString());
+                MessageCentre.DebugMessage(string.Empty);
 
             }
             catch (Exception ex)
@@ -385,7 +383,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 (sender as MenuCommand).Enabled = true;
 
                 // clear status bar
-                NanoFrameworkPackage.MessageCentre.StopProgressMessage();
+                MessageCentre.StopProgressMessage();
             }
         }
         
@@ -402,7 +400,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             // yield to give the UI thread a chance to respond to user input
             await Task.Yield();
 
-            NanoFrameworkPackage.MessageCentre.StartProgressMessage($"Erasing {ViewModelLocator.DeviceExplorer.SelectedDevice.Description} deployment area...");
+            MessageCentre.StartProgressMessage($"Erasing {ViewModelLocator.DeviceExplorer.SelectedDevice.Description} deployment area...");
 
             try
             {
@@ -419,7 +417,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     {
                         if (await NanoDeviceCommService.Device.EraseAsync(Debugger.EraseOptions.Deployment, CancellationToken.None))
                         {
-                            NanoFrameworkPackage.MessageCentre.DebugMessage($"{ViewModelLocator.DeviceExplorer.SelectedDevice.Description} deployment area erased.");
+                            MessageCentre.DebugMessage($"{ViewModelLocator.DeviceExplorer.SelectedDevice.Description} deployment area erased.");
 
                             // reset the hash for the connected device so the deployment information can be refreshed, if and when requested
                             ViewModelLocator.DeviceExplorer.LastDeviceConnectedHash = 0;
@@ -433,13 +431,13 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         else
                         {
                             // report issue to user
-                            NanoFrameworkPackage.MessageCentre.DebugMessage($"Error erasing {ViewModelLocator.DeviceExplorer.SelectedDevice.Description} deployment area.");
+                            MessageCentre.DebugMessage($"Error erasing {ViewModelLocator.DeviceExplorer.SelectedDevice.Description} deployment area.");
                         }
                     }
                     catch
                     {
                         // report issue to user
-                        NanoFrameworkPackage.MessageCentre.DebugMessage($"Error erasing {ViewModelLocator.DeviceExplorer.SelectedDevice.Description} deployment area.");
+                        MessageCentre.DebugMessage($"Error erasing {ViewModelLocator.DeviceExplorer.SelectedDevice.Description} deployment area.");
 
                         return;
                     }
@@ -449,7 +447,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     // reset property to force that device capabilities are retrieved on next connection
                     ViewModelLocator.DeviceExplorer.LastDeviceConnectedHash = 0;
 
-                    NanoFrameworkPackage.MessageCentre.DebugMessage($"{ViewModelLocator.DeviceExplorer.SelectedDevice.Description} is not responding, please reboot the device.");
+                    MessageCentre.DebugMessage($"{ViewModelLocator.DeviceExplorer.SelectedDevice.Description} is not responding, please reboot the device.");
 
                     return;
                 }
@@ -464,7 +462,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 (sender as MenuCommand).Enabled = true;
 
                 // clear status bar
-                NanoFrameworkPackage.MessageCentre.StopProgressMessage();
+                MessageCentre.StopProgressMessage();
             }
         }
 
@@ -517,14 +515,14 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     catch
                     {
                         // report issue to user
-                        NanoFrameworkPackage.MessageCentre.DebugMessage($"Error reading {ViewModelLocator.DeviceExplorer.SelectedDevice.Description} configurations.");
+                        MessageCentre.DebugMessage($"Error reading {ViewModelLocator.DeviceExplorer.SelectedDevice.Description} configurations.");
 
                         return;
                     }
                 }
                 else
                 {
-                    NanoFrameworkPackage.MessageCentre.DebugMessage($"{ViewModelLocator.DeviceExplorer.SelectedDevice.Description} is not responding, please reboot the device.");
+                    MessageCentre.DebugMessage($"{ViewModelLocator.DeviceExplorer.SelectedDevice.Description} is not responding, please reboot the device.");
 
                     return;
                 }
@@ -539,7 +537,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 (sender as MenuCommand).Enabled = true;
 
                 // clear status bar
-                NanoFrameworkPackage.MessageCentre.StopProgressMessage();
+                MessageCentre.StopProgressMessage();
             }
         }
 
@@ -571,7 +569,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     {
                         NanoDeviceCommService.Device.DebugEngine.RebootDevice(Debugger.RebootOptions.NormalReboot);
 
-                        NanoFrameworkPackage.MessageCentre.DebugMessage($"Sent reboot command to {ViewModelLocator.DeviceExplorer.SelectedDevice.Description}.");
+                        MessageCentre.DebugMessage($"Sent reboot command to {ViewModelLocator.DeviceExplorer.SelectedDevice.Description}.");
 
                         // reset the hash for the connected device so the deployment information can be refreshed, if and when requested
                         ViewModelLocator.DeviceExplorer.LastDeviceConnectedHash = 0;
@@ -582,7 +580,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     catch
                     {
                         // report issue to user
-                        NanoFrameworkPackage.MessageCentre.DebugMessage($"Error sending reboot command to {ViewModelLocator.DeviceExplorer.SelectedDevice.Description}.");
+                        MessageCentre.DebugMessage($"Error sending reboot command to {ViewModelLocator.DeviceExplorer.SelectedDevice.Description}.");
 
                         return;
                     }
@@ -592,7 +590,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     // reset property to force that device capabilities are retrieved on next connection
                     ViewModelLocator.DeviceExplorer.LastDeviceConnectedHash = 0;
 
-                    NanoFrameworkPackage.MessageCentre.DebugMessage($"{ViewModelLocator.DeviceExplorer.SelectedDevice.Description} is not responding, please reboot the device.");
+                    MessageCentre.DebugMessage($"{ViewModelLocator.DeviceExplorer.SelectedDevice.Description} is not responding, please reboot the device.");
 
                     return;
                 }
@@ -709,31 +707,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
 
         #region helper methods and utilities
-
-        private void OutputExtensionWelcomeMessage()
-        {
-            // loaded 
-            NanoFrameworkPackage.MessageCentre.OutputMessage($"nanoFramework extension v{NanoFrameworkPackage.NanoFrameworkExtensionVersion.ToString()} loaded.");
-
-            // internal errors output
-            if (NanoFrameworkPackage.OptionShowInternalErrors)
-            {
-                NanoFrameworkPackage.MessageCentre.OutputMessage("internal errors will be reported.");
-            }
-
-            // intro messages
-            NanoFrameworkPackage.MessageCentre.OutputMessage("GitHub repo: https://github.com/nanoframework/Home");
-            NanoFrameworkPackage.MessageCentre.OutputMessage("Report issues: https://github.com/nanoframework/Home/issues");
-            NanoFrameworkPackage.MessageCentre.OutputMessage("Join our Slack workspace: https://join.slack.com/t/nanoframework/shared_invite/enQtMzI3OTg4MTk0NTgwLWQ0ODQ3ZWIwZjgxZWFmNjU3MDIwN2E2YzM2OTdhMWRiY2Q3M2NlOTk2N2IwNTM3MmRlMmQ2NTRlNjZlYzJlMmY");
-            NanoFrameworkPackage.MessageCentre.OutputMessage("Join our Hackster.io platform: https://www.hackster.io/nanoframework");
-            NanoFrameworkPackage.MessageCentre.OutputMessage(Environment.NewLine);
-            NanoFrameworkPackage.MessageCentre.OutputMessage("** Support nanoFramework project **");
-            NanoFrameworkPackage.MessageCentre.OutputMessage("Following us on Twitter: https://twitter.com/nanoframework");
-            NanoFrameworkPackage.MessageCentre.OutputMessage("Following our YouTube channel: https://www.youtube.com/channel/UC62nKcuCEhvUKHd9k9QEezQ");
-            NanoFrameworkPackage.MessageCentre.OutputMessage("Staring our GitHub repos: https://github.com/nanoframework/Home");
-            NanoFrameworkPackage.MessageCentre.OutputMessage("Adding a short review: https://marketplace.visualstudio.com/items?itemName=vs-publisher-1470366.nanoFrameworkVS2017Extension");
-            NanoFrameworkPackage.MessageCentre.OutputMessage(Environment.NewLine);
-        }
 
         /// <summary>
         /// Generates a <see cref="CommandID"/> specific for the Device Explorer menugroup

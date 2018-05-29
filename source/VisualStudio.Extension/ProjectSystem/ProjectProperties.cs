@@ -32,7 +32,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             }
             catch (Exception e)
             {
-                NanoFrameworkPackage.MessageCentre.InternalErrorMessage(false, String.Format("Unable to register debug engine: {0}", e.Message));
+                MessageCentre.InternalErrorMessage(false, String.Format("Unable to register debug engine: {0}", e.Message));
             }
         }
 

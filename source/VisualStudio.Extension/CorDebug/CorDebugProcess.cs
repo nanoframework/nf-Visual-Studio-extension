@@ -180,7 +180,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             }
             catch (Exception)
             {
-                NanoFrameworkPackage.MessageCentre.DebugMessage(Resources.ResourceStrings.DeploymentErrorDeviceErrors);
+                MessageCentre.DebugMessage(Resources.ResourceStrings.DeploymentErrorDeviceErrors);
                 throw;
             }
         }
@@ -294,7 +294,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             {
                 bool fSucceeded = false;
 
-                NanoFrameworkPackage.MessageCentre.StartProgressMessage(Resources.ResourceStrings.Rebooting);
+                MessageCentre.StartProgressMessage(Resources.ResourceStrings.Rebooting);
 
                 AttachToEngine();
 
@@ -345,12 +345,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 
                 if (!ShuttingDown && !fSucceeded)
                 {
-                    NanoFrameworkPackage.MessageCentre.StopProgressMessage();
+                    MessageCentre.StopProgressMessage();
                     throw new Exception(Resources.ResourceStrings.CouldNotReconnect);
                 }
             }
 
-            NanoFrameworkPackage.MessageCentre.StopProgressMessage(Resources.ResourceStrings.TargetInitializeSuccess);
+            MessageCentre.StopProgressMessage(Resources.ResourceStrings.TargetInitializeSuccess);
         }
 
         public Engine AttachToEngine()
@@ -533,7 +533,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         private void DispatchEvents()
         {
-            NanoFrameworkPackage.MessageCentre.InternalErrorMessage(false, Resources.ResourceStrings.DispatchEvents);
+            MessageCentre.InternalErrorMessage(false, Resources.ResourceStrings.DispatchEvents);
 
             try
             {
@@ -547,7 +547,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             }
             catch (Exception e)
             {
-                NanoFrameworkPackage.MessageCentre.DebugMessage(Resources.ResourceStrings.DispatchEventsFailed);
+                MessageCentre.DebugMessage(Resources.ResourceStrings.DispatchEventsFailed);
 
                 DebugAssert(!(IsAttachedToEngine && !ShuttingDown), "Event dispatch failed:" + e.Message);
                 ICorDebugProcess.Terminate(0);
@@ -581,11 +581,11 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             {
                 EnqueueStartupEventsAndWait();
                 
-                NanoFrameworkPackage.MessageCentre.DebugMessage(String.Format(Resources.ResourceStrings.AttachingToDevice));
+                MessageCentre.DebugMessage(String.Format(Resources.ResourceStrings.AttachingToDevice));
 
                 if (AttachToEngine() == null)
                 {
-                    NanoFrameworkPackage.MessageCentre.DebugMessage(String.Format(Resources.ResourceStrings.DeploymentErrorReconnect));
+                    MessageCentre.DebugMessage(String.Format(Resources.ResourceStrings.DeploymentErrorReconnect));
                     
                     throw new Exception(Resources.ResourceStrings.DebugEngineAttachmentFailure);
                 }
@@ -596,7 +596,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 {
                     //This will reboot the device if start debugging was done without a deployment
     
-                    NanoFrameworkPackage.MessageCentre.DebugMessage(String.Format(Resources.ResourceStrings.WaitingDeviceInitialization));
+                    MessageCentre.DebugMessage(String.Format(Resources.ResourceStrings.WaitingDeviceInitialization));
 
                     EnsureProcessIsInInitializedState();
 
@@ -616,7 +616,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         //Check to see if the device has exited
                         if (_engine.IsDeviceInExitedState())
                         {
-                            NanoFrameworkPackage.MessageCentre.DebugMessage(Resources.ResourceStrings.DebuggingTargetNotFound);
+                            MessageCentre.DebugMessage(Resources.ResourceStrings.DebuggingTargetNotFound);
                             throw new ProcessExitException();
                         }
                     }
@@ -624,7 +624,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             }
             catch(Exception)
             {
-                NanoFrameworkPackage.MessageCentre.DebugMessage(Resources.ResourceStrings.InitializationFailed);
+                MessageCentre.DebugMessage(Resources.ResourceStrings.InitializationFailed);
                 throw;
             }
         }
@@ -641,7 +641,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
           when a real breakpoint gets hit, when execution is stopped via BreakAll, etc..
          */
 
-            NanoFrameworkPackage.MessageCentre.InternalErrorMessage(Resources.ResourceStrings.RunningThreadsInformation);
+            MessageCentre.InternalErrorMessage(Resources.ResourceStrings.RunningThreadsInformation);
 
             uint[] threads = _engine.GetThreadList();
 
@@ -685,15 +685,15 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 {
                     try
                     {
-                        NanoFrameworkPackage.MessageCentre.StartProgressMessage(Resources.ResourceStrings.DebuggingStarting);
+                        MessageCentre.StartProgressMessage(Resources.ResourceStrings.DebuggingStarting);
                         StartClr();
                         DispatchEvents();
                     }
                     catch (Exception ex)
                     {
-                        NanoFrameworkPackage.MessageCentre.StopProgressMessage();
+                        MessageCentre.StopProgressMessage();
                         ICorDebugProcess.Terminate(0);
-                        NanoFrameworkPackage.MessageCentre.DebugMessage(String.Format(Resources.ResourceStrings.DebuggerThreadTerminated, ex.Message));
+                        MessageCentre.DebugMessage(String.Format(Resources.ResourceStrings.DebuggerThreadTerminated, ex.Message));
                     }
                     finally
                     {
@@ -1175,7 +1175,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         //    uint        debuggingFlags
         //    )
         //{
-        //    NanoFrameworkPackage.MessageCentre.DebugMessage(String.Format(Resources.ResourceStrings.EmulatorCommandLine, lpCommandLine));
+        //    MessageCentre.DebugMessage(String.Format(Resources.ResourceStrings.EmulatorCommandLine, lpCommandLine));
 
         //    try
         //    {
@@ -1189,8 +1189,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         //        emuProcess.StartInfo.RedirectStandardInput = false;
 
         //        // Set our event handler to asynchronously read the emulator's outputs.
-        //        emuProcess.OutputDataReceived += new DataReceivedEventHandler(NanoFrameworkPackage.MessageCentre.OutputMsgHandler);
-        //        emuProcess.ErrorDataReceived += new DataReceivedEventHandler(NanoFrameworkPackage.MessageCentre.ErrorMsgHandler);
+        //        emuProcess.OutputDataReceived += new DataReceivedEventHandler(MessageCentre.OutputMsgHandler);
+        //        emuProcess.ErrorDataReceived += new DataReceivedEventHandler(MessageCentre.ErrorMsgHandler);
 
         //        emuProcess.StartInfo.WorkingDirectory = lpCurrentDirectory;
 
@@ -1303,7 +1303,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         private void LoadAssemblies()
         {
-            NanoFrameworkPackage.MessageCentre.DebugMessage(Resources.ResourceStrings.LoadAssemblies);
+            MessageCentre.DebugMessage(Resources.ResourceStrings.LoadAssemblies);
 
             List<Commands.DebuggingResolveAssembly> assemblies = Engine.ResolveAllAssemblies();
             string[] assemblyPathsT = new string[1];
@@ -1400,7 +1400,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         public void UpdateAssemblies()
         {
-            NanoFrameworkPackage.MessageCentre.InternalErrorMessage(Resources.ResourceStrings.LoadedAssembliesInformation);
+            MessageCentre.InternalErrorMessage(Resources.ResourceStrings.LoadedAssembliesInformation);
             lock (_appDomains)
             {
                 LoadAssemblies();
@@ -1510,7 +1510,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             }
             catch (Exception ex)
             {
-                NanoFrameworkPackage.MessageCentre.InternalErrorMessage(false, "Exception while terminating CorDebugProcess: " + ex.Message);
+                MessageCentre.InternalErrorMessage(false, "Exception while terminating CorDebugProcess: " + ex.Message);
             }
             finally
             {
@@ -1529,7 +1529,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             }
             else
             {
-                NanoFrameworkPackage.MessageCentre.DebugMessage(text);
+                MessageCentre.DebugMessage(text);
             }
 
         }
@@ -1618,7 +1618,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     //nop
                     break;
                 default:
-                    NanoFrameworkPackage.MessageCentre.InternalErrorMessage(false, "Unexpected command=" + msg.Header.Cmd);
+                    MessageCentre.InternalErrorMessage(false, "Unexpected command=" + msg.Header.Cmd);
                     break;
             }
         }
@@ -1627,7 +1627,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         {
             if(buf != null && (offset + count) <= buf.Length)
             {
-                NanoFrameworkPackage.MessageCentre.InternalErrorMessage( System.Text.UTF8Encoding.UTF8.GetString(buf, offset, count) );
+                MessageCentre.InternalErrorMessage( System.Text.UTF8Encoding.UTF8.GetString(buf, offset, count) );
             }
         }
 
@@ -2340,12 +2340,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         private static void DebugAssert(bool condition, string message, string detailedMessage)
         {
-            NanoFrameworkPackage.MessageCentre.InternalErrorMessage(condition, String.Format("message: {0}\r\nDetailed Message: {1}", message, detailedMessage));
+            MessageCentre.InternalErrorMessage(condition, String.Format("message: {0}\r\nDetailed Message: {1}", message, detailedMessage));
         }
 
         private static void DebugAssert(bool condition, string message)
         {
-            NanoFrameworkPackage.MessageCentre.InternalErrorMessage(condition, message);
+            MessageCentre.InternalErrorMessage(condition, message);
         }
     }
 }

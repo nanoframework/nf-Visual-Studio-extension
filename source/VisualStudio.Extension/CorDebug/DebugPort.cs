@@ -139,7 +139,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             if (string.IsNullOrEmpty(deviceName))
                 throw new Exception("DebugPort.GetDeviceProcess() called with no argument");
 
-            NanoFrameworkPackage.MessageCentre.StartProgressMessage(String.Format(Resources.ResourceStrings.StartDeviceSearch, deviceName, eachSecondRetryMaxCount));
+            MessageCentre.StartProgressMessage(String.Format(Resources.ResourceStrings.StartDeviceSearch, deviceName, eachSecondRetryMaxCount));
 
             CorDebugProcess process = InternalGetDeviceProcess(deviceName);
             if (process != null)
@@ -153,7 +153,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 process = InternalGetDeviceProcess(deviceName);
             }
 
-            NanoFrameworkPackage.MessageCentre.StopProgressMessage(String.Format((process == null) 
+            MessageCentre.StopProgressMessage(String.Format((process == null) 
                                                                     ? Resources.ResourceStrings.DeviceFound
                                                                     : Resources.ResourceStrings.DeviceNotFound,
                                                                   deviceName));
