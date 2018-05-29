@@ -9,7 +9,6 @@ using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 using System;
 using System.Diagnostics;
-using System.Runtime.InteropServices;
 
 namespace nanoFramework.Tools.VisualStudio.Extension
 {
@@ -22,9 +21,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         private static IVsOutputWindowPane _debugPane;
         private static IVsOutputWindowPane _nanoFrameworkMessagesPane;
         private static IVsStatusbar _statusBar;
-        private static bool _showInternalErrors;
         private static string _paneName;
-
 
         public static async System.Threading.Tasks.Task InitializeAsync(AsyncPackage package, string name)
         {
@@ -49,10 +46,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 _outputWindow.CreatePane(ref tempId, _paneName, 0, 1);
                 _outputWindow.GetPane(ref tempId, out _nanoFrameworkMessagesPane);
             });
-
-            // this one is true for now
-            // TODO expose setting
-            _showInternalErrors = true;
         }
 
         public static void DebugMessage(string message)
@@ -86,7 +79,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         public static void InternalErrorMessage(bool assertion, string message, int skipFrames)
         {
-            if (!assertion && _showInternalErrors)
+            if (!assertion && NanoFrameworkPackage.OptionShowInternalErrors)
             {
                 message = String.IsNullOrEmpty(message) ? "Unknown Error" : message;
 
