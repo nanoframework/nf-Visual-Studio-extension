@@ -155,21 +155,21 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 throw new Exception("Invalid MAC address format. Check value.");
             }
 
-            NanoFrameworkPackage.MessageCentre.StartProgressMessage($"Uploading network configuration to {(DataContext as DeviceExplorerViewModel).SelectedDevice.Description}...");
+            MessageCentre.StartProgressMessage($"Uploading network configuration to {(DataContext as DeviceExplorerViewModel).SelectedDevice.Description}...");
 
             // save network configuration to target...
             if ((DataContext as DeviceExplorerViewModel).SelectedDevice.DebugEngine.UpdateDeviceConfiguration(networkConfigurationToSave, 0))
             {
-                NanoFrameworkPackage.MessageCentre.DebugMessage($"{(DataContext as DeviceExplorerViewModel).SelectedDevice.Description} network configuration updated.");
-                NanoFrameworkPackage.MessageCentre.StopProgressMessage();
+                MessageCentre.DebugMessage($"{(DataContext as DeviceExplorerViewModel).SelectedDevice.Description} network configuration updated.");
+                MessageCentre.StopProgressMessage();
 
                 // close on success
                 Close();
             }
             else
             {
-                NanoFrameworkPackage.MessageCentre.DebugMessage($"Error updating {(DataContext as DeviceExplorerViewModel).SelectedDevice.Description} network configuration.");
-                NanoFrameworkPackage.MessageCentre.StopProgressMessage();
+                MessageCentre.DebugMessage($"Error updating {(DataContext as DeviceExplorerViewModel).SelectedDevice.Description} network configuration.");
+                MessageCentre.StopProgressMessage();
             }
         }
     }

@@ -96,7 +96,6 @@
       <DependentUpon>IPMaskedTextBox.xaml</DependentUpon>
     </Compile>
     <Compile Include="MessageCentre\MessageCentre.cs" />
-    <Compile Include="MessageCentre\MessageCentreBase.cs" />
     <Compile Include="CorDebug\Utility\Utility.FImplies.cs" />
     <Compile Include="CorDebug\Utility\Utility.InRange.cs" />
     <Compile Include="CorDebug\Utility\Utility.Kernel32.cs" />

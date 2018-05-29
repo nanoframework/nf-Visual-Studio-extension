@@ -121,28 +121,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         private static INanoDeviceCommService s_nanoDeviceCommService;
 
-
-        private static MessageCentreBase s_messageCentre = null;
-        public static MessageCentreBase MessageCentre
-        {
-            get
-            {
-                if (s_messageCentre == null)
-                {
-                    try
-                    {
-                        s_messageCentre = new MessageCentre();
-                    }
-                    catch
-                    {
-                        return new NullMessageCentre();
-                    }
-                }
-
-                return s_messageCentre;
-            }
-        }
-
         // command set Guid
         public const string _guidNanoDebugPackageCmdSetString = "6A0F19B1-00EF-4215-BD7B-29DEB4425F7C";
         public static readonly Guid s_guidNanoDebugPackageCmdSet = new Guid(_guidNanoDebugPackageCmdSetString);
@@ -168,7 +146,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             NanoFrameworkExtensionDirectory = info.FullName;
 
             // fill the property of the DLL version
-            NanoFrameworkExtensionVersion = new AssemblyName(Assembly.GetExecutingAssembly().FullName).Version;
+            NanoFrameworkExtensionVersion = new AssemblyName(assembly.FullName).Version;
 
             s_instance = this;
         }
@@ -181,7 +159,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         {
             AddService(typeof(NanoDeviceCommService), CreateNanoDeviceCommService);
 
-            // Need to add the View model Locator to the application resource dictionary programatically 
+            // Need to add the View model Locator to the application resource dictionary programmatically 
             // because at the extension level we don't have 'XAML' access to it
             // try to find if the view model locator is already in the app resources dictionary
             if (System.Windows.Application.Current.TryFindResource("Locator") == null)
@@ -194,6 +172,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             }
 
             ServiceLocator.Current.GetInstance<DeviceExplorerViewModel>().Package = this;
+
+            await MessageCentre.InitializeAsync(this, "nanoFramework Extension");
 
             // need to switch to the main thread to initialize the command handlers
             await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
@@ -210,6 +190,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
             AddOptionKey(SHOW_INTERNAL_ERRORS_KEY);
 
+            OutputWelcomeMessage();
+
             await base.InitializeAsync(cancellationToken, progress);
         }
 
@@ -222,6 +204,38 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             });
 
             return service;
+        }
+
+        private void OutputWelcomeMessage()
+        {
+            System.Threading.Tasks.Task.Run(() => 
+            {
+                // schedule this to wait for a few seconds before doing it's thing allow VS to load
+                System.Threading.Tasks.Task.Delay(5000);
+
+                // loaded 
+                MessageCentre.OutputMessage($"nanoFramework extension v{NanoFrameworkExtensionVersion.ToString()} loaded.");
+
+                // internal errors output
+                if (OptionShowInternalErrors)
+                {
+                    MessageCentre.OutputMessage("internal errors will be reported.");
+                }
+
+                // intro messages
+                MessageCentre.OutputMessage("GitHub repo: https://github.com/nanoframework/Home");
+                MessageCentre.OutputMessage("Report issues: https://github.com/nanoframework/Home/issues");
+                MessageCentre.OutputMessage("Join our Slack workspace: https://join.slack.com/t/nanoframework/shared_invite/enQtMzI3OTg4MTk0NTgwLWQ0ODQ3ZWIwZjgxZWFmNjU3MDIwN2E2YzM2OTdhMWRiY2Q3M2NlOTk2N2IwNTM3MmRlMmQ2NTRlNjZlYzJlMmY");
+                MessageCentre.OutputMessage("Join our Hackster.io platform: https://www.hackster.io/nanoframework");
+                MessageCentre.OutputMessage(Environment.NewLine);
+                MessageCentre.OutputMessage("** Support nanoFramework project **");
+                MessageCentre.OutputMessage("Following us on Twitter: https://twitter.com/nanoframework");
+                MessageCentre.OutputMessage("Following our YouTube channel: https://www.youtube.com/channel/UC62nKcuCEhvUKHd9k9QEezQ");
+                MessageCentre.OutputMessage("Staring our GitHub repos: https://github.com/nanoframework/Home");
+                MessageCentre.OutputMessage("Adding a short review: https://marketplace.visualstudio.com/items?itemName=vs-publisher-1470366.nanoFrameworkVS2017Extension");
+                MessageCentre.OutputMessage(Environment.NewLine);
+
+            });
         }
 
         private int LaunchNanoDebug(uint nCmdExecOpt, IntPtr pvaIn, IntPtr pvaOut)
