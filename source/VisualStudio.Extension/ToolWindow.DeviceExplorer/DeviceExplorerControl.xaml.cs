@@ -28,8 +28,16 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         {
             InitializeComponent();
 
+            Loaded += DeviceExplorerControl_Loaded;
+
             deviceTreeView.SelectedItemChanged += DevicesTreeView_SelectedItemChanged;
             Messenger.Default.Register<NotificationMessage>(this, DeviceExplorerViewModel.MessagingTokens.ForceSelectionOfNanoDevice, (message) => ForceSelectionOfNanoDeviceHandler());
+        }
+
+        private void DeviceExplorerControl_Loaded(object sender, System.Windows.RoutedEventArgs e)
+        {
+            // update the status of the control button
+            DeviceExplorerCommand.UpdateShowInternalErrorsButton(NanoFrameworkPackage.OptionShowInternalErrors);
         }
 
         private void Hyperlink_RequestNavigate(object sender, System.Windows.Navigation.RequestNavigateEventArgs e)

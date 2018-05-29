@@ -80,27 +80,28 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         #region user options related stuff
 
+        private const string EXTENSION_SUBKEY = "nanoFrameworkExtension";
+
         private const string SHOW_INTERNAL_ERRORS_KEY = "ShowInternalErrors";
 
         /// <summary>
         /// User option for outputting internal extension errors to the extension output pane.
-        /// The value is persisted.
+        /// The value is persisted per user.
         /// Default is false.
         /// </summary>
         public static bool OptionShowInternalErrors
         {
             get
             {
-                return s_instance._optionShowInternalErrors;
+                return bool.Parse((string)s_instance.UserRegistryRoot.OpenSubKey(EXTENSION_SUBKEY).GetValue(SHOW_INTERNAL_ERRORS_KEY, "False"));
             }
 
             set
             {
-                s_instance._optionShowInternalErrors = value;
+                s_instance.UserRegistryRoot.OpenSubKey(EXTENSION_SUBKEY, true).SetValue(SHOW_INTERNAL_ERRORS_KEY, value);
+                s_instance.UserRegistryRoot.OpenSubKey(EXTENSION_SUBKEY, true).Flush();
             }
         }
-
-        private bool _optionShowInternalErrors = true;
 
         #endregion
 
@@ -157,6 +158,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         /// </summary>
         protected override async System.Threading.Tasks.Task InitializeAsync(CancellationToken cancellationToken, IProgress<ServiceProgressData> progress)
         {
+            // make sure "our" key exists and it's writeable
+            s_instance.UserRegistryRoot.CreateSubKey(EXTENSION_SUBKEY, true);
+
             AddService(typeof(NanoDeviceCommService), CreateNanoDeviceCommService);
 
             // Need to add the View model Locator to the application resource dictionary programmatically 
@@ -188,8 +192,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
             ServiceLocator.Current.GetInstance<DeviceExplorerViewModel>().NanoDeviceCommService = await GetServiceAsync(typeof(NanoDeviceCommService)) as INanoDeviceCommService;
 
-            AddOptionKey(SHOW_INTERNAL_ERRORS_KEY);
-
             OutputWelcomeMessage();
 
             await base.InitializeAsync(cancellationToken, progress);
@@ -216,12 +218,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 // loaded 
                 MessageCentre.OutputMessage($"nanoFramework extension v{NanoFrameworkExtensionVersion.ToString()} loaded.");
 
-                // internal errors output
-                if (OptionShowInternalErrors)
-                {
-                    MessageCentre.OutputMessage("internal errors will be reported.");
-                }
-
                 // intro messages
                 MessageCentre.OutputMessage("GitHub repo: https://github.com/nanoframework/Home");
                 MessageCentre.OutputMessage("Report issues: https://github.com/nanoframework/Home/issues");
@@ -234,7 +230,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 MessageCentre.OutputMessage("Staring our GitHub repos: https://github.com/nanoframework/Home");
                 MessageCentre.OutputMessage("Adding a short review: https://marketplace.visualstudio.com/items?itemName=vs-publisher-1470366.nanoFrameworkVS2017Extension");
                 MessageCentre.OutputMessage(Environment.NewLine);
-
             });
         }
 
@@ -323,41 +318,5 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         #endregion
 
-
-        #region handlers for user options
-
-        protected override void OnSaveOptions(string key, Stream stream)
-        {
-
-            if (key == SHOW_INTERNAL_ERRORS_KEY)
-            {
-                try
-                {
-                    using (StreamReader streamReader = new StreamReader(stream))
-                    {
-                        var value = streamReader.ReadToEnd();
-                        _optionShowInternalErrors = bool.Parse(value);
-                    }
-                }
-                catch { }
-            }
-        }
-
-        protected override void OnLoadOptions(string key, Stream stream)
-        {
-            if (key == SHOW_INTERNAL_ERRORS_KEY)
-            {
-                try
-                {
-                    using (StreamWriter streamWriter = new StreamWriter(stream))
-                    {
-                        streamWriter.Write(_optionShowInternalErrors);
-                    }
-                }
-                catch { }
-            }
-        }
-
-        #endregion
     }
 }

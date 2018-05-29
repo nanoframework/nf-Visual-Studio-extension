@@ -34,6 +34,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         private ViewModelLocator ViewModelLocator;
 
+        private static OleMenuCommandService _commandService;
+
         /// <summary>
         /// VS Package that provides this command, not null.
         /// </summary>
@@ -72,12 +74,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         {
             this.package = package ?? throw new ArgumentNullException("Package can't be null.");
 
-            OleMenuCommandService commandService = ServiceProvider.GetService(typeof(IMenuCommandService)) as OleMenuCommandService;
-            if (commandService != null)
+            _commandService = ServiceProvider.GetService(typeof(IMenuCommandService)) as OleMenuCommandService;
+            if (_commandService != null)
             {
                 var menuCommandID = new CommandID(CommandSet, CommandId);
                 var menuItem = new MenuCommand(ShowToolWindow, menuCommandID);
-                commandService.AddCommand(menuItem);
+                _commandService.AddCommand(menuItem);
             }
         }
 
@@ -175,9 +177,10 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 ShowInternalErrorsCommandHandler), toolbarButtonCommandId);
             menuItem.Enabled = true;
             menuItem.Visible = true;
-            menuItem.Checked = NanoFrameworkPackage.OptionShowInternalErrors;
+            // can't set the checked status here because the service provider of the preferences persistence is not available at this time
+            // deferring to when the Device Explorer control is loaded
+            //menuItem.Checked = NanoFrameworkPackage.OptionShowInternalErrors;
             menuCommandService.AddCommand(menuItem);
-
         }
 
 
@@ -608,8 +611,10 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         private void ShowInternalErrorsCommandHandler(object sender, EventArgs e)
         {
-            // save 
-            NanoFrameworkPackage.OptionShowInternalErrors = (sender as MenuCommand).Checked;
+            // save new status
+            // the "Checked" property reflects the current state, the final value is the current one negated 
+            // this is more a "changing" event rather then a "changed" one
+            NanoFrameworkPackage.OptionShowInternalErrors = !(sender as MenuCommand).Checked;
 
             // toggle button checked state
             var currentCheckState = (sender as MenuCommand).Checked;
@@ -618,6 +623,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         #endregion
 
+        public static void UpdateShowInternalErrorsButton(bool value)
+        {
+            var toolbarButtonCommandId = GenerateCommandID(ShowInternalErrorsCommandID);
+            var menuItem = _commandService.FindCommand(toolbarButtonCommandId);
+            menuItem.Checked = value;
+        }
 
         #region MVVM messaging handlers
 
@@ -713,7 +724,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         /// </summary>
         /// <param name="commandID">The ID for the command.</param>
         /// <returns></returns>
-        private CommandID GenerateCommandID(int commandID)
+        private static CommandID GenerateCommandID(int commandID)
         {
             return new CommandID(new Guid(guidDeviceExplorerCmdSet), commandID);
         }
