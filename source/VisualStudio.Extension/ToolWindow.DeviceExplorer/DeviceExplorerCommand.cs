@@ -64,6 +64,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
 
         INanoDeviceCommService NanoDeviceCommService;
+        private static DeviceExplorerCommand s_instance;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DeviceExplorerCommand"/> class.
@@ -84,15 +85,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         }
 
         /// <summary>
-        /// Gets the instance of the command.
-        /// </summary>
-        public static DeviceExplorerCommand Instance
-        {
-            get;
-            private set;
-        }
-
-        /// <summary>
         /// Gets the service provider from the owner package.
         /// </summary>
         private System.IServiceProvider ServiceProvider
@@ -107,20 +99,23 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         /// Initializes the singleton instance of the command.
         /// </summary>
         /// <param name="package">Owner package, not null.</param>
-        public static void Initialize(Package package, ViewModelLocator vmLocator, INanoDeviceCommService nanoDeviceCommService)
+        public static async Task InitializeAsync(AsyncPackage package, ViewModelLocator vmLocator, INanoDeviceCommService nanoDeviceCommService)
         {
-            Instance = new DeviceExplorerCommand(package);
+            s_instance = new DeviceExplorerCommand(package);
 
-            Instance.ViewModelLocator = vmLocator;
-            Instance.NanoDeviceCommService = nanoDeviceCommService;
+            s_instance.ViewModelLocator = vmLocator;
+            s_instance.NanoDeviceCommService = nanoDeviceCommService;
 
             //windowApp = ();
 
-            Instance.CreateToolbarHandlers();
+            // need to switch to the main thread to initialize the command handlers
+            await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+
+            s_instance.CreateToolbarHandlers();
 
             // setup message listeners to be notified of events occurring in the View Model
-            Messenger.Default.Register<NotificationMessage>(Instance, DeviceExplorerViewModel.MessagingTokens.SelectedNanoDeviceHasChanged, (message) => Instance.SelectedNanoDeviceHasChangedHandler());
-            Messenger.Default.Register<NotificationMessage>(Instance, DeviceExplorerViewModel.MessagingTokens.NanoDevicesCollectionHasChanged, (message) => Instance.NanoDevicesCollectionChangedHandler());
+            Messenger.Default.Register<NotificationMessage>(s_instance, DeviceExplorerViewModel.MessagingTokens.SelectedNanoDeviceHasChanged, (message) => s_instance.SelectedNanoDeviceHasChangedHandler());
+            Messenger.Default.Register<NotificationMessage>(s_instance, DeviceExplorerViewModel.MessagingTokens.NanoDevicesCollectionHasChanged, (message) => s_instance.NanoDevicesCollectionChangedHandler());
         }
 
         private void CreateToolbarHandlers()
@@ -141,7 +136,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
             // DeviceCapabilities
             toolbarButtonCommandId = GenerateCommandID(DeviceCapabilitiesID);
-            menuItem = new MenuCommand( new EventHandler(
+            menuItem = new MenuCommand(new EventHandler(
                 DeviceCapabilitiesCommandHandler), toolbarButtonCommandId);
             menuItem.Enabled = false;
             menuItem.Visible = true;
@@ -149,7 +144,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
             // DeviceErase
             toolbarButtonCommandId = GenerateCommandID(DeviceEraseID);
-            menuItem = new MenuCommand( new EventHandler(
+            menuItem = new MenuCommand(new EventHandler(
                 DeviceEraseCommandHandler), toolbarButtonCommandId);
             menuItem.Enabled = false;
             menuItem.Visible = true;
@@ -157,7 +152,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
             // Reboot
             toolbarButtonCommandId = GenerateCommandID(RebootID);
-            menuItem = new MenuCommand( new EventHandler(
+            menuItem = new MenuCommand(new EventHandler(
                 RebootCommandHandler), toolbarButtonCommandId);
             menuItem.Enabled = false;
             menuItem.Visible = true;
@@ -165,7 +160,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
             // NetworkConfig
             toolbarButtonCommandId = GenerateCommandID(NetworkConfigID);
-            menuItem = new MenuCommand( new EventHandler(
+            menuItem = new MenuCommand(new EventHandler(
                 NetworkConfigCommandHandler), toolbarButtonCommandId);
             menuItem.Enabled = false;
             menuItem.Visible = true;
@@ -389,7 +384,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 MessageCentre.StopProgressMessage();
             }
         }
-        
+
         /// <summary>
         /// Handler for DeviceEraseCommand
         /// </summary>

@@ -55,7 +55,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         [Import]
         IProjectService ProjectService { get; set; }
 
-        public static void Initialize(Package package, ViewModelLocator vmLocator)
+        public static void Initialize(AsyncPackage package, ViewModelLocator vmLocator)
         {
             _package = package;
             _viewModelLocator = vmLocator;
