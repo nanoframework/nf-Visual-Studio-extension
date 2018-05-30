@@ -345,8 +345,11 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 }
             }
 
-            // close error message
-            errorMessage += "***************************************";
+            // close error message, if needed
+            if (!string.IsNullOrEmpty(errorMessage))
+            {
+                errorMessage += "***************************************";
+            }
 
             return errorMessage;
         }
