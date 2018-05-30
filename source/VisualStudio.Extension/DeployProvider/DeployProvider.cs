@@ -139,6 +139,20 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         // device has left initialization state
                         await outputPaneWriter.WriteLineAsync(ResourceStrings.DeviceInitialized);
 
+                        //////////////////////////////////////////////////////////
+                        // sanity check for devices without native assemblies ?!?!
+                        if(!device.DeviceInfo.Valid)
+                        {
+                            // need to update DeviceInfo
+                            device.GetDeviceInfo();
+                        }
+
+                        if (device.DeviceInfo.NativeAssemblies == null || device.DeviceInfo.NativeAssemblies?.Count == 0)
+                        {
+                            // there are no assemblies deployed?!
+                            throw new DeploymentException($"Couldn't find any native assemblies deployed in {_viewModelLocator.DeviceExplorer.SelectedDevice.Description}! Please check the firmware image loaded on the device. If the situation persists try to reboot the device.");
+                        }
+
                         ///////////////////////////////////////////////////////
                         // get the list of assemblies referenced by the project
                         var referencedAssemblies = await Properties.ConfiguredProject.Services.AssemblyReferences.GetResolvedReferencesAsync();
@@ -174,7 +188,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         {
                             // load assembly to get the version
                             var assembly = Assembly.LoadFrom(await reference.GetFullPathAsync()).GetName();
-                            assemblyList.Add((await reference.GetFullPathAsync(), $" v{assembly.Version.ToString(4)}"));
+                            assemblyList.Add((await reference.GetFullPathAsync(), $"{assembly.Version.ToString(4)}"));
                         }
 
                         // loop through each project that is set to build
@@ -188,7 +202,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                                 var assembly = Assembly.LoadFrom(referencedProjectAssemblyPath).GetName();
 
                                 // add the referenced project output to the assembly list
-                                assemblyList.Add((referencedProjectAssemblyPath, $" v{assembly.Version.ToString(4)}"));
+                                assemblyList.Add((referencedProjectAssemblyPath, $"{assembly.Version.ToString(4)}"));
                             }
                         }
 
@@ -196,9 +210,15 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         assemblyList.Add((targetPath, $" v{ executableVersionInfo.ProductVersion }"));
 
                         // if there are referenced project, the assembly list contains repeated assemblies so need to use Linq Distinct()
-
                         // build a list with the PE files corresponding to each DLL and EXE
                         List<(string path, string version)> peCollection = assemblyList.Distinct().Select(a => (a.path.Replace(".dll", ".pe").Replace(".exe", ".pe"), a.version)).ToList();
+
+                        var checkAssembliesResult = await CheckNativeAssembliesAvailabilityAsync(device.DeviceInfo.NativeAssemblies, peCollection);
+                        if (checkAssembliesResult != "")
+                        {
+                            // can't deploy
+                            throw new DeploymentException(checkAssembliesResult);
+                        }
 
                         // Keep track of total assembly size
                         long totalSizeOfAssemblies = 0;
@@ -210,7 +230,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                             using (FileStream fs = File.Open(peItem.path, FileMode.Open, FileAccess.Read))
                             {
                                 long length = (fs.Length + 3) / 4 * 4;
-                                await outputPaneWriter.WriteLineAsync($"Adding {Path.GetFileNameWithoutExtension(peItem.path) + peItem.version} ({length.ToString()} bytes) to deployment bundle");
+                                await outputPaneWriter.WriteLineAsync($"Adding {Path.GetFileNameWithoutExtension(peItem.path)} v{peItem.version} ({length.ToString()} bytes) to deployment bundle");
                                 byte[] buffer = new byte[length];
 
                                 await fs.ReadAsync(buffer, 0, (int)fs.Length);
@@ -226,7 +246,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         if (!device.DebugEngine.DeploymentExecute(assemblies, false))
                         {
                             // throw exception to signal deployment failure
-                            throw new Exception("Deploy failed.");
+                            throw new DeploymentException("Deploy failed.");
                         }
 
                         // deployment successful
@@ -239,19 +259,78 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     {
                         // after retry policy applied seems that we couldn't resume execution on the device...
                         // throw exception to signal deployment failure
-                        throw new Exception(ResourceStrings.DeviceInitializationTimeout);
+                        throw new DeploymentException(ResourceStrings.DeviceInitializationTimeout);
                     }
                 }
                 else
                 {
                     // throw exception to signal deployment failure
-                    throw new Exception($"{_viewModelLocator.DeviceExplorer.SelectedDevice.Description} is not responding. Please retry the deployment. If the situation persists reboot the device.");
+                    throw new DeploymentException($"{_viewModelLocator.DeviceExplorer.SelectedDevice.Description} is not responding. Please retry the deployment. If the situation persists reboot the device.");
                 }
             }
-            catch
+            catch(DeploymentException ex)
             {
+                throw ex;
+            }
+            catch(Exception ex)
+            {
+                MessageCentre.InternalErrorMessage($"Unhandled exception with deployment provider: {ex.Message}.");
+
                 throw new Exception("Unexpected error. Please retry the deployment. If the situation persists reboot the device.");
             }
+        }
+
+        private async System.Threading.Tasks.Task<string> CheckNativeAssembliesAvailabilityAsync(List<CLRCapabilities.NativeAssemblyProperties> nativeAssemblies, List<(string path, string version)> peCollection)
+        {
+            string errorMessage = string.Empty;
+
+            // loop through each PE to deploy...
+            foreach(var peItem in peCollection)
+            {
+                // open the PE file and load content
+                using (FileStream fs = File.Open(peItem.path, FileMode.Open, FileAccess.Read))
+                {
+                    // get PE checksum
+                    byte[] buffer = new byte[4];
+                    fs.Position = 0x14;
+                    await fs.ReadAsync(buffer, 0, 4);
+                    var peChecksum = BitConverter.ToUInt32(buffer, 0);
+
+                    if(peChecksum == 0)
+                    {
+                        // only PEs with checksum are class libraries so we can move to the next one
+                        continue;
+                    }
+
+                    // try to find a native assembly matching the checksum for this PE
+                    if (nativeAssemblies.Exists(a => a.Checksum == peChecksum))
+                    {
+                        var nativeAssembly = nativeAssemblies.Find(a => a.Checksum == peChecksum);
+                        
+                        // check the version now
+                        if(nativeAssembly.Version.ToString(4) == peItem.version)
+                        {
+                            // we are good with this one
+                            continue;
+                        }
+                    }
+
+                    if(string.IsNullOrEmpty(errorMessage))
+                    {
+                        // init error message
+                        errorMessage =  "Deploy failed." + Environment.NewLine +
+                                        "***************************************" + Environment.NewLine;
+                    }
+
+                    // no suitable native assembly found present a (hopefully) helpful message to the developer
+                    errorMessage += $"Couldn't find a valid native assembly required by {Path.GetFileNameWithoutExtension(peItem.path)} v{peItem.version}, checksum 0x{peChecksum.ToString("X8")}." + Environment.NewLine;
+                }
+            }
+
+            // close error message
+            errorMessage += "***************************************";
+
+            return errorMessage;
         }
 
         public bool IsDeploySupported
