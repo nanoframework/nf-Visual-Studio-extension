@@ -473,7 +473,8 @@ static const CHAR c_Definition_End[] =
 "{\n"
 "    \"%s\", \n"
 "    0x%08X,\n"
-"    method_lookup\n"
+"    method_lookup,\n"
+"    { %d, %d, %d, %d}"
 "};\n\n";
 
 static const CHAR c_Method[] =
@@ -1449,7 +1450,11 @@ void CLR_RT_Assembly::GenerateSkeletonFromComplientNames(LPCWSTR szFilePath, LPC
 		Dump_Printf(c_Definition_End,
 			strAssemblyIDName.c_str(),
 			m_szName,
-			m_header->nativeMethodsChecksum
+			m_header->nativeMethodsChecksum,
+			m_header->version.iMajorVersion, 
+			m_header->version.iMinorVersion, 
+			m_header->version.iBuildNumber, 
+			m_header->version.iRevisionNumber
 		);
 
 		Dump_CloseDevice();
