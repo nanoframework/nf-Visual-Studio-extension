@@ -59,7 +59,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         public static void ClearDeploymentMessages()
         {
-            ThreadHelper.JoinableTaskFactory.Run(async () =>
+            ThreadHelper.JoinableTaskFactory.RunAsync(async () =>
             {
                 await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
                 _nanoFrameworkMessagesPane.Clear();
@@ -125,7 +125,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 message = "[no message string provided to MessageCentre.Message()" + new StackTrace().ToString();
             }
 
-            ThreadHelper.JoinableTaskFactory.Run(async () =>
+            ThreadHelper.JoinableTaskFactory.RunAsync(async () =>
             {
                 await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
@@ -136,9 +136,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         public static void StartProgressMessage(string message)
         {
-            ThreadHelper.JoinableTaskFactory.Run(async () =>
+            ThreadHelper.JoinableTaskFactory.RunAsync(async () =>
             {
-
                 await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
                 // stock general animation icon
@@ -165,7 +164,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         public static void StopProgressMessage(string message = null)
         {
 
-            ThreadHelper.JoinableTaskFactory.Run(async () =>
+            ThreadHelper.JoinableTaskFactory.RunAsync(async () =>
             {
                 await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
