@@ -314,6 +314,24 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                             continue;
                         }
                     }
+                    else
+                    {
+                        // there are assemblies that don't have any native counterpart
+                        // list those bellow so they aren't considered as not existing
+
+                        List<CLRCapabilities.NativeAssemblyProperties> exceptionAssemblies = new List<CLRCapabilities.NativeAssemblyProperties>();
+
+                        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+                        // assemblies not having native implementation 
+                        exceptionAssemblies.Add(new CLRCapabilities.NativeAssemblyProperties("Windows.Storage.Streams", 0, new Version()));
+                        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+                        if (exceptionAssemblies.Exists(a => a.Name == Path.GetFileNameWithoutExtension(peItem.path)))
+                        {
+                            // we are good with this one
+                            continue;
+                        }
+                    }
 
                     if(string.IsNullOrEmpty(errorMessage))
                     {
