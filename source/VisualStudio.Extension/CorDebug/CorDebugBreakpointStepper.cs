@@ -15,7 +15,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
     public abstract class CorDebugBreakpointBase
     {
         static ushort s_idNull = 0;
-        static ushort s_idNext = 1;
+        static short s_idNext = 1;
 
         private CorDebugProcess m_process;
         private CorDebugAppDomain m_appDomain;
