@@ -283,7 +283,15 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     _engine.OnNoise -= new NoiseEventHandler(OnNoise);
                     _engine.OnProcessExit -= new EventHandler(OnProcessExit);
 
-                    GC.WaitForPendingFinalizers();
+                    try
+                    {
+                        _engine.Stop();
+                    }
+                    catch
+                    {
+                        // Depending on when we get called, stopping the engine 
+                        // throws anything from NullReferenceException, ArgumentNullException, IOException, etc.
+                    }
                 }
             }
         }
@@ -371,7 +379,10 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                             _engine = Device.DebugEngine;// new Engine(Device.Parent, Device as INanoDevice);
                             _engine.StopDebuggerOnConnect = true;
 
+                            // make sure there is only one handler, so remove whatever is there before adding a new one
+                            _engine.OnMessage -= new MessageEventHandler(OnMessage);
                             _engine.OnMessage += new MessageEventHandler(OnMessage);
+
                             _engine.OnCommand += new CommandEventHandler(OnCommand);
                             _engine.OnNoise   += new NoiseEventHandler(OnNoise);
                             _engine.OnProcessExit += new EventHandler(OnProcessExit);
@@ -1477,7 +1488,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         private void StopDebugging()
         {
-            DebugAssert(ShuttingDown, "Error stoping debug. Shutdown flag is set.");
+            DebugAssert(ShuttingDown, "Error stopping debug. Shutdown flag is set.");
 
             /*
              * this is called when debugging stops, either via terminate or detach.
