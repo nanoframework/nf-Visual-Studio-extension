@@ -33,7 +33,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         private const int _numberOfRetries = 5;
 
         // timeout when performing a deploy operation
-        private const int _timeoutMiliseconds = 200;
+        private const int _timeoutMiliseconds = 500;
 
         private static ViewModelLocator _viewModelLocator;
 
@@ -102,7 +102,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                     // handle the workflow required to try resuming the execution on the device
                     // only required if device is not already there
-                    // retry 5 times with a 200ms interval between retries
+                    // retry 5 times with a 500ms interval between retries
                     while (retryCount++ < _numberOfRetries && deviceIsInInitializeState)
                     {
                         if (!device.DebugEngine.IsDeviceInInitializeState())
