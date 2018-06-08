@@ -982,7 +982,7 @@ int _tmain(int argc, _TCHAR* argv[])
 
 	::CoInitialize(0);
 
-	wprintf(L"nanoFramework MetaDataProcessor v1.0.29\r\n");
+	wprintf(L"nanoFramework MetaDataProcessor v1.1.0\r\n");
 
 	NANOCLR_CHECK_HRESULT(HAL_Windows::Memory_Resize(64 * 1024 * 1024));
 	// TODO check if we are still using this.....

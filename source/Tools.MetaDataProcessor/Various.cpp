@@ -22,6 +22,34 @@ bool Target_GetReleaseInfo(NFReleaseInfo& releaseInfo)
 	return true; // alternatively, return false if you didn't initialize the releaseInfo structure.
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// dev note: the calls bellow are just the minimum viable implementation to keep the compiler happy 
+// without having to pull-in the complete debugger project
+
+HRESULT CLR_DBG_Debugger::CreateInstance()
+{
+	return S_OK;
+}
+
+HRESULT CLR_DBG_Debugger::DeleteInstance()
+{
+	return S_OK;
+}
+
+void NFReleaseInfo::Init(NFReleaseInfo& NFReleaseInfo, unsigned short int major, unsigned short int minor, unsigned short int build, unsigned short int revision, const char *info, size_t infoLen)
+{
+	NFVersion::Init(NFReleaseInfo.Version, major, minor, build, revision);
+	NFReleaseInfo.InfoString[0] = 0;
+	if (NULL != info && infoLen > 0)
+	{
+		const size_t len = MIN(infoLen, sizeof(NFReleaseInfo.InfoString) - 1);
+		hal_strncpy_s((char*)&NFReleaseInfo.InfoString[0], sizeof(NFReleaseInfo.InfoString), info, len);
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
 /////////////////////////////////////////////////////////////////////////////
 //
 // CRC 32 table for use under ZModem protocol, IEEE 802
