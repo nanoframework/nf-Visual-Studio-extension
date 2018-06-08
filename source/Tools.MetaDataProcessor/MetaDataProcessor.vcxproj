@@ -209,9 +209,6 @@
     <ProjectReference Include="..\..\nf-interpreter\src\CLR\CorLib\CorLib.vcxproj">
       <Project>{58e950cc-2ff6-423c-b006-a70a19272f20}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\..\nf-interpreter\src\CLR\Debugger\Debugger.vcxproj">
-      <Project>{dd397ec4-844b-4b59-a67b-cad6b46f1f00}</Project>
-    </ProjectReference>
     <ProjectReference Include="..\..\nf-interpreter\src\CLR\Diagnostics\Diagnostics.vcxproj">
       <Project>{a5e9ae41-f4fa-40ce-ad82-a7861eba007b}</Project>
     </ProjectReference>
