@@ -131,9 +131,14 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         private void OnProcessExit(object sender, EventArgs args)
         {
             uint errorCode = 0;
+            bool isProcess = false;
+
             try
             {
                 Process process = sender as Process;
+
+                // this is a "Process"
+                isProcess = true;
 
                 if (process != null && _win32process != null)
                 {
@@ -143,6 +148,25 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             catch
             {
             }
+
+            if(!isProcess)
+            {
+                // try sender as Engine
+                try
+                {
+                    Engine engine = sender as Engine;
+
+                    _engine.Stop();
+                    _engine.Dispose();
+                    _engine = null;
+
+                    GC.WaitForPendingFinalizers();
+                }
+                catch
+                {
+                }
+            }
+            
 
             ICorDebugProcess.Terminate(errorCode);
         }
@@ -282,16 +306,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     _engine.OnCommand -= new CommandEventHandler(OnCommand);
                     _engine.OnNoise -= new NoiseEventHandler(OnNoise);
                     _engine.OnProcessExit -= new EventHandler(OnProcessExit);
-
-                    try
-                    {
-                        _engine.Stop();
-                    }
-                    catch
-                    {
-                        // Depending on when we get called, stopping the engine 
-                        // throws anything from NullReferenceException, ArgumentNullException, IOException, etc.
-                    }
                 }
             }
         }
@@ -364,7 +378,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         public Engine AttachToEngine()
         {
             int maxRetries     = 5;
-            int retrySleepTime = 5000;
+            int retrySleepTime = 500;
 
             for(int retry = 0; retry < maxRetries; retry++)
             {
@@ -407,15 +421,16 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         {
                             _engine.ExecuteMemory(0);
                             Thread.Yield();
+
+                            // give it some time to actually boot
+                            Thread.Sleep(1000);
                         }
+
                         _engine.ThrowOnCommunicationFailure = true;
                         _engine.SetExecutionMode(Commands.DebuggingExecutionChangeConditions.State.SourceLevelDebugging, 0);
+
                         break;
                     }
-
-                    // only detach-reattach after 2 retries (10 seconds)
-                    if ((retry % 2) == 1) 
-                        DetachFromEngine();
 
                     Thread.Yield();
                 }
