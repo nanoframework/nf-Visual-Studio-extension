@@ -43,13 +43,11 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         DebugPort _debugPort;
         bool _fLaunched;       //whether the attach was from a launch (vs. an attach)
         bool _terminating;
-        bool _detaching;
         Utility.Kernel32.CreateThreadCallback _dummyThreadDelegate;
         AutoResetEvent _dummyThreadEvent;
         int _cEvalThreads;
         Hashtable _tdBuiltin;
         ScratchPadArea _scratchPad;
-        Process _win32process;
         ulong _fakeAssemblyAddressNext;
         object _syncTerminatingObject;
         Thread _threadDispatch;
@@ -137,11 +135,11 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             {
                 Process process = sender as Process;
 
-                // this is a "Process"
-                isProcess = true;
-
-                if (process != null && _win32process != null)
+                if (process != null)
                 {
+                    // this is a "Process"
+                    isProcess = true;
+
                     errorCode = (uint)process.ExitCode;
                 }
             }
@@ -155,9 +153,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 try
                 {
                     Engine engine = sender as Engine;
-
-                    _engine.Stop();
-                    _engine.Dispose();
+                    engine.Stop();
+                    engine.Dispose();
+                    engine = null;
                     _engine = null;
 
                     GC.WaitForPendingFinalizers();
@@ -166,7 +164,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 {
                 }
             }
-            
 
             ICorDebugProcess.Terminate(errorCode);
         }
@@ -221,39 +218,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 _assemblies = null;
             }
 
-            if(_win32process != null)
-            {
-                _win32process.EnableRaisingEvents = false;
-
-                // If the process hasn't already exited, we'll wait another 2 sec and kill it.
-                for (int i = 1; !_win32process.HasExited && i <= 2; i++)
-                {
-                    if (i == 1)
-                    {
-                        Thread.Yield();
-                    }
-                    else
-                    {
-                        try
-                        { 
-                            _win32process.Kill();
-                        }
-                        catch(Win32Exception)
-                        {
-                        }
-                        catch( NotSupportedException )
-                        {
-                        }
-                        catch( InvalidOperationException )
-                        {
-                        }
-                    }
-                }
-
-                _win32process.Dispose();
-                _win32process = null;
-            }
-
             if (_debugPort != null)
             {
                 _debugPort.RemoveProcess(Device);
@@ -271,7 +235,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             _cStopped = 0;
             _fLaunched = false;
             _terminating = false;
-            _detaching = false;
             _dummyThreadEvent = null;
             _cEvalThreads = 0;
             _tdBuiltin = null;
@@ -306,6 +269,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     _engine.OnCommand -= new CommandEventHandler(OnCommand);
                     _engine.OnNoise -= new NoiseEventHandler(OnNoise);
                     _engine.OnProcessExit -= new EventHandler(OnProcessExit);
+
+                    GC.WaitForPendingFinalizers();
                 }
             }
         }
@@ -318,50 +283,37 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                 MessageCentre.StartProgressMessage(Resources.ResourceStrings.Rebooting);
 
-                AttachToEngine();
-
-                _engine.RebootDevice(RebootOptions.ClrOnly | RebootOptions.WaitForDebugger);
-
-                // TODO
-                //if(m_engine.PortDefinition is PortDefinition_Tcp)
-                //{
-                //    DetachFromEngine();
-                //}
-
                 for(int retries = 0; retries < 5; retries++)
                 {
-                    if (AttachToEngine() != null)
+                    if(_engine.ConnectionSource == ConnectionSource.nanoCLR)
                     {
-                        if(_engine.ConnectionSource == ConnectionSource.nanoCLR)
+                        if (_engine.IsDeviceInInitializeState())
                         {
-                            if (_engine.IsDeviceInInitializeState())
-                            {
-                                fSucceeded = true;
-                                break;
-                            }
-
-                            _engine.RebootDevice(RebootOptions.ClrOnly | RebootOptions.WaitForDebugger);
-
-                            // better pause here to allow the reboot to occur
-                            // use a back-off strategy of increasing the wait time to accommodate slower or less responsive targets (such as networked ones)
-                            Thread.Sleep(500 * (retries + 1));
-
-                            Thread.Yield();
+                            fSucceeded = true;
+                            break;
                         }
-                        else if(_engine.ConnectionSource == ConnectionSource.nanoBooter)
-                        {
-                            // this is telling nanoBooter to enter CLR
-                            _engine.ExecuteMemory(0);
 
-                            Thread.Yield();
-                        }
-                        else
-                        {
-                            // unknown connection source?!
-                            // shouldn't be here, but...
-                            // ...maybe this is caused by a comm timeout because the target is rebooting
-                            Thread.Yield();
-                        }
+                        _engine.RebootDevice(RebootOptions.ClrOnly | RebootOptions.WaitForDebugger);
+
+                        // better pause here to allow the reboot to occur
+                        // use a back-off strategy of increasing the wait time to accommodate slower or less responsive targets (such as networked ones)
+                        Thread.Sleep(500 * (retries + 1));
+
+                        //Thread.Yield();
+                    }
+                    else if(_engine.ConnectionSource == ConnectionSource.nanoBooter)
+                    {
+                        // this is telling nanoBooter to enter CLR
+                        _engine.ExecuteMemory(0);
+
+                        Thread.Yield();
+                    }
+                    else
+                    {
+                        // unknown connection source?!
+                        // shouldn't be here, but...
+                        // ...maybe this is caused by a comm timeout because the target is rebooting
+                        Thread.Yield();
                     }
                 }
                 
@@ -382,30 +334,34 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
             for(int retry = 0; retry < maxRetries; retry++)
             {
-                if(ShuttingDown) break;
+                if (ShuttingDown)
+                {
+                    break;
+                }
                 
                 try
                 {
-                    lock(this)
+                    lock (this)
                     {
                         if (_engine == null)
                         {
                             _engine = Device.DebugEngine;// new Engine(Device.Parent, Device as INanoDevice);
-                            _engine.StopDebuggerOnConnect = true;
-
-                            // make sure there is only one handler, so remove whatever is there before adding a new one
-                            _engine.OnMessage -= new MessageEventHandler(OnMessage);
-                            _engine.OnMessage += new MessageEventHandler(OnMessage);
-
-                            _engine.OnCommand += new CommandEventHandler(OnCommand);
-                            _engine.OnNoise   += new NoiseEventHandler(OnNoise);
-                            _engine.OnProcessExit += new EventHandler(OnProcessExit);
                         }
-                        else
-                        {
-                            _engine.ThrowOnCommunicationFailure = false;
-                            _engine.StopDebuggerOnConnect = true;                        
-                        }
+
+                        _engine.StopDebuggerOnConnect = true;
+
+                        // make sure there is only one handler, so remove whatever is there before adding a new one
+                        _engine.OnMessage -= new MessageEventHandler(OnMessage);
+                        _engine.OnMessage += new MessageEventHandler(OnMessage);
+                        _engine.OnCommand -= new CommandEventHandler(OnCommand);
+                        _engine.OnCommand += new CommandEventHandler(OnCommand);
+                        _engine.OnNoise -= new NoiseEventHandler(OnNoise);
+                        _engine.OnNoise += new NoiseEventHandler(OnNoise);
+                        _engine.OnProcessExit -= new EventHandler(OnProcessExit);
+                        _engine.OnProcessExit += new EventHandler(OnProcessExit);
+
+                        _engine.ThrowOnCommunicationFailure = false;
+                        _engine.StopDebuggerOnConnect = true;
                     }
 
                     var connect = ThreadHelper.JoinableTaskFactory.Run(
@@ -417,15 +373,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                     if (connect)
                     {
-                        if (_engine.ConnectionSource == ConnectionSource.nanoBooter)
-                        {
-                            _engine.ExecuteMemory(0);
-                            Thread.Yield();
-
-                            // give it some time to actually boot
-                            Thread.Sleep(1000);
-                        }
-
                         _engine.ThrowOnCommunicationFailure = true;
                         _engine.SetExecutionMode(Commands.DebuggingExecutionChangeConditions.State.SourceLevelDebugging, 0);
 
@@ -448,6 +395,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             if(_engine != null && !_engine.IsConnected)
             {
                 DetachFromEngine();
+
+                return null;
             }
 
             return _engine;
@@ -506,9 +455,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         {
             get
             {
-                DebugAssert(!(_terminating && _detaching), "Error when shutting down.");
-
-                return _terminating || _detaching;
+                return _terminating;
             }
         }
 
@@ -612,7 +559,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 if (AttachToEngine() == null)
                 {
                     MessageCentre.DebugMessage(String.Format(Resources.ResourceStrings.DeploymentErrorReconnect));
-                    
                     throw new Exception(Resources.ResourceStrings.DebugEngineAttachmentFailure);
                 }
 
@@ -623,8 +569,10 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     //This will reboot the device if start debugging was done without a deployment
     
                     MessageCentre.DebugMessage(String.Format(Resources.ResourceStrings.WaitingDeviceInitialization));
-
                     EnsureProcessIsInInitializedState();
+
+                    // forced update device info in order to get deployed assemblies
+                    Device.GetDeviceInfo(true);
 
                     // need to update the assemblies right here or the collection won't be populated when we need it ahead
                     UpdateAssemblies();
@@ -712,12 +660,14 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     try
                     {
                         MessageCentre.StartProgressMessage(Resources.ResourceStrings.DebuggingStarting);
+
                         StartClr();
                         DispatchEvents();
                     }
                     catch (Exception ex)
                     {
                         MessageCentre.StopProgressMessage();
+
                         ICorDebugProcess.Terminate(0);
                         MessageCentre.DebugMessage(String.Format(Resources.ResourceStrings.DebuggerThreadTerminated, ex.Message));
                     }
@@ -1165,7 +1115,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         */
         private void DummyThreadStart(IntPtr ptr)
         {
-            Thread.Yield();
             _dummyThreadEvent.Set();
         }
 
@@ -1468,39 +1417,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             }
         }
 
-        private void OnDetach()
-        {
-#if DEBUG
-            //cpde should remove all breakpoints (except for our one internal breakpoint)
-            DebugAssert(_breakpoints.Count == 1, "Error detaching. Breakpoints count is 1.");
-            DebugAssert(_breakpoints[0] is CLREventsBreakpoint, "Error detaching. Breakpoint is not event breakpoint.");
-            DebugAssert(_cEvalThreads == 0, "Error detaching. Eval threads is zero.");
-
-            foreach (CorDebugThread thread in _threads)
-            {
-                //cpde should abort all func-eval
-                DebugAssert(!thread.IsVirtualThread, "Error detaching. Found virtual thread.");
-                //cpde should resume all threads
-                DebugAssert(!thread.IsSuspended, "Error detaching. Found suspended thread.");
-            }
-#endif
-
-            //We need to kill the
-            _breakpoints.Clear();
-            DirtyBreakpoints();
-            ResumeExecution();
-
-            _engine.SetExecutionMode(0, Commands.DebuggingExecutionChangeConditions.State.SourceLevelDebugging);
-
-            //DebugAssert((setExecutionMode.Result.currentExecutionMode & WireProtocol.Commands.DebuggingExecutionChangeConditions.State.PauseTimers  ) == 0);
-            //DebugAssert((setExecutionMode.Result.currentExecutionMode & WireProtocol.Commands.DebuggingExecutionChangeConditions.State.NoCompaction ) == 0);
-            //DebugAssert((setExecutionMode.Result.currentExecutionMode & WireProtocol.Commands.DebuggingExecutionChangeConditions.State.Stopped      ) == 0);
-        }
-
-        private void OnTerminate()
-        {
-        }
-
         private void StopDebugging()
         {
             DebugAssert(ShuttingDown, "Error stopping debug. Shutdown flag is set.");
@@ -1513,25 +1429,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             {
                 if (_engine != null) //perhaps we never attached.
                 {
-                    lock(this)
-                    {
-                        _engine.ThrowOnCommunicationFailure = false;
+                    _engine.ThrowOnCommunicationFailure = false;
 
-                        if (IsDebugging)
-                        {
-                            //Should terminating a device simply be a detach?
-                            if (_detaching)
-                            {
-                                OnDetach();
-                            }
-                            else
-                            {
-                                OnTerminate();
-                            }
-                        }
+                    // need to reboot device to clear memory leaks which are caused by the running app stopping execution and leaving C/C++ vars orphaned in the CRT heap
+                    _engine.RebootDevice(RebootOptions.NormalReboot);
 
-                        DetachFromEngine();
-                    }
+                    DetachFromEngine();
                 }
             }
             catch (Exception ex)
@@ -1864,7 +1767,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             {
                 if (!ShuttingDown)
                 {
-                    _detaching = true;
                     _eventDispatch.Set();
                 }
             }

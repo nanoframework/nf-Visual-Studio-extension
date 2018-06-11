@@ -26,22 +26,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         private class DebugPortSupplierPrivate : DebugPortSupplier
         {                        
-            //private DebugPort[] _ports;
             private IDebugCoreServer2 _server;
             List<DebugPort> _ports = new List<DebugPort>();
 
             public DebugPortSupplierPrivate() : base(true)
             {
-
-                NanoDeviceBase device = NanoFrameworkPackage.NanoDeviceCommService.DebugClient.NanoFrameworkDevices[0];
-
-                _ports.Add(new DebugPort(device, this));
             }
-
-
-            //public DebugPortSupplierPrivate() : base(true)
-            //{
-            //}
 
             public override DebugPort FindPort(string name)
             {
@@ -70,10 +60,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             new public int EnumPorts(out IEnumDebugPorts2 ppEnum)
             {
                 List<IDebugPort2> ports = new List<IDebugPort2>();
+                _ports.Clear();
 
-                foreach(NanoDeviceBase device in NanoFrameworkPackage.NanoDeviceCommService.DebugClient.NanoFrameworkDevices)
+                foreach (NanoDeviceBase device in NanoFrameworkPackage.NanoDeviceCommService.DebugClient.NanoFrameworkDevices)
                 {
                     ports.Add(new DebugPort(device, this));
+                    _ports.Add(new DebugPort(device, this));
                 }
 
                 ppEnum = new CorDebugEnum(ports, typeof(IDebugPort2), typeof(IEnumDebugPorts2));
@@ -82,6 +74,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
             new public int AddPort(IDebugPortRequest2 pRequest, out IDebugPort2 ppPort)
             {
+                IEnumDebugPorts2 portList;
+                EnumPorts(out portList);
 
                 string name;
                 pRequest.GetPortName(out name);
@@ -174,7 +168,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         public int CanAddPort()
         {
-            return COM_HResults.S_FALSE;
+            return COM_HResults.S_OK;
         }
 
         public int GetPortSupplierName(out string name)

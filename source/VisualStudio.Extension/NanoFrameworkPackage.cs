@@ -84,6 +84,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         private const string SHOW_INTERNAL_ERRORS_KEY = "ShowInternalErrors";
 
+        private static bool? s_OptionShowInternalErrors;
         /// <summary>
         /// User option for outputting internal extension errors to the extension output pane.
         /// The value is persisted per user.
@@ -93,13 +94,20 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         {
             get
             {
-                return bool.Parse((string)s_instance.UserRegistryRoot.OpenSubKey(EXTENSION_SUBKEY).GetValue(SHOW_INTERNAL_ERRORS_KEY, "False"));
+                if (!s_OptionShowInternalErrors.HasValue)
+                {
+                    s_OptionShowInternalErrors = bool.Parse((string)s_instance.UserRegistryRoot.OpenSubKey(EXTENSION_SUBKEY).GetValue(SHOW_INTERNAL_ERRORS_KEY, "False"));
+                }
+
+                return s_OptionShowInternalErrors.Value;
             }
 
             set
             {
                 s_instance.UserRegistryRoot.OpenSubKey(EXTENSION_SUBKEY, true).SetValue(SHOW_INTERNAL_ERRORS_KEY, value);
                 s_instance.UserRegistryRoot.OpenSubKey(EXTENSION_SUBKEY, true).Flush();
+
+                s_OptionShowInternalErrors = value;
             }
         }
 

@@ -87,7 +87,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             try
             {
                 // connect to the device
-                if (await device.DebugEngine.ConnectAsync(5000))
+                if (await device.DebugEngine.ConnectAsync(5000, true))
                 {
 
                     // initial check 
@@ -133,6 +133,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         await Task.Delay(TimeSpan.FromMilliseconds(_timeoutMiliseconds));
                     };
 
+                    Thread.Yield();
+
                     // check if device is still in initialized state
                     if (!deviceIsInInitializeState)
                     {
@@ -141,16 +143,10 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                         //////////////////////////////////////////////////////////
                         // sanity check for devices without native assemblies ?!?!
-                        if(!device.DeviceInfo.Valid)
-                        {
-                            // need to update DeviceInfo
-                            device.GetDeviceInfo();
-                        }
-
-                        if (device.DeviceInfo.NativeAssemblies == null || device.DeviceInfo.NativeAssemblies?.Count == 0)
+                        if (device.DeviceInfo.NativeAssemblies.Count == 0)
                         {
                             // there are no assemblies deployed?!
-                            throw new DeploymentException($"Couldn't find any native assemblies deployed in {_viewModelLocator.DeviceExplorer.SelectedDevice.Description}! Please check the firmware image loaded on the device. If the situation persists try to reboot the device.");
+                            throw new DeploymentException($"Couldn't find any native assemblies deployed in {_viewModelLocator.DeviceExplorer.SelectedDevice.Description}! If the situation persists reboot the device.");
                         }
 
                         ///////////////////////////////////////////////////////
@@ -207,7 +203,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         }
 
                         // now add the executable to this list
-                        assemblyList.Add((targetPath, $" v{ executableVersionInfo.ProductVersion }"));
+                        assemblyList.Add((targetPath, $"{ executableVersionInfo.ProductVersion }"));
 
                         // if there are referenced project, the assembly list contains repeated assemblies so need to use Linq Distinct()
                         // build a list with the PE files corresponding to each DLL and EXE
@@ -243,11 +239,15 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                         await outputPaneWriter.WriteLineAsync($"Deploying assemblies to device...total size in bytes is {totalSizeOfAssemblies.ToString()}.");
 
+                        Thread.Yield();
+
                         if (!device.DebugEngine.DeploymentExecute(assemblies, false))
                         {
                             // throw exception to signal deployment failure
                             throw new DeploymentException("Deploy failed.");
                         }
+
+                        Thread.Yield();
 
                         // deployment successful
                         await outputPaneWriter.WriteLineAsync("Deployment successful.");
