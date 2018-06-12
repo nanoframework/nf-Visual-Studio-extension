@@ -127,29 +127,20 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
             switch (SelectedTransportType)
             {
                 case Debugger.WireProtocol.TransportType.Serial:
-                    //BusySrv.ShowBusy(Res.GetString("HC_Searching"));
                     AvailableDevices = new ObservableCollection<NanoDeviceBase>(NanoDeviceCommService.DebugClient.NanoFrameworkDevices);
                     NanoDeviceCommService.DebugClient.NanoFrameworkDevices.CollectionChanged += NanoFrameworkDevices_CollectionChanged;
-                    //NanoDeviceCommService.SerialDebugClient.NanoFrameworkDevicesCollectionChanged += NanoDeviceCommService_NanoFrameworkDevicesCollectionChanged;
-                    //BusySrv.HideBusy();
                     break;
 
                 case Debugger.WireProtocol.TransportType.Usb:
-                    //BusySrv.ShowBusy(Res.GetString("HC_Searching"));
                     //AvailableDevices = new ObservableCollection<NanoDeviceBase>(UsbDebugService.NanoFrameworkDevices);
                     //NanoDeviceCommService.NanoFrameworkDevicesCollectionChanged += NanoDeviceCommService_NanoFrameworkDevicesCollectionChanged;
-                    // if there's just one, select it
-                    //SelectedDevice = (AvailableDevices.Count == 1) ? AvailableDevices.First() : null;
-                    //BusySrv.HideBusy();
                     break;
 
                 case Debugger.WireProtocol.TransportType.TcpIp:
                     // TODO
-                    //BusySrv.ShowBusy("Not implemented yet! Why not give it a try??");
                     //await Task.Delay(2500);
                     //    AvailableDevices = new ObservableCollection<NanoDeviceBase>();
                     //    SelectedDevice = null;
-                    //BusySrv.HideBusy();
                     break;
             }
 
@@ -162,7 +153,10 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
                     // is there a single device
                     if (AvailableDevices.Count == 1)
                     {
-                        ForceNanoDeviceSelection(AvailableDevices[0]).FireAndForget();
+                        ThreadHelper.JoinableTaskFactory.RunAsync(async () =>
+                        {
+                            ForceNanoDeviceSelection(AvailableDevices[0]);
+                        });
                     }
                 }
             }
@@ -198,7 +192,10 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
                     if (deviceToReSelect != null)
                     {
                         // device seems to be back online, select it
-                        ForceNanoDeviceSelection(deviceToReSelect).FireAndForget();
+                        ThreadHelper.JoinableTaskFactory.RunAsync(async () =>
+                        {
+                            ForceNanoDeviceSelection(deviceToReSelect);
+                        });
 
                         // clear device to reselect
                         DeviceToReSelect = null;
@@ -210,7 +207,10 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
                     // is there a single device
                     if (AvailableDevices.Count == 1)
                     {
-                        ForceNanoDeviceSelection(AvailableDevices[0]).FireAndForget();
+                        ThreadHelper.JoinableTaskFactory.RunAsync(async () =>
+                        {
+                            ForceNanoDeviceSelection(AvailableDevices[0]);
+                        });
                     }
                     else
                     {
@@ -218,17 +218,18 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
                         if (SelectedDevice != null)
                         {
                             // maintain selection
-                            ForceNanoDeviceSelection(AvailableDevices.FirstOrDefault(d => d.Description == SelectedDevice.Description)).FireAndForget();
+                            ThreadHelper.JoinableTaskFactory.RunAsync(async () =>
+                            {
+                                ForceNanoDeviceSelection(AvailableDevices.FirstOrDefault(d => d.Description == SelectedDevice.Description));
+                            });
                         }
                     }
                 }
             }
         }
 
-        private async Task ForceNanoDeviceSelection(NanoDeviceBase nanoDevice)
+        private void ForceNanoDeviceSelection(NanoDeviceBase nanoDevice)
         {
-            await Task.Delay(100);
-
             // select the device
             SelectedDevice = nanoDevice;
 
@@ -236,10 +237,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
             MessengerInstance.Send(new NotificationMessage(""), MessagingTokens.ForceSelectionOfNanoDevice);
         }
 
-        public async Task ForceNanoDeviceSelection()
+        public void  ForceNanoDeviceSelection()
         {
-            await Task.Delay(100);
-
             // request forced selection of device in UI
             MessengerInstance.Send(new NotificationMessage(""), MessagingTokens.ForceSelectionOfNanoDevice);
         }

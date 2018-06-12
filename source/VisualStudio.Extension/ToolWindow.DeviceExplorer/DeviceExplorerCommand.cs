@@ -221,7 +221,10 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 (sender as MenuCommand).Enabled = false;
 
                 // make sure this device is showing as selected in Device Explorer tree view
-                ViewModelLocator.DeviceExplorer.ForceNanoDeviceSelection().FireAndForget();
+                await ThreadHelper.JoinableTaskFactory.RunAsync(async () =>
+                {
+                    ViewModelLocator.DeviceExplorer.ForceNanoDeviceSelection();
+                });
 
                 // connect to the device
                 if (await NanoDeviceCommService.Device.DebugEngine.ConnectAsync(5000))
@@ -280,7 +283,10 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 (sender as MenuCommand).Enabled = false;
 
                 // make sure this device is showing as selected in Device Explorer tree view
-                ViewModelLocator.DeviceExplorer.ForceNanoDeviceSelection().FireAndForget();
+                await ThreadHelper.JoinableTaskFactory.RunAsync(async () =>
+                {
+                    ViewModelLocator.DeviceExplorer.ForceNanoDeviceSelection();
+                });
 
                 // only query device if it's different 
                 if (ViewModelLocator.DeviceExplorer.SelectedDevice.Description.GetHashCode() != ViewModelLocator.DeviceExplorer.LastDeviceConnectedHash)
@@ -406,7 +412,10 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 (sender as MenuCommand).Enabled = false;
 
                 // make sure this device is showing as selected in Device Explorer tree view
-                ViewModelLocator.DeviceExplorer.ForceNanoDeviceSelection().FireAndForget();
+                await ThreadHelper.JoinableTaskFactory.RunAsync(async () =>
+                {
+                    ViewModelLocator.DeviceExplorer.ForceNanoDeviceSelection();
+                });
 
                 // connect to the device
                 if (await NanoDeviceCommService.Device.DebugEngine.ConnectAsync(5000))
@@ -483,7 +492,10 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 (sender as MenuCommand).Enabled = false;
 
                 // make sure this device is showing as selected in Device Explorer tree view
-                ViewModelLocator.DeviceExplorer.ForceNanoDeviceSelection().FireAndForget();
+                await ThreadHelper.JoinableTaskFactory.RunAsync(async () =>
+                {
+                    ViewModelLocator.DeviceExplorer.ForceNanoDeviceSelection();
+                });
 
                 // connect to the device
                 if (await NanoDeviceCommService.Device.DebugEngine.ConnectAsync(5000))
@@ -558,7 +570,10 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 (sender as MenuCommand).Enabled = false;
 
                 // make sure this device is showing as selected in Device Explorer tree view
-                ViewModelLocator.DeviceExplorer.ForceNanoDeviceSelection().FireAndForget();
+                await ThreadHelper.JoinableTaskFactory.RunAsync(async () =>
+                {
+                    ViewModelLocator.DeviceExplorer.ForceNanoDeviceSelection();
+                });
 
                 // connect to the device
                 if (await NanoDeviceCommService.Device.DebugEngine.ConnectAsync(5000))
