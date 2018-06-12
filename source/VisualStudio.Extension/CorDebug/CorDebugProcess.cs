@@ -348,8 +348,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                             _engine = Device.DebugEngine;// new Engine(Device.Parent, Device as INanoDevice);
                         }
 
-                        _engine.StopDebuggerOnConnect = true;
-
                         // make sure there is only one handler, so remove whatever is there before adding a new one
                         _engine.OnMessage -= new MessageEventHandler(OnMessage);
                         _engine.OnMessage += new MessageEventHandler(OnMessage);
@@ -570,6 +568,15 @@ namespace nanoFramework.Tools.VisualStudio.Extension
     
                     MessageCentre.DebugMessage(String.Format(Resources.ResourceStrings.WaitingDeviceInitialization));
                     EnsureProcessIsInInitializedState();
+
+                    // need to force a connection to the device after ensuring that the device is properly initialized
+                    // this is needed to make sure that all engine flags are properly set
+                    var connect = ThreadHelper.JoinableTaskFactory.Run(
+                        async () =>
+                        {
+                            return await _engine.ConnectAsync(5000, true, ConnectionSource.Unknown);
+                        }
+                    );
 
                     // forced update device info in order to get deployed assemblies
                     Device.GetDeviceInfo(true);
