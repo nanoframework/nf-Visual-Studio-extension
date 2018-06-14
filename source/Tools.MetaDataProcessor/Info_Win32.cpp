@@ -1763,9 +1763,12 @@ void CLR_RT_Assembly::GenerateSkeleton_NoInterop(LPCWSTR szFileName, LPCWSTR szP
 		Dump_Printf(c_Definition_End,
 			strAssemblyIDName.c_str(),
 			m_szName,
-			m_header->nativeMethodsChecksum
+			m_header->nativeMethodsChecksum,
+			m_header->version.iMajorVersion,
+			m_header->version.iMinorVersion,
+			m_header->version.iBuildNumber,
+			m_header->version.iRevisionNumber
 		);
-
 
 		Dump_CloseDevice();
 	}
