@@ -982,7 +982,7 @@ int _tmain(int argc, _TCHAR* argv[])
 
 	::CoInitialize(0);
 
-	wprintf(L"nanoFramework MetaDataProcessor v1.2.0\r\n");
+	wprintf(L"nanoFramework MetaDataProcessor v1.3.0\r\n");
 	wprintf(L"Copyright (c) 2018 nanoFramework project contributors\r\n");
 	wprintf(L"For documentation, report issues and support visit our GitHub repo: www.GitHub.com\\nanoFramework\r\n\r\n");
 
