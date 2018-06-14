@@ -474,8 +474,8 @@ static const CHAR c_Definition_End[] =
 "    \"%s\", \n"
 "    0x%08X,\n"
 "    method_lookup,\n"
-"    { %d, %d, %d, %d}"
-"};\n\n";
+"    { %d, %d, %d, %d }\n"
+"};\n";
 
 static const CHAR c_Method[] =
 "\nHRESULT Library_%S_%s::%s( CLR_RT_StackFrame& stack )\n"
@@ -524,22 +524,21 @@ static const CHAR c_CMake_Module_Source_Files_End[] = "\n)\n\n";
 
 static const CHAR c_CMake_Module_Epilogue[] =
 "foreach(SRC_FILE ${%s_SRCS})\n"
-"    set(%s_SRC_FILE SRC_FILE - NOTFOUND)\n"
+"    set(%s_SRC_FILE SRC_FILE-NOTFOUND)\n"
 "    find_file(%s_SRC_FILE ${SRC_FILE}\n"
 "	    PATHS\n"
-"	    \"${BASE_PATH_FOR_THIS_MODULE}\"\n"
-"	    \"${TARGET_BASE_LOCATION}\"\n"
-"\n\n"
+"	        \"${BASE_PATH_FOR_THIS_MODULE}\"\n"
+"	        \"${TARGET_BASE_LOCATION}\"\n"
+"\n"
 "	    CMAKE_FIND_ROOT_PATH_BOTH\n"
 "    )\n"
 "# message(\"${SRC_FILE} >> ${%s_SRC_FILE}\") # debug helper\n"
 "list(APPEND %s_SOURCES ${%s_SRC_FILE})\n"
 "endforeach()\n"
-"\n\n"
+"\n"
 "include(FindPackageHandleStandardArgs)\n"
-"\n\n"
-"FIND_PACKAGE_HANDLE_STANDARD_ARGS(%s DEFAULT_MSG %s_INCLUDE_DIRS %s_SOURCES)\n"
-"\n\n";
+"\n"
+"FIND_PACKAGE_HANDLE_STANDARD_ARGS(%s DEFAULT_MSG %s_INCLUDE_DIRS %s_SOURCES)\n\n";
 
 //--//
 
