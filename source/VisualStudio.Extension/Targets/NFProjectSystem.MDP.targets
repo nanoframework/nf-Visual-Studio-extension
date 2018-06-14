@@ -263,7 +263,7 @@
     <NFMDP_PE_DumpAll>$(ProjectDir)$(IntermediateOutputPath)$(TargetName)_all.txt</NFMDP_PE_DumpAll>
 
     <!-- nanoFramework MetaDataProcessor DUMP options -->
-    <NFMDP_DUMP_SKIP>false</NFMDP_DUMP_SKIP>
+    <NFMDP_DUMP_FILES>true</NFMDP_DUMP_FILES>
     <NFMDP_DUMP_DumpAll>$(ProjectDir)$(IntermediateOutputPath)$(TargetName).dump</NFMDP_DUMP_DumpAll>
 
     <!-- nanoFramework MetaDataProcessor STUB options -->
@@ -344,7 +344,7 @@
         $(NFMDP_PE_GenerateDependency)"
 
     DependsOnTargets="ResolveRuntimeDependencies"
-    Condition="'$(NFMDP_PE_SKIP)' != 'true'">
+    Condition="'$(NFMDP_GENERATE_PE)' == 'true'">
 
     <ItemGroup>
       <NFMDP_PE_CreatedFiles Include="$(NFMDP_PE_CreateDatabaseFile)" Condition="'$(NFMDP_PE_CreateDatabaseFile)'!=''"/>
@@ -361,7 +361,7 @@
 
     <PropertyGroup>
       <!-- correct path for stubs output if set -->
-      <NFMDP_STUB_GenerateSkeletonFile Condition="'$(NFMDP_STUB_SKIP)' != 'true' AND '$(NFMDP_STUB_GenerateSkeletonFile)'!=''">$(ProjectDir)$(OutDir)$(NFMDP_STUB_GenerateSkeletonFile)</NFMDP_STUB_GenerateSkeletonFile>
+      <NFMDP_STUB_GenerateSkeletonFile Condition="'$(NFMDP_GENERATE_STUBS)' == 'true' AND '$(NFMDP_STUB_GenerateSkeletonFile)'!=''">$(ProjectDir)$(OutDir)$(NFMDP_STUB_GenerateSkeletonFile)</NFMDP_STUB_GenerateSkeletonFile>
     </PropertyGroup>
 
     <ItemGroup>
@@ -369,7 +369,7 @@
       <NFMDP_STUB_CreatedFiles Include="$(NFMDP_STUB_GenerateSkeletonFile)"  Condition="'$(NFMDP_STUB_GenerateSkeletonFile)'!=''"/>
       <NFMDP_STUB_CreatedFiles Include="$(NFMDP_STUB_GenerateDependency)"  Condition="'$(NFMDP_STUB_GenerateDependency)'!=''"/>
     </ItemGroup>
-    <MakeDir Directories="@(NFMDP_STUB_CreatedFiles->'%(RootDir)%(Directory)')" Condition="'$(NFMDP_STUB_SKIP)' != 'true'"/>
+    <MakeDir Directories="@(NFMDP_STUB_CreatedFiles->'%(RootDir)%(Directory)')" Condition="'$(NFMDP_GENERATE_STUBS)' == 'true'"/>
 
     <PropertyGroup>
       <NFMDP_STUB_GenerateSkeletonProject Condition="'$(NFMDP_STUB_GenerateSkeletonProject)'==''" >$(AssemblyName)</NFMDP_STUB_GenerateSkeletonProject>
@@ -441,7 +441,7 @@
       LoadDatabase="@(NFMDP_STUB_LoadDatabase)"
       ExcludeClassByName="@(NFMDP_STUB_ExcludeClassByName)"
       OutputCommandLine="$(NFMDP_CMD_LINE_OUTPUT)"
-      Condition="'$(NFMDP_STUB_SKIP)' != 'true'">
+      Condition="'$(NFMDP_GENERATE_STUBS)' == 'true'">
 
       <Output TaskParameter="FilesWritten" ItemName="FileWrites"/>
 
@@ -481,7 +481,7 @@
         $(NFMDP_DAT_RefreshAssemblyOutput);
         $(NFMDP_DAT_CreateDatabaseFile);
         $(NFMDP_DAT_GenerateDependency)"
-    Condition="'$(NFMDP_DAT_SKIP)' != 'true'">
+    Condition="'$(NFMDP_DAT_FILES)' == 'true'">
 
     <CallTarget Targets="MetaDataProcessorDat_MSG" Condition="'$(NFMDP_DAT_Verbose)'=='true'" />
 
@@ -541,7 +541,7 @@
         $(NFMDP_XML_RefreshAssemblyOutput);
         $(NFMDP_XML_CreateDatabaseFile);
         $(NFMDP_XML_GenerateDependency)"
-    Condition="'$(NFMDP_XML_SKIP)' != 'true'">
+    Condition="'$(NFMDP_XML_FILES)' == 'true'">
 
     <Message Text="Creating dependency map $(NFMDP_XML_GenerateDependency)..." />
 
@@ -663,7 +663,7 @@
         $(NFMDP_DUMP_RefreshAssemblyOutput);
         $(NFMDP_DUMP_CreateDatabaseFile);
         $(NFMDP_DUMP_GenerateDependency)"
-    Condition="'$(NFMDP_DUMP_SKIP)' != 'true'"
+    Condition="'$(NFMDP_DUMP_FILES)' == 'true'"
     >
     <!-- Create DUMP file -->
     <MetaDataProcessorTask
@@ -777,9 +777,6 @@
       GenerateSkeletonName="$(TargetName)"
       GenerateSkeletonFile="$(NF_GenerateSkeletonFile)"
       GenerateSkeletonProject="$(NF_GenerateSkeletonProjectName)"
-      RefreshAssemblyName="$(AssemblyName)"
-      RefreshAssemblyOutput="$(NanoFramework_IntermediateAssembly).pe"
-      Resolve="true"
       OutputCommandLine="$(NFMDP_CMD_LINE_OUTPUT)">
 
       <Output TaskParameter="FilesWritten" ItemName="FileWrites"/>
