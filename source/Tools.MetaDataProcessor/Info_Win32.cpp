@@ -499,6 +499,12 @@ static const CHAR c_CMake_Module_Open[] =
 "#\n\n\n";
 
 static const CHAR c_CMake_Module_Preamble[] =
+"#################################################################################################\n"
+"# make sure that a valid path is set bellow                                                     #\n"
+"# if this is for a class library it's OK to leave it as it is                                   #\n"
+"# if this is an Interop module the path has to be set where the build can find the source files #\n"
+"#################################################################################################\n"
+"\n"
 "# native code directory\n"
 "set(BASE_PATH_FOR_THIS_MODULE \"${BASE_PATH_FOR_CLASS_LIBRARIES_MODULES}/%s\")\n"
 "\n\n"
@@ -514,20 +520,20 @@ static const CHAR c_CMake_Module_Source_Files_Start[] =
 "# source files\n"
 "set(%s_SRCS\n\n";
 
-static const CHAR c_CMake_Module_Source_Files_End[] = ")\n\n";
+static const CHAR c_CMake_Module_Source_Files_End[] = "\n)\n\n";
 
 static const CHAR c_CMake_Module_Epilogue[] =
-"foreach(SRC_FILE ${ %s_SRCS })\n"
+"foreach(SRC_FILE ${%s_SRCS})\n"
 "    set(%s_SRC_FILE SRC_FILE - NOTFOUND)\n"
-"    find_file(%s_SRC_FILE ${ SRC_FILE }\n"
+"    find_file(%s_SRC_FILE ${SRC_FILE}\n"
 "	    PATHS\n"
-"	    \"${ BASE_PATH_FOR_THIS_MODULE }\"\n"
-"	    \"${ TARGET_BASE_LOCATION }\"\n"
+"	    \"${BASE_PATH_FOR_THIS_MODULE}\"\n"
+"	    \"${TARGET_BASE_LOCATION}\"\n"
 "\n\n"
 "	    CMAKE_FIND_ROOT_PATH_BOTH\n"
 "    )\n"
-"# message(\"${ SRC_FILE } >> ${ %s_SRC_FILE }\") # debug helper\n"
-"list(APPEND %s_SOURCES ${ %s_SRC_FILE })\n"
+"# message(\"${SRC_FILE} >> ${%s_SRC_FILE}\") # debug helper\n"
+"list(APPEND %s_SOURCES ${%s_SRC_FILE})\n"
 "endforeach()\n"
 "\n\n"
 "include(FindPackageHandleStandardArgs)\n"
@@ -1266,7 +1272,7 @@ void CLR_RT_Assembly::GenerateSkeletonFromComplientNames(LPCWSTR szFilePath, LPC
 	string strAssemblyIDName = ReplaceDotWithString(m_szName, "_");
 
 	// Opens file for the CMake module file wich should be the assembly name, preceded with 'Find'
-	swprintf(rgFiles, ARRAYSIZE(rgFiles), L"%sFind%S.cmake", GetDirPathFromFilePath(szFilePath).c_str(), m_szName);
+	swprintf(rgFiles, ARRAYSIZE(rgFiles), L"%sFindINTEROP-%S.cmake", GetDirPathFromFilePath(szFilePath).c_str(), m_szName);
 	FILE *pFileCMakeModule = NULL;  Dump_SetDevice(pFileCMakeModule, rgFiles);
 	// Start of CMake module file
 	Dump_Printf(pFileCMakeModule, c_CMake_Module_Open);
