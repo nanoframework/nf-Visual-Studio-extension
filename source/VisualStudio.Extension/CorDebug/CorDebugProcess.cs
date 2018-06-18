@@ -270,6 +270,20 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     _engine.OnNoise -= new NoiseEventHandler(OnNoise);
                     _engine.OnProcessExit -= new EventHandler(OnProcessExit);
 
+                    // better do this inside a try/catch for unexpected side effects from the dispose and finalizer
+                    try
+                    {
+                        _engine.Stop();
+                        _engine.Dispose();
+
+                        (Device as NanoDeviceBase).Disconnect();
+                    }
+                    catch
+                    {
+                    }
+
+                    _engine = null;
+
                     GC.WaitForPendingFinalizers();
                 }
             }
@@ -345,6 +359,11 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     {
                         if (_engine == null)
                         {
+                            if(Device.DebugEngine == null)
+                            {
+                                Device.CreateDebugEngine();
+                            }
+
                             _engine = Device.DebugEngine;// new Engine(Device.Parent, Device as INanoDevice);
                         }
 

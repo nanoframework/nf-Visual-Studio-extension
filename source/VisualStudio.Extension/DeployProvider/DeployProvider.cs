@@ -86,6 +86,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
             try
             {
+                // check if debugger engine exists
+                if (NanoDeviceCommService.Device.DebugEngine == null)
+                {
+                    NanoDeviceCommService.Device.CreateDebugEngine();
+                }
+
                 // connect to the device
                 if (await device.DebugEngine.ConnectAsync(5000, true))
                 {
