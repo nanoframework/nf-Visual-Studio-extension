@@ -157,6 +157,13 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
             MessageCentre.StartProgressMessage($"Uploading network configuration to {(DataContext as DeviceExplorerViewModel).SelectedDevice.Description}...");
 
+            // check if debugger engine exists
+            if ((DataContext as DeviceExplorerViewModel).SelectedDevice.DebugEngine == null)
+            {
+                (DataContext as DeviceExplorerViewModel).SelectedDevice.CreateDebugEngine();
+            }
+
+
             // save network configuration to target...
             if ((DataContext as DeviceExplorerViewModel).SelectedDevice.DebugEngine.UpdateDeviceConfiguration(networkConfigurationToSave, 0))
             {

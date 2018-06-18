@@ -226,6 +226,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     ViewModelLocator.DeviceExplorer.ForceNanoDeviceSelection();
                 });
 
+                // check if debugger engine exists
+                if (NanoDeviceCommService.Device.DebugEngine == null)
+                {
+                    NanoDeviceCommService.Device.CreateDebugEngine();
+                }
+
                 // connect to the device
                 if (await NanoDeviceCommService.Device.DebugEngine.ConnectAsync(5000))
                 {
@@ -294,6 +300,11 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     // keep device description hash code to avoid get info twice
                     ViewModelLocator.DeviceExplorer.LastDeviceConnectedHash = ViewModelLocator.DeviceExplorer.SelectedDevice.Description.GetHashCode();
 
+                    // check if debugger engine exists
+                    if (NanoDeviceCommService.Device.DebugEngine == null)
+                    {
+                        NanoDeviceCommService.Device.CreateDebugEngine();
+                    }
 
                     // connect to the device
                     if (await NanoDeviceCommService.Device.DebugEngine.ConnectAsync(5000))
@@ -417,6 +428,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     ViewModelLocator.DeviceExplorer.ForceNanoDeviceSelection();
                 });
 
+                // check if debugger engine exists
+                if (NanoDeviceCommService.Device.DebugEngine == null)
+                {
+                    NanoDeviceCommService.Device.CreateDebugEngine();
+                }
+
                 // connect to the device
                 if (await NanoDeviceCommService.Device.DebugEngine.ConnectAsync(5000))
                 {
@@ -497,6 +514,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     ViewModelLocator.DeviceExplorer.ForceNanoDeviceSelection();
                 });
 
+                // check if debugger engine exists
+                if (NanoDeviceCommService.Device.DebugEngine == null)
+                {
+                    NanoDeviceCommService.Device.CreateDebugEngine();
+                }
+
                 // connect to the device
                 if (await NanoDeviceCommService.Device.DebugEngine.ConnectAsync(5000))
                 {
@@ -574,6 +597,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 {
                     ViewModelLocator.DeviceExplorer.ForceNanoDeviceSelection();
                 });
+
+                // check if debugger engine exists
+                if (NanoDeviceCommService.Device.DebugEngine == null)
+                {
+                    NanoDeviceCommService.Device.CreateDebugEngine();
+                }
 
                 // connect to the device
                 if (await NanoDeviceCommService.Device.DebugEngine.ConnectAsync(5000))
