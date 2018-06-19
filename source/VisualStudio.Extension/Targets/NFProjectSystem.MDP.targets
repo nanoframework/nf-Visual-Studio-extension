@@ -337,8 +337,8 @@
         $(NFMDP_PE_SaveStrings);
         $(NFMDP_PE_GenerateStringsTable);
         $(NFMDP_PE_DumpAll);
-        $(NFMDP_PE_Compile);
         $(NFMDP_PE_DumpExports);
+        $(NFMDP_PE_Compile);
         $(NFMDP_PE_RefreshAssemblyOutput);
         $(NFMDP_PE_CreateDatabaseFile);
         $(NFMDP_PE_GenerateDependency)"
@@ -777,6 +777,8 @@
       GenerateSkeletonName="$(TargetName)"
       GenerateSkeletonFile="$(NF_GenerateSkeletonFile)"
       GenerateSkeletonProject="$(NF_GenerateSkeletonProjectName)"
+      RefreshAssemblyName="$(TargetName)"
+      RefreshAssemblyOutput="$(NanoFramework_IntermediateAssembly).pe"
       OutputCommandLine="$(NFMDP_CMD_LINE_OUTPUT)">
 
       <Output TaskParameter="FilesWritten" ItemName="FileWrites"/>
