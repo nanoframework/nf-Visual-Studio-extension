@@ -32,7 +32,6 @@
     <ProjectCapability Include="SharedProjectReferences" />
     <ProjectCapability Remove="ProjectConfigurationsInferredFromUsage" />
     <ProjectCapability Include="ReferenceManagerAssemblies" />
-    <ProjectCapability Remove="ReferenceManagerBrowse" />
     <ProjectCapability Remove="ReferenceManagerCOM" />
     <ProjectCapability Remove="DependenciesTree" />
     <ProjectCapability Include="ReferenceManagerProjects" />
