@@ -109,7 +109,14 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
             if (NanoDeviceCommService != null)
             {
                 NanoDeviceCommService.DebugClient.DeviceEnumerationCompleted += SerialDebugClient_DeviceEnumerationCompleted;
+
+                NanoDeviceCommService.DebugClient.LogMessageAvailable += DebugClient_LogMessageAvailable;
             }
+        }
+
+        private void DebugClient_LogMessageAvailable(object sender, StringEventArgs e)
+        {
+            MessageCentre.InternalErrorMessage(e.EventText);
         }
 
         private void SerialDebugClient_DeviceEnumerationCompleted(object sender, EventArgs e)
