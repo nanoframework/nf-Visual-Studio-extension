@@ -189,7 +189,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         foreach (IAssemblyReference reference in referencedAssemblies)
                         {
                             // load assembly to get the version
-                            var assembly = Assembly.LoadFrom(await reference.GetFullPathAsync()).GetName();
+                            var assembly = Assembly.Load(File.ReadAllBytes(await reference.GetFullPathAsync())).GetName();
                             assemblyList.Add((await reference.GetFullPathAsync(), $"{assembly.Version.ToString(4)}"));
                         }
 
@@ -201,7 +201,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                                 string referencedProjectAssemblyPath = await project.GetFullPathAsync();
 
                                 // load assembly to get the version
-                                var assembly = Assembly.LoadFrom(referencedProjectAssemblyPath).GetName();
+                                var assembly = Assembly.Load(File.ReadAllBytes(referencedProjectAssemblyPath)).GetName();
 
                                 // add the referenced project output to the assembly list
                                 assemblyList.Add((referencedProjectAssemblyPath, $"{assembly.Version.ToString(4)}"));
