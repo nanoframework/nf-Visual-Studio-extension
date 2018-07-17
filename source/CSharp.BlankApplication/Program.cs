@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading;
-using System.Diagnostics;
 
 namespace $safeprojectname$
 {
@@ -8,14 +7,9 @@ namespace $safeprojectname$
     {
         public static void Main()
         {
-            try
-            {
-                // User code goes here
-            }
-            catch (Exception ex)
-            {
-                // Do whatever please you with the exception caught
-            }
+            Console.WriteLine("Hello world!");
+
+            Thread.Sleep(Timeout.Infinite);
         }
     }
 }
