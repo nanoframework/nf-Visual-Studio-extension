@@ -155,6 +155,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                             throw new DeploymentException($"Couldn't find any native assemblies deployed in {_viewModelLocator.DeviceExplorer.SelectedDevice.Description}! If the situation persists reboot the device.");
                         }
 
+                        HashSet<string> assemblyPaths = await GetAssemblyPathsAsync();
+
                         ///////////////////////////////////////////////////////
                         // get the list of assemblies referenced by the project
                         var referencedAssemblies = await Properties.ConfiguredProject.Services.AssemblyReferences.GetResolvedReferencesAsync();
@@ -186,26 +188,11 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         // build a list with the full path for each DLL, referenced DLL and EXE
                         List<(string path, string version)> assemblyList = new List<(string path, string version)>();
 
-                        foreach (IAssemblyReference reference in referencedAssemblies)
+                        foreach (string assemblyPath in assemblyPaths)
                         {
                             // load assembly to get the version
-                            var assembly = Assembly.Load(File.ReadAllBytes(await reference.GetFullPathAsync())).GetName();
-                            assemblyList.Add((await reference.GetFullPathAsync(), $"{assembly.Version.ToString(4)}"));
-                        }
-
-                        // loop through each project that is set to build
-                        foreach (IBuildDependencyProjectReference project in referencedProjects)
-                        {
-                            if (await project.GetReferenceOutputAssemblyAsync())
-                            {
-                                string referencedProjectAssemblyPath = await project.GetFullPathAsync();
-
-                                // load assembly to get the version
-                                var assembly = Assembly.Load(File.ReadAllBytes(referencedProjectAssemblyPath)).GetName();
-
-                                // add the referenced project output to the assembly list
-                                assemblyList.Add((referencedProjectAssemblyPath, $"{assembly.Version.ToString(4)}"));
-                            }
+                            var assembly = Assembly.Load(File.ReadAllBytes(assemblyPath)).GetName();
+                            assemblyList.Add((assemblyPath, $"{assembly.Version.ToString(4)}"));
                         }
 
                         // now add the executable to this list
@@ -274,11 +261,11 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     throw new DeploymentException($"{_viewModelLocator.DeviceExplorer.SelectedDevice.Description} is not responding. Please retry the deployment. If the situation persists reboot the device.");
                 }
             }
-            catch(DeploymentException ex)
+            catch (DeploymentException ex)
             {
                 throw ex;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 MessageCentre.InternalErrorMessage($"Unhandled exception with deployment provider: {ex.Message}.");
 
@@ -286,12 +273,51 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             }
         }
 
+        private async System.Threading.Tasks.Task<HashSet<string>> GetAssemblyPathsAsync()
+        {
+            // The HashSet will take care of only containing any string once even if added multiple times.
+            // However, this is dependent on getting all paths always in the same casing.
+            // Be aware that on file systems which ignore casing, we would end up having assemblies added more than once
+            // here if the GetFullPathAsync() methods used below should not always reliably return the path to the same
+            // assembly in the same casing.
+            HashSet<string> result = new HashSet<string>();
+
+            // Note: The GetFullPathAsync() methods are fast. The slow methods are GetResolvedReferencesAsync() and
+            // GetResolvedReferencesAsync(). So we don't bother if we find references to the same projects or assemblies
+            // more than once to avoid calling GetFullPathAsync() unnecessarily, because the gain would be minimal.
+
+            // Loop through all projects which exist in the solution:
+            foreach (UnconfiguredProject unconfiguredProject in ProjectService.LoadedUnconfiguredProjects)
+            {
+                // Get the right "configured" project, that is, the project in, for example, Debug/AnyCPU:
+                ConfiguredProject configuredProject = await unconfiguredProject.GetSuggestedConfiguredProjectAsync();
+
+                if (configuredProject != null)
+                {
+                    // Remember the paths to the compilation results of the referenced projects in the solution:
+                    foreach (IBuildDependencyProjectReference projectReference in
+                             await configuredProject.Services.ProjectReferences.GetResolvedReferencesAsync())
+                    {
+                        result.Add(await projectReference.GetFullPathAsync());
+                    }
+
+                    // Remember the paths to all referenced assemblies of the configured project, such as NuGet:
+                    foreach (IAssemblyReference assemblyReference in
+                             await configuredProject.Services.AssemblyReferences.GetResolvedReferencesAsync())
+                    {
+                        result.Add(await assemblyReference.GetFullPathAsync());
+                    }
+                }
+            }
+            return result;
+        }
+
         private async System.Threading.Tasks.Task<string> CheckNativeAssembliesAvailabilityAsync(List<CLRCapabilities.NativeAssemblyProperties> nativeAssemblies, List<(string path, string version)> peCollection)
         {
             string errorMessage = string.Empty;
 
             // loop through each PE to deploy...
-            foreach(var peItem in peCollection)
+            foreach (var peItem in peCollection)
             {
                 // open the PE file and load content
                 using (FileStream fs = File.Open(peItem.path, FileMode.Open, FileAccess.Read))
@@ -302,7 +328,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     await fs.ReadAsync(buffer, 0, 4);
                     var peChecksum = BitConverter.ToUInt32(buffer, 0);
 
-                    if(peChecksum == 0)
+                    if (peChecksum == 0)
                     {
                         // only PEs with checksum are class libraries so we can move to the next one
                         continue;
@@ -312,9 +338,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     if (nativeAssemblies.Exists(a => a.Checksum == peChecksum))
                     {
                         var nativeAssembly = nativeAssemblies.Find(a => a.Checksum == peChecksum);
-                        
+
                         // check the version now
-                        if(nativeAssembly.Version.ToString(4) == peItem.version)
+                        if (nativeAssembly.Version.ToString(4) == peItem.version)
                         {
                             // we are good with this one
                             continue;
@@ -339,10 +365,10 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         }
                     }
 
-                    if(string.IsNullOrEmpty(errorMessage))
+                    if (string.IsNullOrEmpty(errorMessage))
                     {
                         // init error message
-                        errorMessage =  "Deploy failed." + Environment.NewLine +
+                        errorMessage = "Deploy failed." + Environment.NewLine +
                                         "***************************************" + Environment.NewLine;
                     }
 
