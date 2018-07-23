@@ -16,7 +16,6 @@ using nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -155,48 +154,52 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                             throw new DeploymentException($"Couldn't find any native assemblies deployed in {_viewModelLocator.DeviceExplorer.SelectedDevice.Description}! If the situation persists reboot the device.");
                         }
 
-                        HashSet<string> assemblyPaths = await GetAssemblyPathsAsync();
+                        // For a known project output assembly path, this shall contain the corresponding
+                        // ConfiguredProject:
+                        Dictionary<string, ConfiguredProject> configuredProjectsByOutputAssemblyPath =
+                            new Dictionary<string, ConfiguredProject>();
 
-                        ///////////////////////////////////////////////////////
-                        // get the list of assemblies referenced by the project
-                        var referencedAssemblies = await Properties.ConfiguredProject.Services.AssemblyReferences.GetResolvedReferencesAsync();
+                        // For a known ConfiguredProject, this shall contain the corresponding project output assembly
+                        // path:
+                        Dictionary<ConfiguredProject, string> outputAssemblyPathsByConfiguredProject =
+                            new Dictionary<ConfiguredProject, string>();
 
-                        //////////////////////////////////////////////////////////////////////////
-                        // get the list of other projects referenced by the project being deployed
-                        var referencedProjects = await Properties.ConfiguredProject.Services.ProjectReferences.GetResolvedReferencesAsync();
+                        // Fill these two dictionaries for all projects contained in the solution
+                        // (whether they belong to the deployment or not):
+                        await CollectProjectsAndOutputAssemblyPathsAsync(
+                            configuredProjectsByOutputAssemblyPath, 
+                            outputAssemblyPathsByConfiguredProject);
 
-                        /////////////////////////////////////////////////////////
-                        // get the target path to reach the PE for the executable
+                        // This HashSet shall contain a list of full paths to all assemblies to be deployed, including
+                        // the compiled output assemblies of our solution's project and also all assemblies such as
+                        // NuGet packages referenced by those projects.
+                        // The HashSet will take care of only containing any string once even if added multiple times.
+                        // However, this is dependent on getting all paths always in the same casing.
+                        // Be aware that on file systems which ignore casing, we would end up having assemblies added
+                        // more than once here if the GetFullPathAsync() methods used below should not always reliably
+                        // return the path to the same assembly in the same casing.
+                        HashSet<string> assemblyPathsToDeploy = new HashSet<string>();
 
-                        //... we need to access the target path using reflection (step by step)
-                        // get type for ConfiguredProject
-                        var projSystemType = Properties.ConfiguredProject.GetType();
-
-                        // get private property MSBuildProject
-                        var buildProject = projSystemType.GetTypeInfo().GetDeclaredProperty("MSBuildProject");
-
-                        // get value of MSBuildProject property from ConfiguredProject object
-                        // this result is of type Microsoft.Build.Evaluation.Project
-                        var projectResult = await ((System.Threading.Tasks.Task<Microsoft.Build.Evaluation.Project>)buildProject.GetValue(Properties.ConfiguredProject));
-
-                        // we want the target path property
-                        var targetPath = projectResult.Properties.First(p => p.Name == "TargetPath").EvaluatedValue;
-
-                        // get version information of executable
-                        var executableVersionInfo = FileVersionInfo.GetVersionInfo(targetPath);
+                        // Starting with the startup project, collect all assemblies to be deployed.
+                        // This will only add assemblies of projects which are actually referenced directly or
+                        // indirectly by the startup project. Any project in the solution which is not referenced
+                        // directly or indirectly by the startup project will not be included in the list of assemblies
+                        // to be deployed.
+                        await CollectAssembliesToDeployAsync(
+                            configuredProjectsByOutputAssemblyPath,
+                            outputAssemblyPathsByConfiguredProject,
+                            assemblyPathsToDeploy,
+                            Properties.ConfiguredProject);
 
                         // build a list with the full path for each DLL, referenced DLL and EXE
                         List<(string path, string version)> assemblyList = new List<(string path, string version)>();
 
-                        foreach (string assemblyPath in assemblyPaths)
+                        foreach (string assemblyPath in assemblyPathsToDeploy)
                         {
                             // load assembly to get the version
                             var assembly = Assembly.Load(File.ReadAllBytes(assemblyPath)).GetName();
                             assemblyList.Add((assemblyPath, $"{assembly.Version.ToString(4)}"));
                         }
-
-                        // now add the executable to this list
-                        assemblyList.Add((targetPath, $"{ executableVersionInfo.ProductVersion }"));
 
                         // if there are referenced project, the assembly list contains repeated assemblies so need to use Linq Distinct()
                         // build a list with the PE files corresponding to each DLL and EXE
@@ -230,7 +233,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                             }
                         }
 
-                        await outputPaneWriter.WriteLineAsync($"Deploying assemblies to device...total size in bytes is {totalSizeOfAssemblies.ToString()}.");
+                        await outputPaneWriter.WriteLineAsync($"Deploying {peCollection.Count:N0} assemblies to device... Total size in bytes is {totalSizeOfAssemblies:N0}.");
 
                         Thread.Yield();
 
@@ -273,19 +276,19 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             }
         }
 
-        private async System.Threading.Tasks.Task<HashSet<string>> GetAssemblyPathsAsync()
+        /// <summary>
+        /// Fills two dictionaries with the <see cref="ConfiguredProject"/> objects and their compiled output full path
+        /// to make either one findable if we know the other one.
+        /// </summary>
+        /// <param name="configuredProjectsByOutputAssemblyPath">A dictionary to be filled for getting a
+        /// <see cref="ConfiguredProject"/> object by its output assembly path.</param>
+        /// <param name="outputAssemblyPathsByConfiguredProject">A dictionary to be filled for getting the compiled
+        /// output path for a given <see cref="ConfiguredProject"/> object.</param>
+        /// <returns>The task to be awaited.</returns>
+        private async Task CollectProjectsAndOutputAssemblyPathsAsync(
+            Dictionary<string, ConfiguredProject> configuredProjectsByOutputAssemblyPath,
+            Dictionary<ConfiguredProject, string> outputAssemblyPathsByConfiguredProject)
         {
-            // The HashSet will take care of only containing any string once even if added multiple times.
-            // However, this is dependent on getting all paths always in the same casing.
-            // Be aware that on file systems which ignore casing, we would end up having assemblies added more than once
-            // here if the GetFullPathAsync() methods used below should not always reliably return the path to the same
-            // assembly in the same casing.
-            HashSet<string> result = new HashSet<string>();
-
-            // Note: The GetFullPathAsync() methods are fast. The slow methods are GetResolvedReferencesAsync() and
-            // GetResolvedReferencesAsync(). So we don't bother if we find references to the same projects or assemblies
-            // more than once to avoid calling GetFullPathAsync() unnecessarily, because the gain would be minimal.
-
             // Loop through all projects which exist in the solution:
             foreach (UnconfiguredProject unconfiguredProject in ProjectService.LoadedUnconfiguredProjects)
             {
@@ -294,22 +297,107 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                 if (configuredProject != null)
                 {
-                    // Remember the paths to the compilation results of the referenced projects in the solution:
-                    foreach (IBuildDependencyProjectReference projectReference in
-                             await configuredProject.Services.ProjectReferences.GetResolvedReferencesAsync())
-                    {
-                        result.Add(await projectReference.GetFullPathAsync());
-                    }
+                    string path = await GetProjectOutputPathAsync(configuredProject);
 
-                    // Remember the paths to all referenced assemblies of the configured project, such as NuGet:
-                    foreach (IAssemblyReference assemblyReference in
-                             await configuredProject.Services.AssemblyReferences.GetResolvedReferencesAsync())
+                    configuredProjectsByOutputAssemblyPath.Add(path, configuredProject);
+                    outputAssemblyPathsByConfiguredProject.Add(configuredProject, path);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Recursively steps down from a given project down by its referenced projects to collect the full paths of
+        /// all assemblies which are used and thus need to be deployed, including the compiled output assemblies of the
+        /// project as well as natively referenced assemblies such as NuGet packages used by the projects.
+        /// </summary>
+        /// <param name="configuredProjectsByOutputAssemblyPath">A filled dictionary over all
+        /// <see cref="ConfiguredProject">ConfiguredProjects</see> in the solution indexed by their compiled output
+        /// paths.</param>
+        /// <param name="outputAssemblyPathsByConfiguredProject">A filled dictionary indexing all
+        /// <see cref="ConfiguredProject">ConfiguredProjects</see> in the solution to find their compiled output paths.
+        /// </param>
+        /// <param name="assemblyPathsToDeploy">The set of full paths of all assemblies to be deployed which gets filled
+        /// by this method.</param>
+        /// <param name="project">The <see cref="ConfiguredProject"/> to start with. It gets added including its native
+        /// references such as NuGet packages, and all of its directly or indirectly referenced projects get collected
+        /// also.</param>
+        /// <returns>The task to be awaited.</returns>
+        private async Task CollectAssembliesToDeployAsync(
+            Dictionary<string, ConfiguredProject> configuredProjectsByOutputAssemblyPath,
+            Dictionary<ConfiguredProject, string> outputAssemblyPathsByConfiguredProject,
+            HashSet<string> assemblyPathsToDeploy,
+            ConfiguredProject project)
+        {
+            string path;
+
+            // Get the full path to the compiled assembly of this project by looking in the already collected
+            // dictionary:
+            path = outputAssemblyPathsByConfiguredProject[project];
+
+            // Did we process this assembly already?
+            if (assemblyPathsToDeploy.Add(path))
+            {
+                // We did not process this assembly yet, but now its output assembly path is included for deployment.
+
+                // Collect the paths to all referenced assemblies of the configured project, such as NuGet references:
+                foreach (IAssemblyReference assemblyReference in
+                         await project.Services.AssemblyReferences.GetResolvedReferencesAsync())
+                {
+                    // As assemblyPathsToDeploy is a HashSet, the same path will not occure more than once even if added
+                    // more than once by distinct projects referencing the same NuGet package for example.
+                    assemblyPathsToDeploy.Add(await assemblyReference.GetFullPathAsync());
+                }
+
+                // Recursively process referenced projects in the solution:
+                foreach (IBuildDependencyProjectReference projectReference in
+                         await project.Services.ProjectReferences.GetResolvedReferencesAsync())
+                {
+                    // Get the path to the compiled output assembly of this project reference:
+                    path = await projectReference.GetFullPathAsync();
+
+                    // There should be a configured project for that path. As we collected all ConfiguredProjects and
+                    // their output paths in advance, we can find the project by using the corresponding Dictionary.
+                    if (configuredProjectsByOutputAssemblyPath.ContainsKey(path))
                     {
-                        result.Add(await assemblyReference.GetFullPathAsync());
+                        
+                        // Recursively process this referenced project to collect what assemblies it consists of:
+                        await CollectAssembliesToDeployAsync(
+                            configuredProjectsByOutputAssemblyPath, 
+                            outputAssemblyPathsByConfiguredProject, 
+                            assemblyPathsToDeploy, 
+                            configuredProjectsByOutputAssemblyPath[path]);
+
+                    }
+                    else
+                    {
+                        // If this ever happens, check whether the "same" path does come along in different casing.
+                        // If so, consider improving this code to correctly handle that case.
+                        throw new DeploymentException($"No ConfiguredProject found for output assembly path: {path}");
                     }
                 }
             }
-            return result;
+        }
+
+        /// <summary>
+        /// Gets the full path to the compiled output of a <see cref="ConfiguredProject"/>.
+        /// </summary>
+        /// <param name="project">The <see cref="ConfiguredProject"/> whose full ouput assembly path is wanted.</param>
+        /// <returns>The full path of the compiled output assembly of the <paramref name="project"/>.</returns>
+        private async System.Threading.Tasks.Task<string> GetProjectOutputPathAsync(ConfiguredProject project)
+        {
+            //... we need to access the target path using reflection (step by step)
+            // get type for ConfiguredProject
+            var projSystemType = project.GetType();
+
+            // get private property MSBuildProject
+            var buildProject = projSystemType.GetTypeInfo().GetDeclaredProperty("MSBuildProject");
+
+            // get value of MSBuildProject property from ConfiguredProject object
+            // this result is of type Microsoft.Build.Evaluation.Project
+            var projectResult = await ((System.Threading.Tasks.Task<Microsoft.Build.Evaluation.Project>)buildProject.GetValue(project));
+
+            // we want the target path property
+            return projectResult.Properties.First(p => p.Name == "TargetPath").EvaluatedValue;
         }
 
         private async System.Threading.Tasks.Task<string> CheckNativeAssembliesAvailabilityAsync(List<CLRCapabilities.NativeAssemblyProperties> nativeAssemblies, List<(string path, string version)> peCollection)
