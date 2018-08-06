@@ -5,8 +5,8 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:vsp="clr-namespace:Microsoft.VisualStudio.PlatformUI;assembly=Microsoft.VisualStudio.Shell.15.0"
              xmlns:extension="clr-namespace:nanoFramework.Tools.VisualStudio.Extension"
-    xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
-    x:Class="nanoFramework.Tools.VisualStudio.Extension.NetworkConfigurationDialog"
+             xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
+             x:Class="nanoFramework.Tools.VisualStudio.Extension.NetworkConfigurationDialog"
              Background="{DynamicResource {x:Static vsp:EnvironmentColors.ToolWindowBackgroundBrushKey}}"
              Foreground="{DynamicResource {x:Static vsp:EnvironmentColors.ToolWindowTextBrushKey}}"
              mc:Ignorable="d"
@@ -115,6 +115,45 @@
                         <ListBoxItem Content="Wireless 802.11" Tag="71"/>
                     </ComboBox>
                     <!--<xctk:MaskedTextBox Grid.Row="1" Grid.Column="1" HorizontalAlignment="Left" Height="23" Mask="AA\:AA\:AA\:AA\:AA\:AA" VerticalAlignment="Top" Width="120" Margin="0,3,0,0" x:Name="InterfaceType"/>-->
+
+                </Grid>
+            </TabItem>
+
+            <TabItem Header="Wi-Fi profiles">
+                <Grid Margin="10,10,10,10">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="20*"/>
+                        <ColumnDefinition Width="50*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!--SSID-->
+                    <Label Grid.Row="0" Grid.Column="0" HorizontalAlignment="Left" Content="SSID:" Margin="-6,0,0,0" />
+                    <xctk:MaskedTextBox Grid.Row="0" Grid.Column="1" HorizontalAlignment="Left" MaxLength="32" Height="23" VerticalAlignment="Top" Width="120" Margin="0,3,0,0" x:Name="SSID"/>
+
+                    <!--Pass-->
+                    <Label Grid.Row="1" Grid.Column="0" HorizontalAlignment="Left" Content="Password:" Margin="-6,0,0,0" />
+                    <xctk:WatermarkPasswordBox Grid.Row="1" Grid.Column="1" HorizontalAlignment="Left" MaxLength="64" Height="23" VerticalAlignment="Top" Width="120" Margin="0,3,0,0" x:Name="WiFiPassword"/>
+
+                    <!--Security type-->
+                    <Label Grid.Row="2" Grid.Column="0" HorizontalAlignment="Left" Content="Security type:" Margin="-6,0,0,0" />
+                    <ComboBox Grid.Row="2" Grid.Column="1" HorizontalAlignment="Left" Height="23" Width="120" SelectedIndex="0" x:Name="SecurityType">
+                        <ListBoxItem Content="WPA2-Personal" Tag="WPA2"/>
+                        <ListBoxItem Content="WPA2-Enterprise" Tag="WPA2"/>
+                        <ListBoxItem Content="Open" Tag="Open"/>
+                    </ComboBox>
+
+                    <!--Encryption type-->
+                    <Label Grid.Row="3" Grid.Column="0" HorizontalAlignment="Left" Content="Encryption type:" Margin="-6,0,0,0" />
+                    <ComboBox Grid.Row="3" Grid.Column="1" HorizontalAlignment="Left" Height="23" Width="120" SelectedIndex="0" x:Name="EncryptionType">
+                        <ListBoxItem Content="AES" Tag="AES"/>
+                        <ListBoxItem Content="WEP" Tag="WEP"/>
+                    </ComboBox>
 
                 </Grid>
             </TabItem>
