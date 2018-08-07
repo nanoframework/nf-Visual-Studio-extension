@@ -146,8 +146,8 @@
     <Compile Include="ToolWindow.DeviceExplorer\ViewModel\ViewModelLocator.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="..\packages\nanoFramework.CoreLibrary.1.0.0-preview054\nanoFramework.CoreLibrary.1.0.0-preview054.nupkg">
-      <Link>Packages\nanoFramework.CoreLibrary.1.0.0-preview054.nupkg</Link>
+    <Content Include="..\packages\nanoFramework.CoreLibrary.1.0.0-preview062\nanoFramework.CoreLibrary.1.0.0-preview062.nupkg">
+      <Link>Packages\nanoFramework.CoreLibrary.1.0.0-preview062.nupkg</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
