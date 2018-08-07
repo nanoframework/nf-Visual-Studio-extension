@@ -536,6 +536,19 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         {
                             ViewModelLocator.DeviceExplorer.DeviceNetworkConfiguration = new Debugger.DeviceConfiguration.NetworkConfigurationProperties();
                         }
+
+                        // for now, just get the 1st Wi-Fi configuration, if exists
+                        var wirellesConfigurations = NanoDeviceCommService.Device.DebugEngine.GetAllWireless80211Configurations();
+
+                        if (wirellesConfigurations.Count > 0)
+                        {
+                            ViewModelLocator.DeviceExplorer.DeviceWireless80211Configuration = wirellesConfigurations[0];
+                        }
+                        else
+                        {
+                            ViewModelLocator.DeviceExplorer.DeviceWireless80211Configuration = new Debugger.DeviceConfiguration.Wireless80211ConfigurationProperties();
+                        }
+
                         // yield to give the UI thread a chance to respond to user input
                         await Task.Yield();
 

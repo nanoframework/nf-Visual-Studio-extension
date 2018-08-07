@@ -321,6 +321,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
 
         public DeviceConfiguration.NetworkConfigurationProperties DeviceNetworkConfiguration { get; set; }
 
+        public DeviceConfiguration.Wireless80211ConfigurationProperties DeviceWireless80211Configuration { get; set; }
+
         #endregion
 
         #region messaging tokens
