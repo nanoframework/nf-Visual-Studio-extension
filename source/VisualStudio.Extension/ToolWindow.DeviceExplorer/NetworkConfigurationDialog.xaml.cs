@@ -11,6 +11,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
     using System;
     using System.Linq;
     using System.Net;
+    using System.Windows.Controls;
 
     /// <summary>
     /// Interaction logic for DeviceExplorerControl.
@@ -42,6 +43,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         {
             var networkConfiguration = (DataContext as DeviceExplorerViewModel).DeviceNetworkConfiguration;
 
+            // network config
             // set IPv4 addresses
             // DHCP ?
             if ((networkConfiguration.StartupAddressMode == AddressMode.DHCP) ||
@@ -63,7 +65,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             }
 
             // DNS is automatic?
-            if (networkConfiguration.AutomaticDNS)
+            if (networkConfiguration.AutomaticDNS || networkConfiguration.IsUnknown)
             {
                 IPv4DnsAutomatic.IsChecked = true;
 
@@ -83,6 +85,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             {
                 MACAddress.Text = String.Join("", networkConfiguration.MacAddress.Select(a => a.ToString("X2")));
             }
+
+            // wireless config
+
 
             // set focus on cancel button
             CancelButton.Focus();
@@ -173,15 +178,29 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 (DataContext as DeviceExplorerViewModel).SelectedDevice.CreateDebugEngine();
             }
 
-
             // save network configuration to target...
             if ((DataContext as DeviceExplorerViewModel).SelectedDevice.DebugEngine.UpdateDeviceConfiguration(networkConfigurationToSave, 0))
             {
-                MessageCentre.OutputMessage($"{(DataContext as DeviceExplorerViewModel).SelectedDevice.Description} network configuration updated.");
-                MessageCentre.StopProgressMessage();
+                if ((InterfaceType.SelectedItem as ListBoxItem).Tag as string == "WIFI")
+                {
+                    // need to save Wireless 
 
-                // close on success
-                Close();
+                    // TODO need to parse the various security options
+
+                    if ((DataContext as DeviceExplorerViewModel).SelectedDevice.DebugEngine.UpdateDeviceConfiguration((DataContext as DeviceExplorerViewModel).DeviceWireless80211Configuration, 0))
+                    {
+                        MessageCentre.OutputMessage($"{(DataContext as DeviceExplorerViewModel).SelectedDevice.Description} network configuration updated.");
+                        MessageCentre.StopProgressMessage();
+
+                        // close on success
+                        Close();
+                    }
+                }
+                else
+                {
+                    // close on success
+                    Close();
+                }
             }
             else
             {

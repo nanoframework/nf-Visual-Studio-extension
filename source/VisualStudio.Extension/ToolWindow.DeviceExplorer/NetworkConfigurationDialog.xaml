@@ -106,13 +106,13 @@
 
                     <!--MAC address-->
                     <Label Grid.Row="0" Grid.Column="0" HorizontalAlignment="Left" Content="MAC address:" Margin="-6,0,0,0" />
-                    <xctk:MaskedTextBox Grid.Row="0" Grid.Column="1" HorizontalAlignment="Left" Height="23" Mask="AA\:AA\:AA\:AA\:AA\:AA" VerticalAlignment="Top" Width="120" Margin="0,3,0,0" x:Name="MACAddress"/>
+                    <xctk:MaskedTextBox Grid.Row="0" Grid.Column="1" HorizontalAlignment="Left" Height="23" Mask="AA\:AA\:AA\:AA\:AA\:AA" VerticalAlignment="Center" VerticalContentAlignment="Center" Width="120" Margin="0,3,0,0" x:Name="MACAddress"/>
                     
                     <!--Interface type-->
-                    <Label Grid.Row="1" Grid.Column="0" HorizontalAlignment="Left" Content="Interface type:" Margin="-6,0,0,0" />
-                    <ComboBox Grid.Row="1" Grid.Column="1" HorizontalAlignment="Left" Height="23" Width="120" SelectedIndex="0" IsEnabled="False">
-                        <ListBoxItem Content="Ethernet" Tag="6"/>
-                        <ListBoxItem Content="Wireless 802.11" Tag="71"/>
+                    <Label Grid.Row="1" Grid.Column="0" HorizontalAlignment="Left" Content="Interface type:" Margin="-6,6,0,0" />
+                    <ComboBox Grid.Row="1" Grid.Column="1" HorizontalAlignment="Left" Height="23" Width="120" SelectedIndex="0" VerticalAlignment="Center" Margin="0,6,0,0" x:Name="InterfaceType">
+                        <ListBoxItem Content="Ethernet" Tag="ETH"/>
+                        <ListBoxItem Content="Wireless 802.11" Tag="WIFI"/>
                     </ComboBox>
                     <!--<xctk:MaskedTextBox Grid.Row="1" Grid.Column="1" HorizontalAlignment="Left" Height="23" Mask="AA\:AA\:AA\:AA\:AA\:AA" VerticalAlignment="Top" Width="120" Margin="0,3,0,0" x:Name="InterfaceType"/>-->
 
@@ -126,6 +126,7 @@
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="20*"/>
@@ -134,27 +135,42 @@
 
                     <!--SSID-->
                     <Label Grid.Row="0" Grid.Column="0" HorizontalAlignment="Left" Content="SSID:" Margin="-6,0,0,0" />
-                    <xctk:MaskedTextBox Grid.Row="0" Grid.Column="1" HorizontalAlignment="Left" MaxLength="32" Height="23" VerticalAlignment="Top" Width="120" Margin="0,3,0,0" x:Name="SSID"/>
+                    <xctk:MaskedTextBox Grid.Row="0" Grid.Column="1" HorizontalAlignment="Left" MaxLength="32" Height="23" VerticalContentAlignment="Center" VerticalAlignment="Center" Width="120" Margin="0,3,0,0" Text="{Binding DeviceWireless80211Configuration.Ssid, Mode=TwoWay}" x:Name="SSID"/>
 
                     <!--Pass-->
-                    <Label Grid.Row="1" Grid.Column="0" HorizontalAlignment="Left" Content="Password:" Margin="-6,0,0,0" />
-                    <xctk:WatermarkPasswordBox Grid.Row="1" Grid.Column="1" HorizontalAlignment="Left" MaxLength="64" Height="23" VerticalAlignment="Top" Width="120" Margin="0,3,0,0" x:Name="WiFiPassword"/>
+                    <Label Grid.Row="1" Grid.Column="0" HorizontalAlignment="Left" Content="Password:" Margin="-6,6,0,0" />
+                    <xctk:WatermarkPasswordBox Grid.Row="1" Grid.Column="1" HorizontalAlignment="Left" MaxLength="64" Height="23" VerticalContentAlignment="Center" VerticalAlignment="Center" Width="120" Margin="0,6,0,0" Text="{Binding DeviceWireless80211Configuration.Password, Mode=TwoWay}" x:Name="WiFiPassword"/>
 
                     <!--Security type-->
-                    <Label Grid.Row="2" Grid.Column="0" HorizontalAlignment="Left" Content="Security type:" Margin="-6,0,0,0" />
-                    <ComboBox Grid.Row="2" Grid.Column="1" HorizontalAlignment="Left" Height="23" Width="120" SelectedIndex="0" x:Name="SecurityType">
+                    <Label Grid.Row="2" Grid.Column="0" HorizontalAlignment="Left" Content="Security type:" Margin="-6,6,0,0" />
+                    <ComboBox Grid.Row="2" Grid.Column="1" HorizontalAlignment="Left" Height="23" Width="120" SelectedIndex="0" VerticalAlignment="Center" Margin="0,6,0,0" x:Name="SecurityType">
                         <ListBoxItem Content="WPA2-Personal" Tag="WPA2"/>
-                        <ListBoxItem Content="WPA2-Enterprise" Tag="WPA2"/>
+                        <ListBoxItem Content="WPA" Tag="WPA"/>
+                        <ListBoxItem Content="EAP" Tag="EAP"/>
                         <ListBoxItem Content="Open" Tag="Open"/>
+                        <ListBoxItem Content="Shared" Tag="SHARED"/>
                     </ComboBox>
 
                     <!--Encryption type-->
-                    <Label Grid.Row="3" Grid.Column="0" HorizontalAlignment="Left" Content="Encryption type:" Margin="-6,0,0,0" />
-                    <ComboBox Grid.Row="3" Grid.Column="1" HorizontalAlignment="Left" Height="23" Width="120" SelectedIndex="0" x:Name="EncryptionType">
-                        <ListBoxItem Content="AES" Tag="AES"/>
+                    <Label Grid.Row="3" Grid.Column="0" HorizontalAlignment="Left" Content="Encryption type:" Margin="-6,6,0,0" />
+                    <ComboBox Grid.Row="3" Grid.Column="1" HorizontalAlignment="Left" Height="23" Width="120" SelectedIndex="0" VerticalAlignment="Center" Margin="0,6,0,0" x:Name="EncryptionType">
+                        <ListBoxItem Content="None" Tag="NONE"/>
                         <ListBoxItem Content="WEP" Tag="WEP"/>
+                        <ListBoxItem Content="WPA" Tag="WPA"/>
+                        <ListBoxItem Content="WPA2" Tag="WPA2"/>
+                        <ListBoxItem Content="WPA Pre-shared key" Tag="WPAPSK"/>
+                        <ListBoxItem Content="WPA2 Pre-shared key" Tag="WPA2PSK"/>
                     </ComboBox>
 
+                    <!--Radio type-->
+                    <Label Grid.Row="4" Grid.Column="0" HorizontalAlignment="Left" Content="Radio type:" Margin="-6,6,0,0" />
+                    <ComboBox Grid.Row="4" Grid.Column="1" HorizontalAlignment="Left" Height="23" Width="120" SelectedIndex="0" VerticalAlignment="Center" Margin="0,6,0,0" x:Name="RadioType">
+                        <ListBoxItem Content="802.11a" Tag="802_11a"/>
+                        <ListBoxItem Content="802.11b" Tag="802_11b"/>
+                        <ListBoxItem Content="802.11g" Tag="802_11g"/>
+                        <ListBoxItem Content="802.11n" Tag="802_11n"/>
+                    </ComboBox>
+                    
                 </Grid>
             </TabItem>
 
