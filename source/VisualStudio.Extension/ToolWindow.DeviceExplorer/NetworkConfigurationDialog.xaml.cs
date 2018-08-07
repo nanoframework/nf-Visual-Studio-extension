@@ -48,6 +48,10 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 (networkConfiguration.StartupAddressMode == AddressMode.Invalid))
             {
                 IPv4Automatic.IsChecked = true;
+
+                IPv4Address.SetAddress(IPAddress.None);
+                IPv4NetMask.SetAddress(IPAddress.None);
+                IPv4GatewayAddress.SetAddress(IPAddress.None);
             }
             else
             {
@@ -62,6 +66,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             if (networkConfiguration.AutomaticDNS)
             {
                 IPv4DnsAutomatic.IsChecked = true;
+
+                IPv4Dns1Address.SetAddress(IPAddress.None);
+                IPv4Dns2Address.SetAddress(IPAddress.None);
             }
             else
             {
@@ -76,6 +83,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             {
                 MACAddress.Text = String.Join("", networkConfiguration.MacAddress.Select(a => a.ToString("X2")));
             }
+
+            // set focus on cancel button
+            CancelButton.Focus();
         }
 
         private void CancelButton_Click(object sender, System.Windows.RoutedEventArgs e)
@@ -123,7 +133,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             else
             {
                 // IPv4 DNS is static
-                networkConfigurationToSave.AutomaticDNS = true;
+                networkConfigurationToSave.AutomaticDNS = false;
 
                 networkConfigurationToSave.IPv4DNSAddress1 = IPv4Dns1Address.GetAddress();
                 networkConfigurationToSave.IPv4DNSAddress2 = IPv4Dns2Address.GetAddress();

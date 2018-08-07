@@ -47,12 +47,22 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         {
             address = value;
 
-            var addressBytes = address.GetAddressBytes();
+            if (address != IPAddress.None)
+            {
+                var addressBytes = address.GetAddressBytes();
 
-            firstBox.Text = Convert.ToString(addressBytes[0]);
-            secondBox.Text = Convert.ToString(addressBytes[1]);
-            thirdBox.Text = Convert.ToString(addressBytes[2]);
-            fourthBox.Text = Convert.ToString(addressBytes[3]);
+                firstBox.Text = Convert.ToString(addressBytes[0]);
+                secondBox.Text = Convert.ToString(addressBytes[1]);
+                thirdBox.Text = Convert.ToString(addressBytes[2]);
+                fourthBox.Text = Convert.ToString(addressBytes[3]);
+            }
+            else
+            {
+                firstBox.Text = "";
+                secondBox.Text = "";
+                thirdBox.Text = "";
+                fourthBox.Text = "";
+            }
         }
 
         #endregion
