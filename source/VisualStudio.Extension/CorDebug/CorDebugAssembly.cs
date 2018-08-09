@@ -36,6 +36,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         // this list holds the official assemblies name
         List<string> frameworkAssemblies_v1_0 = new List<string> {
             "mscorlib",
+            "nanoframework.hardware.esp32",
+            "nanoframework.networking.sntp",
             "nanoframework.runtime.events",
             "nanoframework.runtime.native",
             "windows.devices.adc",
@@ -46,6 +48,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             "windows.devices.spi",
             "windows.networking.sockets",
             "windows.storage.streams",
+            "system.net",
         };
 
 
