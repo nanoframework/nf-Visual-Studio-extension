@@ -3,7 +3,7 @@
 // See LICENSE file in the project root for full license information.
 //
 
-using CommonServiceLocator;
+using GalaSoft.MvvmLight.Ioc;
 using Microsoft.VisualStudio.ProjectSystem;
 using Microsoft.VisualStudio.ProjectSystem.Debug;
 using Microsoft.VisualStudio.ProjectSystem.References;
@@ -40,8 +40,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         public override async Task<IReadOnlyList<IDebugLaunchSettings>> QueryDebugTargetsAsync(DebugLaunchOptions launchOptions)
         {
-            var deployDeviceName = ServiceLocator.Current.GetInstance<DeviceExplorerViewModel>().SelectedDevice.Description;
-            var portName = ServiceLocator.Current.GetInstance<DeviceExplorerViewModel>().SelectedTransportType.ToString();
+            var deployDeviceName = SimpleIoc.Default.GetInstance<DeviceExplorerViewModel>().SelectedDevice.Description;
+            var portName = SimpleIoc.Default.GetInstance<DeviceExplorerViewModel>().SelectedTransportType.ToString();
 
             string commandLine = await GetCommandLineForLaunchAsync();
             commandLine = string.Format("{0} \"{1}{2}\"", commandLine, CorDebugProcess.DeployDeviceName, deployDeviceName);

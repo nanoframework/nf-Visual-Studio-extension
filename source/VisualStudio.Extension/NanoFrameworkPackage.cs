@@ -2,7 +2,7 @@
 // Copyright (c) 2017 The nanoFramework project contributors
 // See LICENSE file in the project root for full license information.
 //
-using CommonServiceLocator;
+using GalaSoft.MvvmLight.Ioc;
 using Microsoft.VisualStudio.ProjectSystem.VS;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
@@ -183,7 +183,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 System.Windows.Application.Current.Resources.Add("Locator", ViewModelLocator);
             }
 
-            ServiceLocator.Current.GetInstance<DeviceExplorerViewModel>().Package = this;
+            SimpleIoc.Default.GetInstance<DeviceExplorerViewModel>().Package = this;
 
             await MessageCentre.InitializeAsync(this, "nanoFramework Extension");
 
@@ -195,7 +195,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
             await TaskScheduler.Default;
 
-            ServiceLocator.Current.GetInstance<DeviceExplorerViewModel>().NanoDeviceCommService = await GetServiceAsync(typeof(NanoDeviceCommService)) as INanoDeviceCommService;
+            SimpleIoc.Default.GetInstance<DeviceExplorerViewModel>().NanoDeviceCommService = await GetServiceAsync(typeof(NanoDeviceCommService)) as INanoDeviceCommService;
 
             OutputWelcomeMessage();
 
