@@ -18,7 +18,7 @@ This repo contains **nanoFramework** Visual Studio extension and associated tool
 
 For documentation, providing feedback, issues and finding out how to contribute please refer to the [Home repo](https://github.com/nanoframework/Home).
 
-Join our Slack community [here](https://join.slack.com/t/nanoframework/shared_invite/enQtMzI3OTg4MTk0NTgwLWQ0ODQ3ZWIwZjgxZWFmNjU3MDIwN2E2YzM2OTdhMWRiY2Q3M2NlOTk2N2IwNTM3MmRlMmQ2NTRlNjZlYzJlMmY).
+Join our Discord community [here](https://discord.gg/XYpqcYW).
 
 
 ## Visual Studio extension galleries
