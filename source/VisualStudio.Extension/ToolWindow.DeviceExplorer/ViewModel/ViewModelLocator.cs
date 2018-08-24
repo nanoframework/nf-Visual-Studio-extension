@@ -3,7 +3,6 @@
 // See LICENSE file in the project root for full license information.
 //
 
-using CommonServiceLocator;
 using GalaSoft.MvvmLight.Ioc;
 
 namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
@@ -19,8 +18,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
         /// </summary>
         public ViewModelLocator()
         {
-            ServiceLocator.SetLocatorProvider(() => SimpleIoc.Default);
-
             ////if (ViewModelBase.IsInDesignModeStatic)
             ////{
             ////    // Create design time view services and models
@@ -39,7 +36,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
         {
             get
             {
-                return ServiceLocator.Current.GetInstance<DeviceExplorerViewModel>();
+                return SimpleIoc.Default.GetInstance<DeviceExplorerViewModel>();
             }
         }
 
