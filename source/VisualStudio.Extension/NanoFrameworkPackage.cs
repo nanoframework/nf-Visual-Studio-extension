@@ -226,7 +226,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 // intro messages
                 MessageCentre.OutputMessage("GitHub repo: https://github.com/nanoframework/Home");
                 MessageCentre.OutputMessage("Report issues: https://github.com/nanoframework/Home/issues");
-                MessageCentre.OutputMessage("Join our Slack workspace: https://join.slack.com/t/nanoframework/shared_invite/enQtMzI3OTg4MTk0NTgwLWQ0ODQ3ZWIwZjgxZWFmNjU3MDIwN2E2YzM2OTdhMWRiY2Q3M2NlOTk2N2IwNTM3MmRlMmQ2NTRlNjZlYzJlMmY");
+                MessageCentre.OutputMessage("Join our Discord community: https://discord.gg/gCyBu8T");
                 MessageCentre.OutputMessage("Join our Hackster.io platform: https://www.hackster.io/nanoframework");
                 MessageCentre.OutputMessage("Follow us on Twitter: https://twitter.com/nanoframework");
                 MessageCentre.OutputMessage("Follow our YouTube channel: https://www.youtube.com/channel/UC62nKcuCEhvUKHd9k9QEezQ");

@@ -130,11 +130,11 @@
                                     knowledge base</Hyperlink>.
                             </TextBlock>                            
                             <TextBlock Margin="10,0,0,0" VerticalAlignment="Center">
-                                Join the community in our 
+                                Join our Discord
                                 <Hyperlink Style="{StaticResource {x:Static vsfx:VsResourceKeys.ThemedDialogHyperlinkStyleKey}}"
                                            NavigateUri="https://discord.gg/gCyBu8T"
                                            RequestNavigate="Hyperlink_RequestNavigate" >
-                                    Discord server</Hyperlink>.
+                                    community</Hyperlink>.
                             </TextBlock>
                         </StackPanel>
 
