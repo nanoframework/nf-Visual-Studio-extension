@@ -130,11 +130,11 @@
                                     knowledge base</Hyperlink>.
                             </TextBlock>                            
                             <TextBlock Margin="10,0,0,0" VerticalAlignment="Center">
-                                Join the community in the 
+                                Join the community in our 
                                 <Hyperlink Style="{StaticResource {x:Static vsfx:VsResourceKeys.ThemedDialogHyperlinkStyleKey}}"
-                                           NavigateUri="https://join.slack.com/t/nanoframework/shared_invite/enQtMzI3OTg4MTk0NTgwLWQ0ODQ3ZWIwZjgxZWFmNjU3MDIwN2E2YzM2OTdhMWRiY2Q3M2NlOTk2N2IwNTM3MmRlMmQ2NTRlNjZlYzJlMmY"
+                                           NavigateUri="https://discord.gg/gCyBu8T"
                                            RequestNavigate="Hyperlink_RequestNavigate" >
-                                    Slack workspace</Hyperlink>.
+                                    Discord server</Hyperlink>.
                             </TextBlock>
                         </StackPanel>
 
