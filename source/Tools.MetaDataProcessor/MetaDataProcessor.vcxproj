@@ -179,6 +179,7 @@
     <ClCompile Include="MetaDataProcessor.cpp" />
     <ClCompile Include="minheap.cpp" />
     <ClCompile Include="mintime.cpp" />
+    <ClCompile Include="nanoHAL_Watchdog_stubs.cpp" />
     <ClCompile Include="ParseOptions_Win32.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
