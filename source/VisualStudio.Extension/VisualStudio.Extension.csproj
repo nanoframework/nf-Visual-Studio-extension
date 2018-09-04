@@ -60,6 +60,12 @@
     <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Converters\AuthenticationTypeConverter.cs" />
+    <Compile Include="Converters\EncryptionTypeConverter.cs" />
+    <Compile Include="Converters\NetworkInterfaceTypeConverter.cs" />
+    <Compile Include="Converters\MacAddressConverter.cs" />
+    <Compile Include="Converters\InterfaceTypeToBoolConverters.cs" />
+    <Compile Include="Converters\RadioTypeConverter.cs" />
     <Compile Include="CorDebug\Utility\Boolean.cs" />
     <Compile Include="CorDebug\COM_HResults.cs" />
     <Compile Include="CorDebug\ConnectionPoint.cs" />
@@ -144,6 +150,7 @@
     <Compile Include="ToolWindow.DeviceExplorer\ViewModel\DeviceExplorerViewModel.cs" />
     <Compile Include="ToolWindow.DeviceExplorer\ViewModel\IDataService.cs" />
     <Compile Include="ToolWindow.DeviceExplorer\ViewModel\ViewModelLocator.cs" />
+    <Compile Include="Utilities\EnumToItemsSource.cs" />
     <Compile Include="Utilities\ReferenceCrawler.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -361,7 +368,7 @@
       <HintPath>..\packages\Microsoft.Win32.Primitives.4.3.0\lib\net46\Microsoft.Win32.Primitives.dll</HintPath>
     </Reference>
     <Reference Include="nanoFramework.Tools.Debugger, Version=0.5.0.0, Culture=neutral, PublicKeyToken=e520bb6b53f04733, processorArchitecture=MSIL">
-      <HintPath>..\packages\nanoFramework.Tools.Debugger.Net.0.5.0-preview114\lib\net46\nanoFramework.Tools.Debugger.dll</HintPath>
+      <HintPath>..\packages\nanoFramework.Tools.Debugger.Net.0.5.0-preview120\lib\net46\nanoFramework.Tools.Debugger.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.11.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
@@ -744,6 +751,7 @@
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(VSToolsPath)\VSSDK\Microsoft.VsSDK.targets" Condition="'$(VSToolsPath)' != ''" />
+  <Target Name="ForceIncludeXamlRuleSources" BeforeTargets="CoreCompile" DependsOnTargets="GenerateRuleSourceFromXaml" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>

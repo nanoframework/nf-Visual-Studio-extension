@@ -5,6 +5,7 @@
 
 namespace nanoFramework.Tools.VisualStudio.Extension
 {
+    using GalaSoft.MvvmLight.Ioc;
     using Microsoft.VisualStudio.PlatformUI;
     using nanoFramework.Tools.Debugger;
     using nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel;
@@ -12,6 +13,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
     using System.Linq;
     using System.Net;
     using System.Windows.Controls;
+    using Xceed.Wpf.Toolkit;
 
     /// <summary>
     /// Interaction logic for DeviceExplorerControl.
@@ -19,9 +21,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension
     public partial class NetworkConfigurationDialog : DialogWindow
     {
         private static IPAddress _InvalidIPv4 = new IPAddress(0x0);
-
-        // strongly-typed view models enable x:bind
-        public DeviceExplorerViewModel ViewModel => DataContext as DeviceExplorerViewModel;
 
         public NetworkConfigurationDialog(string helpTopic) : base(helpTopic)
         {
@@ -42,6 +41,10 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         private void InitControls()
         {
             var networkConfiguration = (DataContext as DeviceExplorerViewModel).DeviceNetworkConfiguration;
+
+            // developer note
+            // because our IPMaskedTextBox is missing the required properties and events to support
+            // MVVM and binding we have to use the old fashioned way of set/get properties in code behind
 
             // network config
             // set IPv4 addresses
@@ -76,18 +79,16 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             {
                 IPv4DnsManual.IsChecked = true;
 
-                IPv4Dns1Address.SetAddress(networkConfiguration.IPv4DNSAddress1?? IPAddress.None);
+                IPv4Dns1Address.SetAddress(networkConfiguration.IPv4DNSAddress1 ?? IPAddress.None);
                 IPv4Dns2Address.SetAddress(networkConfiguration.IPv4DNSAddress2 ?? IPAddress.None);
             }
 
-            // MAC address
-            if (networkConfiguration.MacAddress != null)
-            {
-                MACAddress.Text = String.Join("", networkConfiguration.MacAddress.Select(a => a.ToString("X2")));
-            }
+            // wireless configuration/properties
+            // get view model property
+            var wifiProfile = (DataContext as DeviceExplorerViewModel).DeviceWireless80211Configuration;
 
-            // wireless config
-
+            // set pass field if it's available from the model
+            WiFiPassword.Password = wifiProfile?.Password;
 
             // set focus on cancel button
             CancelButton.Focus();
@@ -144,10 +145,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 networkConfigurationToSave.IPv4DNSAddress2 = IPv4Dns2Address.GetAddress();
             }
 
-            // network interface type is fixed for Ethernet for now
-            // FIXME
-            networkConfigurationToSave.InterfaceType = Debugger.NetworkInterfaceType.Ethernet;
-
             // IPv6 options are not being handled for now
             // FIXME
             networkConfigurationToSave.IPv6Address = IPAddress.None;
@@ -156,19 +153,21 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             networkConfigurationToSave.IPv6DNSAddress1 = IPAddress.None;
             networkConfigurationToSave.IPv6DNSAddress2 = IPAddress.None;
 
-            // update MAC address
+            // check MAC address
             try
             {
                 var newMACAddress = MACAddress.Text;
                 var newMACAddressArray = newMACAddress.Split(':');
-
-                networkConfigurationToSave.MacAddress = newMACAddressArray.Select(a => byte.Parse(a, System.Globalization.NumberStyles.HexNumber)).ToArray();
+                var dummyMacAddress = newMACAddressArray.Select(a => byte.Parse(a, System.Globalization.NumberStyles.HexNumber)).ToArray();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 // error parsing MAC address field
                 throw new Exception("Invalid MAC address format. Check value.");
             }
+
+            // Wi-Fi config
+            (DataContext as DeviceExplorerViewModel).DeviceWireless80211Configuration.Password = WiFiPassword.Password;
 
             MessageCentre.StartProgressMessage($"Uploading network configuration to {(DataContext as DeviceExplorerViewModel).SelectedDevice.Description}...");
 
@@ -178,15 +177,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 (DataContext as DeviceExplorerViewModel).SelectedDevice.CreateDebugEngine();
             }
 
-            // save network configuration to target...
+            // save network configuration to target
             if ((DataContext as DeviceExplorerViewModel).SelectedDevice.DebugEngine.UpdateDeviceConfiguration(networkConfigurationToSave, 0))
             {
-                if ((InterfaceType.SelectedItem as ListBoxItem).Tag as string == "WIFI")
+                if ((DataContext as DeviceExplorerViewModel).DeviceNetworkConfiguration.InterfaceType == NetworkInterfaceType.Wireless80211)
                 {
-                    // need to save Wireless 
-
-                    // TODO need to parse the various security options
-
+                    // save Wi-Fi profile to target
                     if ((DataContext as DeviceExplorerViewModel).SelectedDevice.DebugEngine.UpdateDeviceConfiguration((DataContext as DeviceExplorerViewModel).DeviceWireless80211Configuration, 0))
                     {
                         MessageCentre.OutputMessage($"{(DataContext as DeviceExplorerViewModel).SelectedDevice.Description} network configuration updated.");
