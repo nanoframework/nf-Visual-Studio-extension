@@ -15,7 +15,6 @@ using System.Diagnostics.CodeAnalysis;
 namespace nanoFramework.Tools.VisualStudio.Extension
 {
     [Export]
-    [ExcludeFromCodeCoverage]
     internal partial class ProjectProperties : StronglyTypedPropertyAccess
     {
         /// <summary>
@@ -25,7 +24,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         public ProjectProperties(ConfiguredProject configuredProject)
             : base(configuredProject)
         {
-
+            // not sure if this is required when using the debugger from the command line (untested...)
             //try
             //{
             //    ActivateDebugEngine();
