@@ -49,18 +49,13 @@
 
   <ItemGroup>
 
-    <PropertyPageSchema Include="$(MSBuildThisFileDirectory)Rules\nfProjectItemsSchema.xaml;"/>
-
-    <PropertyPageSchema Include="
-                        $(MSBuildThisFileDirectory)Rules\general.xaml;
-                        $(MSBuildThisFileDirectory)Rules\NanoFrameworkPropertyPage.xaml;
-                        ">
+    <PropertyPageSchema Include="$(MSBuildThisFileDirectory)Rules\general.xaml;">
       <Context>Project</Context>
     </PropertyPageSchema>
+   
+    <PropertyPageSchema Include="$(MSBuildThisFileDirectory)Rules\nfProjectItemsSchema.xaml;"/>
 
-    <PropertyPageSchema Include="
-                        $(MSBuildThisFileDirectory)Rules\NanoDebugger.xaml
-                        ">
+    <PropertyPageSchema Include="$(MSBuildThisFileDirectory)Rules\NanoDebugger.xaml">
       <Context>Project</Context>
     </PropertyPageSchema>
 
@@ -89,7 +84,6 @@
     <PropertyPageSchema Include="$(MSBuildThisFileDirectory)Rules\general.browseobject.xaml">
       <Context>BrowseObject</Context>
     </PropertyPageSchema>
-
 
   </ItemGroup>
 

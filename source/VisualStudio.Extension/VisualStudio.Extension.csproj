@@ -636,12 +636,6 @@
       <VSIXSubPath>nanoFramework\v1.0\Rules\</VSIXSubPath>
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
-    <Content Include="Rules\NanoFrameworkPropertyPage.xaml">
-      <SubType>Designer</SubType>
-      <InstallRoot>MSBuild</InstallRoot>
-      <VSIXSubPath>nanoFramework\v1.0\Rules\</VSIXSubPath>
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
     <Content Include="Rules\NanoDebugger.xaml">
       <SubType>Designer</SubType>
       <InstallRoot>MSBuild</InstallRoot>
@@ -708,9 +702,6 @@
       <SubType>Designer</SubType>
     </XamlPropertyRule>
     <XamlPropertyRule Include="Rules\csharp.xaml">
-      <SubType>Designer</SubType>
-    </XamlPropertyRule>
-    <XamlPropertyRule Include="Rules\NanoFrameworkPropertyPage.xaml">
       <SubType>Designer</SubType>
     </XamlPropertyRule>
     <XamlPropertyRule Include="Rules\debugger_general.xaml">
