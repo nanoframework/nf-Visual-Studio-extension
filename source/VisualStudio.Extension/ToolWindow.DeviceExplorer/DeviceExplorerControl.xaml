@@ -40,22 +40,23 @@
                         <Setter Property="HeaderTemplate">
                             <Setter.Value>
                                 <DataTemplate>
-                                    <TextBlock Text="{Binding}" FontWeight="Bold"/>
+                                    <TextBlock Text="{Binding}" FontWeight="Bold" />
+                                </DataTemplate>
+                            </Setter.Value>
+                        </Setter>
+                        <Setter Property="ItemTemplate">
+                            <Setter.Value>
+                                <DataTemplate DataType="{x:Type debugger:NanoDeviceBase}">
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Top" HorizontalAlignment="Stretch">
+                                        <TextBlock Text="{Binding Description, Mode=OneWay}" Foreground="{DynamicResource {x:Static vsp:EnvironmentColors.ToolWindowTextBrushKey}}"/>
+                                    </StackPanel>
                                 </DataTemplate>
                             </Setter.Value>
                         </Setter>
                     </Style>
                 </TreeView.ItemContainerStyle>
 
-                <TreeView.Resources>
-                    <DataTemplate x:Key="NanoDeviceItemTemplate" DataType="{x:Type debugger:NanoDeviceBase}">
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Top" HorizontalAlignment="Stretch">
-                            <TextBlock Text="{Binding Description, Mode=OneWay}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
-                        </StackPanel>
-                    </DataTemplate>
-                </TreeView.Resources>
-
-                <TreeViewItem x:Name="DevicesHeaderItem" Header="Devices" IsExpanded="True" ItemTemplate="{StaticResource NanoDeviceItemTemplate}" Focusable="False" ItemsSource="{Binding AvailableDevices, Mode=OneWay}"/>
+                <TreeViewItem x:Name="DevicesHeaderItem" Header="Devices" IsExpanded="True" Focusable="False" ItemsSource="{Binding AvailableDevices, Mode=OneWay}"/>
 
             </TreeView>
 
