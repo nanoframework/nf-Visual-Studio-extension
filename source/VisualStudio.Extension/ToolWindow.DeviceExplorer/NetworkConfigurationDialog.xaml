@@ -125,11 +125,11 @@
 
                     <!--Interface type-->
                     <Label Grid.Row="1" Grid.Column="0" HorizontalAlignment="Left" Content="Interface type:" Margin="-6,6,0,0" />
-                    <ComboBox Grid.Row="1" Grid.Column="1" HorizontalAlignment="Left" Height="23" Width="120" VerticalAlignment="Center" Margin="0,6,0,0" x:Name="InterfaceType" 
+                    <ComboBox Grid.Row="1" Grid.Column="1" HorizontalAlignment="Left" Height="23" Width="120" VerticalAlignment="Center" Margin="0,6,0,0" x:Name="InterfaceType" IsReadOnly="True" IsEditable="False"
                               DisplayMemberPath="DisplayName"
                               ItemsSource="{extension:ByteEnumToItemsSource {x:Type debuglib:NetworkInterfaceType}}"
                               SelectedValue="{Binding DeviceNetworkConfiguration.InterfaceType, Converter={StaticResource NetworkInterfaceTypeConverter}, Mode=TwoWay, NotifyOnTargetUpdated=True, NotifyOnSourceUpdated=True, ValidatesOnNotifyDataErrors=False}"
-                              SelectedValuePath="Value" />
+                              SelectedValuePath="Value" IsEnabled="False" />
                     <!--<xctk:MaskedTextBox Grid.Row="1" Grid.Column="1" HorizontalAlignment="Left" Height="23" Mask="AA\:AA\:AA\:AA\:AA\:AA" VerticalAlignment="Top" Width="120" Margin="0,3,0,0" x:Name="InterfaceType"/>-->
 
                 </Grid>
