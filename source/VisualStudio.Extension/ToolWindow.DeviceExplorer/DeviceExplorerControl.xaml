@@ -105,7 +105,7 @@
                             <TextBlock Margin="10,0,0,0" VerticalAlignment="Center" >
                                 Visit our <Hyperlink NavigateUri="http//www.nanoframework.net" Style="{StaticResource {x:Static vsfx:VsResourceKeys.ThemedDialogHyperlinkStyleKey}}">website</Hyperlink>!
                             </TextBlock>
-                            
+
                             <TextBlock Margin="10,0,0,0" VerticalAlignment="Center">
                                 Search the  
                                 <Hyperlink Style="{StaticResource {x:Static vsfx:VsResourceKeys.ThemedDialogHyperlinkStyleKey}}"
@@ -123,14 +123,14 @@
                             </TextBlock>
 
                             <TextBlock Margin="10,0,0,0" VerticalAlignment="Center">
-                                Take advantage of our    
+                                Take advantage nanoFramework    
                                 <Hyperlink Style="{StaticResource {x:Static vsfx:VsResourceKeys.ThemedDialogHyperlinkStyleKey}}"
                                            NavigateUri="http://docs.nanoframework.net/articles/intro.html" 
                                            RequestNavigate="Hyperlink_RequestNavigate" >
                                     knowledge base</Hyperlink>.
-                            </TextBlock>                            
+                            </TextBlock>
                             <TextBlock Margin="10,0,0,0" VerticalAlignment="Center">
-                                Join our Discord
+                                Join our lively Discord
                                 <Hyperlink Style="{StaticResource {x:Static vsfx:VsResourceKeys.ThemedDialogHyperlinkStyleKey}}"
                                            NavigateUri="https://discord.gg/gCyBu8T"
                                            RequestNavigate="Hyperlink_RequestNavigate" >
