@@ -1,17 +1,19 @@
 ﻿//
-// Copyright (c) 2017 The nanoFramework project contributors
+// Copyright (c) 2018 The nanoFramework project contributors
 // Portions Copyright (c) Microsoft Corporation.  All rights reserved.
 // See LICENSE file in the project root for full license information.
 //
 
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
+using Microsoft.VisualStudio.Designer.Interfaces;
+using Microsoft.VisualStudio.OLE.Interop;
+using Microsoft.VisualStudio.Shell;
+using Microsoft.VisualStudio.Shell.Interop;
 using System;
 using System.CodeDom;
 using System.CodeDom.Compiler;
 using System.Collections;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
@@ -19,1087 +21,577 @@ using System.Globalization;
 using System.IO;
 using System.Reflection;
 using System.Resources;
+using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
-using System.Runtime.Serialization.Formatters.Binary;
-using System.Security;
 using System.Text;
 using System.Xml;
+using IOleServiceProvider = Microsoft.VisualStudio.OLE.Interop.IServiceProvider;
 
-namespace nanoFramework.Tools
+namespace nanoFramework.Tools.VisualStudio.Extension
 {
-    static internal class ExceptionHandling
+    internal abstract class BaseCodeGenerator : IVsSingleFileGenerator
     {
-        /// <summary>
-        /// If the given exception is file IO related then return.
-        /// Otherwise, rethrow the exception.
-        /// </summary>
-        /// <param name="e">The exception to check.</param>
-        internal static void RethrowUnlessFileIO(Exception e)
-        {
-            if
-            (
-                e is UnauthorizedAccessException
-                || e is ArgumentNullException
-                || e is PathTooLongException
-                || e is DirectoryNotFoundException
-                || e is NotSupportedException
-                || e is ArgumentException
-                || e is SecurityException
-                || e is IOException
-            )
-            {
-                return;
-            }
+        private string codeFileNameSpace = string.Empty;
+        private string codeFilePath = string.Empty;
 
-            Debug.Assert(false, "Exception unexpected for this File IO case. Please open a bug that we need to add a 'catch' block for this exception. Look at the build log for more details including a stack trace.");
-            throw e;
-        }
-    }
+        private IVsGeneratorProgress codeGeneratorProgress;
 
-
-    /// <remarks>
-    /// Represents a cache of inputs to a compilation-style task.
-    /// </remarks>
-    [Serializable()]
-    internal class Dependencies
-    {
-        /// <summary>
-        /// Hashtable of other dependency files.
-        /// Key is filename and value is DependencyFile.
-        /// </summary>
-        private Hashtable dependencies = new Hashtable();
-
-        /// <summary>
-        /// Look up a dependency file. Return null if its not there.
-        /// </summary>
-        /// <param name="filename"></param>
-        /// <returns></returns>
-        internal DependencyFile GetDependencyFile(string filename)
-        {
-            return (DependencyFile)dependencies[filename];
-        }
-
-
-        /// <summary>
-        /// Add a new dependency file.
-        /// </summary>
-        /// <param name="filename"></param>
-        /// <returns></returns>
-        internal void AddDependencyFile(string filename, DependencyFile file)
-        {
-            dependencies[filename] = file;
-        }
-
-        /// <summary>
-        /// Remove new dependency file.
-        /// </summary>
-        /// <param name="filename"></param>
-        /// <returns></returns>
-        internal void RemoveDependencyFile(string filename)
-        {
-            dependencies.Remove(filename);
-        }
-
-        /// <summary>
-        /// Remove all entries from the dependency table.
-        /// </summary>
-        internal void Clear()
-        {
-            dependencies.Clear();
-        }
-    }
-
-
-    /// <remarks>
-    /// Represents a single input to a compilation-style task.
-    /// Keeps track of timestamp for later comparison.
-    /// </remarks>
-    [Serializable]
-    internal class DependencyFile
-    {
-        // Filename
-        private string filename;
-
-        // Date and time the file was last modified
-        private DateTime lastModified;
-
-        // Whether the file exists or not.
-        bool exists = false;
-
-        /// <summary>
-        /// The name of the file.
-        /// </summary>
-        /// <value></value>
-        internal string FileName
-        {
-            get { return filename; }
-        }
-
-        /// <summary>
-        /// The last-modified timestamp when the class was instantiated.
-        /// </summary>
-        /// <value></value>
-        internal DateTime LastModified
-        {
-            get { return lastModified; }
-        }
-
-        /// <summary>
-        /// Returns true if the file existed when this class was instantiated.
-        /// </summary>
-        /// <value></value>
-        internal bool Exists
-        {
-            get { return exists; }
-        }
-
-        /// <summary>
-        /// Construct.
-        /// </summary>
-        /// <param name="filename">The file name.</param>
-        internal DependencyFile(string filename)
-        {
-            this.filename = filename;
-
-            if (File.Exists(FileName))
-            {
-                this.lastModified = File.GetLastWriteTime(FileName);
-                this.exists = true;
-            }
-            else
-            {
-                this.exists = false;
-            }
-        }
-
-        /// <summary>
-        /// Checks whether the file has changed since the last time a timestamp was recorded.
-        /// </summary>
-        /// <returns></returns>
-        internal bool HasFileChanged()
-        {
-            // Obviously if the file no longer exists then we are not up to date.
-            if (!File.Exists(filename))
-            {
-                return true;
-            }
-
-            // Check the saved timestamp against the current timestamp.
-            // If they are different then obviously we are out of date.
-            DateTime curLastModified = File.GetLastWriteTime(filename);
-            if (curLastModified != lastModified)
-            {
-                return true;
-            }
-
-            // All checks passed -- the info should still be up to date.
-            return false;
-        }
-    }
-
-    /// <remarks>
-    /// Base class for task state files.
-    /// </remarks>
-    [Serializable()]
-    internal class StateFileBase
-    {
-        /// <summary>
-        /// Default constructor
-        /// </summary>
-        internal StateFileBase()
-        {
-            // do nothing
-        }
-
-        /// <summary>
-        /// Writes the contents of this object out to the specified file.
-        /// </summary>
-        /// <param name="stateFile"></param>
-        virtual internal void SerializeCache(string stateFile, TaskLoggingHelper log)
-        {
-            try
-            {
-                if (stateFile != null && stateFile.Length > 0)
-                {
-                    if (File.Exists(stateFile))
-                    {
-                        File.Delete(stateFile);
-                    }
-
-                    using (FileStream s = new FileStream(stateFile, FileMode.CreateNew))
-                    {
-                        BinaryFormatter formatter = new BinaryFormatter();
-                        formatter.Serialize(s, this);
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                // If there was a problem writing the file (like it's read-only or locked on disk, for
-                // example), then eat the exception and log a warning.  Otherwise, rethrow.
-                ExceptionHandling.RethrowUnlessFileIO(e);
-
-                // Not being able to serialize the cache is not an error, but we let the user know anyway.
-                // Don't want to hold up processing just because we couldn't read the file.
-                log.LogWarning("Could not write state file {0} ({1})", stateFile, e.Message);
-            }
-        }
-
-        /// <summary>
-        /// Reads the specified file from disk into a StateFileBase derived object.
-        /// </summary>
-        /// <param name="stateFile"></param>
-        /// <returns></returns>
-        static internal StateFileBase DeserializeCache(string stateFile, TaskLoggingHelper log, Type requiredReturnType)
-        {
-            StateFileBase retVal = null;
-
-            // First, we read the cache from disk if one exists, or if one does not exist
-            // then we create one.
-            try
-            {
-                if (stateFile != null && stateFile.Length > 0 && File.Exists(stateFile))
-                {
-                    using (FileStream s = new FileStream(stateFile, FileMode.Open))
-                    {
-                        BinaryFormatter formatter = new BinaryFormatter();
-                        retVal = (StateFileBase)formatter.Deserialize(s);
-
-                        if ((retVal != null) && (!requiredReturnType.IsInstanceOfType(retVal)))
-                        {
-                            log.LogWarning("Could not write state file {0} (Incompatible state file type)", stateFile);
-                            retVal = null;
-                        }
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                // The deserialization process seems like it can throw just about
-                // any exception imaginable.  Catch them all here.
-
-                // Not being able to deserialize the cache is not an error, but we let the user know anyway.
-                // Don't want to hold up processing just because we couldn't read the file.
-                log.LogWarning("Could not read state file {0} ({1})", stateFile, e.Message);
-            }
-
-            return retVal;
-        }
-
-        /// <summary>
-        /// Deletes the state file from disk
-        /// </summary>
-        /// <param name="stateFile"></param>
-        /// <param name="log"></param>
-        static internal void DeleteFile(string stateFile, TaskLoggingHelper log)
-        {
-            try
-            {
-                if (stateFile != null && stateFile.Length > 0)
-                {
-                    if (File.Exists(stateFile))
-                    {
-                        File.Delete(stateFile);
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                // If there was a problem deleting the file (like it's read-only or locked on disk, for
-                // example), then eat the exception and log a warning.  Otherwise, rethrow.
-                ExceptionHandling.RethrowUnlessFileIO(e);
-
-                log.LogWarning("Could not delete state file {0} ({1})", stateFile, e.Message);
-            }
-        }
-    }
-
-
-    /// <remarks>
-    /// This class is a caching mechanism for the resgen task to keep track of linked
-    /// files within processed .resx files.
-    /// </remarks>
-    [Serializable()]
-    internal sealed class ResGenDependencies : StateFileBase
-    {
-        /// <summary>
-        /// The list of resx files.
-        /// </summary>
-        private Dependencies resXFiles = new Dependencies();
-
-        /// <summary>
-        /// A newly-created ResGenDependencies is not dirty.
-        /// What would be the point in saving the default?
-        /// </summary>
-        [NonSerialized]
-        private bool isDirty = false;
-
-        /// <summary>
-        ///  This is the directory that will be used for resolution of files linked within a .resx.
-        ///  If this is NULL then we use the directory in which the .resx is in (that should always
-        ///  be the default!)
-        /// </summary>
-        private string baseLinkedFileDirectory;
-
-        /// <summary>
-        /// Construct.
-        /// </summary>
-        internal ResGenDependencies()
-        {
-        }
-
-        internal string BaseLinkedFileDirectory
+        // **************************** PROPERTIES ****************************
+        protected string FileNameSpace
         {
             get
             {
-                return baseLinkedFileDirectory;
-            }
-            set
-            {
-                if (value == null && baseLinkedFileDirectory == null)
-                {
-                    // No change
-                    return;
-                }
-                else if ((value == null && baseLinkedFileDirectory != null) ||
-                         (value != null && baseLinkedFileDirectory == null) ||
-                         (String.Compare(baseLinkedFileDirectory, value, true, CultureInfo.InvariantCulture) != 0))
-                {
-                    // Ok, this is slightly complicated.  Changing the base directory in any manner may
-                    // result in changes to how we find .resx files.  Therefore, we must clear our out
-                    // cache whenever the base directory changes.
-                    resXFiles.Clear();
-                    isDirty = true;
-                    baseLinkedFileDirectory = value;
-                }
+                return codeFileNameSpace;
             }
         }
 
-        internal bool UseSourcePath
-        {
-            set
-            {
-                // Ensure that the cache is properly initialized with respect to how resgen will
-                // resolve linked files within .resx files.  ResGen has two different
-                // ways for resolving relative file-paths in linked files. The way
-                // that ResGen resolved relative paths before Whidbey was always to
-                // resolve from the current working directory. In Whidbey a new command-line
-                // switch "/useSourcePath" instructs ResGen to use the folder that
-                // contains the .resx file as the path from which it should resolve
-                // relative paths. So we should base our timestamp/existence checking
-                // on the same switch & resolve in the same manner as ResGen.
-                BaseLinkedFileDirectory = value ? null : Environment.CurrentDirectory;
-            }
-        }
-
-        internal ResXFile GetResXFileInfo(string resxFile)
-        {
-            // First, try to retrieve the resx information from our hashtable.
-            ResXFile retVal = (ResXFile)resXFiles.GetDependencyFile(resxFile);
-
-            if (retVal == null)
-            {
-                // Ok, the file wasn't there.  Add it to our cache and return it to the caller.
-                retVal = AddResxFile(resxFile);
-            }
-            else
-            {
-                // The file was there.  Is it up to date?  If not, then we'll have to refresh the file
-                // by removing it from the hashtable and readding it.
-                if (retVal.HasFileChanged())
-                {
-                    resXFiles.RemoveDependencyFile(resxFile);
-                    isDirty = true;
-                    retVal = AddResxFile(resxFile);
-                }
-            }
-
-            return retVal;
-        }
-
-        private ResXFile AddResxFile(string file)
-        {
-            // This method adds a .resx file "file" to our .resx cache.  The method causes the file
-            // to be cracked for contained files.
-
-            ResXFile resxFile = new ResXFile(file, BaseLinkedFileDirectory);
-            resXFiles.AddDependencyFile(file, resxFile);
-            isDirty = true;
-            return resxFile;
-        }
-        /// <summary>
-        /// Writes the contents of this object out to the specified file.
-        /// </summary>
-        /// <param name="stateFile"></param>
-        override internal void SerializeCache(string stateFile, TaskLoggingHelper log)
-        {
-            base.SerializeCache(stateFile, log);
-            isDirty = false;
-        }
-
-        /// <summary>
-        /// Reads the .cache file from disk into a ResGenDependencies object.
-        /// </summary>
-        /// <param name="stateFile"></param>
-        /// <param name="useSourcePath"></param>
-        /// <returns></returns>
-        internal static ResGenDependencies DeserializeCache(string stateFile, bool useSourcePath, TaskLoggingHelper log)
-        {
-            ResGenDependencies retVal = (ResGenDependencies)StateFileBase.DeserializeCache(stateFile, log, typeof(ResGenDependencies));
-
-            if (retVal == null)
-            {
-                retVal = new ResGenDependencies();
-            }
-
-            // Ensure that the cache is properly initialized with respect to how resgen will
-            // resolve linked files within .resx files.  ResGen has two different
-            // ways for resolving relative file-paths in linked files. The way
-            // that ResGen resolved relative paths before Whidbey was always to
-            // resolve from the current working directory. In Whidbey a new command-line
-            // switch "/useSourcePath" instructs ResGen to use the folder that
-            // contains the .resx file as the path from which it should resolve
-            // relative paths. So we should base our timestamp/existence checking
-            // on the same switch & resolve in the same manner as ResGen.
-            retVal.UseSourcePath = useSourcePath;
-
-            return retVal;
-        }
-
-        /// <remarks>
-        /// Represents a single .resx file in the dependency cache.
-        /// </remarks>
-        [Serializable()]
-        internal sealed class ResXFile : DependencyFile
-        {
-            // Files contained within this resx file.
-            private string[] linkedFiles;
-
-            internal string[] LinkedFiles
-            {
-                get { return linkedFiles; }
-            }
-
-            internal ResXFile(string filename, string baseLinkedFileDirectory)
-                : base(filename)
-            {
-                // Creates a new ResXFile object and populates the class member variables
-                // by computing a list of linked files within the .resx that was passed in.
-                //
-                // filename is the filename of the .resx file that is to be examined.
-
-                if (File.Exists(FileName))
-                {
-                    linkedFiles = ResXFile.GetLinkedFiles(filename, baseLinkedFileDirectory);
-                }
-            }
-
-            /// <summary>
-            /// Given a .RESX file, returns all the linked files that are referenced within that .RESX.
-            /// </summary>
-            /// <param name="filename"></param>
-            /// <param name="baseLinkedFileDirectory"></param>
-            /// <returns></returns>
-            /// <exception cref="ArgumentException">May be thrown if Resx is invalid. May contain XmlException.</exception>
-            /// <exception cref="XmlException">May be thrown if Resx is invalid</exception>
-            internal static string[] GetLinkedFiles(string filename, string baseLinkedFileDirectory)
-            {
-                // This method finds all linked .resx files for the .resx file that is passed in.
-                // filename is the filename of the .resx file that is to be examined.
-
-                // Construct the return array
-                ArrayList retVal = new ArrayList();
-
-#if !EVERETT_BUILD
-                using (ResXResourceReader resxReader = new ResXResourceReader(filename))
-                {
-                    // Tell the reader to return ResXDataNode's instead of the object type
-                    // the resource becomes at runtime so we can figure out which files
-                    // the .resx references
-                    resxReader.UseResXDataNodes = true;
-
-                    // First we need to figure out where the linked file resides in order
-                    // to see if it exists & compare its timestamp, and we need to do that
-                    // comparison in the same way ResGen does it. ResGen has two different
-                    // ways for resolving relative file-paths in linked files. The way
-                    // that ResGen resolved relative paths before Whidbey was always to
-                    // resolve from the current working directory. In Whidbey a new command-line
-                    // switch "/useSourcePath" instructs ResGen to use the folder that
-                    // contains the .resx file as the path from which it should resolve
-                    // relative paths. So we should base our timestamp/existence checking
-                    // on the same switch & resolve in the same manner as ResGen.
-                    resxReader.BasePath = (baseLinkedFileDirectory == null) ? Path.GetDirectoryName(filename) : baseLinkedFileDirectory;
-
-                    foreach (DictionaryEntry dictEntry in resxReader)
-                    {
-                        if ((dictEntry.Value != null) && (dictEntry.Value is ResXDataNode))
-                        {
-                            ResXFileRef resxFileRef = ((ResXDataNode)dictEntry.Value).FileRef;
-                            if (resxFileRef != null)
-                                retVal.Add(resxFileRef.FileName);
-                        }
-                    }
-                }
-#endif
-                return (string[])retVal.ToArray(typeof(string));
-            }
-        }
-
-        /// <summary>
-        /// Whether this cache is dirty or not.
-        /// </summary>
-        internal bool IsDirty
+        protected string InputFilePath
         {
             get
             {
-                return this.isDirty;
+                return codeFilePath;
+            }
+        }
+
+        internal IVsGeneratorProgress CodeGeneratorProgress
+        {
+            get
+            {
+                return codeGeneratorProgress;
+            }
+        }
+
+        // **************************** METHODS **************************
+        public abstract int DefaultExtension(out string ext);
+
+        // MUST implement this abstract method.
+        protected abstract byte[] GenerateCode(string inputFileName, string inputFileContent);
+
+
+        protected virtual void GeneratorErrorCallback(int warning, uint level, string message, uint line, uint column)
+        {
+            IVsGeneratorProgress progress = CodeGeneratorProgress;
+            if (progress != null)
+            {
+                //Utility.ThrowOnFailure(progress.GeneratorError(warning, level, message, line, column));
+
+            }
+        }
+
+        public int Generate(string wszInputFilePath, string bstrInputFileContents, string wszDefaultNamespace,
+                             IntPtr[] pbstrOutputFileContents, out uint pbstrOutputFileContentSize, IVsGeneratorProgress pGenerateProgress)
+        {
+
+            if (bstrInputFileContents == null)
+            {
+                throw new ArgumentNullException(bstrInputFileContents);
+            }
+            codeFilePath = wszInputFilePath;
+            codeFileNameSpace = wszDefaultNamespace;
+            codeGeneratorProgress = pGenerateProgress;
+
+            byte[] bytes = GenerateCode(wszInputFilePath, bstrInputFileContents);
+            if (bytes == null)
+            {
+                pbstrOutputFileContents[0] = IntPtr.Zero;
+                pbstrOutputFileContentSize = 0;
+            }
+            else
+            {
+                pbstrOutputFileContents[0] = Marshal.AllocCoTaskMem(bytes.Length);
+                Marshal.Copy(bytes, 0, pbstrOutputFileContents[0], bytes.Length);
+                pbstrOutputFileContentSize = (uint)bytes.Length;
+            }
+            return COM_HResults.S_OK;
+        }
+
+        protected byte[] StreamToBytes(Stream stream)
+        {
+            if (stream.Length == 0)
+                return new byte[] { };
+
+            long position = stream.Position;
+            stream.Position = 0;
+            byte[] bytes = new byte[(int)stream.Length];
+            stream.Read(bytes, 0, bytes.Length);
+            stream.Position = position;
+
+            return bytes;
+        }
+    }
+
+    internal abstract class BaseCodeGeneratorWithSite : BaseCodeGenerator, IObjectWithSite
+    {
+
+        private Object site = null;
+        private CodeDomProvider codeDomProvider = null;
+        private static Guid CodeDomInterfaceGuid = new Guid("{73E59688-C7C4-4a85-AF64-A538754784C5}");
+        private static Guid CodeDomServiceGuid = CodeDomInterfaceGuid;
+        private ServiceProvider serviceProvider = null;
+
+        protected virtual CodeDomProvider CodeProvider
+        {
+            get
+            {
+                if (codeDomProvider == null)
+                {
+                    IVSMDCodeDomProvider vsmdCodeDomProvider = (IVSMDCodeDomProvider)GetService(CodeDomServiceGuid);
+                    if (vsmdCodeDomProvider != null)
+                    {
+                        codeDomProvider = (CodeDomProvider)vsmdCodeDomProvider.CodeDomProvider;
+                    }
+                    Debug.Assert(codeDomProvider != null, "Get CodeDomProvider Interface failed.  GetService(QueryService(CodeDomProvider) returned Null.");
+                }
+                return codeDomProvider;
+            }
+            set
+            {
+                if (value == null)
+                {
+                    throw new ArgumentNullException();
+                }
+
+                codeDomProvider = value;
+            }
+        }
+
+        private ServiceProvider SiteServiceProvider
+        {
+            get
+            {
+                if (serviceProvider == null)
+                {
+                    IOleServiceProvider oleServiceProvider = site as IOleServiceProvider;
+                    Debug.Assert(oleServiceProvider != null, "Unable to get IOleServiceProvider from site object.");
+
+                    serviceProvider = new ServiceProvider(oleServiceProvider);
+                }
+                return serviceProvider;
+            }
+        }
+
+        protected Object GetService(Guid serviceGuid)
+        {
+            return SiteServiceProvider.GetService(serviceGuid);
+        }
+
+        protected object GetService(Type serviceType)
+        {
+            return SiteServiceProvider.GetService(serviceType);
+        }
+
+
+        public override int DefaultExtension(out string ext)
+        {
+            CodeDomProvider codeDom = CodeProvider;
+            Debug.Assert(codeDom != null, "CodeDomProvider is NULL.");
+            string extension = codeDom.FileExtension;
+            if (extension != null && extension.Length > 0)
+            {
+                if (extension[0] != '.')
+                {
+                    extension = "." + extension;
+                }
+            }
+
+            ext = extension;
+            return COM_HResults.S_OK;
+        }
+
+        protected virtual ICodeGenerator GetCodeWriter()
+        {
+            CodeDomProvider codeDom = CodeProvider;
+            if (codeDom != null)
+            {
+#pragma warning disable 618 //backwards compat
+                return codeDom.CreateGenerator();
+#pragma warning restore 618
+            }
+
+            return null;
+        }
+
+        // ******************* Implement IObjectWithSite *****************
+        //
+        public virtual void SetSite(object pUnkSite)
+        {
+            site = pUnkSite;
+            codeDomProvider = null;
+            serviceProvider = null;
+        }
+
+        // Does anyone rely on this method?
+        public virtual void GetSite(ref Guid riid, out IntPtr ppvSite)
+        {
+            if (site == null)
+            {
+                //COM_HResults.Throw(Utility.COM_HResults.E_FAIL);
+            }
+
+            IntPtr pUnknownPointer = Marshal.GetIUnknownForObject(site);
+            try
+            {
+                Marshal.QueryInterface(pUnknownPointer, ref riid, out ppvSite);
+
+                if (ppvSite == IntPtr.Zero)
+                {
+                    //Utility.COM_HResults.Throw(Utility.COM_HResults.E_NOINTERFACE);
+                }
+            }
+            finally
+            {
+                if (pUnknownPointer != IntPtr.Zero)
+                {
+                    Marshal.Release(pUnknownPointer);
+                    pUnknownPointer = IntPtr.Zero;
+                }
             }
         }
     }
 
-    [Description("GenerateNanoResourceTaskEntry")]
-    public class GenerateNanoResourceTask : Task
+    [ComVisible(true)]
+    [CodeGeneratorRegistration(typeof(ResXFileCodeGenerator), "nanoFramework resx code-behind generator", NanoFrameworkPackage.ProjectTypeGuid, GeneratesDesignTimeSource = true)]
+    [ProvideObject(typeof(ResXFileCodeGenerator))]
+
+    internal class ResXFileCodeGenerator : BaseCodeGeneratorWithSite, IObjectWithSite
     {
-        // This cache helps us track the linked resource files listed inside of a resx resource file
-        // TODO private ResGenDependencies cache;
+        internal const string c_Name = "ResXFileCodeGenerator";
+        private const string DesignerExtension = ".Designer";
 
-        /// <summary>
-        /// List of output files that we failed to create due to an error.
-        /// See note in RemoveUnsuccessfullyCreatedResourcesFromOutputResources()
-        /// </summary>
-        private List<string> UnsuccessfullyCreatedOutFiles = new List<string>();
+        internal bool m_fInternal = true;
+        internal bool m_fNestedEnums = true;
+        internal bool m_fMscorlib = false;
 
-        // This cache helps us track the linked resource files listed inside of a resx resource file
-        private ResGenDependencies cache;
-
-        #region public properties for the task
-
-        /// <summary>
-        /// The names of the items to be converted. The extension must be one of the
-        //  following: .txt, .resx or .resources.
-        /// </summary>
-        [Required]
-        public ITaskItem[] Sources { get; set; }
-
-        /// <summary>
-        /// Indicates whether the resource reader should use the source file's directory to
-        /// resolve relative file paths.
-        /// </summary>
-        public bool UseSourcePath { get; set; }
-
-        /// <summary>
-        /// Resolves types in ResX files (XML resources) for Strongly Typed Resources
-        /// </summary>
-        public ITaskItem[] References { get; set; }
-
-        /// <summary>
-        /// This is the path/name of the file containing the dependency cache
-        /// </summary>
-        public ITaskItem StateFile { get; set; }
-
-        /// <summary>
-        /// The name(s) of the resource file to create. If the user does not specify this
-        /// attribute, the task will append a .resources extension to each input filename
-        /// argument and write the file to the directory that contains the input file.
-        /// Includes any output files that were already up to date, but not any output files
-        /// that failed to be written due to an error.
-        /// </summary>
-        [Output]
-        public ITaskItem[] OutputResources { get; set; }
-
-        /// <summary>
-        /// Storage for names of *all files* written to disk.  This is part of the implementation
-        /// for Clean, and contains the OutputResources items and the StateFile item.
-        /// Includes any output files that were already up to date, but not any output files
-        /// that failed to be written due to an error.
-        /// </summary>
-        [Output]
-        public ITaskItem[] FilesWritten { get { return _FilesWritten.ToArray(); } private set { } }
-        private List<ITaskItem> _FilesWritten = new List<ITaskItem>();
-
-        /// <summary>
-        /// (default = false)
-        /// When true, a new AppDomain is always created to evaluate the .resx files.
-        /// When false, a new AppDomain is created only when it looks like a user's
-        ///  assembly is referenced by the .resx.
-        /// </summary>
-        public bool NeverLockTypeAssemblies { get; set; }
-        
-
-        #endregion
-
-
-        public override bool Execute()
+        protected string GetResourcesNamespace()
         {
-            // report to VS output window what step the build is 
-            Log.LogMessage(MessageImportance.Normal, "Generating nanoResources nanoFramework assembly...");
-         
+            string resourcesNamespace = null;
             try
             {
-                // If there are no sources to process, just return (with success) and report the condition.
-                if ((Sources == null) || (Sources.Length == 0))
+                IntPtr punkVsBrowseObject;
+                Guid vsBrowseObjectGuid = typeof(IVsBrowseObject).GUID;
+
+                GetSite(ref vsBrowseObjectGuid, out punkVsBrowseObject);
+
+                if (punkVsBrowseObject != IntPtr.Zero)
                 {
-                    Log.LogMessage(MessageImportance.Low, "GenerateResource.NoSources");
-                    
-                    // Indicate we generated nothing
-                    OutputResources = null;
 
-                    return true;
-                }
+                    IVsBrowseObject vsBrowseObject = Marshal.GetObjectForIUnknown(punkVsBrowseObject) as IVsBrowseObject;
+                    Debug.Assert(vsBrowseObject != null, "Generator invoked by Site that is not IVsBrowseObject?");
 
-                if (!ValidateParameters())
-                {
-                    // Indicate we generated nothing
-                    OutputResources = null;
-                    return false;
-                }
+                    Marshal.Release(punkVsBrowseObject);
 
-                // In the case that OutputResources wasn't set, build up the outputs by transforming the Sources
-                if (!CreateOutputResourcesNames())
-                {
-                    // Indicate we generated nothing
-                    OutputResources = null;
-                    return false;
-                }
-
-                // First we look to see if we have a resgen linked files cache.  If so, then we can use that
-                // cache to speed up processing.
-                ReadStateFile();
-
-                bool nothingOutOfDate = true;
-
-                List<ITaskItem> inputsToProcess = new List<ITaskItem>();
-                List<ITaskItem> outputsToProcess = new List<ITaskItem>();
-
-                // decide what sources we need to build
-                for (int i = 0; i < Sources.Length; ++i)
-                {
-                    // Attributes from input items are forwarded to output items.
-                    //Sources[i].CopyMetadataTo(OutputResources[i]);
-
-                    if (!File.Exists(Sources[i].ItemSpec))
+                    if (vsBrowseObject != null)
                     {
-                        // Error but continue with the files that do exist
-                        Log.LogError("GenerateResource.ResourceNotFound", Sources[i].ItemSpec);
-                        UnsuccessfullyCreatedOutFiles.Add(OutputResources[i].ItemSpec);
-                    }
-                    else
-                    {
-                        // check to see if the output resources file (and, if it is a .resx, any linked files)
-                        // is up to date compared to the input file
-                        if (ShouldRebuildResgenOutputFile(Sources[i].ItemSpec, OutputResources[i].ItemSpec))
+                        IVsHierarchy vsHierarchy;
+                        uint vsitemid;
+
+                        vsBrowseObject.GetProjectItem(out vsHierarchy, out vsitemid);
+
+                        Debug.Assert(vsHierarchy != null, "GetProjectItem should have thrown or returned a valid IVsHierarchy");
+                        Debug.Assert(vsitemid != 0, "GetProjectItem should have thrown or returned a valid VSITEMID");
+
+
+                        if (vsHierarchy != null)
                         {
-                            nothingOutOfDate = false;
+                            object obj;
 
-                            inputsToProcess.Add(Sources[i]);
-                            outputsToProcess.Add(OutputResources[i]);
+                            vsHierarchy.GetProperty(vsitemid, (int)__VSHPROPID.VSHPROPID_DefaultNamespace, out obj);
+                            string objStr = obj as string;
+                            if (objStr != null)
+                            {
+                                resourcesNamespace = objStr;
+                            }
                         }
                     }
                 }
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine(e.ToString());
+                Debug.Fail("These methods should succeed...");
+            }
 
-                if (nothingOutOfDate)
+            return resourcesNamespace;
+        }
+
+        public override int DefaultExtension(out string ext)
+        {
+            //copied from ResXFileCodeGenerator
+            string baseExtension;
+            ext = String.Empty;
+
+            int hResult = base.DefaultExtension(out baseExtension);
+
+            if(hResult != COM_HResults.S_OK)
+            {
+                Debug.Fail("Invalid hresult returned by the base DefaultExtension");
+                return hResult;
+            }
+
+            if (!String.IsNullOrEmpty(baseExtension))
+            {
+                ext = DesignerExtension + baseExtension;
+            }
+
+            return COM_HResults.S_OK;
+        }
+
+        protected override byte[] GenerateCode(string inputFileName, string inputFileContent)
+        {
+            MemoryStream stream = new MemoryStream();
+            StreamWriter writer = new StreamWriter(stream);
+            string inputFileNameWithoutExtension = Path.GetFileNameWithoutExtension(inputFileName);
+
+            Assembly tasks = GetType().Assembly;
+
+            Type typ = tasks.GetType("nanoFramework.Tools.VisualStudio.Extension.ProcessResourceFiles");
+
+            if (typ != null)
+            {
+                object processResourceFiles = typ.GetConstructor(new Type[] { }).Invoke(null);
+
+                typ.GetProperty("StronglyTypedClassName").SetValue(processResourceFiles, inputFileNameWithoutExtension, null);
+                typ.GetProperty("StronglyTypedNamespace").SetValue(processResourceFiles, GetResourcesNamespace(), null);
+                typ.GetProperty("GenerateNestedEnums").SetValue(processResourceFiles, m_fNestedEnums, null);
+                typ.GetProperty("GenerateInternalClass").SetValue(processResourceFiles, m_fInternal, null);
+                typ.GetProperty("IsMscorlib").SetValue(processResourceFiles, m_fMscorlib, null);
+
+                string resourceName = (string)typ.GetProperty("StronglyTypedNamespace").GetValue(processResourceFiles, null);
+
+                if (string.IsNullOrEmpty(resourceName))
                 {
-                    Log.LogMessage("GenerateResource.NothingOutOfDate");
+                    resourceName = inputFileNameWithoutExtension;
                 }
                 else
                 {
-                    // Prepare list of referenced assemblies
-                    AssemblyName[] assemblyList;
-                    try
-                    { //only load system.drawing, mscorlib.  no parameters needed here?!!
-                        assemblyList = LoadReferences();
-                    }
-                    catch (ArgumentException e)
-                    {
-                        Log.LogError("GenerateResource.ReferencedAssemblyNotFound - {0}: {1}", e.ParamName, e.Message);
-                        OutputResources = null;
-                        return false;
-                    }
-
-                    ProcessResourceFiles process = null;
-
-                    process = new ProcessResourceFiles();
-
-                    //setup strongly typed class name??
-
-                    process.Run(Log, assemblyList, (ITaskItem[])inputsToProcess.ToArray(), (ITaskItem[])outputsToProcess.ToArray(),
-                        UseSourcePath);
-
-                    if (null != process.UnsuccessfullyCreatedOutFiles)
-                    {
-                        foreach (string item in process.UnsuccessfullyCreatedOutFiles)
-                        {
-                            UnsuccessfullyCreatedOutFiles.Add(item);
-                        }
-                    }
-                    process = null;
-
+                    resourceName = string.Format("{0}.{1}", resourceName, inputFileNameWithoutExtension);
                 }
 
-                // And now we serialize the cache to save our resgen linked file resolution for later use.
-                WriteStateFile();
-
-                RemoveUnsuccessfullyCreatedResourcesFromOutputResources();
-
-                RecordFilesWritten();
-            }
-            catch (Exception ex)
-            {
-                Log.LogError("nanoFramework GenerateNanoResourceTask error: " + ex.Message);
+                typ.GetMethod("CreateStronglyTypedResources").Invoke(processResourceFiles, new object[] { inputFileName, this.CodeProvider, writer, resourceName });
             }
 
-            // if we've logged any errors that's because there were errors (WOW!)
-            return !Log.HasLoggedErrors;
+            return base.StreamToBytes(stream);
         }
 
-        /// <summary>
-        /// Check for parameter errors.
-        /// </summary>
-        /// <returns>true if parameters are valid</returns>
-        private bool ValidateParameters()
+        internal abstract class BaseCodeGenerator : IVsSingleFileGenerator
         {
-            // make sure that if the output resources were set, they exactly match the number of input sources
-            if ((OutputResources != null) && (OutputResources.Length != Sources.Length))
+            private string codeFileNameSpace = string.Empty;
+            private string codeFilePath = string.Empty;
+
+            private IVsGeneratorProgress codeGeneratorProgress;
+
+            // **************************** PROPERTIES ****************************
+            protected string FileNameSpace
             {
-                Log.LogError("General.TwoVectorsMustHaveSameLength", Sources.Length, OutputResources.Length, "Sources", "OutputResources");
-                return false;
-            }
-
-            return true;
-        }
-
-        /// <summary>
-        /// Make sure that OutputResources has 1 file name for each name in Sources.
-        /// </summary>
-        private bool CreateOutputResourcesNames()
-        {
-            if (OutputResources == null)
-            {
-                OutputResources = new ITaskItem[Sources.Length];
-
-                int i = 0;
-                try
+                get
                 {
-                    for (i = 0; i < Sources.Length; ++i)
-                    {
-                        OutputResources[i] = new TaskItem(Path.ChangeExtension(Sources[i].ItemSpec, ".nanoresources"));
-                    }
-                }
-                catch (ArgumentException e)
-                {
-                    Log.LogError("GenerateResource.InvalidFilename", Sources[i].ItemSpec, e.Message);
-                    return false;
+                    return codeFileNameSpace;
                 }
             }
-            return true;
-        }
 
-        /// <summary>
-        /// Remove any output resources that we didn't successfully create (due to error) from the
-        /// OutputResources list. Keeps the ordering of OutputResources the same.
-        /// </summary>
-        /// <remarks>
-        /// Q: Why didn't we keep a "successfully created" list instead, like in the Copy task does, which
-        /// would save us doing the removal algorithm below?
-        /// A: Because we want the ordering of OutputResources to be the same as the ordering passed in.
-        /// Some items (the up to date ones) would be added to the successful output list first, and the other items
-        /// are added during processing, so the ordering would change. We could fix that up, but it's better to do
-        /// the fix up only in the rarer error case. If there were no errors, the algorithm below skips.</remarks>
-        private void RemoveUnsuccessfullyCreatedResourcesFromOutputResources()
-        {
-            // Normally, there aren't any unsuccessful conversions.
-            if (UnsuccessfullyCreatedOutFiles == null ||
-                UnsuccessfullyCreatedOutFiles.Count == 0)
+            protected string InputFilePath
             {
-                return;
+                get
+                {
+                    return codeFilePath;
+                }
             }
 
-            Debug.Assert(OutputResources != null && OutputResources.Length != 0);
-
-            // We only get here if there was at least one resource generation error.
-            ITaskItem[] temp = new ITaskItem[OutputResources.Length - UnsuccessfullyCreatedOutFiles.Count];
-            int copied = 0;
-            int removed = 0;
-            foreach (ITaskItem item in OutputResources)
+            internal IVsGeneratorProgress CodeGeneratorProgress
             {
-                // Check whether this one is in the bad list.
-                if (removed < UnsuccessfullyCreatedOutFiles.Count &&
-                    UnsuccessfullyCreatedOutFiles.Contains(item.ItemSpec))
+                get
                 {
-                    removed++;
+                    return codeGeneratorProgress;
+                }
+            }
+
+            // **************************** METHODS **************************
+            public abstract int DefaultExtension(out string ext);
+
+            // MUST implement this abstract method.
+            protected abstract byte[] GenerateCode(string inputFileName, string inputFileContent);
+
+
+            protected virtual void GeneratorErrorCallback(int warning, uint level, string message, uint line, uint column)
+            {
+                IVsGeneratorProgress progress = CodeGeneratorProgress;
+                if (progress != null)
+                {
+                    progress.GeneratorError(warning, level, message, line, column);
+                }
+            }
+
+            public int Generate(string wszInputFilePath, string bstrInputFileContents, string wszDefaultNamespace,
+                                 IntPtr[] pbstrOutputFileContents, out uint pbstrOutputFileContentSize, IVsGeneratorProgress pGenerateProgress)
+            {
+
+                if (bstrInputFileContents == null)
+                {
+                    throw new ArgumentNullException(bstrInputFileContents);
+                }
+                codeFilePath = wszInputFilePath;
+                codeFileNameSpace = wszDefaultNamespace;
+                codeGeneratorProgress = pGenerateProgress;
+
+                byte[] bytes = GenerateCode(wszInputFilePath, bstrInputFileContents);
+                if (bytes == null)
+                {
+                    pbstrOutputFileContents[0] = IntPtr.Zero;
+                    pbstrOutputFileContentSize = 0;
                 }
                 else
                 {
-                    // Copy it to the okay list.
-                    temp[copied] = item;
-                    copied++;
+                    pbstrOutputFileContents[0] = Marshal.AllocCoTaskMem(bytes.Length);
+                    Marshal.Copy(bytes, 0, pbstrOutputFileContents[0], bytes.Length);
+                    pbstrOutputFileContentSize = (uint)bytes.Length;
                 }
-            }
-            OutputResources = temp;
-        }
-
-        /// <summary>
-        /// Read the state file if able.
-        /// </summary>
-        private void ReadStateFile()
-        {
-            // First we look to see if we have a resgen linked files cache.  If so, then we can use that
-            // cache to speed up processing.  If there's a problem reading the cache file (or it
-            // just doesn't exist, then this method will return a brand new cache object.
-
-            // This method eats IO Exceptions
-
-            cache = ResGenDependencies.DeserializeCache((StateFile == null) ? null : StateFile.ItemSpec, UseSourcePath, Log);
-
-            //RWOLFF -- throw here?
-            //ErrorUtilities.VerifyThrow(cache != null, "We did not create a cache!");
-        }
-
-        /// <summary>
-        /// Record the list of file that will be written to disk.
-        /// </summary>
-        private void RecordFilesWritten()
-        {
-            // Add any output resources that were successfully created,
-            // or would have been if they weren't already up to date (important for Clean)
-            foreach (ITaskItem item in this.OutputResources)
-            {
-                Debug.Assert(File.Exists(item.ItemSpec), item.ItemSpec + " doesn't exist but we're adding to FilesWritten");
-                _FilesWritten.Add(new TaskItem(item));
+                return COM_HResults.S_OK;
             }
 
-            // Add any state file
-            if (StateFile != null && StateFile.ItemSpec.Length > 0)
+            protected byte[] StreamToBytes(Stream stream)
             {
-                // It's possible the file wasn't actually written (eg the path was invalid)
-                // We can't easily tell whether that happened here, and I think it's fine to add it anyway.
-                _FilesWritten.Add(new TaskItem(StateFile));
+                if (stream.Length == 0)
+                    return new byte[] { };
+
+                long position = stream.Position;
+                stream.Position = 0;
+                byte[] bytes = new byte[(int)stream.Length];
+                stream.Read(bytes, 0, bytes.Length);
+                stream.Position = position;
+
+                return bytes;
             }
         }
 
-
-        /// <summary>
-        /// Determines if the given output file is up to date with respect to the
-        /// the given input file by comparing timestamps of the two files as well as
-        /// (if the source is a .resx) the linked files inside the .resx file itself
-        /// <param name="sourceFilePath"></param>
-        /// <param name="outputFilePath"></param>
-        /// <returns></returns>
-        private bool ShouldRebuildResgenOutputFile(string sourceFilePath, string outputFilePath)
+        internal abstract class BaseCodeGeneratorWithSite : BaseCodeGenerator, IObjectWithSite
         {
-            /*#if !(MSBUILD_SOURCES)
-                        return true;
-            #else
-             */
-            bool sourceFileExists = File.Exists(sourceFilePath);
-            bool destinationFileExists = File.Exists(outputFilePath);
+            private Object site = null;
+            private CodeDomProvider codeDomProvider = null;
+            private static Guid CodeDomInterfaceGuid = new Guid("{73E59688-C7C4-4a85-AF64-A538754784C5}");
+            private static Guid CodeDomServiceGuid = CodeDomInterfaceGuid;
+            private ServiceProvider serviceProvider = null;
 
-            // PERF: Regardless of whether the outputFile exists, if the source file is a .resx
-            // go ahead and retrieve it from the cache. This is because we want the cache
-            // to be populated so that incremental builds can be fast.
-            // Note that this is a trade-off: clean builds will be slightly slower. However,
-            // for clean builds we're about to read in this very same .resx file so reading
-            // it now will page it in. The second read should be cheap.
-            ResGenDependencies.ResXFile resxFileInfo = null;
-            if (String.Compare(Path.GetExtension(sourceFilePath), ".resx", true, CultureInfo.InvariantCulture) == 0)
+            protected virtual CodeDomProvider CodeProvider
             {
-                try
+                get
                 {
-                    resxFileInfo = cache.GetResXFileInfo(sourceFilePath);
-                }
-                catch (ArgumentException)
-                {
-                    // Return true, so that resource processing will display the error
-                    // No point logging a duplicate error here as well
-                    return true;
-                }
-                catch (XmlException)
-                {
-                    // Return true, so that resource processing will display the error
-                    // No point logging a duplicate error here as well
-                    return true;
-                }
-                catch (Exception e)  // Catching Exception, but rethrowing unless it's a well-known exception.
-                {
-                    ExceptionHandling.RethrowUnlessFileIO(e);
-                    // Return true, so that resource processing will display the error
-                    // No point logging a duplicate error here as well
-                    return true;
-                }
-            }
-
-            ////////////////////////////////////////////////////////////////////////////////////
-            // If the output file does not exist, then we should rebuild it.
-            //  Also, if the input file does not exist, we will also return saying that the
-            //  the output file needs to be rebuilt, so that this pair of files will
-            //  get added to the command-line which will let resgen output whatever error
-            //  it normally outputs in the case when users call the tool with bad params
-            bool shouldRebuildOutputFile = (!destinationFileExists || !sourceFileExists);
-
-            // if both files do exist, then we need to do some timestamp comparisons
-            if (!shouldRebuildOutputFile)
-            {
-                Debug.Assert(destinationFileExists && sourceFileExists, "GenerateResource task should not check timestamps if neither the .resx nor the .resources files exist");
-
-                // cache the output file timestamps
-                DateTime outputFileTimeStamp = File.GetLastWriteTime(outputFilePath);
-
-                // If source file is NOT a .resx, timestamp checking is simple
-                if (resxFileInfo == null)
-                {
-                    // We have a non .resx file. Don't attempt to parse it.
-
-                    // cache the source file timestamp
-                    DateTime sourceFileTimeStamp = File.GetLastWriteTime(sourceFilePath);
-
-                    // we need to rebuild this output file if the source file has a
-                    //  more recent timestamp than the output file
-                    shouldRebuildOutputFile = (sourceFileTimeStamp > outputFileTimeStamp);
-
-                    return shouldRebuildOutputFile;
-                }
-
-                // Source file IS a .resx file so we need to do deep dependency analysis
-                Debug.Assert(resxFileInfo != null, "Why didn't we get resx file information?");
-
-                // cache the .resx file timestamps
-                DateTime resxTimeStamp = resxFileInfo.LastModified;
-
-                // we need to rebuild this .resources file if the .resx file has a
-                //  more recent timestamp than the .resources file
-                shouldRebuildOutputFile = (resxTimeStamp > outputFileTimeStamp);
-
-                // Check the timestamp of each of the passed-in references against the .RESOURCES file.
-                if (!shouldRebuildOutputFile && (this.References != null))
-                {
-                    foreach (ITaskItem reference in this.References)
+                    if (codeDomProvider == null)
                     {
-                        // If the reference doesn't exist, then we want to rebuild this
-                        // .resources file so the user sees an error from ResGen.exe
-                        shouldRebuildOutputFile = !File.Exists(reference.ItemSpec);
-
-                        // If the reference exists, then we need to compare the timestamp
-                        // for the linked resource to see if it is more recent than the
-                        // .resources file
-                        if (!shouldRebuildOutputFile)
+                        IVSMDCodeDomProvider vsmdCodeDomProvider = (IVSMDCodeDomProvider)GetService(CodeDomServiceGuid);
+                        if (vsmdCodeDomProvider != null)
                         {
-                            DateTime referenceTimeStamp = File.GetLastWriteTime(reference.ItemSpec);
-                            shouldRebuildOutputFile = referenceTimeStamp > outputFileTimeStamp;
+                            codeDomProvider = (CodeDomProvider)vsmdCodeDomProvider.CodeDomProvider;
                         }
+                        Debug.Assert(codeDomProvider != null, "Get CodeDomProvider Interface failed.  GetService(QueryService(CodeDomProvider) returned Null.");
+                    }
+                    return codeDomProvider;
+                }
+                set
+                {
+                    if (value == null)
+                    {
+                        throw new ArgumentNullException();
+                    }
 
-                        // If we found an instance where a reference is in a state
-                        // that we should rebuild the .resources file, then we should
-                        // bail from this loop & just return since the first file that
-                        // forces a rebuild is enough
-                        if (shouldRebuildOutputFile)
-                        {
-                            break;
-                        }
+                    codeDomProvider = value;
+                }
+            }
+
+            private ServiceProvider SiteServiceProvider
+            {
+                get
+                {
+                    if (serviceProvider == null)
+                    {
+                        IOleServiceProvider oleServiceProvider = site as IOleServiceProvider;
+                        Debug.Assert(oleServiceProvider != null, "Unable to get IOleServiceProvider from site object.");
+
+                        serviceProvider = new ServiceProvider(oleServiceProvider);
+                    }
+                    return serviceProvider;
+                }
+            }
+
+            protected Object GetService(Guid serviceGuid)
+            {
+                return SiteServiceProvider.GetService(serviceGuid);
+            }
+
+            protected object GetService(Type serviceType)
+            {
+                return SiteServiceProvider.GetService(serviceType);
+            }
+
+
+            public override int DefaultExtension(out string ext)
+            {
+                CodeDomProvider codeDom = CodeProvider;
+                Debug.Assert(codeDom != null, "CodeDomProvider is NULL.");
+                string extension = codeDom.FileExtension;
+                if (extension != null && extension.Length > 0)
+                {
+                    if (extension[0] != '.')
+                    {
+                        extension = "." + extension;
                     }
                 }
 
-                // TODO
-                //// if the .resources is up to date with respect to the .resx file
-                ////  then we need to compare timestamps for each linked file inside
-                ////  the .resx file itself
-                //if (!shouldRebuildOutputFile && resxFileInfo.LinkedFiles != null)
-                //{
-                //    foreach (string linkedFilePath in resxFileInfo.LinkedFiles)
-                //    {
-                //        // If the linked file doesn't exist, then we want to rebuild this
-                //        // .resources file so the user sees an error from ResGen.exe
-                //        shouldRebuildOutputFile = !File.Exists(linkedFilePath);
-
-                //        // If the linked file exists, then we need to compare the timestamp
-                //        // for the linked resource to see if it is more recent than the
-                //        // .resources file
-                //        if (!shouldRebuildOutputFile)
-                //        {
-                //            DateTime linkedFileTimeStamp = File.GetLastWriteTime(linkedFilePath);
-                //            shouldRebuildOutputFile = linkedFileTimeStamp > outputFileTimeStamp;
-                //        }
-
-                //        // If we found an instance where a linked file is in a state
-                //        // that we should rebuild the .resources file, then we should
-                //        // bail from this loop & just return since the first file that
-                //        // forces a rebuild is enough
-                //        if (shouldRebuildOutputFile)
-                //        {
-                //            break;
-                //        }
-                //    }
-                //}
+                ext = extension;
+                return COM_HResults.S_OK;
             }
 
-            return shouldRebuildOutputFile;
-            //#endif
-        }
-
-        /// <summary>
-        /// Create the AssemblyName array that ProcessResources will need.
-        /// </summary>
-        /// <returns>AssemblyName array</returns>
-        /// <owner>danmose</owner>
-        /// <throws>ArgumentException</throws>
-        private AssemblyName[] LoadReferences()
-        {
-            if (References == null)
+            protected virtual ICodeGenerator GetCodeWriter()
             {
+                CodeDomProvider codeDom = CodeProvider;
+                if (codeDom != null)
+                {
+#pragma warning disable 618 //backwards compat
+                    return codeDom.CreateGenerator();
+#pragma warning restore 618
+                }
+
                 return null;
             }
 
-            AssemblyName[] assemblyList = new AssemblyName[References.Length];
-
-            for (int i = 0; i < References.Length; i++)
+            // ******************* Implement IObjectWithSite *****************
+            //
+            public virtual void SetSite(object pUnkSite)
             {
-                try
-                {
-                    assemblyList[i] = AssemblyName.GetAssemblyName(References[i].ItemSpec);
-                }
-                // We should never get passed in references we can't load. In the VS build process, for example,
-                // we're passed in @(ReferencePath), which only contains resolved references.
-                catch (ArgumentNullException e)
-                {
-                    throw new ArgumentException(e.Message, References[i].ItemSpec);
-                }
-                catch (ArgumentException e)
-                {
-                    throw new ArgumentException(e.Message, References[i].ItemSpec);
-                }
-                catch (FileNotFoundException e)
-                {
-                    throw new ArgumentException(e.Message, References[i].ItemSpec);
-                }
-                /*catch (SecurityException e)
-                {
-                    throw new ArgumentException(e.Message, References[i].ItemSpec);
-                }
-                */
-                catch (BadImageFormatException e)
-                {
-                    throw new ArgumentException(e.Message, References[i].ItemSpec);
-                }
-                catch (FileLoadException e)
-                {
-                    throw new ArgumentException(e.Message, References[i].ItemSpec);
-                }
+                site = pUnkSite;
+                codeDomProvider = null;
+                serviceProvider = null;
             }
 
-            return assemblyList;
-        }
-
-        /// <summary>
-        /// Write the state file if there is one to be written.
-        /// </summary>
-        private void WriteStateFile()
-        {
-            if (cache.IsDirty)
+            // Does anyone rely on this method?
+            public virtual void GetSite(ref Guid riid, out IntPtr ppvSite)
             {
-                // And now we serialize the cache to save our resgen linked file resolution for later use.
-                cache.SerializeCache((StateFile == null) ? null : StateFile.ItemSpec, Log);
+                if (site == null)
+                {
+                   // COM_HResults.Throw(COM_HResults.E_FAIL);
+                }
+
+                IntPtr pUnknownPointer = Marshal.GetIUnknownForObject(site);
+                try
+                {
+                    Marshal.QueryInterface(pUnknownPointer, ref riid, out ppvSite);
+
+                    if (ppvSite == IntPtr.Zero)
+                    {
+                        //COM_HResults.Throw(COM_HResults.E_NOINTERFACE);
+                    }
+                }
+                finally
+                {
+                    if (pUnknownPointer != IntPtr.Zero)
+                    {
+                        Marshal.Release(pUnknownPointer);
+                        pUnknownPointer = IntPtr.Zero;
+                    }
+                }
             }
         }
     }
+
 
     /// <summary>
     /// This class handles the processing of source resource files into compiled resource files.
@@ -1419,9 +911,9 @@ namespace nanoFramework.Tools
             {
                 return Format.Binary;
             }
-            else if (String.Compare(extension, ".nanoresources", true, CultureInfo.InvariantCulture) == 0)
+            else if (String.Compare(extension, ".tinyresources", true, CultureInfo.InvariantCulture) == 0)
             {
-                return Format.NanoResources;
+                return Format.TinyResources;
             }
             else
             {
@@ -1439,7 +931,7 @@ namespace nanoFramework.Tools
             Text, // .txt or .restext
             XML, // .resx
             Binary, // .resources
-            NanoResources, //.tinyresources
+            TinyResources, //.tinyresources
             Error, // anything else
         }
 
@@ -1485,7 +977,7 @@ namespace nanoFramework.Tools
                 case Format.Binary:
                     ReadResources(new ResourceReader(filename), filename); // closes reader for us
                     break;
-                case Format.NanoResources:
+                case Format.TinyResources:
                     Debug.Fail("Unknown format " + format.ToString());
                     break;
 
@@ -1518,8 +1010,8 @@ namespace nanoFramework.Tools
                     WriteResources(new ResourceWriter(filename)); // closes writer for us
                     break;
 
-                case Format.NanoResources:
-                    WriteResources(new NanoResourceWriter(filename)); // closes writer for us
+                case Format.TinyResources:
+                    WriteResources(new TinyResourceWriter(filename)); // closes writer for us
                     break;
                 default:
                     // We should never get here, we've already checked the format
@@ -1633,7 +1125,7 @@ namespace nanoFramework.Tools
             method.Attributes = MemberAttributes.Public | MemberAttributes.Static;
             MakeInternalIfNecessary(method);
 
-            string getObjectClass = this.isMscorlib ? "System.Resources.ResourceManager" : "Microsoft.SPOT.ResourceUtility";
+            string getObjectClass = this.isMscorlib ? "System.Resources.ResourceManager" : "nanoFramework.Runtime.Native.ResourceUtility";
 
             CodeVariableReferenceExpression expresionId = new CodeVariableReferenceExpression("id");
             CodeTypeReferenceExpression spotResourcesReference = new CodeTypeReferenceExpression(getObjectClass);
@@ -1671,7 +1163,7 @@ namespace nanoFramework.Tools
             Hashtable tableNamespaces = new Hashtable();
             Hashtable tableTypes = new Hashtable();
             Hashtable tableHelperFunctionsNeeded = new Hashtable();
-            ArrayList[] resourceTypesUsed = new ArrayList[NanoResourceFile.ResourceHeader.RESOURCE_Max + 1];
+            ArrayList[] resourceTypesUsed = new ArrayList[TinyResourceFile.ResourceHeader.RESOURCE_Max + 1];
 
             CodeNamespace codeNamespace;
             CodeTypeDeclaration codeTypeDeclaration;
@@ -1909,9 +1401,9 @@ namespace nanoFramework.Tools
                     string key = entry.RawName;
                     object value = entry.Value;
 
-                    if (writer is NanoResourceWriter)
+                    if (writer is TinyResourceWriter)
                     {
-                        ((NanoResourceWriter)writer).AddResource(entry);
+                        ((TinyResourceWriter)writer).AddResource(entry);
                     }
                     else
                     {
@@ -2004,15 +1496,15 @@ namespace nanoFramework.Tools
             private static ResourceTypeDescription[] typeDescriptions = new ResourceTypeDescription[]
                 {
                     null, //RESOURCE_Invalid
-                    new ResourceTypeDescription(NanoResourceFile.ResourceHeader.RESOURCE_Bitmap, "GetBitmap", "Microsoft.SPOT.Bitmap", "BitmapResources"),
-                    new ResourceTypeDescription(NanoResourceFile.ResourceHeader.RESOURCE_Font, "GetFont", "Microsoft.SPOT.Font", "FontResources"),
-                    new ResourceTypeDescription(NanoResourceFile.ResourceHeader.RESOURCE_String, "GetString", "System.String", "StringResources"),
-                    new ResourceTypeDescription(NanoResourceFile.ResourceHeader.RESOURCE_Binary, "GetBytes", "System.Byte[]", "BinaryResources"),
+                    new ResourceTypeDescription(TinyResourceFile.ResourceHeader.RESOURCE_Bitmap, "GetBitmap", "Microsoft.SPOT.Bitmap", "BitmapResources"),
+                    new ResourceTypeDescription(TinyResourceFile.ResourceHeader.RESOURCE_Font, "GetFont", "Microsoft.SPOT.Font", "FontResources"),
+                    new ResourceTypeDescription(TinyResourceFile.ResourceHeader.RESOURCE_String, "GetString", "System.String", "StringResources"),
+                    new ResourceTypeDescription(TinyResourceFile.ResourceHeader.RESOURCE_Binary, "GetBytes", "System.Byte[]", "BinaryResources"),
                     };
 
             public static ResourceTypeDescription ResourceTypeDescriptionFromResourceType(byte type)
             {
-                if (type < NanoResourceFile.ResourceHeader.RESOURCE_Bitmap || type > NanoResourceFile.ResourceHeader.RESOURCE_Binary)
+                if (type < TinyResourceFile.ResourceHeader.RESOURCE_Bitmap || type > TinyResourceFile.ResourceHeader.RESOURCE_Binary)
                 {
                     throw new ArgumentException();
                 }
@@ -2037,7 +1529,7 @@ namespace nanoFramework.Tools
                 }
                 if (rawValue != null)
                 {
-                    entry = NanoResourcesEntry.TryCreateNanoResourcesEntry(name, rawValue);
+                    entry = TinyResourcesEntry.TryCreateTinyResourcesEntry(name, rawValue);
 
                     if (entry == null)
                     {
@@ -2223,9 +1715,9 @@ namespace nanoFramework.Tools
             {
                 get
                 {
-                    if (value.GetType() == typeof(string)) return NanoResourceFile.ResourceHeader.RESOURCE_String;
+                    if (value.GetType() == typeof(string)) return TinyResourceFile.ResourceHeader.RESOURCE_String;
 
-                    return NanoResourceFile.ResourceHeader.RESOURCE_Invalid;
+                    return TinyResourceFile.ResourceHeader.RESOURCE_Invalid;
                 }
             }
 
@@ -2250,7 +1742,7 @@ namespace nanoFramework.Tools
             {
                 get
                 {
-                    return NanoResourceFile.ResourceHeader.RESOURCE_String;
+                    return TinyResourceFile.ResourceHeader.RESOURCE_String;
                 }
             }
 
@@ -2279,7 +1771,7 @@ namespace nanoFramework.Tools
             {
                 get
                 {
-                    return NanoResourceFile.ResourceHeader.RESOURCE_Bitmap;
+                    return TinyResourceFile.ResourceHeader.RESOURCE_Bitmap;
                 }
             }
 
@@ -2287,7 +1779,7 @@ namespace nanoFramework.Tools
             private void Adjust1bppOrientation(byte[] buf)
             {
                 //CLR_GFX_Bitmap::AdjustBitOrientation
-                //The nanoCLR treats 1bpp bitmaps reversed from Windows
+                //The TinyCLR treats 1bpp bitmaps reversed from Windows
                 //And most likely every other 1bpp format as well
                 byte[] reverseTable = new byte[]
             {
@@ -2331,7 +1823,7 @@ namespace nanoFramework.Tools
                 }
             }
 
-            private void Compress1bpp(NanoResourceFile.CLR_GFX_BitmapDescription bitmapDescription, ref byte[] buf)
+            private void Compress1bpp(TinyResourceFile.CLR_GFX_BitmapDescription bitmapDescription, ref byte[] buf)
             {
                 MemoryStream ms = new MemoryStream(buf.Length);
 
@@ -2369,17 +1861,17 @@ namespace nanoFramework.Tools
                             {
                                 fRun = (fSetSav == fSet);
 
-                                if ((count == 0x3f + NanoResourceFile.CLR_GFX_BitmapDescription.c_CompressedRunOffset) ||
-                                (!fRun && count >= NanoResourceFile.CLR_GFX_BitmapDescription.c_CompressedRunOffset))
+                                if ((count == 0x3f + TinyResourceFile.CLR_GFX_BitmapDescription.c_CompressedRunOffset) ||
+                                (!fRun && count >= TinyResourceFile.CLR_GFX_BitmapDescription.c_CompressedRunOffset))
                                 {
-                                    data = NanoResourceFile.CLR_GFX_BitmapDescription.c_CompressedRun;
-                                    data |= (fSetSav ? NanoResourceFile.CLR_GFX_BitmapDescription.c_CompressedRunSet : (byte)0x0);
-                                    data |= (byte)(count - NanoResourceFile.CLR_GFX_BitmapDescription.c_CompressedRunOffset);
+                                    data = TinyResourceFile.CLR_GFX_BitmapDescription.c_CompressedRun;
+                                    data |= (fSetSav ? TinyResourceFile.CLR_GFX_BitmapDescription.c_CompressedRunSet : (byte)0x0);
+                                    data |= (byte)(count - TinyResourceFile.CLR_GFX_BitmapDescription.c_CompressedRunOffset);
                                     fEmit = true;
                                 }
                             }
 
-                            if (!fRun && count == NanoResourceFile.CLR_GFX_BitmapDescription.c_UncompressedRunLength)
+                            if (!fRun && count == TinyResourceFile.CLR_GFX_BitmapDescription.c_UncompressedRunLength)
                             {
                                 fEmit = true;
                             }
@@ -2408,11 +1900,11 @@ namespace nanoFramework.Tools
                     }
                 }
 
-                if (fRun && count >= NanoResourceFile.CLR_GFX_BitmapDescription.c_CompressedRunOffset)
+                if (fRun && count >= TinyResourceFile.CLR_GFX_BitmapDescription.c_CompressedRunOffset)
                 {
-                    data = NanoResourceFile.CLR_GFX_BitmapDescription.c_CompressedRun;
-                    data |= (fSetSav ? NanoResourceFile.CLR_GFX_BitmapDescription.c_CompressedRunSet : (byte)0x0);
-                    data |= (byte)(count - NanoResourceFile.CLR_GFX_BitmapDescription.c_CompressedRunOffset);
+                    data = TinyResourceFile.CLR_GFX_BitmapDescription.c_CompressedRun;
+                    data |= (fSetSav ? TinyResourceFile.CLR_GFX_BitmapDescription.c_CompressedRunSet : (byte)0x0);
+                    data |= (byte)(count - TinyResourceFile.CLR_GFX_BitmapDescription.c_CompressedRunOffset);
                 }
 
                 ms.WriteByte(data);
@@ -2422,11 +1914,11 @@ namespace nanoFramework.Tools
                     ms.Capacity = (int)ms.Length;
                     buf = ms.GetBuffer();
 
-                    bitmapDescription.m_flags |= NanoResourceFile.CLR_GFX_BitmapDescription.c_Compressed;
+                    bitmapDescription.m_flags |= TinyResourceFile.CLR_GFX_BitmapDescription.c_Compressed;
                 }
             }
 
-            private byte[] GetBitmapDataBmp(Bitmap bitmap, out NanoResourceFile.CLR_GFX_BitmapDescription bitmapDescription)
+            private byte[] GetBitmapDataBmp(Bitmap bitmap, out TinyResourceFile.CLR_GFX_BitmapDescription bitmapDescription)
             {
                 //issue warning for formats that we lose information?
                 //other formats that we need to support??
@@ -2497,7 +1989,7 @@ namespace nanoFramework.Tools
                     }
                 }
 
-                bitmapDescription = new NanoResourceFile.CLR_GFX_BitmapDescription((ushort)bitmap.Width, (ushort)bitmap.Height, 0, bitsPerPixel, NanoResourceFile.CLR_GFX_BitmapDescription.c_TypeBitmap);
+                bitmapDescription = new TinyResourceFile.CLR_GFX_BitmapDescription((ushort)bitmap.Width, (ushort)bitmap.Height, 0, bitsPerPixel, TinyResourceFile.CLR_GFX_BitmapDescription.c_TypeBitmap);
 
                 if (bitsPerPixel == 1)
                 {
@@ -2508,9 +2000,9 @@ namespace nanoFramework.Tools
                 return data;
             }
 
-            private byte[] GetBitmapDataRaw(Bitmap bitmap, out NanoResourceFile.CLR_GFX_BitmapDescription bitmapDescription, byte type)
+            private byte[] GetBitmapDataRaw(Bitmap bitmap, out TinyResourceFile.CLR_GFX_BitmapDescription bitmapDescription, byte type)
             {
-                bitmapDescription = new NanoResourceFile.CLR_GFX_BitmapDescription((ushort)bitmap.Width, (ushort)bitmap.Height, 0, 1, type);
+                bitmapDescription = new TinyResourceFile.CLR_GFX_BitmapDescription((ushort)bitmap.Width, (ushort)bitmap.Height, 0, 1, type);
 
                 MemoryStream stream = new MemoryStream();
                 bitmap.Save(stream, bitmap.RawFormat);
@@ -2519,17 +2011,17 @@ namespace nanoFramework.Tools
                 return stream.GetBuffer();
             }
 
-            private byte[] GetBitmapDataJpeg(Bitmap bitmap, out NanoResourceFile.CLR_GFX_BitmapDescription bitmapDescription)
+            private byte[] GetBitmapDataJpeg(Bitmap bitmap, out TinyResourceFile.CLR_GFX_BitmapDescription bitmapDescription)
             {
-                return GetBitmapDataRaw(bitmap, out bitmapDescription, NanoResourceFile.CLR_GFX_BitmapDescription.c_TypeJpeg);
+                return GetBitmapDataRaw(bitmap, out bitmapDescription, TinyResourceFile.CLR_GFX_BitmapDescription.c_TypeJpeg);
             }
 
-            private byte[] GetBitmapDataGif(Bitmap bitmap, out NanoResourceFile.CLR_GFX_BitmapDescription bitmapDescription)
+            private byte[] GetBitmapDataGif(Bitmap bitmap, out TinyResourceFile.CLR_GFX_BitmapDescription bitmapDescription)
             {
-                return GetBitmapDataRaw(bitmap, out bitmapDescription, NanoResourceFile.CLR_GFX_BitmapDescription.c_TypeGif);
+                return GetBitmapDataRaw(bitmap, out bitmapDescription, TinyResourceFile.CLR_GFX_BitmapDescription.c_TypeGif);
             }
 
-            private byte[] GetBitmapData(Bitmap bitmap, out NanoResourceFile.CLR_GFX_BitmapDescription bitmapDescription)
+            private byte[] GetBitmapData(Bitmap bitmap, out TinyResourceFile.CLR_GFX_BitmapDescription bitmapDescription)
             {
                 byte[] data = null;
 
@@ -2562,7 +2054,7 @@ namespace nanoFramework.Tools
             {
                 Bitmap bitmap = this.BitmapValue;
 
-                NanoResourceFile.CLR_GFX_BitmapDescription bitmapDescription;
+                TinyResourceFile.CLR_GFX_BitmapDescription bitmapDescription;
 
                 byte[] data = GetBitmapData(bitmap, out bitmapDescription);
 
@@ -2589,21 +2081,21 @@ namespace nanoFramework.Tools
                 PixelFormat formatDst = bitmap.PixelFormat;
                 ushort width = (ushort)bitmap.Width;
                 ushort height = (ushort)bitmap.Height;
-                NanoResourceFile.CLR_GFX_BitmapDescription bitmapDescription;
+                TinyResourceFile.CLR_GFX_BitmapDescription bitmapDescription;
 
                 Rectangle rect = new Rectangle( 0, 0, this.BitmapValue.Width, this.BitmapValue.Height );
 
                 if(bitmap.RawFormat.Equals(ImageFormat.Jpeg))
                 {
-                    type = NanoResourceFile.CLR_GFX_BitmapDescription.c_TypeJpeg;
+                    type = TinyResourceFile.CLR_GFX_BitmapDescription.c_TypeJpeg;
                 }
                 else if(bitmap.RawFormat.Equals(ImageFormat.Gif))
                 {
-                    type = NanoResourceFile.CLR_GFX_BitmapDescription.c_TypeGif;
+                    type = TinyResourceFile.CLR_GFX_BitmapDescription.c_TypeGif;
                 }
                 else if(bitmap.RawFormat.Equals(ImageFormat.Bmp))
                 {
-                    type = NanoResourceFile.CLR_GFX_BitmapDescription.c_TypeBitmap;
+                    type = TinyResourceFile.CLR_GFX_BitmapDescription.c_TypeBitmap;
 
                     //issue warning for formats that we lose information?
                     //other formats that we need to support??
@@ -2672,9 +2164,9 @@ namespace nanoFramework.Tools
                     }
                 }
 
-                NanoResourceFile.CLR_GFX_BitmapDescription bitmapDescription = new NanoResourceFile.CLR_GFX_BitmapDescription( width, height, flags, bitsPerPixel, type );
+                TinyResourceFile.CLR_GFX_BitmapDescription bitmapDescription = new TinyResourceFile.CLR_GFX_BitmapDescription( width, height, flags, bitsPerPixel, type );
 
-                if(bitsPerPixel == 1 && type == NanoResourceFile.CLR_GFX_BitmapDescription.c_TypeBitmap)
+                if(bitsPerPixel == 1 && type == TinyResourceFile.CLR_GFX_BitmapDescription.c_TypeBitmap)
                 {
                     //test compression;
                     Compress1bpp( bitmapDescription, ref data );
@@ -2695,17 +2187,17 @@ namespace nanoFramework.Tools
             */
         }
 
-        private class NanoResourcesEntry : Entry
+        private class TinyResourcesEntry : Entry
         {
-            NanoResourceFile.ResourceHeader resource;
+            TinyResourceFile.ResourceHeader resource;
 
-            public NanoResourcesEntry(string name, byte[] value) : base(name, value)
+            public TinyResourcesEntry(string name, byte[] value) : base(name, value)
             {
             }
 
-            public static NanoResourcesEntry TryCreateNanoResourcesEntry(string name, byte[] value)
+            public static TinyResourcesEntry TryCreateTinyResourcesEntry(string name, byte[] value)
             {
-                NanoResourcesEntry entry = null;
+                TinyResourcesEntry entry = null;
 
                 try
                 {
@@ -2716,17 +2208,17 @@ namespace nanoFramework.Tools
 
                     stream.Position = 0;
 
-                    if (magicNumber == NanoResourceFile.Header.MAGIC_NUMBER)
+                    if (magicNumber == TinyResourceFile.Header.MAGIC_NUMBER)
                     {
-                        NanoResourceFile file = new NanoResourceFile();
+                        TinyResourceFile file = new TinyResourceFile();
 
                         file.Deserialize(reader);
 
                         if (file.resources.Length == 1)
                         {
-                            NanoResourceFile.Resource resource = file.resources[0];
+                            TinyResourceFile.Resource resource = file.resources[0];
 
-                            entry = new NanoResourcesEntry(name, resource.data);
+                            entry = new TinyResourcesEntry(name, resource.data);
                             entry.resource = resource.header;
                         }
                     }
@@ -2774,7 +2266,7 @@ namespace nanoFramework.Tools
             {
                 get
                 {
-                    return NanoResourceFile.ResourceHeader.RESOURCE_Binary;
+                    return TinyResourceFile.ResourceHeader.RESOURCE_Binary;
                 }
             }
 
@@ -2786,11 +2278,11 @@ namespace nanoFramework.Tools
 
         #endregion // Code from ResGen.EXE
 
-        internal class NanoResourceFile
+        internal class TinyResourceFile
         {
             /*
-                    .nanoresources file format.  The Header is shared with the Metadataprocessor.  Everything else
-                    is shared with the nanoCLR>
+                    .tinyresources file format.  The Header is shared with the Metadataprocessor.  Everything else
+                    is shared with the TinyCLR>
 
                     -------
                     Header
@@ -2828,12 +2320,12 @@ namespace nanoFramework.Tools
                 }
             }
 
-            public NanoResourceFile()
+            public TinyResourceFile()
             {
                 resources = new Resource[0];
             }
 
-            public NanoResourceFile(Header header) : this()
+            public TinyResourceFile(Header header) : this()
             {
                 this.header = header;
             }
@@ -3018,7 +2510,7 @@ namespace nanoFramework.Tools
                 public const byte c_TypeJpeg = 2;
 
                 // !!!!WARNING!!!!
-                // These fields should correspond to CLR_GFX_BitmapDescription in NanoCLR_Graphics.h
+                // These fields should correspond to CLR_GFX_BitmapDescription in TinyCLR_Graphics.h
                 // and should be 4-byte aligned in size. When these fields are changed, the version number
                 // of the tinyresource file should be incremented, the tinyfnts should be updated (buildhelper -convertfont ...)
                 // and the MMP should also be updated as well. (Consult rwolff before touching this.)
@@ -3062,12 +2554,12 @@ namespace nanoFramework.Tools
             #endregion
         }
 
-        internal class NanoResourceWriter : IResourceWriter
+        internal class TinyResourceWriter : IResourceWriter
         {
             string fileName;
             ArrayList resources;
 
-            public NanoResourceWriter(string fileName)
+            public TinyResourceWriter(string fileName)
             {
                 this.fileName = fileName;
                 this.resources = new ArrayList();
@@ -3111,17 +2603,17 @@ namespace nanoFramework.Tools
                 //PrepareToGenerate();
                 ProcessResourceFiles.EnsureResourcesIds(this.resources);
 
-                NanoResourceFile.Header header = new NanoResourceFile.Header((uint)resources.Count);
-                NanoResourceFile file = new NanoResourceFile(header);
+                TinyResourceFile.Header header = new TinyResourceFile.Header((uint)resources.Count);
+                TinyResourceFile file = new TinyResourceFile(header);
 
                 for (int iResource = 0; iResource < resources.Count; iResource++)
                 {
                     Entry entry = (Entry)resources[iResource];
 
                     byte[] data = entry.GenerateResourceData();
-                    NanoResourceFile.ResourceHeader resource = new NanoResourceFile.ResourceHeader(entry.Id, entry.ResourceType, (uint)data.Length);
+                    TinyResourceFile.ResourceHeader resource = new TinyResourceFile.ResourceHeader(entry.Id, entry.ResourceType, (uint)data.Length);
 
-                    file.AddResource(new NanoResourceFile.Resource(resource, data));
+                    file.AddResource(new TinyResourceFile.Resource(resource, data));
                 }
 
                 using (FileStream fileStream = File.Open(fileName, FileMode.OpenOrCreate))
@@ -3143,7 +2635,7 @@ namespace nanoFramework.Tools
             #endregion
         }
 
-        public class NanoResourceReader : IResourceReader
+        public class TinyResourceReader : IResourceReader
         {
 
             #region IResourceReader Members

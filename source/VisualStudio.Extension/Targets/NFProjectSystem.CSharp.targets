@@ -42,6 +42,7 @@
     <ProjectCapability Include="ReferenceManagerProjects" />
     <ProjectCapability Include="ReferenceManagerSharedProjects" />
     <ProjectCapability Remove="ReferenceManagerWinRT" />
+    <ProjectCapability Include="SingleFileGenerators" />
 
     <ProjectCapability Remove="UseFileGlobs" />
 

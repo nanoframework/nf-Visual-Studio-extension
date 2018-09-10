@@ -6,6 +6,7 @@ using GalaSoft.MvvmLight.Ioc;
 using Microsoft.VisualStudio.ProjectSystem.VS;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
+using Microsoft.VisualStudio.TextTemplating.VSHost;
 using Microsoft.VisualStudio.Threading;
 using nanoFramework.Tools.VisualStudio.Extension;
 using nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel;
@@ -46,6 +47,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
     [ProvideObject(typeof(CorDebug))]
     [ProvideDebugEngine("Managed", typeof(CorDebug), CorDebug.EngineId, setNextStatement: true, hitCountBp: true)]
     [ProvideDebugPortSupplier("nanoFramework Port Supplier", typeof(DebugPortSupplier), DebugPortSupplier.PortSupplierId)]
+    // register code generator for resources
+    [ProvideCodeGenerator(typeof(ResXFileCodeGenerator), "ResXFileCodeGenerator", "", true)]
+
     [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1650:ElementDocumentationMustBeSpelledCorrectly", Justification = "pkgdef, VS and vsixmanifest are valid VS terms")]
     public sealed class NanoFrameworkPackage : AsyncPackage, Microsoft.VisualStudio.OLE.Interop.IOleCommandTarget
     {
