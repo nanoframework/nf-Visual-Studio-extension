@@ -86,7 +86,7 @@
       PrepareResourceNames;
       ResGen;
       CompileLicxFiles;
-      <!--NanoResourceGenerator-->
+      NanoResourceGenerator
     </PrepareResourcesDependsOn>
 
     <ResolveReferencesDependsOn>
@@ -796,7 +796,7 @@
     </ItemGroup>
   </Target>
 
-  <!--<Target Name="NanoResourceGenerator"
+  <Target Name="NanoResourceGenerator"
     Condition="'@(EmbeddedResource)'!=''"
     DependsOnTargets="$(NanoResourceGeneratorDependsOn)"
     >
@@ -812,7 +812,7 @@
       <Output TaskParameter="OutputResources" ItemName="NFMDP_PE_Resource"/>
       <Output TaskParameter="FilesWritten" ItemName="FileWrites"/>
     </GenerateNanoResourceTask>
-  </Target>-->
+  </Target>
 
   <!--
           CoreClean isn't very good at cleaning files not built into IntermediateDirectory or OutDirectory.  Just clean
