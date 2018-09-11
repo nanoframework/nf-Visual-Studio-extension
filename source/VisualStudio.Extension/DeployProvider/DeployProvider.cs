@@ -262,7 +262,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         await outputPaneWriter.WriteLineAsync("Deployment successful.");
 
                         // output message about bin file
-                        await outputPaneWriter.WriteLineAsync($"Wrote {Path.GetFileNameWithoutExtension(pathToExe)} binary file to output folder.");
+                        await outputPaneWriter.WriteLineAsync($"Wrote '{Path.GetFileName(pathToExe)}' binary file to output folder.");
 
                         // reset the hash for the connected device so the deployment information can be refreshed
                         _viewModelLocator.DeviceExplorer.LastDeviceConnectedHash = 0;
