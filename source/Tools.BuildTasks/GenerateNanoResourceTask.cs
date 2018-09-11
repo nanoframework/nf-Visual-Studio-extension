@@ -1439,7 +1439,7 @@ namespace nanoFramework.Tools
             Text, // .txt or .restext
             XML, // .resx
             Binary, // .resources
-            NanoResources, //.tinyresources
+            NanoResources, //.nanoresources
             Error, // anything else
         }
 
@@ -3020,7 +3020,7 @@ namespace nanoFramework.Tools
                 // !!!!WARNING!!!!
                 // These fields should correspond to CLR_GFX_BitmapDescription in NanoCLR_Graphics.h
                 // and should be 4-byte aligned in size. When these fields are changed, the version number
-                // of the tinyresource file should be incremented, the tinyfnts should be updated (buildhelper -convertfont ...)
+                // of the nanoresource file should be incremented, the nanofnts should be updated (buildhelper -convertfont ...)
                 // and the MMP should also be updated as well. (Consult rwolff before touching this.)
                 public uint m_width;
                 public uint m_height;

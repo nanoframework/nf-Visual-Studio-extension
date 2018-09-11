@@ -48,8 +48,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
     [ProvideDebugEngine("Managed", typeof(CorDebug), CorDebug.EngineId, setNextStatement: true, hitCountBp: true)]
     [ProvideDebugPortSupplier("nanoFramework Port Supplier", typeof(DebugPortSupplier), DebugPortSupplier.PortSupplierId)]
     // register code generator for resources
-    [ProvideCodeGenerator(typeof(ResXFileCodeGenerator), "ResXFileCodeGenerator", "", true)]
-
+    [ProvideCodeGenerator(typeof(ResXFileCodeGenerator), ResXFileCodeGenerator.Name, ResXFileCodeGenerator.Description, true)]
     [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1650:ElementDocumentationMustBeSpelledCorrectly", Justification = "pkgdef, VS and vsixmanifest are valid VS terms")]
     public sealed class NanoFrameworkPackage : AsyncPackage, Microsoft.VisualStudio.OLE.Interop.IOleCommandTarget
     {
