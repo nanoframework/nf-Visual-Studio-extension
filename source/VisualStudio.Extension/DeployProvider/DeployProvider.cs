@@ -78,6 +78,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
             List<byte[]> assemblies = new List<byte[]>();
 
+            FileStream binFile = null;
+
             // device needs to be in 'initialized state' for a successful and correct deployment 
             // meaning that is not running nor stopped
             int retryCount = 0;
@@ -216,6 +218,13 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         // Keep track of total assembly size
                         long totalSizeOfAssemblies = 0;
 
+                        // get path to executable
+                        var pathToExe = await ReferenceCrawler.GetProjectOutputPathAsync(Properties.ConfiguredProject);
+                        // rename executable extension with .bin
+                        pathToExe = pathToExe.Replace(".exe", ".bin");
+                        // create bin file 
+                        binFile = new FileStream(pathToExe, FileMode.Create);
+
                         // now we will re-deploy all system assemblies
                         foreach ((string path, string version) peItem in peCollection)
                         {
@@ -229,12 +238,15 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                                 await fs.ReadAsync(buffer, 0, (int)fs.Length);
                                 assemblies.Add(buffer);
 
+                                // copy this assembly to the bin file too
+                                await binFile.WriteAsync(buffer, 0, (int)length);
+
                                 // Increment totalizer
                                 totalSizeOfAssemblies += length;
                             }
                         }
 
-                        await outputPaneWriter.WriteLineAsync($"Deploying {peCollection.Count:N0} assemblies to device... Total size in bytes is {totalSizeOfAssemblies:N0}.");
+                        await outputPaneWriter.WriteLineAsync($"Deploying {peCollection.Count:N0} assemblies to device... Total size in bytes is {totalSizeOfAssemblies.ToString()}.");
 
                         Thread.Yield();
 
@@ -248,6 +260,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                         // deployment successful
                         await outputPaneWriter.WriteLineAsync("Deployment successful.");
+
+                        // output message about bin file
+                        await outputPaneWriter.WriteLineAsync($"Wrote {Path.GetFileNameWithoutExtension(pathToExe)} binary file to output folder.");
 
                         // reset the hash for the connected device so the deployment information can be refreshed
                         _viewModelLocator.DeviceExplorer.LastDeviceConnectedHash = 0;
@@ -274,6 +289,17 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 MessageCentre.InternalErrorMessage($"Unhandled exception with deployment provider: {ex.Message}.");
 
                 throw new Exception("Unexpected error. Please retry the deployment. If the situation persists reboot the device.");
+            }
+            finally
+            {
+                // flush & dispose bin file
+                if (binFile != null)
+                {
+                    // flush the bin file to disk and...
+                    await binFile.FlushAsync();
+                    // ... dispose the stream
+                    binFile.Dispose();
+                }
             }
         }
 
