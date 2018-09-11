@@ -7,6 +7,7 @@
   <UsingTask TaskName="MetaDataProcessorTask"             AssemblyFile="$(MSBuildThisFileDirectory)nanoFramework.Tools.BuildTasks.dll" />
   <UsingTask TaskName="ResolveRuntimeDependenciesTask"    AssemblyFile="$(MSBuildThisFileDirectory)nanoFramework.Tools.BuildTasks.dll" />
   <UsingTask TaskName="GenerateNanoResourceTask"          AssemblyFile="$(MSBuildThisFileDirectory)nanoFramework.Tools.BuildTasks.dll" />
+  <UsingTask TaskName="GenerateBinaryOutputTask"          AssemblyFile="$(MSBuildThisFileDirectory)nanoFramework.Tools.BuildTasks.dll" />
 
   <!-- 
     ###########################################################
@@ -105,7 +106,7 @@
     <Delete Condition="EXISTS('$(ProjectDir)$(OutDir)$(TargetName).pdbx')" Files="$(ProjectDir)$(OutDir)$(TargetName).pdbx" />
   </Target>
 
-  <Target Name="CopyToOutDir" >
+  <Target Name="CopyToOutDir">
     <Copy
         Condition="Exists('$(ProjectDir)$(IntermediateOutputPath)$(TargetName).exe')"
         SourceFiles="$(ProjectDir)$(IntermediateOutputPath)$(TargetName).exe"
@@ -121,6 +122,12 @@
     <Copy
         Condition="Exists('$(ProjectDir)$(IntermediateOutputPath)$(TargetName).pdbx')"
         SourceFiles="$(ProjectDir)$(IntermediateOutputPath)$(TargetName).pdbx"
+        DestinationFolder="$(ProjectDir)$(OutDir)" >
+      <Output TaskParameter="DestinationFiles" ItemName="FileWrites" />
+    </Copy>
+    <Copy
+        Condition="Exists('$(ProjectDir)$(IntermediateOutputPath)$(TargetName).bin')"
+        SourceFiles="$(ProjectDir)$(IntermediateOutputPath)$(TargetName).bin"
         DestinationFolder="$(ProjectDir)$(OutDir)" >
       <Output TaskParameter="DestinationFiles" ItemName="FileWrites" />
     </Copy>
@@ -190,6 +197,8 @@
 
     <!--CallTarget is less than ideal... NF_GeneratedStubFile isn't a complete list...-->
     <CallTarget Targets="GenerateStubs" Condition="'$(NF_GenerateStubs)'=='true'" />
+
+    <CallTarget Targets="NanoGenerateBinaryOutput"/>
 
   </Target>
 
@@ -830,4 +839,16 @@
       />
   </Target>
 
+  <Target Name="NanoGenerateBinaryOutput">
+
+    <GenerateBinaryOutputTask
+        AssemblyPE="$(NanoFramework_IntermediateAssembly).pe"
+        Assembly="$(NanoFramework_Assembly)$(TargetExt)"
+        AssemblyReferences="@(ReferencePath);@(ReferenceDependencyPaths)">
+
+      <Output TaskParameter="FileWritten" ItemName="FileWrites" />
+    </GenerateBinaryOutputTask>
+
+  </Target>
+  
 </Project>
