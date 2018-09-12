@@ -249,11 +249,10 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         }
     }
 
-    //[ComVisible(true)]
     [Guid(ComponentGuid)]
-    internal class nFResXFileCodeGenerator : BaseCodeGeneratorWithSite, IObjectWithSite
+    internal class NFResXFileCodeGenerator : BaseCodeGeneratorWithSite, IObjectWithSite
     {
-        public const string Name = nameof(nFResXFileCodeGenerator);
+        public const string Name = nameof(NFResXFileCodeGenerator);
         public const string Description = "nanoFramework code-behind generator for managed resources";
         public const string ComponentGuid = "81EE0274-5CE2-46F2-AC79-7791F3275510";
 
