@@ -132,7 +132,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>ResourceStrings.resx</DependentUpon>
     </Compile>
-    <Compile Include="ResXFileCodeGenerator\ResXFileCodeGenerator.cs" />
+    <Compile Include="ResXFileCodeGenerator\NFResXFileCodeGenerator.cs" />
     <Compile Include="ToolWindow.DeviceExplorer\DeviceExplorer.cs" />
     <Compile Include="ToolWindow.DeviceExplorer\DeviceExplorerCommand.cs" />
     <Compile Include="ToolWindow.DeviceExplorer\NetworkConfigurationDialog.xaml.cs">
@@ -369,16 +369,16 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.VisualStudio.TextTemplating.15.0, Version=15.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.VisualStudio.TextTemplating.15.0.15.8.28010\lib\net45\Microsoft.VisualStudio.TextTemplating.15.0.dll</HintPath>
+      <HintPath>..\packages\Microsoft.VisualStudio.TextTemplating.15.0.15.4.27004\lib\net45\Microsoft.VisualStudio.TextTemplating.15.0.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.VisualStudio.TextTemplating.Interfaces.10.0, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.VisualStudio.TextTemplating.Interfaces.10.0.10.0.30320\lib\net40\Microsoft.VisualStudio.TextTemplating.Interfaces.10.0.dll</HintPath>
+      <HintPath>..\packages\Microsoft.VisualStudio.TextTemplating.Interfaces.10.0.10.0.30319\lib\net40\Microsoft.VisualStudio.TextTemplating.Interfaces.10.0.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.VisualStudio.TextTemplating.Interfaces.11.0, Version=11.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.VisualStudio.TextTemplating.Interfaces.11.0.11.0.50728\lib\net45\Microsoft.VisualStudio.TextTemplating.Interfaces.11.0.dll</HintPath>
+      <HintPath>..\packages\Microsoft.VisualStudio.TextTemplating.Interfaces.11.0.11.0.50727\lib\net45\Microsoft.VisualStudio.TextTemplating.Interfaces.11.0.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.VisualStudio.TextTemplating.VSHost.15.0, Version=15.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.VisualStudio.TextTemplating.VSHost.15.0.15.8.28010\lib\net45\Microsoft.VisualStudio.TextTemplating.VSHost.15.0.dll</HintPath>
+      <HintPath>..\packages\Microsoft.VisualStudio.TextTemplating.VSHost.15.0.15.4.27004\lib\Microsoft.VisualStudio.TextTemplating.VSHost.15.0.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.VisualStudio.Threading, Version=15.8.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.VisualStudio.Threading.15.8.145\lib\net46\Microsoft.VisualStudio.Threading.dll</HintPath>

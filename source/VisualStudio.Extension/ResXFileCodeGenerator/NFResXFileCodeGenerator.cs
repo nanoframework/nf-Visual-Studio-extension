@@ -10,7 +10,6 @@ using Microsoft.VisualStudio.Designer.Interfaces;
 using Microsoft.VisualStudio.OLE.Interop;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
-using Microsoft.VisualStudio.TextTemplating.VSHost;
 using System;
 using System.CodeDom;
 using System.CodeDom.Compiler;
@@ -30,10 +29,231 @@ using IOleServiceProvider = Microsoft.VisualStudio.OLE.Interop.IServiceProvider;
 
 namespace nanoFramework.Tools.VisualStudio.Extension
 {
-    [Guid(ComponentGuid)]
-    internal class ResXFileCodeGenerator : BaseCodeGeneratorWithSite
+    internal abstract class BaseCodeGenerator : IVsSingleFileGenerator
     {
-        public const string Name = nameof(ResXFileCodeGenerator);
+        private string codeFileNameSpace = string.Empty;
+        private string codeFilePath = string.Empty;
+
+        private IVsGeneratorProgress codeGeneratorProgress;
+
+        // **************************** PROPERTIES ****************************
+        protected string FileNameSpace
+        {
+            get
+            {
+                return codeFileNameSpace;
+            }
+        }
+
+        protected string InputFilePath
+        {
+            get
+            {
+                return codeFilePath;
+            }
+        }
+
+        internal IVsGeneratorProgress CodeGeneratorProgress
+        {
+            get
+            {
+                return codeGeneratorProgress;
+            }
+        }
+
+        // **************************** METHODS **************************
+        public abstract int DefaultExtension(out string ext);
+
+        // MUST implement this abstract method.
+        protected abstract byte[] GenerateCode(string inputFileName, string inputFileContent);
+
+
+        protected virtual void GeneratorErrorCallback(int warning, uint level, string message, uint line, uint column)
+        {
+            IVsGeneratorProgress progress = CodeGeneratorProgress;
+            if (progress != null)
+            {
+                //Utility.ThrowOnFailure(progress.GeneratorError(warning, level, message, line, column));
+
+            }
+        }
+
+        public int Generate(string wszInputFilePath, string bstrInputFileContents, string wszDefaultNamespace,
+                             IntPtr[] pbstrOutputFileContents, out uint pbstrOutputFileContentSize, IVsGeneratorProgress pGenerateProgress)
+        {
+
+            if (bstrInputFileContents == null)
+            {
+                throw new ArgumentNullException(bstrInputFileContents);
+            }
+            codeFilePath = wszInputFilePath;
+            codeFileNameSpace = wszDefaultNamespace;
+            codeGeneratorProgress = pGenerateProgress;
+
+            byte[] bytes = GenerateCode(wszInputFilePath, bstrInputFileContents);
+            if (bytes == null)
+            {
+                pbstrOutputFileContents[0] = IntPtr.Zero;
+                pbstrOutputFileContentSize = 0;
+            }
+            else
+            {
+                pbstrOutputFileContents[0] = Marshal.AllocCoTaskMem(bytes.Length);
+                Marshal.Copy(bytes, 0, pbstrOutputFileContents[0], bytes.Length);
+                pbstrOutputFileContentSize = (uint)bytes.Length;
+            }
+            return COM_HResults.S_OK;
+        }
+
+        protected byte[] StreamToBytes(Stream stream)
+        {
+            if (stream.Length == 0)
+                return new byte[] { };
+
+            long position = stream.Position;
+            stream.Position = 0;
+            byte[] bytes = new byte[(int)stream.Length];
+            stream.Read(bytes, 0, bytes.Length);
+            stream.Position = position;
+
+            return bytes;
+        }
+    }
+
+    internal abstract class BaseCodeGeneratorWithSite : BaseCodeGenerator, IObjectWithSite
+    {
+
+        private Object site = null;
+        private CodeDomProvider codeDomProvider = null;
+        private static Guid CodeDomInterfaceGuid = new Guid("{73E59688-C7C4-4a85-AF64-A538754784C5}");
+        private static Guid CodeDomServiceGuid = CodeDomInterfaceGuid;
+        private ServiceProvider serviceProvider = null;
+
+        protected virtual CodeDomProvider CodeProvider
+        {
+            get
+            {
+                if (codeDomProvider == null)
+                {
+                    IVSMDCodeDomProvider vsmdCodeDomProvider = (IVSMDCodeDomProvider)GetService(CodeDomServiceGuid);
+                    if (vsmdCodeDomProvider != null)
+                    {
+                        codeDomProvider = (CodeDomProvider)vsmdCodeDomProvider.CodeDomProvider;
+                    }
+                    Debug.Assert(codeDomProvider != null, "Get CodeDomProvider Interface failed.  GetService(QueryService(CodeDomProvider) returned Null.");
+                }
+                return codeDomProvider;
+            }
+            set
+            {
+                if (value == null)
+                {
+                    throw new ArgumentNullException();
+                }
+
+                codeDomProvider = value;
+            }
+        }
+
+        private ServiceProvider SiteServiceProvider
+        {
+            get
+            {
+                if (serviceProvider == null)
+                {
+                    IOleServiceProvider oleServiceProvider = site as IOleServiceProvider;
+                    Debug.Assert(oleServiceProvider != null, "Unable to get IOleServiceProvider from site object.");
+
+                    serviceProvider = new ServiceProvider(oleServiceProvider);
+                }
+                return serviceProvider;
+            }
+        }
+
+        protected Object GetService(Guid serviceGuid)
+        {
+            return SiteServiceProvider.GetService(serviceGuid);
+        }
+
+        protected object GetService(Type serviceType)
+        {
+            return SiteServiceProvider.GetService(serviceType);
+        }
+
+
+        public override int DefaultExtension(out string ext)
+        {
+            CodeDomProvider codeDom = CodeProvider;
+            Debug.Assert(codeDom != null, "CodeDomProvider is NULL.");
+            string extension = codeDom.FileExtension;
+            if (extension != null && extension.Length > 0)
+            {
+                if (extension[0] != '.')
+                {
+                    extension = "." + extension;
+                }
+            }
+
+            ext = extension;
+            return COM_HResults.S_OK;
+        }
+
+        protected virtual ICodeGenerator GetCodeWriter()
+        {
+            CodeDomProvider codeDom = CodeProvider;
+            if (codeDom != null)
+            {
+#pragma warning disable 618 //backwards compat
+                return codeDom.CreateGenerator();
+#pragma warning restore 618
+            }
+
+            return null;
+        }
+
+        // ******************* Implement IObjectWithSite *****************
+        //
+        public virtual void SetSite(object pUnkSite)
+        {
+            site = pUnkSite;
+            codeDomProvider = null;
+            serviceProvider = null;
+        }
+
+        // Does anyone rely on this method?
+        public virtual void GetSite(ref Guid riid, out IntPtr ppvSite)
+        {
+            if (site == null)
+            {
+                //COM_HResults.Throw(Utility.COM_HResults.E_FAIL);
+            }
+
+            IntPtr pUnknownPointer = Marshal.GetIUnknownForObject(site);
+            try
+            {
+                Marshal.QueryInterface(pUnknownPointer, ref riid, out ppvSite);
+
+                if (ppvSite == IntPtr.Zero)
+                {
+                    //Utility.COM_HResults.Throw(Utility.COM_HResults.E_NOINTERFACE);
+                }
+            }
+            finally
+            {
+                if (pUnknownPointer != IntPtr.Zero)
+                {
+                    Marshal.Release(pUnknownPointer);
+                    pUnknownPointer = IntPtr.Zero;
+                }
+            }
+        }
+    }
+
+    //[ComVisible(true)]
+    [Guid(ComponentGuid)]
+    internal class nFResXFileCodeGenerator : BaseCodeGeneratorWithSite, IObjectWithSite
+    {
+        public const string Name = nameof(nFResXFileCodeGenerator);
         public const string Description = "nanoFramework code-behind generator for managed resources";
         public const string ComponentGuid = "81EE0274-5CE2-46F2-AC79-7791F3275510";
 
@@ -96,15 +316,31 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             return resourcesNamespace;
         }
 
-        public override string GetDefaultExtension()
+        public override int DefaultExtension(out string ext)
         {
-            return ".Designer.cs";
+            //copied from ResXFileCodeGenerator
+            string baseExtension;
+            ext = String.Empty;
+
+            int hResult = base.DefaultExtension(out baseExtension);
+
+            if (hResult != COM_HResults.S_OK)
+            {
+                Debug.Fail("Invalid hresult returned by the base DefaultExtension");
+                return hResult;
+            }
+
+            if (!String.IsNullOrEmpty(baseExtension))
+            {
+                ext = DesignerExtension + baseExtension;
+            }
+
+            return COM_HResults.S_OK;
         }
 
         protected override byte[] GenerateCode(string inputFileName, string inputFileContent)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
-            Guid CodeDomServiceGuid = new Guid("{73E59688-C7C4-4a85-AF64-A538754784C5}");
 
             MemoryStream outputStream = new MemoryStream();
             StreamWriter streamWriter = new StreamWriter(outputStream);
@@ -136,15 +372,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     resourceName = string.Format("{0}.{1}", resourceName, inputFileNameWithoutExtension);
                 }
 
-                IVSMDCodeDomProvider vsmdCodeDomProvider = (IVSMDCodeDomProvider)GetService(CodeDomServiceGuid);
-                CodeDomProvider codeDomProvider = null;
-                if (vsmdCodeDomProvider != null)
-                {
-                    codeDomProvider = (CodeDomProvider)vsmdCodeDomProvider.CodeDomProvider;
-                }
-                Debug.Assert(codeDomProvider != null, "Get CodeDomProvider Interface failed.  GetService(QueryService(CodeDomProvider) returned Null.");
-
-                typ.GetMethod("CreateStronglyTypedResources").Invoke(processResourceFiles, new object[] { inputFileName, codeDomProvider, streamWriter, resourceName });
+                typ.GetMethod("CreateStronglyTypedResources").Invoke(processResourceFiles, new object[] { inputFileName, CodeProvider, streamWriter, resourceName });
             }
             else
             {
@@ -152,18 +380,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 MessageCentre.InternalErrorMessage("Exception when generating code-behind file. ProcessResourceFiles type missing. Please reinstall the nanoFramework extension.");
             }
 
-            // need to return a byte array, so get it from the stream
-            // sanity check for empty stream
-            if (outputStream.Length == 0)
-                return new byte[] { };
-
-            long position = outputStream.Position;
-            outputStream.Position = 0;
-            byte[] buffer = new byte[(int)outputStream.Length];
-            outputStream.Read(buffer, 0, buffer.Length);
-            outputStream.Position = position;
-
-            return buffer;
+            return base.StreamToBytes(outputStream);
         }
 
         internal abstract class BaseCodeGenerator : IVsSingleFileGenerator
@@ -431,8 +648,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         public string StronglyTypedNamespace
         {
-            get { return this.stronglyTypedNamespace; }
-            set { this.stronglyTypedNamespace = value; }
+            get { return stronglyTypedNamespace; }
+            set { stronglyTypedNamespace = value; }
         }
 
         /// <summary>
@@ -443,11 +660,11 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         {
             get
             {
-                return this.stronglyTypedClassName;
+                return stronglyTypedClassName;
             }
             set
             {
-                this.stronglyTypedClassName = value;
+                stronglyTypedClassName = value;
             }
         }
         private string stronglyTypedClassName;
@@ -472,20 +689,20 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         public bool GenerateNestedEnums
         {
-            get { return this.useNestedClassForEnums; }
-            set { this.useNestedClassForEnums = value; }
+            get { return useNestedClassForEnums; }
+            set { useNestedClassForEnums = value; }
         }
 
         public bool GenerateInternalClass
         {
-            get { return this.useInternalClass; }
-            set { this.useInternalClass = value; }
+            get { return useInternalClass; }
+            set { useInternalClass = value; }
         }
 
         public bool IsMscorlib
         {
             get { return isMscorlib; }
-            set { this.isMscorlib = value; }
+            set { isMscorlib = value; }
         }
 
 
@@ -553,8 +770,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         private void Init()
         {
-            this.resources.Clear();
-            this.resourcesHashTable.Clear();
+            resources.Clear();
+            resourcesHashTable.Clear();
         }
 
         private void InitFileProcessing(ITaskItem inTaskItem, ITaskItem outTaskItem)
@@ -922,7 +1139,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             method.Attributes = MemberAttributes.Public | MemberAttributes.Static;
             MakeInternalIfNecessary(method);
 
-            string getObjectClass = this.isMscorlib ? "System.Resources.ResourceManager" : "nanoFramework.Runtime.Native.ResourceUtility";
+            string getObjectClass = isMscorlib ? "System.Resources.ResourceManager" : "nanoFramework.Runtime.Native.ResourceUtility";
 
             CodeVariableReferenceExpression expresionId = new CodeVariableReferenceExpression("id");
             CodeTypeReferenceExpression resourcesReference = new CodeTypeReferenceExpression(getObjectClass);
@@ -935,7 +1152,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         private void MakeInternalIfNecessary(CodeTypeDeclaration codeTypeDeclaration)
         {
-            if (this.GenerateInternalClass)
+            if (GenerateInternalClass)
             {
                 codeTypeDeclaration.TypeAttributes &= ~TypeAttributes.VisibilityMask;
                 codeTypeDeclaration.TypeAttributes |= TypeAttributes.NestedAssembly;
@@ -944,7 +1161,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         private void MakeInternalIfNecessary(CodeTypeMember codeTypeMember)
         {
-            if (this.GenerateInternalClass)
+            if (GenerateInternalClass)
             {
                 codeTypeMember.Attributes &= ~MemberAttributes.AccessMask;
                 codeTypeMember.Attributes |= MemberAttributes.Assembly;
@@ -1109,7 +1326,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 }
             }
 
-            EnsureResourcesIds(this.resources);
+            EnsureResourcesIds(resources);
         }
 
         private static short GenerateIdFromResourceName(string s)
@@ -1257,7 +1474,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         /// <param name="linePosition">Column number for messages</param>
         private void AddResource(string name, object value, String inputFileName, int lineNumber, int linePosition)
         {
-            Entry entry = Entry.CreateEntry(name, value, this.stronglyTypedNamespace, this.useNestedClassForEnums ? this.stronglyTypedClassName : string.Empty);
+            Entry entry = Entry.CreateEntry(name, value, stronglyTypedNamespace, useNestedClassForEnums ? stronglyTypedClassName : string.Empty);
 
             Debug.Assert(entry.ClassName.Length > 0);
 
@@ -1384,10 +1601,10 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             public Entry(string name, object value)
             {
                 this.value = value;
-                this.ns = string.Empty;
-                this.className = string.Empty;
-                this.field = string.Empty;
-                this.rawName = name;
+                ns = string.Empty;
+                className = string.Empty;
+                field = string.Empty;
+                rawName = name;
 
                 //parse name
 
@@ -1418,32 +1635,32 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         throw new ApplicationException(string.Format("Cannot parse id '{0}' from resource '{1}'", idValue, name));
                     }
 
-                    this.Id = idT;
+                    Id = idT;
                 }
                 else
                 {
-                    this.Id = GenerateIdFromResourceName(name);
+                    Id = GenerateIdFromResourceName(name);
                 }
 
                 int iDotLast = name.LastIndexOf('.');
 
-                this.field = name;
+                field = name;
 
                 if (iDotLast >= 0)
                 {
-                    this.field = name.Substring(iDotLast + 1);
+                    field = name.Substring(iDotLast + 1);
 
                     name = name.Substring(0, iDotLast);
 
                     iDotLast = name.LastIndexOf('.');
                     //iDotLast = name.LastIndexOfAny( new char[] { '.', '+' } );
 
-                    this.className = name.Trim();
+                    className = name.Trim();
 
                     if (iDotLast >= 0)
                     {
-                        this.className = name.Substring(iDotLast + 1).Trim();
-                        this.ns = name.Substring(0, iDotLast).Trim();
+                        className = name.Substring(iDotLast + 1).Trim();
+                        ns = name.Substring(0, iDotLast).Trim();
                     }
                 }
             }
@@ -1505,7 +1722,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     return -1;
                 }
 
-                return this.id.CompareTo(entry.id);
+                return id.CompareTo(entry.id);
             }
 
             #endregion
@@ -1534,7 +1751,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
             private string StringValue
             {
-                get { return this.Value as string; }
+                get { return Value as string; }
             }
 
             public override byte ResourceType
@@ -1547,7 +1764,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
             public override byte[] GenerateResourceData()
             {
-                string val = this.StringValue + '\0';
+                string val = StringValue + '\0';
 
                 byte[] data = Encoding.UTF8.GetBytes(val);
 
@@ -1563,7 +1780,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
             private System.Drawing.Bitmap BitmapValue
             {
-                get { return this.Value as System.Drawing.Bitmap; }
+                get { return Value as System.Drawing.Bitmap; }
             }
 
             public override byte ResourceType
@@ -1745,7 +1962,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         formatDst = PixelFormat.Format16bppRgb565;
                         break;
                     default:
-                        throw new NotSupportedException(string.Format("PixelFormat of '{0}' resource not supported", this.Name));
+                        throw new NotSupportedException(string.Format("PixelFormat of '{0}' resource not supported", Name));
                 }
 
                 //turn bitmap data into a form we can use.
@@ -1851,7 +2068,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
             public override byte[] GenerateResourceData()
             {
-                Bitmap bitmap = this.BitmapValue;
+                Bitmap bitmap = BitmapValue;
 
                 NanoResourceFile.CLR_GFX_BitmapDescription bitmapDescription;
 
@@ -2031,7 +2248,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
             private byte[] RawValue
             {
-                get { return this.Value as byte[]; }
+                get { return Value as byte[]; }
             }
 
             public override byte ResourceType
@@ -2044,7 +2261,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
             public override byte[] GenerateResourceData()
             {
-                return this.RawValue;
+                return RawValue;
             }
 
         }
@@ -2058,7 +2275,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
             private byte[] BinaryValue
             {
-                get { return this.Value as byte[]; }
+                get { return Value as byte[]; }
             }
 
             public override byte ResourceType
@@ -2071,7 +2288,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
             public override byte[] GenerateResourceData()
             {
-                return this.BinaryValue;
+                return BinaryValue;
             }
         }
 
@@ -2141,9 +2358,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
             public void Serialize(BinaryWriter writer)
             {
-                this.header.Serialize(writer);
+                header.Serialize(writer);
 
-                for (int iResource = 0; iResource < this.resources.Length; iResource++)
+                for (int iResource = 0; iResource < resources.Length; iResource++)
                 {
                     Resource resource = resources[iResource];
 
@@ -2191,11 +2408,11 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                 public Header(uint numResources)
                 {
-                    this.MagicNumber = MAGIC_NUMBER;
-                    this.Version = VERSION;
-                    this.SizeOfHeader = SIZE_FILE_HEADER;
-                    this.SizeOfResourceHeader = SIZE_RESOURCE_HEADER;
-                    this.NumberOfResources = numResources;
+                    MagicNumber = MAGIC_NUMBER;
+                    Version = VERSION;
+                    SizeOfHeader = SIZE_FILE_HEADER;
+                    SizeOfResourceHeader = SIZE_RESOURCE_HEADER;
+                    NumberOfResources = numResources;
                 }
 
                 public Header()
@@ -2213,24 +2430,24 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                 public void Deserialize(BinaryReader reader)
                 {
-                    this.MagicNumber = reader.ReadUInt32();
-                    this.Version = reader.ReadUInt32();
-                    this.SizeOfHeader = reader.ReadUInt32();
-                    this.SizeOfResourceHeader = reader.ReadUInt32();
-                    this.NumberOfResources = reader.ReadUInt32();
+                    MagicNumber = reader.ReadUInt32();
+                    Version = reader.ReadUInt32();
+                    SizeOfHeader = reader.ReadUInt32();
+                    SizeOfResourceHeader = reader.ReadUInt32();
+                    NumberOfResources = reader.ReadUInt32();
 
-                    reader.BaseStream.Position = this.SizeOfHeader;
+                    reader.BaseStream.Position = SizeOfHeader;
 
-                    if (this.MagicNumber != MAGIC_NUMBER ||
-                         this.SizeOfHeader < SIZE_FILE_HEADER ||
-                         this.SizeOfResourceHeader < SIZE_RESOURCE_HEADER
+                    if (MagicNumber != MAGIC_NUMBER ||
+                         SizeOfHeader < SIZE_FILE_HEADER ||
+                         SizeOfResourceHeader < SIZE_RESOURCE_HEADER
                     )
                     {
                         throw new SerializationException();
                     }
-                    else if (this.Version != VERSION)
+                    else if (Version != VERSION)
                     {
-                        throw new SerializationException(string.Format("Incompatible version (version {0}) found, expecting version {1}.", this.Version, VERSION));
+                        throw new SerializationException(string.Format("Incompatible version (version {0}) found, expecting version {1}.", Version, VERSION));
                     }
                 }
 
@@ -2238,7 +2455,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 {
                     get
                     {
-                        return this.SizeOfHeader + this.SizeOfResourceHeader * this.NumberOfResources;
+                        return SizeOfHeader + SizeOfResourceHeader * NumberOfResources;
                     }
                 }
             }
@@ -2261,7 +2478,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 {
                     this.id = id;
                     this.kind = kind;
-                    this.pad = 0;
+                    pad = 0;
                     this.size = size;
                 }
 
@@ -2271,18 +2488,18 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                 public void Serialize(BinaryWriter writer)
                 {
-                    writer.Write(this.id);
-                    writer.Write(this.kind);
-                    writer.Write(this.pad);
-                    writer.Write(this.size);
+                    writer.Write(id);
+                    writer.Write(kind);
+                    writer.Write(pad);
+                    writer.Write(size);
                 }
 
                 public void Deserialize(BinaryReader reader)
                 {
-                    this.id = reader.ReadInt16();
-                    this.kind = reader.ReadByte();
-                    this.pad = reader.ReadByte();
-                    this.size = reader.ReadUInt32();
+                    id = reader.ReadInt16();
+                    kind = reader.ReadByte();
+                    pad = reader.ReadByte();
+                    size = reader.ReadUInt32();
                 }
             }
 
@@ -2321,11 +2538,11 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                 public CLR_GFX_BitmapDescription(ushort width, ushort height, ushort flags, byte bitsPerPixel, byte type)
                 {
-                    this.m_width = width;
-                    this.m_height = height;
-                    this.m_flags = flags;
-                    this.m_bitsPerPixel = bitsPerPixel;
-                    this.m_type = type;
+                    m_width = width;
+                    m_height = height;
+                    m_flags = flags;
+                    m_bitsPerPixel = bitsPerPixel;
+                    m_type = type;
                 }
 
                 public CLR_GFX_BitmapDescription()
@@ -2343,11 +2560,11 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                 public void Deserialize(BinaryReader reader)
                 {
-                    this.m_width = reader.ReadUInt16();
-                    this.m_height = reader.ReadUInt16();
-                    this.m_flags = reader.ReadUInt16();
-                    this.m_bitsPerPixel = reader.ReadByte();
-                    this.m_type = reader.ReadByte();
+                    m_width = reader.ReadUInt16();
+                    m_height = reader.ReadUInt16();
+                    m_flags = reader.ReadUInt16();
+                    m_bitsPerPixel = reader.ReadByte();
+                    m_type = reader.ReadByte();
                 }
             }
             #endregion
@@ -2361,7 +2578,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             public NanoResourceWriter(string fileName)
             {
                 this.fileName = fileName;
-                this.resources = new ArrayList();
+                resources = new ArrayList();
             }
 
             public void AddResource(Entry entry)
@@ -2400,7 +2617,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             void IResourceWriter.Generate()
             {
                 //PrepareToGenerate();
-                ProcessResourceFiles.EnsureResourcesIds(this.resources);
+                ProcessResourceFiles.EnsureResourcesIds(resources);
 
                 NanoResourceFile.Header header = new NanoResourceFile.Header((uint)resources.Count);
                 NanoResourceFile file = new NanoResourceFile(header);
