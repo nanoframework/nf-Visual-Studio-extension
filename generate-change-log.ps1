@@ -8,6 +8,7 @@ if ($env:appveyor_repo_tag -eq "true")
     bundle exec github_changelog_generator --token $env:GitHubToken --future-release "v$env:GitVersion_MajorMinorPatch.$env:GitVersion_CommitsSinceVersionSource"
 
     # updated changelog and the updated assembly info files
-    git add .
-    git commit --amend --no-edit
+    git add CHANGELOG.md
+    git commit -m "Update CHANGELOG for v$env:GitVersion_MajorMinorPatch.$env:GitVersion_CommitsSinceVersionSource"
+    git push origin HEAD:$env:APPVEYOR_REPO_BRANCH
 }
