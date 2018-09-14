@@ -1,5 +1,5 @@
 # generate cahnge log on tag commit
-if ($env:APPVEYOR_REPO_TAG)
+if ($env:appveyor_repo_tag -eq "true")
 {
     # need this to keep ruby happy
     md c:\tmp

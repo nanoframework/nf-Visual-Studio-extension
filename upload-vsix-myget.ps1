@@ -1,12 +1,12 @@
 # skip upload on pull requests
 if ($env:APPVEYOR_PULL_REQUEST_NUMBER)
 {
-    'Skip upload to MyGet, this is a PR build...' | Write-Host -ForegroundColor White -NoNewline
+    'Skip upload to MyGet, this is a PR build...' | Write-Host -ForegroundColor White
     return
 }
 
 # skip upload when this is not a tag
-if ($env:APPVEYOR_REPO_TAG)
+if ($env:appveyor_repo_tag -eq "true")
 {
 
     $artifactsSearchPattern = "./*.vsix"
@@ -28,5 +28,5 @@ if ($env:APPVEYOR_REPO_TAG)
 }
 else 
 {
-    'Skip upload to MyGet, this commit is not for a tag commit...' | Write-Host -ForegroundColor White -NoNewline
+    'Skip upload to MyGet, this commit is not for a tag commit...' | Write-Host -ForegroundColor White
 }
