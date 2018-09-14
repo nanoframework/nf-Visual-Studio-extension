@@ -145,6 +145,13 @@
     GitHubToken:
       secure: WOqlCsnwTzfDPJFoNV/h8mEESIpG/9uFn1u6oE8hGZtXwIQQlsY+NyyLt9Y5xoFn
 
+  init:
+    - git config --global core.autocrlf true
+    - git config --global credential.helper store
+    - ps: Add-Content "$env:USERPROFILE\.git-credentials" "https://$($env:GitHubToken):x-oauth-basic@github.com`n"
+    - git config --global user.email "%GitHubUserEmail%"
+    - git config --global user.name "%GitHubUserName%"
+
   install:
     - set PATH=C:\Ruby%RUBY_VERSION%\bin;%PATH%
     - bundle config --local path vendor/bundle
