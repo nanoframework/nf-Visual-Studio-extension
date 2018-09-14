@@ -192,7 +192,7 @@
     prerelease: true
     force_update: true
   
-  deploy_script:
+  after_deploy:
     - ps: >-
 
         .\upload-vsix-myget.ps1
