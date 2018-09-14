@@ -184,7 +184,7 @@
   - provider: GitHub
     tag: v$(GitVersion_MajorMinorPatch).$(GitVersion_CommitsSinceVersionSource)
     release: nanoFramework VS2017 Extension v$(GitVersion_MajorMinorPatch).$(GitVersion_CommitsSinceVersionSource)
-    description: 'Check the [changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/blob/developer/CHANGELOG.md).\n\n## Install from nanoFramework MyGet development feed\n\nThe following Visual Studio Extensions are available for install from this release\n\n- [nanoFramework VS2017 Extension](https://www.myget.org/feed/nanoframework-dev/package/vsix/47973986-ed3c-4b64-ba40-a9da73b44ef7)'
+    description: 'Check the [changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/blob/develop/CHANGELOG.md).\n\n## Install from nanoFramework MyGet development feed\n\nThe following Visual Studio Extensions are available for install from this release\n\n- [nanoFramework VS2017 Extension](https://www.myget.org/feed/nanoframework-dev/package/vsix/47973986-ed3c-4b64-ba40-a9da73b44ef7)'
     auth_token:
       secure: DNixoFFE+pGlwyhj7McfZoln42vOmj0iY1iNV9zXEr3y0NpXlOIgL8k5ehzlFM1S
     artifact: VS_extension
@@ -305,7 +305,7 @@
   - provider: GitHub
     tag: v$(GitVersion_MajorMinorPatch).$(GitVersion_CommitsSinceVersionSource)
     release: nanoFramework VS2017 Extension v$(GitVersion_MajorMinorPatch).$(GitVersion_CommitsSinceVersionSource)
-    description: 'Check the [changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/blob/developer/CHANGELOG.md).\n\n### Install from nanoFramework MyGet development feed\n\nThe following Visual Studio Extensions are available for install from this release\n\n- [nanoFramework VS2017 Extension](https://www.myget.org/feed/nanoframework-dev/package/vsix/47973986-ed3c-4b64-ba40-a9da73b44ef7)'
+    description: 'Check the [changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/blob/$(APPVEYOR_REPO_BRANCH)/CHANGELOG.md).\n\n### Install from nanoFramework MyGet development feed\n\nThe following Visual Studio Extensions are available for install from this release\n\n- [nanoFramework VS2017 Extension](https://www.myget.org/feed/nanoframework-dev/package/vsix/47973986-ed3c-4b64-ba40-a9da73b44ef7)'
     auth_token:
       secure: DNixoFFE+pGlwyhj7McfZoln42vOmj0iY1iNV9zXEr3y0NpXlOIgL8k5ehzlFM1S
     artifact: VS_extension
