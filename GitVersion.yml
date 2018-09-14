@@ -1,5 +1,5 @@
 next-version: 0.3.0
-assembly-versioning-scheme: MajorMinorPatchTag
+assembly-versioning-scheme: MajorMinorPatch
 build-metadata-padding: 3
 legacy-semver-padding: 3
 assembly-informational-format: '{LegacySemVerPadded}'

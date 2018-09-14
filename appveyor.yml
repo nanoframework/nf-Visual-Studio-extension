@@ -115,10 +115,7 @@
 
   skip_branch_with_pr: true
 
-  # Do not build on tags
   skip_tags: false
-
-  test: off
   
   pull_requests:
     do_not_increment_build_number: true
@@ -135,7 +132,24 @@
   build:
     verbosity: minimal
 
+  test: off
+
+  environment:
+    APPVEYOR_SAVE_CACHE_ON_ERROR: true
+    matrix:
+      - RUBY_VERSION: 24
+    GitHubUserName:
+      secure: 7OBtVAMTodMWK20wg6pGnQ==
+    GitHubUserEmail:
+      secure: HeABB68Sn/Lhbd69C2cUcfWv0ab/rMDEcOLvcxf8gGw=
+    GitHubToken:
+      secure: WOqlCsnwTzfDPJFoNV/h8mEESIpG/9uFn1u6oE8hGZtXwIQQlsY+NyyLt9Y5xoFn
+
   install:
+    - set PATH=C:\Ruby%RUBY_VERSION%\bin;%PATH%
+    - bundle config --local path vendor/bundle
+    - gem install bundler --quiet --no-ri --no-rdoc
+    - gem install github_changelog_generator --quiet --no-ri --no-rdoc
     - choco install gitversion.portable -pre -y
     - cmd: git submodule update --init --recursive
 
@@ -159,10 +173,6 @@
   - path: '**\*.vsix'
     name: VS_extension
 
-  on_success:
-    # for this environment variable to work here it has to be set in AppVeyor UI
-    - ps: .\upload-vsix-myget.ps1
-
   deploy:
   - provider: GitHub
     tag: v$(GitVersion_MajorMinorPatch).$(GitVersion_CommitsSinceVersionSource)
@@ -174,6 +184,16 @@
     draft: true
     prerelease: true
     force_update: true
+  
+  deploy_script:
+    - ps: >-
+
+        .\upload-vsix-myget.ps1
+
+  before_deploy:
+    - ps:  >-
+
+        .\generate-change-log.ps1
 
   # requires APPVEYOR_DISCORD_WEBHOOK_URL enviroment variable set with Discord webhook URL
   on_failure:
