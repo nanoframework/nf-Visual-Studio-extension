@@ -10,5 +10,6 @@ if ($env:appveyor_repo_tag -eq "true")
     # updated changelog and the updated assembly info files
     git add CHANGELOG.md
     git commit -m "Update CHANGELOG for v$env:GitVersion_MajorMinorPatch.$env:GitVersion_CommitsSinceVersionSource"
-    git push origin HEAD:$env:APPVEYOR_REPO_BRANCH
+    # need to wrap the git command bellow so it doesn't throw an error because of redirecting the output to stderr
+    "$(git push origin)"
 }
