@@ -1,13 +1,13 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" ?>
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
   <Metadata>
     <Identity Id="47973986-ed3c-4b64-ba40-a9da73b44ef7" Version="0.6.0.00" Language="en-US" Publisher="nanoFramework" />
     <DisplayName>nanoFramework VS2017 Extension</DisplayName>
     <Description xml:space="preserve">Visual Studio 2017 extension for nanoFramework. Enables creating C# applications for micro-controllers and provides debugging tools.</Description>
     <MoreInfo>http://www.nanoframework.net</MoreInfo>
-    <ReleaseNotes>https://github.com/nanoframework/nf-Visual-Studio-extension/blob/develop/CHANGELOG.md</ReleaseNotes>
-    <GettingStartedGuide>http://docs.nanoframework.net/articles/getting-started-intro.html</GettingStartedGuide>
     <License>license.txt</License>
+    <GettingStartedGuide>http://docs.nanoframework.net/articles/getting-started-intro.html</GettingStartedGuide>
+    <ReleaseNotes>https://github.com/nanoframework/nf-Visual-Studio-extension/blob/develop/CHANGELOG.md</ReleaseNotes>
     <Icon>Resources\nF-logo-32.png</Icon>
     <Tags>nanoFramework, netnf, netmf, MicroFramework, C#, productivity, microcontroller, I2C, PWM, Serial, SPI, IoT</Tags>
   </Metadata>
