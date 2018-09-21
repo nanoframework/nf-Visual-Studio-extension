@@ -15,33 +15,33 @@ namespace nanoFramework.Tools.VisualStudio.Extension
     public class CorDebugTypeArray : ICorDebugType
     {
         CorDebugValueArray m_ValueArray;
-        
-        public CorDebugTypeArray( CorDebugValueArray valArray )
+
+        public CorDebugTypeArray(CorDebugValueArray valArray)
         {
-            m_ValueArray = valArray; 
+            m_ValueArray = valArray;
         }
 
-        int ICorDebugType.EnumerateTypeParameters (out ICorDebugTypeEnum ppTyParEnum)
+        int ICorDebugType.EnumerateTypeParameters(out ICorDebugTypeEnum ppTyParEnum)
         {
             ppTyParEnum = null;
             return COM_HResults.E_NOTIMPL;
         }
 
-        int ICorDebugType.GetType (out CorElementType ty)
+        int ICorDebugType.GetType(out CorElementType ty)
         {
             // This is for arrays. ELEMENT_TYPE_SZARRAY - means single demensional array.
             ty = CorElementType.ELEMENT_TYPE_SZARRAY;
             return COM_HResults.S_OK;
         }
 
-        int ICorDebugType.GetRank (out uint pnRank)
+        int ICorDebugType.GetRank(out uint pnRank)
         {
             // ELEMENT_TYPE_SZARRAY - means single demensional array.
             pnRank = 1;
             return COM_HResults.S_OK;
         }
 
-        int ICorDebugType.GetClass (out ICorDebugClass ppClass)
+        int ICorDebugType.GetClass(out ICorDebugClass ppClass)
         {
             ppClass = CorDebugValue.ClassFromRuntimeValue(m_ValueArray.RuntimeValue, m_ValueArray.AppDomain);
             return COM_HResults.S_OK;
@@ -52,19 +52,19 @@ namespace nanoFramework.Tools.VisualStudio.Extension
          *  of element in the array.
          *  It control viewing of arrays elements in the watch window of debugger.
          */
-        int ICorDebugType.GetFirstTypeParameter (out ICorDebugType value)
+        int ICorDebugType.GetFirstTypeParameter(out ICorDebugType value)
         {
             value = new CorDebugGenericType(CorElementType.ELEMENT_TYPE_CLASS, m_ValueArray.RuntimeValue, m_ValueArray.AppDomain);
             return COM_HResults.S_OK;
         }
 
-        int ICorDebugType.GetStaticFieldValue (uint fieldDef, ICorDebugFrame pFrame, out ICorDebugValue ppValue)
-        {            
+        int ICorDebugType.GetStaticFieldValue(uint fieldDef, ICorDebugFrame pFrame, out ICorDebugValue ppValue)
+        {
             ppValue = null;
             return COM_HResults.E_NOTIMPL;
         }
 
-        int ICorDebugType.GetBase (out ICorDebugType pBase)
+        int ICorDebugType.GetBase(out ICorDebugType pBase)
         {
             pBase = null;
             return COM_HResults.E_NOTIMPL;
@@ -77,11 +77,55 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         public RuntimeValue m_rtv;
         public CorDebugAppDomain m_appDomain;
 
+        public CorDebugAssembly Assembly
+        {
+            [System.Diagnostics.DebuggerHidden]
+            get;
+        }
+
+        public Engine Engine
+        {
+            [System.Diagnostics.DebuggerHidden]
+            get { return this.Process?.Engine; }
+        }
+
+        public CorDebugProcess Process
+        {
+            [System.Diagnostics.DebuggerHidden]
+            get { return this.Assembly?.Process; }
+        }
+
+        public CorDebugAppDomain AppDomain
+        {
+            [System.Diagnostics.DebuggerHidden]
+            get
+            {
+                if (m_appDomain != null)
+                {
+                    return m_appDomain;
+                }
+                else
+                {
+                    return this.Assembly?.AppDomain;
+                }
+            }
+        }
+
+        // This is used to resolve values into types when we know the appdomain, but not the assembly.
         public CorDebugGenericType(CorElementType elemType, RuntimeValue rtv, CorDebugAppDomain appDomain)
-        { 
+        {
             m_elemType = elemType;
             m_rtv = rtv;
-            m_appDomain = appDomain; 
+            m_appDomain = appDomain;
+        }
+
+        // This constructor is used exclusively for resolving potentially (but never really) generic classes into fully specified types.
+        // Generics are not supported (yet) but we still need to be able to convert classes into fully specified types.      
+        public CorDebugGenericType(CorElementType elemType, RuntimeValue rtv, CorDebugAssembly assembly)
+        {
+            m_elemType = elemType;
+            m_rtv = rtv;
+            Assembly = assembly;
         }
 
         int ICorDebugType.EnumerateTypeParameters(out ICorDebugTypeEnum ppTyParEnum)
@@ -106,7 +150,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         int ICorDebugType.GetClass(out ICorDebugClass ppClass)
         {
-            ppClass = CorDebugValue.ClassFromRuntimeValue(m_rtv, m_appDomain);
+            ppClass = CorDebugValue.ClassFromRuntimeValue(m_rtv, AppDomain);
             return COM_HResults.S_OK;
         }
 
@@ -119,8 +163,13 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         int ICorDebugType.GetStaticFieldValue(uint fieldDef, ICorDebugFrame pFrame, out ICorDebugValue ppValue)
         {
-            ppValue = null;
-            return COM_HResults.E_NOTIMPL;
+            uint fd = nanoCLR_TypeSystem.ClassMemberIndexFromCLRToken(fieldDef, this.Assembly);
+
+            this.Process.SetCurrentAppDomain(this.AppDomain);
+            RuntimeValue rtv = this.Engine.GetStaticFieldValue(fd);
+            ppValue = CorDebugValue.CreateValue(rtv, this.AppDomain);
+
+            return COM_HResults.S_OK;
         }
 
         int ICorDebugType.GetBase(out ICorDebugType pBase)

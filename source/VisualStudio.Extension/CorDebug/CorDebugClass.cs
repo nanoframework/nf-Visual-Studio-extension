@@ -21,8 +21,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             m_assembly = assembly;
             m_pdbxClass = cls;
         }
-        
-        public CorDebugClass (CorDebugAssembly assembly, uint tkSymbolless) : this(assembly, null)
+
+        public CorDebugClass(CorDebugAssembly assembly, uint tkSymbolless) : this(assembly, null)
         {
             m_tkSymbolless = tkSymbolless;
         }
@@ -45,10 +45,10 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         public bool IsEnum
         {
-            get 
+            get
             {
-                if(HasSymbols)
-                    return MetaData.Helper.ClassIsEnum(Assembly.MetaDataImport, m_pdbxClass.Token.CLR );
+                if (HasSymbols)
+                    return MetaData.Helper.ClassIsEnum(Assembly.MetaDataImport, m_pdbxClass.Token.CLR);
                 else
                     return false;
             }
@@ -75,7 +75,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         public Pdbx.Class PdbxClass
         {
             [DebuggerHidden]
-            get {return m_pdbxClass;}
+            get { return m_pdbxClass; }
         }
 
         public bool HasSymbols
@@ -89,27 +89,27 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             {
                 uint tk = HasSymbols ? m_pdbxClass.Token.nanoCLR : m_tkSymbolless;
 
-                return nanoCLR_TypeSystem.ClassMemberIndexFromnanoCLRToken (tk, Assembly);                
+                return nanoCLR_TypeSystem.ClassMemberIndexFromnanoCLRToken(tk, Assembly);
             }
         }
 
         #region ICorDebugClass Members
 
-        int ICorDebugClass. GetModule (out ICorDebugModule pModule)
+        int ICorDebugClass.GetModule(out ICorDebugModule pModule)
         {
             pModule = m_assembly;
 
             return COM_HResults.S_OK;
         }
 
-        int ICorDebugClass. GetToken (out uint pTypeDef)
+        int ICorDebugClass.GetToken(out uint pTypeDef)
         {
             pTypeDef = HasSymbols ? m_pdbxClass.Token.CLR : m_tkSymbolless;
 
             return COM_HResults.S_OK;
         }
 
-        int ICorDebugClass. GetStaticFieldValue (uint fieldDef, ICorDebugFrame pFrame, out ICorDebugValue ppValue)
+        int ICorDebugClass.GetStaticFieldValue(uint fieldDef, ICorDebugFrame pFrame, out ICorDebugValue ppValue)
         {
             //Cache, and invalidate when necessary???
             uint fd = nanoCLR_TypeSystem.ClassMemberIndexFromCLRToken(fieldDef, Assembly);
@@ -125,15 +125,14 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         #region ICorDebugClass2 Members
 
-        int ICorDebugClass2.GetParameterizedType( CorElementType elementType, uint nTypeArgs, ICorDebugType []ppTypeArgs, out ICorDebugType ppType )
+        int ICorDebugClass2.GetParameterizedType(CorElementType elementType, uint nTypeArgs, ICorDebugType[] ppTypeArgs, out ICorDebugType ppType)
         {
-            // CorDebugClass.GetParameterizedType is not implemented
-            ppType = null;
+            ppType = new CorDebugGenericType(elementType, null, Assembly);
 
             return COM_HResults.S_OK;
         }
 
-        int ICorDebugClass2. SetJMCStatus (int bIsJustMyCode)
+        int ICorDebugClass2.SetJMCStatus(int bIsJustMyCode)
         {
             bool fJMC = Boolean.IntToBool(bIsJustMyCode);
 
@@ -145,12 +144,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             {
                 if (Engine.Info_SetJMC(fJMC, ReflectionDefinition.Kind.REFLECTION_TYPE, TypeDef_Index))
                 {
-                    if(!m_assembly.IsFrameworkAssembly)
+                    if (!m_assembly.IsFrameworkAssembly)
                     {
                         //now update the debugger JMC state...
                         foreach (Pdbx.Method m in m_pdbxClass.Methods)
-                        {                    
-                            m.IsJMC = fJMC;                    
+                        {
+                            m.IsJMC = fJMC;
                         }
                     }
 
@@ -161,6 +160,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             return hres;
         }
 
-#endregion
+        #endregion
     }
 }
