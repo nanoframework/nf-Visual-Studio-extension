@@ -1,5 +1,24 @@
 # Change Log
 
+## [v0.6.0.57](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v0.6.0.57) (2018-10-09)
+[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v0.5.0.49...v0.6.0.57)
+
+**Implemented enhancements:**
+
+- Extract MDP strings to make it easy to maintain [\#303](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/303)
+- Improvements in CorDebugType and CorDebugClass [\#300](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/300)
+
+**Fixed bugs:**
+
+- Improve Network configuration dialog [\#306](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/306)
+
+**Updated dependencies and other chores:**
+
+- Update several NuGets [\#305](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/305)
+- Bump mscorlib NuGet to 1.0.1-preview127 [\#304](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/304)
+- Update nf-interpreter submodule @18b4abc [\#302](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/302)
+- Update dependency packages [\#301](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/301)
+
 ## [v0.5.0.49](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v0.5.0.49) (2018-09-13)
 [Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v0.5.0.47...v0.5.0.49)
 
