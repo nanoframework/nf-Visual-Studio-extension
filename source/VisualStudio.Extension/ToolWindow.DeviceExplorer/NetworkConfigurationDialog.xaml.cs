@@ -90,6 +90,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             // set pass field if it's available from the model
             WiFiPassword.Password = wifiProfile?.Password;
 
+            // if there is no valid network interface in the device: enable control for interface type selection
+            if ((DataContext as DeviceExplorerViewModel).DeviceNetworkConfiguration.IsUnknown)
+            {
+                InterfaceType.IsEnabled = true;
+            }
+
             // set focus on cancel button
             CancelButton.Focus();
         }
