@@ -1980,8 +1980,8 @@ HRESULT WatchAssemblyBuilder::Linker::ProcessResource()
     CLR_UINT8*                   ptrResourceHeader;
     CLR_UINT8*                   ptrResourceData;
     CLR_UINT8*                   ptrMax;
-    TinyResourcesFileHeader*     fileHeader;              
-    TinyResourcesResourceHeader* resource;
+    NanoResourcesFileHeader*     fileHeader;              
+    NanoResourcesResourceHeader* resource;
     CLR_INT16                    idLast = 0;
     CLR_RECORD_RESOURCE*         resourceDst;
     CLR_RECORD_RESOURCE_FILE*    resourceFile;
@@ -1998,16 +1998,30 @@ HRESULT WatchAssemblyBuilder::Linker::ProcessResource()
         ptr    = &buf[0];
         ptrMax = ptr + buf.size();
        
-        fileHeader        = (TinyResourcesFileHeader*)ptr;
+        fileHeader        = (NanoResourcesFileHeader*)ptr;
         ptr              += fileHeader->sizeOfHeader;        
         ptrResourceHeader = ptr;
 
         if(ptr > ptrMax) NANOCLR_MSG_SET_AND_LEAVE(CLR_E_FAIL, L"Linker error when processing resource: pointer overflowed\n");
         
-        //Assert that we have a valid .tinyresources
-        if(fileHeader->magicNumber != TinyResourcesFileHeader::MAGIC_NUMBER    ) wprintf(L"Linker error when processing resource: wrong magic number\n"); NANOCLR_SET_AND_LEAVE(CLR_E_FAIL);
-        if(fileHeader->version     != CLR_RECORD_RESOURCE_FILE::CURRENT_VERSION) wprintf(L"Linker error when processing resource: wrong version\n"); NANOCLR_SET_AND_LEAVE(CLR_E_FAIL);
-        if(fileHeader->sizeOfResourceHeader < sizeof(CLR_RECORD_RESOURCE)      ) wprintf(L"Linker error when processing resource: wrong header size\n"); NANOCLR_SET_AND_LEAVE(CLR_E_FAIL);
+        //Assert that we have a valid .nanoresources
+		if (fileHeader->magicNumber != NanoResourcesFileHeader::MAGIC_NUMBER)
+		{
+			wprintf(L"Linker error when processing resource: wrong magic number\n");
+			NANOCLR_SET_AND_LEAVE(CLR_E_FAIL);
+		}
+
+		if (fileHeader->version != CLR_RECORD_RESOURCE_FILE::CURRENT_VERSION)
+		{
+			wprintf(L"Linker error when processing resource: wrong version\n");
+			NANOCLR_SET_AND_LEAVE(CLR_E_FAIL);
+		}
+
+		if (fileHeader->sizeOfResourceHeader < sizeof(CLR_RECORD_RESOURCE))
+		{
+			wprintf(L"Linker error when processing resource: wrong header size\n");
+			NANOCLR_SET_AND_LEAVE(CLR_E_FAIL);
+		}
         
         //write resource file header       
         resourceFile                       = m_tableResourceFile.Alloc( 1 ); FAULT_ON_NULL(resourceFile);
@@ -2032,36 +2046,48 @@ HRESULT WatchAssemblyBuilder::Linker::ProcessResource()
 
         for(CLR_UINT32 iResource = 0; iResource < fileHeader->numberOfResources; iResource++)
         {
-            resource = (TinyResourcesResourceHeader*)ptr;
+            resource = (NanoResourcesResourceHeader*)ptr;
                         
             ptr += fileHeader->sizeOfResourceHeader;                        
-            if(ptr > ptrMax) wprintf(L"Linker error when processing resource: resource header overflow \n"); NANOCLR_SET_AND_LEAVE(CLR_E_FAIL);
+			if (ptr > ptrMax)
+			{
+				wprintf(L"Linker error when processing resource: resource header overflow \n");
+				NANOCLR_SET_AND_LEAVE(CLR_E_FAIL);
+			}
             ptrResourceData = ptr;            
             
             ptr += resource->size;            
-            if(ptr > ptrMax) wprintf(L"Linker error when processing resource: resource overflow \n"); NANOCLR_SET_AND_LEAVE(CLR_E_FAIL);
+			if (ptr > ptrMax)
+			{
+				wprintf(L"Linker error when processing resource: resource overflow \n");
+				NANOCLR_SET_AND_LEAVE(CLR_E_FAIL);
+			}
 
             if(iResource > 0)
             {
                 //Validate sorting of resource headers
-                if(resource->id <= idLast) wprintf(L"Linker error when processing resource: wrong resource header order\n");  NANOCLR_SET_AND_LEAVE(CLR_E_FAIL);
+				if (resource->id <= idLast)
+				{
+					wprintf(L"Linker error when processing resource: wrong resource header order\n");
+					NANOCLR_SET_AND_LEAVE(CLR_E_FAIL);
+				}
             }
 
             idLast = resource->id;
                         
             switch(resource->kind)                        
             {
-            case CLR_RECORD_RESOURCE::RESOURCE_Binary:
-            case CLR_RECORD_RESOURCE::RESOURCE_String:
-                fNeeds32bitAlignment = false;
-                break;
-            case CLR_RECORD_RESOURCE::RESOURCE_Bitmap:            
-            case CLR_RECORD_RESOURCE::RESOURCE_Font:
-                fNeeds32bitAlignment = true;
-                break;
-            default:
-				wprintf(L"Linker error when processing resource: invalid resource kind\n");
-                NANOCLR_SET_AND_LEAVE(CLR_E_FAIL);
+				case CLR_RECORD_RESOURCE::RESOURCE_Binary:
+				case CLR_RECORD_RESOURCE::RESOURCE_String:
+					fNeeds32bitAlignment = false;
+					break;
+				case CLR_RECORD_RESOURCE::RESOURCE_Bitmap:            
+				case CLR_RECORD_RESOURCE::RESOURCE_Font:
+					fNeeds32bitAlignment = true;
+					break;
+				default:
+					wprintf(L"Linker error when processing resource: invalid resource kind\n");
+					NANOCLR_SET_AND_LEAVE(CLR_E_FAIL);
             }
              
             //write resource header
