@@ -1,11 +1,17 @@
-﻿using Microsoft.Build.Framework;
+﻿//
+// Copyright (c) 2017 The nanoFramework project contributors
+// Portions Copyright (c) Microsoft Corporation.  All rights reserved.
+// See LICENSE file in the project root for full license information.
+//
+
+using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
-using System;
+using nanoFramework.Tools.Utilities;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
-using System.Text;
+
 namespace nanoFramework.Tools
 {
     [Description("GenerateBinaryOutputTaskEntry")]
@@ -33,6 +39,9 @@ namespace nanoFramework.Tools
         {
             // report to VS output window what step the build is 
             Log.LogMessage(MessageImportance.Normal, "Generating binary output file...");
+
+            // wait for debugger on var
+            DebuggerHelper.WaitForDebuggerIfEnabled(TasksConstants.BuildTaskDebugVar);
 
             // default with null, indicating that we've generated nothing
             FileWritten = null;

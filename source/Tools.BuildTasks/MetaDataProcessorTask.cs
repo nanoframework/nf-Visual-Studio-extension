@@ -12,6 +12,7 @@ using System.Reflection;
 using System.IO;
 using System.Linq;
 using System.Collections.Generic;
+using nanoFramework.Tools.Utilities;
 
 namespace nanoFramework.Tools
 {
@@ -106,6 +107,9 @@ namespace nanoFramework.Tools
         {
             // report to VS output window what step the build is 
             Log.LogCommandLine(MessageImportance.Normal, "Starting nanoFramework MetaDataProcessor...");
+
+            // wait for debugger on var
+            DebuggerHelper.WaitForDebuggerIfEnabled(TasksConstants.BuildTaskDebugVar);
 
             try
             {

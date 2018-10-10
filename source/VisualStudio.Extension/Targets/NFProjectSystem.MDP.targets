@@ -188,7 +188,7 @@
         LoadHints="@(ReferencePath);@(ReferenceDependencyPaths);@(ReferenceSatellitePaths)"
         Parse="$(NanoFramework_Assembly)$(TargetExt)"
         Compile="$(NanoFramework_IntermediateAssembly).pe"
-        ImportResources="@(nanoFramework_Resources)"
+        ImportResources="@(NanoFramework_Resources)"
         Minimize="true">
 
       <Output TaskParameter="FilesWritten" ItemName="FileWrites" />
@@ -297,9 +297,7 @@
   <PropertyGroup Condition="'$(NF_IsCoreLibrary)' == 'True' ">
     <!--<MetaDataProcessorDependsOn>Compile</MetaDataProcessorDependsOn>-->
     <CoreBuildDependsOn>$(CoreBuildDependsOn);MetaDataProcessorCompile</CoreBuildDependsOn>
-    <PrepareResourcesDependsOn>
-      $(PrepareResourcesDependsOn)<!--;NanoResourceGenerator-->
-    </PrepareResourcesDependsOn>
+    <PrepareResourcesDependsOn>$(PrepareResourcesDependsOn);NanoResourceGenerator</PrepareResourcesDependsOn>
     <CleanDependsOn>$(CleanDependsOn);NanoCLR_CleanExtraFiles</CleanDependsOn>
     <ResolveReferencesDependsOn>$(ResolveReferencesDependsOn);ResolveRuntimeDependencies;</ResolveReferencesDependsOn>
     <BuildingProject Condition=" '$(BuildingProject)'=='' " >false</BuildingProject>
@@ -757,6 +755,25 @@
 
   </Target>
 
+  <Target Name="NanoResourceGenerator"
+    Condition="'@(EmbeddedResource)'!='' and '$(NF_IsCoreLibrary)' == 'True'"
+    DependsOnTargets="$(NanoResourceGeneratorDependsOn)"
+    >
+    <GenerateNanoResourceTask
+      Sources="@(EmbeddedResource)"
+      Condition=" '%(EmbeddedResource.Type)' == 'Resx' and '%(EmbeddedResource.GenerateResource)' != 'false'"
+      References="@(ReferencePath)"
+      UseSourcePath="$(UseSourcePath)"
+      StateFile="$(IntermediateOutputPath)$(MSBuildProjectFile).NanoResourceGenerator.Cache"
+      OutputResources="@(EmbeddedResource->'$(ProjectDir)$(IntermediateOutputPath)%(ManifestResourceName).nanoresources')"
+      >
+
+      <Output TaskParameter="OutputResources" ItemName="NFMDP_PE_Resource"/>
+      <Output TaskParameter="OutputResources" ItemName="FileWrites"/>
+    </GenerateNanoResourceTask>
+  </Target>
+
+
   <Target Name="Disasm"
     Condition="Exists('$(NanoFramework_DisasmInput)')"
     Inputs="$(NanoFramework_DisasmInput)"
@@ -815,10 +832,10 @@
       References="@(ReferencePath)"
       UseSourcePath="$(UseSourcePath)"
       StateFile="$(IntermediateOutputPath)$(MSBuildProjectFile).NanoGenerateResource.Cache"
-      OutputResources="@(EmbeddedResource->'$(IntermediateOutputPath)%(ManifestResourceName).nanoresources')"
+      OutputResources="@(EmbeddedResource->'$(ProjectDir)$(IntermediateOutputPath)%(ManifestResourceName).nanoresources')"
       >
 
-      <Output TaskParameter="OutputResources" ItemName="NFMDP_PE_Resource"/>
+      <Output TaskParameter="OutputResources" ItemName="NanoFramework_Resources"/>
       <Output TaskParameter="FilesWritten" ItemName="FileWrites"/>
     </GenerateNanoResourceTask>
   </Target>

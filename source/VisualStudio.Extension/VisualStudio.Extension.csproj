@@ -61,6 +61,9 @@
     <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="..\Tools.BuildTasks\ProcessResourceFiles.cs">
+      <Link>ResXFileCodeGenerator\ProcessResourceFiles.cs</Link>
+    </Compile>
     <Compile Include="Converters\AuthenticationTypeConverter.cs" />
     <Compile Include="Converters\EncryptionTypeConverter.cs" />
     <Compile Include="Converters\NetworkInterfaceTypeConverter.cs" />
