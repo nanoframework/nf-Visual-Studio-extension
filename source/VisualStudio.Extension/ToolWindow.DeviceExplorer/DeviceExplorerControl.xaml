@@ -106,7 +106,7 @@
                             <TextBlock Margin="10,0,0,0" VerticalAlignment="Center" >
                                 Visit our 
                                     <Hyperlink Style="{StaticResource {x:Static vsfx:VsResourceKeys.ThemedDialogHyperlinkStyleKey}}"
-                                                NavigateUri="http//www.nanoframework.net"
+                                                NavigateUri="http://www.nanoframework.net"
                                                 RequestNavigate="Hyperlink_RequestNavigate">
                                     website</Hyperlink>!
                             </TextBlock>
