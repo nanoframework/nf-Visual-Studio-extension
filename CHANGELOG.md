@@ -1,5 +1,16 @@
 # Change Log
 
+## [v0.6.2.3](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v0.6.2.3) (2018-10-15)
+[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v0.6.1.2...v0.6.2.3)
+
+**Implemented enhancements:**
+
+- Adjust project capabilites [\#308](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/308)
+
+**Fixed bugs:**
+
+- Fix URLs in Device Explorer [\#309](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/309)
+
 ## [v0.6.1.2](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v0.6.1.2) (2018-10-10)
 [Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v0.6.0.57...v0.6.1.2)
 
