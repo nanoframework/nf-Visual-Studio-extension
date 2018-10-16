@@ -28,5 +28,5 @@ if ($env:appveyor_repo_tag -eq "true")
 }
 else 
 {
-    'Skip upload to MyGet, this commit is not for a tag commit...' | Write-Host -ForegroundColor White
+    'Skip upload to MyGet, this commit is not a tag commit...' | Write-Host -ForegroundColor White
 }

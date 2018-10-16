@@ -1,9 +1,12 @@
 next-version: 0.3.0
-assembly-versioning-scheme: MajorMinorPatch
+assembly-versioning-scheme: MajorMinorPatchTag
+assembly-file-versioning-scheme: MajorMinorPatchTag
+assembly-informational-format: '{LegacySemVerPadded}'
 build-metadata-padding: 3
 legacy-semver-padding: 3
-assembly-informational-format: '{LegacySemVerPadded}'
-commit-message-incrementing: Enabled
+major-version-bump-message: '\+semver:\s?(breaking|major)'
+minor-version-bump-message: '\+semver:\s?(feature|minor)'
+patch-version-bump-message: '\+semver:\s?(fix|patch)'
 branches:
   master:
     mode: ContinuousDelivery
@@ -12,17 +15,24 @@ branches:
     prevent-increment-of-merged-branch-version: true
     track-merge-target: false
   develop:
+    regex: dev(elop)?(ment)?$
     mode: ContinuousDeployment
     tag: preview
     increment: Patch
     prevent-increment-of-merged-branch-version: false
     track-merge-target: true
+    tracks-release-branches: true
+    is-release-branch: false
   release:
     tag: rc
-  (pull|pull\-requests|pr)[/-]:
-    mode: ContinuousDeployment
-    increment: Inherit
+  pull-request:
+    regex: (pull|pull\-requests|pr)[/-]
     tag: alpha
-    track-merge-target: true
+    mode: ContinuousDelivery
+    increment: Inherit
+    prevent-increment-of-merged-branch-version: false
+    track-merge-target: false
+    tracks-release-branches: false
+    is-release-branch: false
 ignore:
   sha: []

@@ -1,180 +1,117 @@
-# configuration for "master" branch
--
-  branches:
-    only:
-      - master
+# configuration these branches
+branches:
+  only:
+    - master
+    - /dev.*/
+    - /release.*/
 
-  image: Visual Studio 2017
+image: Visual Studio 2017
 
-  skip_branch_with_pr: true
+skip_tags: false
 
-  # Skipping commits affecting specific files
-  skip_commits:
-    files:
-    - '**\AssemblyInfo.*'
-    - '**/*.md'
-    - 'LICENSE'
-    - dir/*
-    - '.gitignore'
+skip_branch_with_pr: true
 
-  build:
-    verbosity: minimal
+# Skipping commits affecting specific files
+skip_commits:
+  files:
+  - '**\AssemblyInfo.*'
+  - '**/*.md'
+  - 'LICENSE'
+  - dir/*
+  - '.gitignore'
 
-  test: off
+build:
+  verbosity: minimal
 
-  environment:
-    APPVEYOR_SAVE_CACHE_ON_ERROR: true
-    matrix:
-      - RUBY_VERSION: 24
-    GitHubUserName:
-      secure: 7OBtVAMTodMWK20wg6pGnQ==
-    GitHubUserEmail:
-      secure: /NpmL1KqwHyHFnF0GlUovA586wDIt8Hg/Q8Dro6kUpk=
-    GitHubToken:
-      secure: i/2hGsqVMwzdM5yIS4rxOIeG3ftx7su7klWYN80s/fHvgk7A5H2fF3oUTNLcyTbw
+test: off
 
-  init:
-    - git config --global core.autocrlf true
-    - git config --global credential.helper store
-    - ps: Add-Content "$env:USERPROFILE\.git-credentials" "https://$($env:GitHubToken):x-oauth-basic@github.com`n"
-    - git config --global user.email "%GitHubUserEmail%"
-    - git config --global user.name "%GitHubUserName%"
+environment:
+  APPVEYOR_SAVE_CACHE_ON_ERROR: true
+  matrix:
+    - RUBY_VERSION: 24
+  GitHubUserName:
+    secure: 7OBtVAMTodMWK20wg6pGnQ==
+  GitHubUserEmail:
+    secure: /NpmL1KqwHyHFnF0GlUovA586wDIt8Hg/Q8Dro6kUpk=
+  GitHubToken:
+    secure: i/2hGsqVMwzdM5yIS4rxOIeG3ftx7su7klWYN80s/fHvgk7A5H2fF3oUTNLcyTbw
 
-  install:
-    - cmd: git submodule update --init --recursive
-    - set PATH=C:\Ruby%RUBY_VERSION%\bin;%PATH%
-    - gem install github_changelog_generator --quiet --no-ri --no-rdoc
-    # - bundle install
-    - choco install gitversion.portable -pre -y
+init:
+  - git config --global core.autocrlf true
+  - git config --global credential.helper store
+  - ps: Add-Content "$env:USERPROFILE\.git-credentials" "https://$($env:GitHubToken):x-oauth-basic@github.com`n"
+  - git config --global user.email "%GitHubUserEmail%"
+  - git config --global user.name "%GitHubUserName%"
 
-  before_build:
-  - ps: >-
-      nuget sources add -name MyGet -Source https://www.myget.org/F/nanoframework-dev
+install:
+  - cmd: git submodule update --init --recursive
+  - set PATH=C:\Ruby%RUBY_VERSION%\bin;%PATH%
+  - bundle config --local path vendor/bundle
+  - gem install bundler --quiet --no-ri --no-rdoc
+  - gem install github_changelog_generator --quiet --no-ri --no-rdoc
+  - choco install gitversion.portable -pre -y
 
-      nuget restore source\nanoFramework.Tools.VisualStudio.sln
+before_build:
+- ps: >-
+    nuget sources add -name MyGet -Source https://www.myget.org/F/nanoframework-dev
 
-      gitversion /l console /output buildserver /updateAssemblyInfo source\VisualStudio.Extension\Properties\AssemblyInfo.cs /ensureassemblyinfo
+    nuget restore source\nanoFramework.Tools.VisualStudio.sln
 
-      .\update-vsix-manifest.ps1 $env:GitVersion_MajorMinorPatch
+    C:\ProgramData\chocolatey\lib\GitVersion.Portable\tools\GitVersion.exe /l console /output buildserver /updateAssemblyInfo "source\VisualStudio.Extension\Properties\AssemblyInfo.cs"
 
-  build_script:
-  - ps: >-
+    .\update-vsix-manifest.ps1 $env:GitVersion_AssemblySemVer
 
-      msbuild source\nanoFramework.Tools.VisualStudio.sln /p:Configuration=Release  /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
+build_script:
+- ps: >-
 
-  before_deploy:
-  # need this to keep ruby happy
-  - ps: md c:\tmp
-  - bundle exec github_changelog_generator --token %GitHubToken%
-  # add here the updated changelog and the updated assembly info files
-  - git add .
-  - git commit --amend --no-edit
+    msbuild source\nanoFramework.Tools.VisualStudio.sln /p:Configuration=Release  /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
 
-  artifacts:
-  - path: '**\*.vsix'
-    name: VS_extension
+before_deploy:
+  - ps:  >-
+      .\commit-assemblyinfo-changes.ps1
+      
+      .\generate-change-log.ps1
 
-  on_success:
-    # for this environment variable to work here it has to be set in AppVeyor UI
-    - ps: .\upload-vsix-myget.ps1
+artifacts:
+- path: '**\*.vsix'
+  name: VS_extension
 
-  deploy:
-  - provider: GitHub
-    tag: v$(GitVersion_MajorMinorPatch)
-    release: nanoFramework VS2017 Extension v$(GitVersion_MajorMinorPatch)
-    description: 'Check the [changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/blob/master/CHANGELOG.md).\n\n### Install from Visual Studio Marketplace\n\nThe following Visual Studio Extensions are available for install from this release\n\n- [nanoFramework VS2017 Extension](https://marketplace.visualstudio.com/items?itemName=vs-publisher-1470366.nanoFrameworkVS2017Extension)'
-    auth_token:
-      secure: DNixoFFE+pGlwyhj7McfZoln42vOmj0iY1iNV9zXEr3y0NpXlOIgL8k5ehzlFM1S
-    artifact: VS_extension
-    draft: true
-    prerelease: true
-    force_update: true
+deploy:
+- provider: GitHub
+  tag: v$(GitVersion_NuGetVersionV2)
+  release: nanoFramework VS2017 Extension v$(GitVersion_MajorMinorPatch)
+  description: 'Check the [changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/blob/master/CHANGELOG.md).\n\n### Install from Visual Studio Marketplace\n\nThe following Visual Studio Extensions are available for install from this release\n\n- [nanoFramework VS2017 Extension](https://marketplace.visualstudio.com/items?itemName=vs-publisher-1470366.nanoFrameworkVS2017Extension)'
+  auth_token:
+    secure: DNixoFFE+pGlwyhj7McfZoln42vOmj0iY1iNV9zXEr3y0NpXlOIgL8k5ehzlFM1S
+  artifact:
+  draft: true
+  prerelease: false
+  force_update: true
+  on:
+    appveyor_repo_tag: true
 
-  # requires APPVEYOR_DISCORD_WEBHOOK_URL enviroment variable set with Discord webhook URL
-  on_failure:
-    - ps: .\appveyor-discord.ps1 failure $env:APPVEYOR_DISCORD_WEBHOOK_URL
+on_success:
+  - ps: .\upload-vsix-myget.ps1
 
-  cache:
-    - source\packages -> **source\packages.config
-    - C:\ProgramData\chocolatey\bin -> appveyor.yml
-    - C:\ProgramData\chocolatey\lib -> appveyor.yml
+# requires APPVEYOR_DISCORD_WEBHOOK_URL enviroment variable set with Discord webhook URL
+on_failure:
+  - ps: |
+  
+      & $env:APPVEYOR_BUILD_FOLDER\appveyor-discord.ps1 failure $env:APPVEYOR_DISCORD_WEBHOOK_URL
 
+cache:
+  - source\packages -> **source\packages.config
+  - C:\ProgramData\chocolatey\bin -> appveyor.yml
+  - C:\ProgramData\chocolatey\lib -> appveyor.yml
+   
+################################################
+# override configuration for specific branches
+for:
 
-####################################
-# configuration for develop branches
 -
   branches:
     only:
       - /dev.*/
-
-  image: Visual Studio 2017
-
-  skip_branch_with_pr: true
-
-  skip_tags: false
-  
-  pull_requests:
-    do_not_increment_build_number: true
-
-  # Skipping commits affecting specific files
-  skip_commits:
-    files:
-    - '**\AssemblyInfo.*'
-    - '**/*.md'
-    - 'LICENSE'
-    - dir/*
-    - '.gitignore'
-
-  build:
-    verbosity: minimal
-
-  test: off
-
-  environment:
-    APPVEYOR_SAVE_CACHE_ON_ERROR: true
-    matrix:
-      - RUBY_VERSION: 24
-    GitHubUserName:
-      secure: 7OBtVAMTodMWK20wg6pGnQ==
-    GitHubUserEmail:
-      secure: /NpmL1KqwHyHFnF0GlUovA586wDIt8Hg/Q8Dro6kUpk=
-    GitHubToken:
-      secure: i/2hGsqVMwzdM5yIS4rxOIeG3ftx7su7klWYN80s/fHvgk7A5H2fF3oUTNLcyTbw
-
-  init:
-    - git config --global core.autocrlf true
-    - git config --global credential.helper store
-    - ps: Add-Content "$env:USERPROFILE\.git-credentials" "https://$($env:GitHubToken):x-oauth-basic@github.com`n"
-    - git config --global user.email "%GitHubUserEmail%"
-    - git config --global user.name "%GitHubUserName%"
-
-  install:
-    - set PATH=C:\Ruby%RUBY_VERSION%\bin;%PATH%
-    - bundle config --local path vendor/bundle
-    - gem install bundler --quiet --no-ri --no-rdoc
-    - gem install github_changelog_generator --quiet --no-ri --no-rdoc
-    - choco install gitversion.portable -pre -y
-    - cmd: git submodule update --init --recursive
-
-  before_build:
-  - ps: >-
-
-      nuget sources add -name MyGet -Source https://www.myget.org/F/nanoframework-dev
-
-      nuget restore source\nanoFramework.Tools.VisualStudio.sln
-
-      gitversion /l console /output buildserver /updateAssemblyInfo source\VisualStudio.Extension\Properties\AssemblyInfo.cs /ensureassemblyinfo
-
-      .\update-vsix-manifest.ps1 $env:GitVersion_MajorMinorPatch"."$env:GitVersion_CommitsSinceVersionSource
-
-  build_script:
-  - ps: >-
-
-      msbuild source\nanoFramework.Tools.VisualStudio.sln /p:Configuration=Release  /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
-
-  artifacts:
-  - path: '**\*.vsix'
-    name: VS_extension
 
   deploy:
   - provider: GitHub
@@ -186,130 +123,6 @@
     artifact: VS_extension
     draft: true
     prerelease: true
-    force_update: true
-  
-  after_deploy:
-    - ps: >-
-
-        .\upload-vsix-myget.ps1
-
-  before_deploy:
-    - ps:  >-
-
-        .\generate-change-log.ps1
-
-  # requires APPVEYOR_DISCORD_WEBHOOK_URL enviroment variable set with Discord webhook URL
-  on_failure:
-    - ps: .\appveyor-discord.ps1 failure $env:APPVEYOR_DISCORD_WEBHOOK_URL
-
-  cache:
-    - source\packages -> **source\packages.config
-    - C:\ProgramData\chocolatey\bin -> appveyor.yml
-    - C:\ProgramData\chocolatey\lib -> appveyor.yml
-
-############################################
-# configuration for release candidate branch
--
-  branches:
-    only:
-      - release.*
-
-  image: Visual Studio 2017
-
-  skip_branch_with_pr: true
-
-  # OK to get only last commit as we don't need history
-  clone_depth: 1
-
-  # Skipping commits affecting specific files
-  skip_commits:
-    files:
-    - '**\AssemblyInfo.*'
-    - '**/*.md'
-    - 'LICENSE'
-    - dir/*
-    - '.gitignore'
-
-  build:
-    verbosity: minimal
-
-  test: off
-
-  environment:
-    matrix:
-      - RUBY_VERSION: 24
-    GitHubUserName:
-      secure: 7OBtVAMTodMWK20wg6pGnQ==
-    GitHubUserEmail:
-      secure: /NpmL1KqwHyHFnF0GlUovA586wDIt8Hg/Q8Dro6kUpk=
-    GitHubToken:
-      secure: i/2hGsqVMwzdM5yIS4rxOIeG3ftx7su7klWYN80s/fHvgk7A5H2fF3oUTNLcyTbw
-
-  init:
-    - git config --global core.autocrlf true
-    - git config --global credential.helper store
-    - ps: Add-Content "$env:USERPROFILE\.git-credentials" "https://$($env:GitHubToken):x-oauth-basic@github.com`n"
-    - git config --global user.email "%GitHubUserEmail%"
-    - git config --global user.name "%GitHubUserName%"
-
-  install:
-    - cmd: git submodule update --init --recursive
-    - set PATH=C:\Ruby%RUBY_VERSION%\bin;%PATH%
-    - bundle config --local path vendor/bundle
-    - gem install bundler --quiet --no-ri --no-rdoc
-    - gem install github_changelog_generator --quiet --no-ri --no-rdoc
-    # - bundle install
-    - choco install gitversion.portable -pre -y
-
-  before_build:
-  - ps: >-
-
-      nuget sources add -name MyGet -Source https://www.myget.org/F/nanoframework-dev
-
-      nuget restore source\nanoFramework.Tools.VisualStudio.sln
-
-      gitversion /l console /output buildserver /updateAssemblyInfo source\VisualStudio.Extension\Properties\AssemblyInfo.cs /ensureassemblyinfo
-
-      .\update-vsix-manifest.ps1 $env:GitVersion_MajorMinorPatch"."$env:GitVersion_CommitsSinceVersionSource
-
-  build_script:
-  - ps: >-
-
-      msbuild source\nanoFramework.Tools.VisualStudio.sln /p:Configuration=Release  /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
-
-  before_deploy:
-  # need this to keep ruby happy
-  - ps: md c:\tmp
-  - bundle exec github_changelog_generator --token %GitHubToken%
-  # add here the updated changelog and the updated assembly info files
-  - git add .
-  - git commit --amend --no-edit
-
-  artifacts:
-  - path: '**\*.vsix'
-    name: VS_extension
-
-  on_success:
-    # for this environment variable to work here it has to be set in AppVeyor UI
-    - ps: .\upload-vsix-myget.ps1
-
-  deploy:
-  - provider: GitHub
-    tag: v$(GitVersion_MajorMinorPatch).$(GitVersion_CommitsSinceVersionSource)
-    release: nanoFramework VS2017 Extension v$(GitVersion_MajorMinorPatch).$(GitVersion_CommitsSinceVersionSource)
-    description: 'Check the [changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/blob/$(APPVEYOR_REPO_BRANCH)/CHANGELOG.md).\n\n### Install from nanoFramework MyGet development feed\n\nThe following Visual Studio Extensions are available for install from this release\n\n- [nanoFramework VS2017 Extension](https://www.myget.org/feed/nanoframework-dev/package/vsix/47973986-ed3c-4b64-ba40-a9da73b44ef7)'
-    auth_token:
-      secure: DNixoFFE+pGlwyhj7McfZoln42vOmj0iY1iNV9zXEr3y0NpXlOIgL8k5ehzlFM1S
-    artifact: VS_extension
-    draft: true
-    prerelease: true
-    force_update: true
-
-  # requires APPVEYOR_DISCORD_WEBHOOK_URL enviroment variable set with Discord webhook URL
-  on_failure:
-    - ps: .\appveyor-discord.ps1 failure $env:APPVEYOR_DISCORD_WEBHOOK_URL
-
-  cache:
-    - source\packages -> **source\packages.config
-    - C:\ProgramData\chocolatey\bin -> appveyor.yml
-    - C:\ProgramData\chocolatey\lib -> appveyor.yml
+    force_update: true    
+    on:
+      appveyor_repo_tag: true
