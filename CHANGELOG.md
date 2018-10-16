@@ -1,5 +1,30 @@
 # Change Log
 
+## [v1.0.0.0](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v1.0.0.0) (2018-10-16)
+[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v0.6.8.2...v1.0.0.0)
+
+**Updated dependencies and other chores:**
+
+- Merge 'develop' for release 1.0.0 [\#311](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/311)
+
+## [v0.6.8.2](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v0.6.8.2) (2018-10-16)
+[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v0.6.7.10...v0.6.8.2)
+
+## [v0.6.7.10](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v0.6.7.10) (2018-10-16)
+[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v0.6.6.9...v0.6.7.10)
+
+## [v0.6.6.9](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v0.6.6.9) (2018-10-16)
+[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v0.6.5.2...v0.6.6.9)
+
+## [v0.6.5.2](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v0.6.5.2) (2018-10-16)
+[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v0.6.4.8...v0.6.5.2)
+
+## [v0.6.4.8](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v0.6.4.8) (2018-10-16)
+[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v0.6.3.2...v0.6.4.8)
+
+## [v0.6.3.2](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v0.6.3.2) (2018-10-15)
+[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v0.6.2.3...v0.6.3.2)
+
 ## [v0.6.2.3](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v0.6.2.3) (2018-10-15)
 [Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v0.6.1.2...v0.6.2.3)
 
