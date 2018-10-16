@@ -1,9 +1,4 @@
-# configuration these branches
-branches:
-  only:
-    - master
-    - /dev.*/
-    - /release.*/
+# configuration for all branches
 
 image: Visual Studio 2017
 
