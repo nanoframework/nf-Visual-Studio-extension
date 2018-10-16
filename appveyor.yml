@@ -2,8 +2,6 @@
 
 image: Visual Studio 2017
 
-skip_tags: false
-
 skip_branch_with_pr: true
 
 # Skipping commits affecting specific files
@@ -97,8 +95,6 @@ for:
   branches:
     only:
       - master
-  
-  skip_tags: false
 
   deploy:
   - provider: GitHub
@@ -117,8 +113,6 @@ for:
     only:
       - /dev.*/
 
-  skip_tags: false
-
   deploy:
   - provider: GitHub
     tag: v$(GitVersion_MajorMinorPatch).$(GitVersion_CommitsSinceVersionSource)
@@ -135,8 +129,6 @@ for:
   branches:
     only:
       - /release.*/
-  
-  skip_tags: false
 
   deploy:
   - provider: GitHub
