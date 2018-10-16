@@ -6,10 +6,11 @@ if ($env:appveyor_pull_request_number)
 else
 {
     # updated assembly info files   
-    git add .
-    git commit --amend --no-edit
+    git add "source\VisualStudio.Extension\Properties\AssemblyInfo.cs"
+    git add "source\VisualStudio.Extension\source.extension.vsixmanifest"
+    git commit -m "Update versions for v$env:GitVersion_AssemblySemVer"
     git push origin --porcelain -q > $null
     
-    'Updated assembly info...' | Write-Host -ForegroundColor White -NoNewline
+    'Updated version info...' | Write-Host -ForegroundColor White -NoNewline
     'OK' | Write-Host -ForegroundColor Green
 }
