@@ -98,6 +98,8 @@ for:
   branches:
     only:
       - master
+  
+  skip_tags: false
 
   deploy:
   - provider: GitHub
@@ -116,6 +118,8 @@ for:
     only:
       - /dev.*/
 
+  skip_tags: false
+
   deploy:
   - provider: GitHub
     tag: v$(GitVersion_MajorMinorPatch).$(GitVersion_CommitsSinceVersionSource)
@@ -132,6 +136,8 @@ for:
   branches:
     only:
       - /release.*/
+  
+  skip_tags: false
 
   deploy:
   - provider: GitHub
