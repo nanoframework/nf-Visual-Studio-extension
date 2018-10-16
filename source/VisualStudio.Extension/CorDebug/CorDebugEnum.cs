@@ -73,7 +73,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         public int GetCount(out uint pcelt)
         {
-            pcelt = this.Count;
+            pcelt = Count;
             return COM_HResults.S_OK;
         }
 
@@ -93,7 +93,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         //size is celt
         public int Next(uint celt, System.IntPtr values, out uint pceltFetched)
         {
-            pceltFetched = System.Math.Min(celt, this.Count - m_iCurrent);
+            pceltFetched = System.Math.Min(celt, Count - m_iCurrent);
             int[] arr = new int[pceltFetched];
 
             for (uint i = 0; i < pceltFetched; i++)
@@ -109,7 +109,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         public int NextCore(uint celt, object[] ptr, out uint pceltFetched)
         {
-            pceltFetched = System.Math.Min(celt, this.Count - m_iCurrent);
+            pceltFetched = System.Math.Min(celt, Count - m_iCurrent);
 
             for (uint i = 0; i < pceltFetched; i++)
             {

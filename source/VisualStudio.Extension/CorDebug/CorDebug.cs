@@ -130,20 +130,20 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 CorDebugProcess process = CorDebugProcess.CreateProcessEx(pPort, lpApplicationName, lpCommandLine, lpProcessAttributes, lpThreadAttributes, bInheritHandles, dwCreationFlags, lpEnvironment, lpCurrentDirectory, ref lpStartupInfo, ref lpProcessInformation, debuggingFlags);
 
                 // StartDebugging() will either get a connected device into a debuggable state and start the dispatch thread, or throw.
-                process.StartDebugging(this, false);
+                process.StartDebugging(this, true);
                 ppProcess = process;
 
                 return COM_HResults.S_OK;
             }
             catch (ProcessExitException)
             {
-                NanoFrameworkPackage.MessageCentre.DebugMessage(Resources.ResourceStrings.InitializeProcessFailedProcessDied);
+                MessageCentre.DebugMessage(Resources.ResourceStrings.InitializeProcessFailedProcessDied);
                 return COM_HResults.S_FALSE;
             }
             catch (Exception ex)
             {
-                NanoFrameworkPackage.MessageCentre.DebugMessage(Resources.ResourceStrings.InitializeProcessFailed);
-                NanoFrameworkPackage.MessageCentre.InternalErrorMessage(false, ex.Message);
+                MessageCentre.DebugMessage(Resources.ResourceStrings.InitializeProcessFailed);
+                MessageCentre.InternalErrorMessage(false, ex.Message);
                 return COM_HResults.S_FALSE;
             }
         }
@@ -153,7 +153,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             ppProcess = null;
             try
             {
-                NanoFrameworkPackage.MessageCentre.DebugMessage(Resources.ResourceStrings.Attach);
+                MessageCentre.DebugMessage(Resources.ResourceStrings.Attach);
                 AD_PROCESS_ID pid = new AD_PROCESS_ID();
 
                 pid.ProcessIdType = (uint) AD_PROCESS_ID_TYPE.AD_PROCESS_ID_SYSTEM;
@@ -173,13 +173,13 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             }
             catch (ProcessExitException)
             {
-                NanoFrameworkPackage.MessageCentre.DebugMessage(Resources.ResourceStrings.AttachFailedProcessDied);
+                MessageCentre.DebugMessage(Resources.ResourceStrings.AttachFailedProcessDied);
                 return COM_HResults.S_FALSE;
             }
             catch (Exception ex)
             {
-                NanoFrameworkPackage.MessageCentre.DebugMessage(Resources.ResourceStrings.AttachFailed);
-                NanoFrameworkPackage.MessageCentre.InternalErrorMessage(false, ex.Message);
+                MessageCentre.DebugMessage(Resources.ResourceStrings.AttachFailed);
+                MessageCentre.InternalErrorMessage(false, ex.Message);
                 return COM_HResults.S_FALSE;
             }
        }

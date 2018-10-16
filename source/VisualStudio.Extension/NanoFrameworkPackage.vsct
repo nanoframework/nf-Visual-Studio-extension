@@ -54,6 +54,13 @@
       <Group guid="guidDeviceExplorerCmdSet" id="DeviceExplorerToolbarGroupID" priority="0x0000">
         <Parent guid="guidDeviceExplorerCmdSet" id="DeviceExplorerToolbarID" />
       </Group>
+    
+      <!-- this is the 2nd group for the Device Explorer Toolbar -->
+      <Group guid="guidDeviceExplorerCmdSet" id="DeviceExplorerToolbarGroup2ID" priority="0x0001">
+        <Parent guid="guidDeviceExplorerCmdSet" id="DeviceExplorerToolbarID" />
+      </Group>
+
+    
     </Groups>
     
     <!--Buttons section. -->
@@ -89,7 +96,7 @@
         </Strings>
       </Button>
 
-      <!-- Ping for Device Exporer toolbar -->
+      <!-- Ping for Device Explorer toolbar -->
       <Button guid="guidDeviceExplorerCmdSet" id="idPingDeviceCommand" priority="0x0101" type="Button">
         <Parent guid="guidDeviceExplorerCmdSet" id="DeviceExplorerToolbarGroupID"/>
         <Icon guid="NanoFrameworkCatalog" id="Ping" />
@@ -101,7 +108,7 @@
         </Strings>
       </Button>
 
-      <!-- DeviceCapabilities for Device Exporer toolbar -->
+      <!-- DeviceCapabilities for Device Exlplorer toolbar -->
       <Button guid="guidDeviceExplorerCmdSet" id="idDeviceCapabilitiesCommand" priority="0x0101" type="Button">
         <Parent guid="guidDeviceExplorerCmdSet" id="DeviceExplorerToolbarGroupID"/>
         <Icon guid="NanoFrameworkCatalog" id="DeviceCapabilities" />
@@ -109,9 +116,60 @@
         <CommandFlag>DefaultDisabled</CommandFlag>
         <Strings>
           <CommandName>DeviceCapabilitiesCommand</CommandName>
-          <ButtonText>Device Capabilites</ButtonText>
+          <ButtonText>Device Capabilities</ButtonText>
         </Strings>
       </Button>
+
+      <!-- DeviceErase for Device Explorer toolbar -->
+      <Button guid="guidDeviceExplorerCmdSet" id="idDeviceEraseCommand" priority="0x0101" type="Button">
+        <Parent guid="guidDeviceExplorerCmdSet" id="DeviceExplorerToolbarGroupID"/>
+        <Icon guid="NanoFrameworkCatalog" id="DeviceErase" />
+        <CommandFlag>IconIsMoniker</CommandFlag>
+        <CommandFlag>DefaultDisabled</CommandFlag>
+        <Strings>
+          <CommandName>DeviceEraseCommand</CommandName>
+          <ButtonText>Erase Device Deployment Area</ButtonText>
+        </Strings>
+      </Button>
+
+      <!-- Reboot for Device Explorer toolbar -->
+      <Button guid="guidDeviceExplorerCmdSet" id="idRebootCommand" priority="0x0101" type="Button">
+        <Parent guid="guidDeviceExplorerCmdSet" id="DeviceExplorerToolbarGroupID"/>
+        <Icon guid="NanoFrameworkCatalog" id="Reboot" />
+        <CommandFlag>IconIsMoniker</CommandFlag>
+        <CommandFlag>DefaultDisabled</CommandFlag>
+        <Strings>
+          <CommandName>RebootCommand</CommandName>
+          <ButtonText>Reboot target device</ButtonText>
+        </Strings>
+      </Button>      
+
+      <!-- NetworkConfig for Device Explorer toolbar -->
+      <Button guid="guidDeviceExplorerCmdSet" id="idNetworkConfigCommand" priority="0x0101" type="Button">
+        <Parent guid="guidDeviceExplorerCmdSet" id="DeviceExplorerToolbarGroupID"/>
+        <Icon guid="NanoFrameworkCatalog" id="NetworkConfig" />
+        <CommandFlag>IconIsMoniker</CommandFlag>
+        <CommandFlag>DefaultDisabled</CommandFlag>
+        <Strings>
+          <CommandName>NetworkConfigCommand</CommandName>
+          <ButtonText>Edit Network Configuration</ButtonText>
+        </Strings>
+      </Button>
+      
+      <!-- buttons for the 2nd menu -->
+      
+      <!-- Show internal errors for nF extension -->
+      <Button guid="guidDeviceExplorerCmdSet" id="idShowInternalErrorsCommand" priority="0x0101" type="Button">
+        <Parent guid="guidDeviceExplorerCmdSet" id="DeviceExplorerToolbarGroup2ID"/>
+        <Icon guid="NanoFrameworkCatalog" id="ShowInternalErrors" />
+        <CommandFlag>IconIsMoniker</CommandFlag>
+        <Strings>
+          <CommandName>ShowInternalErrorsCommand</CommandName>
+          <ButtonText>Show Internal Errors</ButtonText>
+        </Strings>
+      </Button>
+      
+      
       
     </Buttons>
   </Commands>
@@ -135,8 +193,13 @@
     <GuidSymbol name="guidDeviceExplorerCmdSet" value="{DF641D51-1E8C-48E4-B549-CC6BCA9BDE19}">
       <IDSymbol name="DeviceExplorerToolbarID" value="0x1000" />
       <IDSymbol name="DeviceExplorerToolbarGroupID" value="0x1001" />
-      <IDSymbol name="idPingDeviceCommand" value="0x0202" />
-      <IDSymbol name="idDeviceCapabilitiesCommand" value="0x0203" />
+      <IDSymbol name="DeviceExplorerToolbarGroup2ID" value="0x1002" />
+      <IDSymbol name="idPingDeviceCommand" value="0x0210" />
+      <IDSymbol name="idDeviceCapabilitiesCommand" value="0x0220" />
+      <IDSymbol name="idDeviceEraseCommand" value="0x0230" />
+      <IDSymbol name="idRebootCommand" value="0x0240" />
+      <IDSymbol name="idNetworkConfigCommand" value="0x0250" />
+      <IDSymbol name="idShowInternalErrorsCommand" value="0x0300" />
     </GuidSymbol>
 
   </Symbols>

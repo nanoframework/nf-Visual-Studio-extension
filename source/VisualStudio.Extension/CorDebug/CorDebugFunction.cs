@@ -43,32 +43,32 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         public CorDebugClass Class
         {
-            [System.Diagnostics.DebuggerHidden]
+            [DebuggerHidden]
             get { return m_class; }
         }
 
         public CorDebugAppDomain AppDomain
         {                       
-            [System.Diagnostics.DebuggerHidden]
-            get { return this.Class.AppDomain; }
+            [DebuggerHidden]
+            get { return Class.AppDomain; }
         }
                 
         public CorDebugProcess Process
         {                       
-            [System.Diagnostics.DebuggerHidden]
-            get { return this.Class.Process; }
+            [DebuggerHidden]
+            get { return Class.Process; }
         }
 
         public CorDebugAssembly Assembly
         {                       
-            [System.Diagnostics.DebuggerHidden]
-            get { return this.Class.Assembly; }
+            [DebuggerHidden]
+            get { return Class.Assembly; }
         }
 
         private Engine Engine
         {
-            [System.Diagnostics.DebuggerHidden]
-            get { return this.Class.Engine; }
+            [DebuggerHidden]
+            get { return Class.Engine; }
         }
 
         [System.Diagnostics.DebuggerStepThrough]
@@ -90,34 +90,34 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             {
                 uint tk = HasSymbols ? m_pdbxMethod.Token.nanoCLR : m_tkSymbolless;
 
-                return nanoCLR_TypeSystem.ClassMemberIndexFromnanoCLRToken (tk, this.m_class.Assembly);
+                return nanoCLR_TypeSystem.ClassMemberIndexFromnanoCLRToken (tk, m_class.Assembly);
             }
         }
 
         public Pdbx.Method PdbxMethod
         {
-            [System.Diagnostics.DebuggerHidden]
+            [DebuggerHidden]
             get {return m_pdbxMethod;}
         }
 
         public bool IsInternal
         {
-            get {return MetaData.Helper.MethodIsInternal (this.Class.Assembly.MetaDataImport, this.m_pdbxMethod.Token.CLR); }
+            get {return MetaData.Helper.MethodIsInternal (Class.Assembly.MetaDataImport, m_pdbxMethod.Token.CLR); }
         }
 
         public bool IsInstance
         {
-            get { return MetaData.Helper.MethodIsInstance(this.Class.Assembly.MetaDataImport, this.m_pdbxMethod.Token.CLR); }
+            get { return MetaData.Helper.MethodIsInstance(Class.Assembly.MetaDataImport, m_pdbxMethod.Token.CLR); }
         }
 
         public bool IsVirtual
         {
-            get { return MetaData.Helper.MethodIsVirtual(this.Class.Assembly.MetaDataImport, this.m_pdbxMethod.Token.CLR); }
+            get { return MetaData.Helper.MethodIsVirtual(Class.Assembly.MetaDataImport, m_pdbxMethod.Token.CLR); }
         }
 
         public uint NumArg
         {
-            get {return MetaData.Helper.MethodGetNumArg (this.Class.Assembly.MetaDataImport, this.m_pdbxMethod.Token.CLR);  }
+            get {return MetaData.Helper.MethodGetNumArg (Class.Assembly.MetaDataImport, m_pdbxMethod.Token.CLR);  }
         }
 
         public uint GetILCLRFromILnanoCLR(uint ilnanoCLR)
@@ -286,20 +286,20 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         {
             bool fJMC = Boolean.IntToBool( bIsJustMyCode );
 
-            Debug.Assert( Utility.FImplies( fJMC, this.HasSymbols ) );
+            Debug.Assert( Utility.FImplies( fJMC, HasSymbols) );
 
             int hres = fJMC ? COM_HResults.E_FAIL : COM_HResults.S_OK;
 
-            if(this.HasSymbols)
+            if(HasSymbols)
             {
-                if(fJMC != this.m_pdbxMethod.IsJMC && m_pdbxMethod.CanSetJMC)
+                if(fJMC != m_pdbxMethod.IsJMC && m_pdbxMethod.CanSetJMC)
                 {
-                    if (this.Engine.Info_SetJMC(fJMC, ReflectionDefinition.Kind.REFLECTION_METHOD, this.MethodDef_Index))
+                    if (Engine.Info_SetJMC(fJMC, ReflectionDefinition.Kind.REFLECTION_METHOD, MethodDef_Index))
                     {
-                        if( !this.Assembly.IsFrameworkAssembly)
+                        if( !Assembly.IsFrameworkAssembly)
                         {
                             //now update the debugger JMC state...
-                            this.m_pdbxMethod.IsJMC = fJMC;
+                            m_pdbxMethod.IsJMC = fJMC;
                         }
 
                         hres = COM_HResults.S_OK;
@@ -312,7 +312,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         int ICorDebugFunction2.GetJMCStatus( out int pbIsJustMyCode )
         {
-            pbIsJustMyCode = Boolean.BoolToInt( this.HasSymbols ? this.m_pdbxMethod.IsJMC : false );
+            pbIsJustMyCode = Boolean.BoolToInt(HasSymbols ? m_pdbxMethod.IsJMC : false );
 
             return COM_HResults.S_OK;
         }

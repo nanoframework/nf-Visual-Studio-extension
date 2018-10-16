@@ -473,8 +473,9 @@ static const CHAR c_Definition_End[] =
 "{\n"
 "    \"%s\", \n"
 "    0x%08X,\n"
-"    method_lookup\n"
-"};\n\n";
+"    method_lookup,\n"
+"    { %d, %d, %d, %d }\n"
+"};\n";
 
 static const CHAR c_Method[] =
 "\nHRESULT Library_%S_%s::%s( CLR_RT_StackFrame& stack )\n"
@@ -491,23 +492,54 @@ static const CHAR c_MethodStub[] =
 
 //--//
 
-static const CHAR c_Project_Gen_Project_Open[] = "<Project DefaultTargets=\"Build\" ToolsVersion=\"3.5\" xmlns=\"http://schemas.microsoft.com/developer/msbuild/2003\">\n";
-static const CHAR c_Project_Gen_Project_Close[] = "</Project>\n";
+static const CHAR c_CMake_Module_Open[] = 
+"#\n"
+"# Copyright(c) 2018 The nanoFramework project contributors\n"
+"# See LICENSE file in the project root for full license information.\n"
+"#\n\n\n";
 
-static const CHAR c_Project_Gen_Import_Project[] = "<Import Project=\"$(SPOCLIENT)\\tools\\targets\\Microsoft.SPOT.System.Targets\" />\n";
+static const CHAR c_CMake_Module_Preamble[] =
+"#################################################################################################\n"
+"# make sure that a valid path is set bellow                                                     #\n"
+"# if this is for a class library it's OK to leave it as it is                                   #\n"
+"# if this is an Interop module the path has to be set where the build can find the source files #\n"
+"#################################################################################################\n"
+"\n"
+"# native code directory\n"
+"set(BASE_PATH_FOR_THIS_MODULE \"${BASE_PATH_FOR_CLASS_LIBRARIES_MODULES}/%s\")\n"
+"\n\n"
+"# set include directories\n"
+"list(APPEND %s_INCLUDE_DIRS \"${PROJECT_SOURCE_DIR}/src/CLR/Core\")\n"
+"list(APPEND %s_INCLUDE_DIRS \"${PROJECT_SOURCE_DIR}/src/CLR/Include\")\n"
+"list(APPEND %s_INCLUDE_DIRS \"${PROJECT_SOURCE_DIR}/src/HAL/Include\")\n"
+"list(APPEND %s_INCLUDE_DIRS \"${PROJECT_SOURCE_DIR}/src/PAL/Include\")\n"
+"list(APPEND %s_INCLUDE_DIRS \"${BASE_PATH_FOR_THIS_MODULE}\")\n";
 
-static const CHAR c_Project_Gen_Property_Group[] =
-"  <PropertyGroup>\n"
-"    <Directory>DeviceCode\\Targets\\Native\\Interop\\%S</Directory>\n"
-"    <AssemblyName>%S</AssemblyName>\n"
-"  </PropertyGroup>\n"
-"  <Import Project=\"$(SPOCLIENT)\\tools\\targets\\Microsoft.SPOT.System.Settings\" />\n"
-"  <PropertyGroup>\n"
-"    <OutputType>Library</OutputType>\n"
-"  </PropertyGroup>\n";
+static const CHAR c_CMake_Module_Source_Files_Start[] = 
+"\n"
+"# source files\n"
+"set(%s_SRCS\n\n";
 
-static const CHAR c_Project_Gen_Item_Group_Open[] = "<ItemGroup>\n";
-static const CHAR c_Project_Gen_Item_Group_Close[] = "</ItemGroup>\n";
+static const CHAR c_CMake_Module_Source_Files_End[] = "\n)\n\n";
+
+static const CHAR c_CMake_Module_Epilogue[] =
+"foreach(SRC_FILE ${%s_SRCS})\n"
+"    set(%s_SRC_FILE SRC_FILE-NOTFOUND)\n"
+"    find_file(%s_SRC_FILE ${SRC_FILE}\n"
+"	    PATHS\n"
+"	        \"${BASE_PATH_FOR_THIS_MODULE}\"\n"
+"	        \"${TARGET_BASE_LOCATION}\"\n"
+"\n"
+"	    CMAKE_FIND_ROOT_PATH_BOTH\n"
+"    )\n"
+"# message(\"${SRC_FILE} >> ${%s_SRC_FILE}\") # debug helper\n"
+"list(APPEND %s_SOURCES ${%s_SRC_FILE})\n"
+"endforeach()\n"
+"\n"
+"include(FindPackageHandleStandardArgs)\n"
+"\n"
+"FIND_PACKAGE_HANDLE_STANDARD_ARGS(%s DEFAULT_MSG %s_INCLUDE_DIRS %s_SOURCES)\n\n";
+
 //--//
 
 void CLR_RT_Assembly::BuildClassName(const CLR_RECORD_TYPEREF* tr, string& cls_name, bool fEscape)
@@ -982,13 +1014,13 @@ void CLR_RT_Assembly::GenerateSkeletonStubFieldsDef(const CLR_RECORD_TYPEDEF *pC
 	}
 }
 
-void CLR_RT_Assembly::GenerateSkeletonStubCode(LPCWSTR szFilePath, FILE *pFileDotNetProj)
+void CLR_RT_Assembly::GenerateSkeletonStubCode(LPCWSTR szFilePath, FILE *pFileCMakeModule)
 {
 	/*
 	** Creates 3 files.
 	** 1.   Create <assembly>_<type>_mshl.cpp, with the marshalling code.
 	** 2.   Create <assembly>_<type>.h  with the declarations of native stub functions for developer.
-	** 3.   Create <assembly>_<type>.cpp  with the defintioins of native stub functions for developer.
+	** 3.   Create <assembly>_<type>.cpp  with the definitions of native stub functions for developer.
 	*/
 
 	const CLR_RECORD_TYPEDEF* td = GetTypeDef(0);
@@ -1021,21 +1053,19 @@ void CLR_RT_Assembly::GenerateSkeletonStubCode(LPCWSTR szFilePath, FILE *pFileDo
 			// File with marshaling code. ( *.cpp )
 			swprintf(rgFiles, ARRAYSIZE(rgFiles), L"%s_%S_mshl.cpp", szFilePath, cls_name.c_str());
 			FILE *pFileMshlSrc = NULL;  Dump_SetDevice(pFileMshlSrc, rgFiles);
-			// Adds file to the dotNetMF.proj file.
-			Dump_Printf(pFileDotNetProj, "<Compile Include=\"%S\" />\n", GetFNameWithExtFromFilePath(rgFiles).c_str());
+			// Adds file to the CMake module file.
+			Dump_Printf(pFileCMakeModule, "    %S\n", GetFNameWithExtFromFilePath(rgFiles).c_str());
 
 			// File with declaration ( *.h ) of native stub functions for developer
 			swprintf(rgFiles, ARRAYSIZE(rgFiles), L"%s_%S.h", szFilePath, cls_name.c_str());
 			FILE *pFileStubHead = NULL;  Dump_SetDevice(pFileStubHead, rgFiles);
-			// Adds file to the dotNetMF.proj file.
-			Dump_Printf(pFileDotNetProj, "<HFile Include=\"%S\" />\n", GetFNameWithExtFromFilePath(rgFiles).c_str());
 			string strHeaderDefineMacro = BuildHeaderDefMacro(rgFiles);
 
 			// File with definition ( *.cpp )  of native stub functions for developer
 			swprintf(rgFiles, ARRAYSIZE(rgFiles), L"%s_%S.cpp", szFilePath, cls_name.c_str());
 			FILE *pFileStubSrc = NULL;  Dump_SetDevice(pFileStubSrc, rgFiles);
-			// Adds file to the dotNetMF.proj file.
-			Dump_Printf(pFileDotNetProj, "<Compile Include=\"%S\" />\n", GetFNameWithExtFromFilePath(rgFiles).c_str());
+			// Adds file to the CMake module file.
+			Dump_Printf(pFileCMakeModule, "    %S\n", GetFNameWithExtFromFilePath(rgFiles).c_str());
 
 
 			// Put Comments header into each file
@@ -1043,7 +1073,7 @@ void CLR_RT_Assembly::GenerateSkeletonStubCode(LPCWSTR szFilePath, FILE *pFileDo
 			Dump_Printf(pFileStubSrc, c_WARNING_FILE_OVERWRITE_Header);
 			Dump_Printf(pFileStubHead, c_WARNING_FILE_OVERWRITE_Header);
 
-			// In header file prevention of multople inclusion.
+			// add include header guard macro in header file
 			Dump_Printf(pFileStubHead, "#ifndef %s\n", strHeaderDefineMacro.c_str());
 			Dump_Printf(pFileStubHead, "#define %s\n\n", strHeaderDefineMacro.c_str());
 
@@ -1106,7 +1136,7 @@ void CLR_RT_Assembly::GenerateSkeletonStubCode(LPCWSTR szFilePath, FILE *pFileDo
 					bool bStaticMethod((md->flags & CLR_RECORD_METHODDEF::MD_Static) != 0);
 					string strNativeStubName = ReplaceDotWithString(GetString(md->name), "_");
 
-					// elemPtrArray represents parameters to the funtion. One element for each parameter. 
+					// elemPtrArray represents parameters to the function. One element for each parameter. 
 					CLR_RT_VectorOfManagedElements elemPtrArray;
 					BuildParametersList(GetSignature(md->sig), elemPtrArray);
 
@@ -1122,9 +1152,9 @@ void CLR_RT_Assembly::GenerateSkeletonStubCode(LPCWSTR szFilePath, FILE *pFileDo
 					// Everything that goes inside of curly brackets.
 					string  strFuncImpl = "    NANOCLR_HEADER(); hr = S_OK;\n    {\n";
 
-					// If function is not static - we need to retrieve adresses ( in form of references ) of all member variables.
+					// If function is not static - we need to retrieve addresses ( in form of references ) of all member variables.
 					if (!bStaticMethod)
-					{   // Retrieve pointer to first field ( member varialbe ) in the managed class.
+					{   // Retrieve pointer to first field ( member variable ) in the managed class.
 						const CLR_RECORD_FIELDDEF* fd = GetFieldDef(td->iFields_First);
 						strFuncImpl += "        CLR_RT_HeapBlock* pMngObj = Interop_Marshal_RetrieveManagedObject( stack );\n\n";
 						strFuncImpl += "        FAULT_ON_NULL(pMngObj);\n\n";
@@ -1192,7 +1222,7 @@ void CLR_RT_Assembly::GenerateSkeletonStubCode(LPCWSTR szFilePath, FILE *pFileDo
 				Dump_Printf(pFileStubHead, vectClosingBrackets[i].c_str());
 			}
 
-			// #endif for prevention of multiple inclusion of header file
+			// add closing of header guard macro
 			Dump_Printf(pFileStubHead, "#endif  //%s\n", strHeaderDefineMacro.c_str());
 
 			// Close all 3 files
@@ -1240,162 +1270,161 @@ void CLR_RT_Assembly::GenerateSkeletonFromComplientNames(LPCWSTR szFilePath, LPC
 	// Creates local variable with name of assembly ( like Microsoft.SPOT.Graphics ).
 	string strAssemblyIDName = ReplaceDotWithString(m_szName, "_");
 
-	// Opens file for dotNetMF.proj project file 
-	swprintf(rgFiles, ARRAYSIZE(rgFiles), L"%sdotNetMF.proj", GetDirPathFromFilePath(szFilePath).c_str());
-	FILE *pFileDotNetProj = NULL;  Dump_SetDevice(pFileDotNetProj, rgFiles);
-	// Start of XML dotNetMF.proj file
-	Dump_Printf(pFileDotNetProj, c_Project_Gen_Project_Open);
-	// Property group with project name. 
-	Dump_Printf(pFileDotNetProj, c_Project_Gen_Property_Group, szProjectName, szProjectName);
-	// Opens Item Group in dotNetmf.proj
-	Dump_Printf(pFileDotNetProj, c_Project_Gen_Item_Group_Open);
+	// Opens file for the CMake module file wich should be the assembly name, preceded with 'Find'
+	swprintf(rgFiles, ARRAYSIZE(rgFiles), L"%sFindINTEROP-%S.cmake", GetDirPathFromFilePath(szFilePath).c_str(), m_szName);
+	FILE *pFileCMakeModule = NULL;  Dump_SetDevice(pFileCMakeModule, rgFiles);
+	// Start of CMake module file
+	Dump_Printf(pFileCMakeModule, c_CMake_Module_Open);
+	// preamble with settings and include directories
+	Dump_Printf(pFileCMakeModule, c_CMake_Module_Preamble, m_szName, m_szName, m_szName, m_szName, m_szName, m_szName);
+
+	// starts source files listing in CMake module
+	Dump_Printf(pFileCMakeModule, c_CMake_Module_Source_Files_Start, m_szName);
 
 
 	//
 	// 1) Create <assembly>.h, with the structs declarations.
 	//
-	{   swprintf(rgFiles, ARRAYSIZE(rgFiles), L"%s.h", szFilePath); Dump_SetDevice(rgFiles);
-	// Adds the file name to the dotNetMF.proj file.
-	Dump_Printf(pFileDotNetProj, "<HFile Include=\"%S\" />\n", GetFNameWithExtFromFilePath(rgFiles).c_str());
+	{   
+		swprintf(rgFiles, ARRAYSIZE(rgFiles), L"%s.h", szFilePath); Dump_SetDevice(rgFiles);
 
-
-	//Allow szFilePath to point to a path, not just a prefix
-	for (szName = szFilePath + wcslen(szFilePath); szName != szFilePath; szName--)
-	{
-		if (*(szName - 1) == '\\' || *(szName - 1) == '/') break;
-	}
-
-	// Build string for the symbol to prevent multiple inclusion of header
-	// Example "_SPOT_INTEROPSAMPLE_NATIVE_H_"
-	string strHeaderDefineMacro = BuildHeaderDefMacro(rgFiles);
-
-	// Copy write header.
-	Dump_Printf(c_DO_NOT_EDIT_THIS_FILE_Header);
-
-	// Prevent multiple inclusion of header file.
-	Dump_Printf("#ifndef %s\n", strHeaderDefineMacro.c_str());
-	Dump_Printf("#define %s\n\n", strHeaderDefineMacro.c_str());
-
-	// Add #include <NANOCLR_Interop.h>\n;
-	Dump_Printf(c_Include_Interop_h);
-
-	int                       iStaticFields = 0;
-	const CLR_RECORD_TYPEDEF* td = GetTypeDef(0);
-
-	for (int i = 0; i<m_pTablesSize[TBL_TypeDef]; i++, td++)
-	{
-		if (IncludeInStub(td))
+		//Allow szFilePath to point to a path, not just a prefix
+		for (szName = szFilePath + wcslen(szFilePath); szName != szFilePath; szName--)
 		{
-			string cls_name; BuildClassName(td, cls_name, true);
+			if (*(szName - 1) == '\\' || *(szName - 1) == '/') break;
+		}
 
-			// Look at the class name. 
-			// If class name starts from <PrivateImplementationDetails>,
-			// then we need to exclude this class as actually this is static data object 
-			// described in metadata.
-			if (NULL != strstr(cls_name.c_str(), "<PrivateImplementationDetails>"))
+		// Build string for the symbol to prevent multiple inclusion of header
+		// Example "_SPOT_INTEROPSAMPLE_NATIVE_H_"
+		string strHeaderDefineMacro = BuildHeaderDefMacro(rgFiles);
+
+		// Copy write header.
+		Dump_Printf(c_DO_NOT_EDIT_THIS_FILE_Header);
+
+		// Prevent multiple inclusion of header file.
+		Dump_Printf("#ifndef %s\n", strHeaderDefineMacro.c_str());
+		Dump_Printf("#define %s\n\n", strHeaderDefineMacro.c_str());
+
+		// Add #include <NANOCLR_Interop.h>\n;
+		Dump_Printf(c_Include_Interop_h);
+
+		int                       iStaticFields = 0;
+		const CLR_RECORD_TYPEDEF* td = GetTypeDef(0);
+
+		for (int i = 0; i<m_pTablesSize[TBL_TypeDef]; i++, td++)
+		{
+			if (IncludeInStub(td))
 			{
-				// Go to the next class. This metadata describes global variable, not a type
-				continue;
-			}
+				string cls_name; BuildClassName(td, cls_name, true);
 
-
-
-			bool        fSeen = false;
-
-			if (td->sFields_Num)
-			{
-				const CLR_RECORD_FIELDDEF* fd = GetFieldDef(td->sFields_First);
-
-				for (int j = 0; j<td->sFields_Num; j++, fd++)
+				// Look at the class name. 
+				// If class name starts from <PrivateImplementationDetails>,
+				// then we need to exclude this class as actually this is static data object 
+				// described in metadata.
+				if (NULL != strstr(cls_name.c_str(), "<PrivateImplementationDetails>"))
 				{
-					if (fSeen == false) { Dump_Printf(c_Type_Begin, szName, cls_name.c_str()); fSeen = true; }
-
-
-					// need this to check for valid field names
-					char tempFieldName[200];
-					strcpy_s(tempFieldName, GetString(fd->name));
-
-					if ((NULL != strstr(tempFieldName, "<")) || (NULL != strstr(tempFieldName, ">")))
-					{
-						// something very wrong with field name!!
-						Dump_Printf("    // Something wrong with this field. Possibly its backing field is missing (mandatory for nanoFramework).\n");
-						Dump_Printf("    // ");
-						Dump_Printf(tempFieldName);
-						Dump_Printf("\n");
-						
-						// output a variable name that is invalid to make the compiler issue an error
-						strcpy_s(tempFieldName, "**THIS_FIELD_IS_NOT_CORRECT_CHECK_MANAGED_CODE**");
-					}
-
-					Dump_Printf(c_Type_Field_Static, &tempFieldName, j + iStaticFields);
+					// Go to the next class. This metadata describes global variable, not a type
+					continue;
 				}
 
-				Dump_Printf("\n");
-			}
 
-			if (td->iFields_Num)
-			{
-				const CLR_RECORD_FIELDDEF* fd = GetFieldDef(td->iFields_First);
 
-				for (int j = 0; j<td->iFields_Num; j++, fd++)
+				bool        fSeen = false;
+
+				if (td->sFields_Num)
 				{
-					if (fSeen == false) { Dump_Printf(c_Type_Begin, szName, cls_name.c_str()); fSeen = true; }
+					const CLR_RECORD_FIELDDEF* fd = GetFieldDef(td->sFields_First);
 
-					// need this to check for valid field names
-					char tempFieldName[200];
-				    strcpy_s(tempFieldName, GetString(fd->name));
-
-					if ((NULL != strstr(tempFieldName, "<")) || (NULL != strstr(tempFieldName, ">")))
+					for (int j = 0; j<td->sFields_Num; j++, fd++)
 					{
-						// something very wrong with field name!!
-						Dump_Printf("    // Something wrong with this field. Possibly its backing field is missing (mandatory for nanoFramework).\n");
-						Dump_Printf("    // ");
-						Dump_Printf(tempFieldName);
-						Dump_Printf("\n");
+						if (fSeen == false) { Dump_Printf(c_Type_Begin, szName, cls_name.c_str()); fSeen = true; }
 
-						// output a variable name that is invalid to make the compiler issue an error
-						strcpy_s(tempFieldName, "**THIS_FIELD_IS_NOT_CORRECT_CHECK_MANAGED_CODE**");
-					}
 
-					Dump_Printf(c_Type_Field_Instance, &tempFieldName, m_pCrossReference_FieldDef[j + td->iFields_First].m_offset);
-				}
+						// need this to check for valid field names
+						char tempFieldName[200];
+						strcpy_s(tempFieldName, GetString(fd->name));
 
-				Dump_Printf("\n");
-			}
-
-			{
-				int totMethods = td->vMethods_Num + td->iMethods_Num + td->sMethods_Num;
-
-				if (totMethods)
-				{
-					string                 name;
-					CLR_RT_StringMap            mapMethods;
-					const CLR_RECORD_METHODDEF* md = GetMethodDef(td->methods_First);
-
-					for (int j = 0; j<totMethods; j++, md++)
-					{
-						if (IncludeInStub(md))
+						if ((NULL != strstr(tempFieldName, "<")) || (NULL != strstr(tempFieldName, ">")))
 						{
-							BuildMethodName(md, name, mapMethods);
+							// something very wrong with field name!!
+							Dump_Printf("    // Something wrong with this field. Possibly its backing field is missing (mandatory for nanoFramework).\n");
+							Dump_Printf("    // ");
+							Dump_Printf(tempFieldName);
+							Dump_Printf("\n");
+						
+							// output a variable name that is invalid to make the compiler issue an error
+							strcpy_s(tempFieldName, "**THIS_FIELD_IS_NOT_CORRECT_CHECK_MANAGED_CODE**");
+						}
 
-							if (fSeen == false) { Dump_Printf(c_Type_Begin, szName, cls_name.c_str()); fSeen = true; }
+						Dump_Printf(c_Type_Field_Static, &tempFieldName, j + iStaticFields);
+					}
 
-							Dump_Printf(c_Type_Method, name.c_str());
+					Dump_Printf("\n");
+				}
+
+				if (td->iFields_Num)
+				{
+					const CLR_RECORD_FIELDDEF* fd = GetFieldDef(td->iFields_First);
+
+					for (int j = 0; j<td->iFields_Num; j++, fd++)
+					{
+						if (fSeen == false) { Dump_Printf(c_Type_Begin, szName, cls_name.c_str()); fSeen = true; }
+
+						// need this to check for valid field names
+						char tempFieldName[200];
+						strcpy_s(tempFieldName, GetString(fd->name));
+
+						if ((NULL != strstr(tempFieldName, "<")) || (NULL != strstr(tempFieldName, ">")))
+						{
+							// something very wrong with field name!!
+							Dump_Printf("    // Something wrong with this field. Possibly its backing field is missing (mandatory for nanoFramework).\n");
+							Dump_Printf("    // ");
+							Dump_Printf(tempFieldName);
+							Dump_Printf("\n");
+
+							// output a variable name that is invalid to make the compiler issue an error
+							strcpy_s(tempFieldName, "**THIS_FIELD_IS_NOT_CORRECT_CHECK_MANAGED_CODE**");
+						}
+
+						Dump_Printf(c_Type_Field_Instance, &tempFieldName, m_pCrossReference_FieldDef[j + td->iFields_First].m_offset);
+					}
+
+					Dump_Printf("\n");
+				}
+
+				{
+					int totMethods = td->vMethods_Num + td->iMethods_Num + td->sMethods_Num;
+
+					if (totMethods)
+					{
+						string                 name;
+						CLR_RT_StringMap            mapMethods;
+						const CLR_RECORD_METHODDEF* md = GetMethodDef(td->methods_First);
+
+						for (int j = 0; j<totMethods; j++, md++)
+						{
+							if (IncludeInStub(md))
+							{
+								BuildMethodName(md, name, mapMethods);
+
+								if (fSeen == false) { Dump_Printf(c_Type_Begin, szName, cls_name.c_str()); fSeen = true; }
+
+								Dump_Printf(c_Type_Method, name.c_str());
+							}
 						}
 					}
 				}
+
+				if (fSeen) { Dump_Printf(c_Type_End); }
 			}
 
-			if (fSeen) { Dump_Printf(c_Type_End); }
+			iStaticFields += td->sFields_Num;
 		}
 
-		iStaticFields += td->sFields_Num;
-	}
-
-	Dump_Printf("\n\nextern const CLR_RT_NativeAssemblyData g_CLR_AssemblyNative_%s;\n\n", strAssemblyIDName.c_str());
-	// #endif for multiple inclusion of file.
-	Dump_Printf("#endif  //%s\n", strHeaderDefineMacro.c_str());
-	Dump_CloseDevice();
+		Dump_Printf("\n\nextern const CLR_RT_NativeAssemblyData g_CLR_AssemblyNative_%s;\n\n", strAssemblyIDName.c_str());
+		// #endif for multiple inclusion of file.
+		Dump_Printf("#endif  //%s\n", strHeaderDefineMacro.c_str());
+		Dump_CloseDevice();
 	}
 
 	//
@@ -1403,8 +1432,8 @@ void CLR_RT_Assembly::GenerateSkeletonFromComplientNames(LPCWSTR szFilePath, LPC
 	//
 	{
 		swprintf(rgFiles, ARRAYSIZE(rgFiles), L"%s.cpp", szFilePath); Dump_SetDevice(rgFiles);
-		// Adds source file to dotnetmf.proj
-		Dump_Printf(pFileDotNetProj, "<Compile Include=\"%S\" />\n", GetFNameWithExtFromFilePath(rgFiles).c_str());
+		// Adds source file to the CMake module
+		Dump_Printf(pFileCMakeModule, "    %S\n", GetFNameWithExtFromFilePath(rgFiles).c_str());
 
 		Dump_Printf(c_DO_NOT_EDIT_THIS_FILE_Header);
 		Dump_Printf(c_Definition_Begin, szName);
@@ -1449,7 +1478,11 @@ void CLR_RT_Assembly::GenerateSkeletonFromComplientNames(LPCWSTR szFilePath, LPC
 		Dump_Printf(c_Definition_End,
 			strAssemblyIDName.c_str(),
 			m_szName,
-			m_header->nativeMethodsChecksum
+			m_header->nativeMethodsChecksum,
+			m_header->version.iMajorVersion, 
+			m_header->version.iMinorVersion, 
+			m_header->version.iBuildNumber, 
+			m_header->version.iRevisionNumber
 		);
 
 		Dump_CloseDevice();
@@ -1457,16 +1490,16 @@ void CLR_RT_Assembly::GenerateSkeletonFromComplientNames(LPCWSTR szFilePath, LPC
 
 
 	// Generates marshaling and stub code sources and headers
-	GenerateSkeletonStubCode(szFilePath, pFileDotNetProj);
+	GenerateSkeletonStubCode(szFilePath, pFileCMakeModule);
 
-	// Closes Item Group in dotNetmf.proj 
-	Dump_Printf(pFileDotNetProj, c_Project_Gen_Item_Group_Close);
-	// Add "Import Project" to the dotNetmf.proj  
-	Dump_Printf(pFileDotNetProj, c_Project_Gen_Import_Project);
-	// Closes XML "</Project>\n"
-	Dump_Printf(pFileDotNetProj, c_Project_Gen_Project_Close);
+	// Closes source list in CMake module
+	Dump_Printf(pFileCMakeModule, c_CMake_Module_Source_Files_End);
+
+	// Add closing of CMake module
+	Dump_Printf(pFileCMakeModule, c_CMake_Module_Epilogue, m_szName, m_szName, m_szName, m_szName, m_szName, m_szName, m_szName, m_szName, m_szName);
+
 	// Closes project file.
-	Dump_CloseDevice(pFileDotNetProj);
+	Dump_CloseDevice(pFileCMakeModule);
 }
 
 void CLR_RT_Assembly::GenerateSkeleton(LPCWSTR szFilePath, LPCWSTR szProjectName)
@@ -1758,9 +1791,12 @@ void CLR_RT_Assembly::GenerateSkeleton_NoInterop(LPCWSTR szFileName, LPCWSTR szP
 		Dump_Printf(c_Definition_End,
 			strAssemblyIDName.c_str(),
 			m_szName,
-			m_header->nativeMethodsChecksum
+			m_header->nativeMethodsChecksum,
+			m_header->version.iMajorVersion,
+			m_header->version.iMinorVersion,
+			m_header->version.iBuildNumber,
+			m_header->version.iRevisionNumber
 		);
-
 
 		Dump_CloseDevice();
 	}

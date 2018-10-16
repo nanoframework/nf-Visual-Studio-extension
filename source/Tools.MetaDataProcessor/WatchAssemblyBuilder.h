@@ -282,7 +282,7 @@ public:
 	static HRESULT ConstructErrorOrigin(std::wstring &str, ISymUnmanagedReader* pSymReader, mdMethodDef md, ULONG32 ipOffset);
 };
 
-struct TinyResourcesFileHeader
+struct NanoResourcesFileHeader
 {
 	static const CLR_UINT32 MAGIC_NUMBER = 0xf995b0a8;
 
@@ -293,7 +293,7 @@ struct TinyResourcesFileHeader
 	CLR_UINT32 numberOfResources;
 };
 
-struct TinyResourcesResourceHeader
+struct NanoResourcesResourceHeader
 {
 	//
 	// Sorted on id

@@ -14,8 +14,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 {
     public abstract class CorDebugValue : ICorDebugHeapValue, ICorDebugValue2
     {
-        protected RuntimeValue m_rtv;
-        protected CorDebugAppDomain m_appDomain;
+        protected RuntimeValue _rtv;
+        protected CorDebugAppDomain _appDomain;
 
         public static CorDebugValue CreateValue(RuntimeValue rtv, CorDebugAppDomain appDomain)
         {
@@ -60,12 +60,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             
             if (fIsReference)
             {
-                val = new CorDebugValueReference(val, val.m_rtv, val.m_appDomain);
+                val = new CorDebugValueReference(val, val._rtv, val._appDomain);
             }
 
             if (rtv.IsReference)    //CorElementType.ELEMENT_TYPE_BYREF
             {
-                val = new CorDebugValueReferenceByRef(val, val.m_rtv, val.m_appDomain);
+                val = new CorDebugValueReferenceByRef(val, val._rtv, val._appDomain);
             }
 
             return val;        
@@ -119,45 +119,45 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         public CorDebugValue(RuntimeValue rtv, CorDebugAppDomain appDomain)
         {
-            m_rtv = rtv;                                  
-            m_appDomain = appDomain;
+            _rtv = rtv;                                  
+            _appDomain = appDomain;
         }
 
         public virtual RuntimeValue RuntimeValue
         {
-            get { return m_rtv; }
+            get { return _rtv; }
 
             set
             {
                 //This should only be used if the underlying RuntimeValue changes, but not the data
                 //For example, if we ever support compaction.  For now, this is only used when the scratch
                 //pad needs resizing, the RuntimeValues, and there associated heapblock*, will be relocated
-                Debug.Assert (m_rtv.GetType () == value.GetType ());
-                Debug.Assert(m_rtv.CorElementType == value.CorElementType || value.IsNull || m_rtv.IsNull);
+                Debug.Assert (_rtv.GetType () == value.GetType ());
+                Debug.Assert(_rtv.CorElementType == value.CorElementType || value.IsNull || _rtv.IsNull);
                 //other debug checks here...
-                m_rtv = value;
+                _rtv = value;
             }
         }
 
         public CorDebugAppDomain AppDomain
         {
-            get { return m_appDomain; }
+            get { return _appDomain; }
         }
 
         protected Engine Engine
         {
-            [System.Diagnostics.DebuggerHidden]
-            get {return m_appDomain.Engine;}
+            [DebuggerHidden]
+            get {return _appDomain.Engine;}
         }        
 
         protected CorDebugValue CreateValue(RuntimeValue rtv)
         {
-            return CorDebugValue.CreateValue(rtv, m_appDomain);
+            return CorDebugValue.CreateValue(rtv, _appDomain);
         }
 
         protected virtual CorElementType ElementTypeProtected
         {
-            get { return m_rtv.CorElementType; }
+            get { return _rtv.CorElementType; }
         }
 
         public virtual uint Size
@@ -167,7 +167,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         public virtual CorElementType Type
         {
-            get { return this.ElementTypeProtected; }
+            get { return ElementTypeProtected; }
         }
     
         public ICorDebugValue ICorDebugValue
@@ -184,21 +184,21 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         int ICorDebugValue.GetType( out CorElementType pType )
         {
-            pType = this.Type;
+            pType = Type;
 
             return COM_HResults.S_OK;
         }
 
         int ICorDebugValue.GetSize( out uint pSize )
         {
-            pSize = this.Size;
+            pSize = Size;
 
             return COM_HResults.S_OK;            
         }
 
         int ICorDebugValue.GetAddress( out ulong pAddress )
         {
-            pAddress = m_rtv.ReferenceIdDirect;
+            pAddress = _rtv.ReferenceIdDirect;
 
             return COM_HResults.S_OK; 
         }
@@ -218,22 +218,22 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         int ICorDebugHeapValue.GetType( out CorElementType pType )
         {
-            return this.ICorDebugValue.GetType( out pType );            
+            return ICorDebugValue.GetType( out pType );            
         }
 
         int ICorDebugHeapValue.GetSize( out uint pSize )
         {
-            return this.ICorDebugValue.GetSize( out pSize );            
+            return ICorDebugValue.GetSize( out pSize );            
         }
 
         int ICorDebugHeapValue.GetAddress( out ulong pAddress )
         {
-            return this.ICorDebugValue.GetAddress( out pAddress );            
+            return ICorDebugValue.GetAddress( out pAddress );            
         }
 
         int ICorDebugHeapValue.CreateBreakpoint( out ICorDebugValueBreakpoint ppBreakpoint )
         {
-            return this.ICorDebugValue.CreateBreakpoint( out ppBreakpoint );            
+            return ICorDebugValue.CreateBreakpoint( out ppBreakpoint );            
         }
 
         #endregion
@@ -262,7 +262,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         int ICorDebugValue2.GetExactType(out ICorDebugType ppType)
         {
-            ppType = new CorDebugGenericType(RuntimeValue.CorElementType, m_rtv, m_appDomain);
+            ppType = new CorDebugGenericType(RuntimeValue.CorElementType, _rtv, _appDomain);
             return COM_HResults.S_OK;
         }
 
@@ -277,15 +277,15 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         
         protected virtual object ValueProtected
         {
-            get { return m_rtv.Value; }
-            set { m_rtv.Value = value; }
+            get { return _rtv.Value; }
+            set { _rtv.Value = value; }
         }
 
         public override uint Size
         {
             get 
             {
-                object o = this.ValueProtected;
+                object o = ValueProtected;
                 return (uint)Marshal.SizeOf( o );
             }
         }
@@ -301,22 +301,22 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         int ICorDebugGenericValue.GetType( out CorElementType pType )
         {
-            return this.ICorDebugValue.GetType( out pType );            
+            return ICorDebugValue.GetType( out pType );            
         }
 
         int ICorDebugGenericValue.GetSize( out uint pSize )
         {
-            return this.ICorDebugValue.GetSize( out pSize );         
+            return ICorDebugValue.GetSize( out pSize );         
         }
 
         int ICorDebugGenericValue.GetAddress( out ulong pAddress )
         {
-            return this.ICorDebugValue.GetAddress( out pAddress );            
+            return ICorDebugValue.GetAddress( out pAddress );            
         }
 
         int ICorDebugGenericValue.CreateBreakpoint( out ICorDebugValueBreakpoint ppBreakpoint )
         {
-            return this.ICorDebugValue.CreateBreakpoint( out ppBreakpoint );            
+            return ICorDebugValue.CreateBreakpoint( out ppBreakpoint );            
         }
 
         #endregion
@@ -324,9 +324,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         int ICorDebugGenericValue.GetValue( IntPtr pTo )
         {
             byte[] data = null;
-            object val = this.ValueProtected;
+            object val = ValueProtected;
 
-            switch(this.ElementTypeProtected)
+            switch(ElementTypeProtected)
             {
                 case CorElementType.ELEMENT_TYPE_BOOLEAN:
                     data = BitConverter.GetBytes( (bool)val );
@@ -388,12 +388,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         int ICorDebugGenericValue.SetValue( IntPtr pFrom )
         {
             object val = null;
-            uint cByte = this.Size;            
+            uint cByte = Size;            
 
             byte[] data = new byte[cByte];
 
             Marshal.Copy( pFrom, data, 0, (int)cByte );
-            switch(this.ElementTypeProtected)
+            switch(ElementTypeProtected)
             {
                 case CorElementType.ELEMENT_TYPE_BOOLEAN:
                     val = BitConverter.ToBoolean( data, 0 );
@@ -444,7 +444,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     break;
             }
 
-            this.ValueProtected = val;
+            ValueProtected = val;
 
             return COM_HResults.S_OK;
         }
@@ -481,22 +481,22 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         int ICorDebugBoxValue.GetType( out CorElementType pType )
         {
-            return this.ICorDebugValue.GetType( out pType );            
+            return ICorDebugValue.GetType( out pType );            
         }
 
         int ICorDebugBoxValue.GetSize( out uint pSize )
         {
-            return this.ICorDebugValue.GetSize( out pSize );            
+            return ICorDebugValue.GetSize( out pSize );            
         }
 
         int ICorDebugBoxValue.GetAddress( out ulong pAddress )
         {
-            return this.ICorDebugValue.GetAddress( out pAddress );            
+            return ICorDebugValue.GetAddress( out pAddress );            
         }
 
         int ICorDebugBoxValue.CreateBreakpoint( out ICorDebugValueBreakpoint ppBreakpoint )
         {
-            return this.ICorDebugValue.CreateBreakpoint( out ppBreakpoint );            
+            return ICorDebugValue.CreateBreakpoint( out ppBreakpoint );            
         }
 
         #endregion
@@ -505,12 +505,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         int ICorDebugBoxValue.IsValid( out int pbValid )
         {
-            return this.ICorDebugHeapValue.IsValid( out pbValid );            
+            return ICorDebugHeapValue.IsValid( out pbValid );            
         }
 
         int ICorDebugBoxValue.CreateRelocBreakpoint( out ICorDebugValueBreakpoint ppBreakpoint )
         {
-            return this.ICorDebugValue.CreateBreakpoint( out ppBreakpoint );            
+            return ICorDebugValue.CreateBreakpoint( out ppBreakpoint );            
         }
 
         #endregion
@@ -576,22 +576,22 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         int ICorDebugReferenceValue.GetType( out CorElementType pType )
         {
-            return this.ICorDebugValue.GetType( out pType );            
+            return ICorDebugValue.GetType( out pType );            
         }
 
         int ICorDebugReferenceValue.GetSize( out uint pSize )
         {
-            return this.ICorDebugValue.GetSize( out pSize );            
+            return ICorDebugValue.GetSize( out pSize );            
         }
 
         int ICorDebugReferenceValue.GetAddress( out ulong pAddress )
         {
-            return this.ICorDebugValue.GetAddress( out pAddress );            
+            return ICorDebugValue.GetAddress( out pAddress );            
         }
 
         int ICorDebugReferenceValue.CreateBreakpoint( out ICorDebugValueBreakpoint ppBreakpoint )
         {
-            return this.ICorDebugValue.CreateBreakpoint( out ppBreakpoint );
+            return ICorDebugValue.CreateBreakpoint( out ppBreakpoint );
         }
 
         #endregion
@@ -600,14 +600,14 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         int ICorDebugReferenceValue.IsNull( out int pbNull )
         {
-            pbNull = Boolean.BoolToInt( m_rtv.IsNull );
+            pbNull = Boolean.BoolToInt( _rtv.IsNull );
 
             return COM_HResults.S_OK;            
         }
 
         int ICorDebugReferenceValue.GetValue( out ulong pValue )
         {
-            pValue = (ulong)m_rtv.ReferenceIdDirect;
+            pValue = (ulong)_rtv.ReferenceIdDirect;
 
             return COM_HResults.S_OK;            
         }
@@ -616,8 +616,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         {
             Debug.Assert( value <= uint.MaxValue );
 
-            RuntimeValue rtvNew = m_rtv.Assign((uint)value);
-            this.RuntimeValue = rtvNew;
+            RuntimeValue rtvNew = _rtv.Assign((uint)value);
+            RuntimeValue = rtvNew;
 
             return COM_HResults.S_OK;            
         }
@@ -631,7 +631,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         int ICorDebugReferenceValue.DereferenceStrong( out ICorDebugValue ppValue )
         {
-            return this.ICorDebugReferenceValue.Dereference( out ppValue );            
+            return ICorDebugReferenceValue.Dereference( out ppValue );            
         }
 
         #endregion
@@ -644,22 +644,22 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         int ICorDebugHandleValue.GetType( out CorElementType pType )
         {
-            return this.ICorDebugValue.GetType( out pType );            
+            return ICorDebugValue.GetType( out pType );            
         }
 
         int ICorDebugHandleValue.GetSize( out uint pSize )
         {
-            return this.ICorDebugValue.GetSize( out pSize );            
+            return ICorDebugValue.GetSize( out pSize );            
         }
 
         int ICorDebugHandleValue.GetAddress( out ulong pAddress )
         {
-            return this.ICorDebugValue.GetAddress( out pAddress );            
+            return ICorDebugValue.GetAddress( out pAddress );            
         }
 
         int ICorDebugHandleValue.CreateBreakpoint( out ICorDebugValueBreakpoint ppBreakpoint )
         {
-            return this.ICorDebugValue.CreateBreakpoint( out ppBreakpoint );            
+            return ICorDebugValue.CreateBreakpoint( out ppBreakpoint );            
         }
 
         #endregion
@@ -668,27 +668,27 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         int ICorDebugHandleValue.IsNull( out int pbNull )
         {
-            return this.ICorDebugReferenceValue.IsNull( out pbNull );            
+            return ICorDebugReferenceValue.IsNull( out pbNull );            
         }
 
         int ICorDebugHandleValue.GetValue( out ulong pValue )
         {
-            return this.ICorDebugReferenceValue.GetValue( out pValue );            
+            return ICorDebugReferenceValue.GetValue( out pValue );            
         }
 
         int ICorDebugHandleValue.SetValue( ulong value )
         {
-            return this.ICorDebugReferenceValue.SetValue( value );            
+            return ICorDebugReferenceValue.SetValue( value );            
         }
 
         int ICorDebugHandleValue.Dereference( out ICorDebugValue ppValue )
         {
-            return this.ICorDebugReferenceValue.Dereference( out ppValue );            
+            return ICorDebugReferenceValue.Dereference( out ppValue );            
         }
 
         int ICorDebugHandleValue.DereferenceStrong( out ICorDebugValue ppValue )
         {
-            return this.ICorDebugReferenceValue.DereferenceStrong( out ppValue );            
+            return ICorDebugReferenceValue.DereferenceStrong( out ppValue );            
         }
 
         #endregion
@@ -734,7 +734,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         public uint Count
         {
-            get { return m_rtv.Length; }
+            get { return _rtv.Length; }
         }
 
         public ICorDebugArrayValue ICorDebugArrayValue
@@ -748,22 +748,22 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         int ICorDebugArrayValue.GetType( out CorElementType pType )
         {
-            return this.ICorDebugValue.GetType( out pType );            
+            return ICorDebugValue.GetType( out pType );            
         }
 
         int ICorDebugArrayValue.GetSize( out uint pSize )
         {
-            return this.ICorDebugValue.GetSize( out pSize );            
+            return ICorDebugValue.GetSize( out pSize );            
         }
 
         int ICorDebugArrayValue.GetAddress( out ulong pAddress )
         {
-            return this.ICorDebugValue.GetAddress( out pAddress );            
+            return ICorDebugValue.GetAddress( out pAddress );            
         }
 
         int ICorDebugArrayValue.CreateBreakpoint( out ICorDebugValueBreakpoint ppBreakpoint )
         {
-            return this.ICorDebugValue.CreateBreakpoint( out ppBreakpoint );            
+            return ICorDebugValue.CreateBreakpoint( out ppBreakpoint );            
         }
 
         #endregion
@@ -783,12 +783,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         int ICorDebugArrayValue.IsValid( out int pbValid )
         {
-            return this.ICorDebugHeapValue.IsValid( out pbValid );            
+            return ICorDebugHeapValue.IsValid( out pbValid );            
         }
 
         int ICorDebugArrayValue.CreateRelocBreakpoint( out ICorDebugValueBreakpoint ppBreakpoint )
         {
-            return this.ICorDebugValue.CreateBreakpoint( out ppBreakpoint );            
+            return ICorDebugValue.CreateBreakpoint( out ppBreakpoint );            
         }
 
         #endregion
@@ -805,9 +805,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         
         int ICorDebugArrayValue.GetElementType( out CorElementType pType )
         {
-            if (this.Count != 0)
+            if (Count != 0)
             {
-                pType = m_rtv.GetElement(0).CorElementType;
+                pType = _rtv.GetElement(0).CorElementType;
             }
             else
             {
@@ -825,7 +825,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         int ICorDebugArrayValue.GetCount( out uint pnCount )
         {
-            pnCount = this.Count;
+            pnCount = Count;
 
             return COM_HResults.S_OK;            
         }
@@ -834,7 +834,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         {
             Debug.Assert( cdim == 1 );
             
-            dims[0] = this.Count;
+            dims[0] = Count;
 
             return COM_HResults.S_OK; 
         }
@@ -861,7 +861,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
             Debug.Assert( cdim == 1 );
 
-            ppValue = CreateValue(m_rtv.GetElement(indices[0]));
+            ppValue = CreateValue(_rtv.GetElement(indices[0]));
 
             return COM_HResults.S_OK;   
         }
@@ -869,7 +869,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         int ICorDebugArrayValue.GetElementAtPosition( uint nPosition, out ICorDebugValue ppValue )
         {
             //Cache values?
-            ppValue = CreateValue(m_rtv.GetElement(nPosition));
+            ppValue = CreateValue(_rtv.GetElement(nPosition));
 
             return COM_HResults.S_OK;
         }
@@ -903,9 +903,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             {
                 if (m_valuePrimitive == null)
                 {
-                    if (m_rtv.IsBoxed)
+                    if (_rtv.IsBoxed)
                     {
-                        RuntimeValue rtv = m_rtv.GetField(1, 0);
+                        RuntimeValue rtv = _rtv.GetField(1, 0);
 
                         Debug.Assert(rtv.IsPrimitive);
 
@@ -915,8 +915,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     else
                     {
                         Debug.Assert(m_fIsEnum);
-                        m_valuePrimitive = new CorDebugValuePrimitive(m_rtv, m_appDomain);
-                        Debug.Assert(m_rtv.IsPrimitive);
+                        m_valuePrimitive = new CorDebugValuePrimitive(_rtv, _appDomain);
+                        Debug.Assert(_rtv.IsPrimitive);
                     }
                 }
             }
@@ -928,7 +928,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         {
             get 
             {
-                if (this.IsValuePrimitive())
+                if (IsValuePrimitive())
                 {
                     return m_valuePrimitive.Size;
                 }
@@ -961,22 +961,22 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         int ICorDebugObjectValue.GetType( out CorElementType pType )
         {
-            return this.ICorDebugValue.GetType( out pType );            
+            return ICorDebugValue.GetType( out pType );            
         }
 
         int ICorDebugObjectValue.GetSize( out uint pSize )
         {
-            return this.ICorDebugValue.GetSize( out pSize );        
+            return ICorDebugValue.GetSize( out pSize );        
         }
 
         int ICorDebugObjectValue.GetAddress( out ulong pAddress )
         {
-            return this.ICorDebugValue.GetAddress( out pAddress );            
+            return ICorDebugValue.GetAddress( out pAddress );            
         }
 
         int ICorDebugObjectValue.CreateBreakpoint( out ICorDebugValueBreakpoint ppBreakpoint )
         {
-            return this.ICorDebugValue.CreateBreakpoint( out ppBreakpoint );            
+            return ICorDebugValue.CreateBreakpoint( out ppBreakpoint );            
         }
 
         #endregion
@@ -993,7 +993,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         int ICorDebugObjectValue.GetFieldValue( ICorDebugClass pClass, uint fieldDef, out ICorDebugValue ppValue )
         {
             //cache fields?
-            RuntimeValue rtv = m_rtv.GetField(0, nanoCLR_TypeSystem.ClassMemberIndexFromCLRToken(fieldDef, ((CorDebugClass)pClass).Assembly));
+            RuntimeValue rtv = _rtv.GetField(0, nanoCLR_TypeSystem.ClassMemberIndexFromCLRToken(fieldDef, ((CorDebugClass)pClass).Assembly));
 
             ppValue = CreateValue( rtv );
 
@@ -1002,9 +1002,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         int ICorDebugObjectValue.GetVirtualMethod( uint memberRef, out ICorDebugFunction ppFunction )
         {
-            uint mdVirtual = Engine.GetVirtualMethod(nanoCLR_TypeSystem.ClassMemberIndexFromCLRToken(memberRef, this.m_class.Assembly), this.m_rtv);
+            uint mdVirtual = Engine.GetVirtualMethod(nanoCLR_TypeSystem.ClassMemberIndexFromCLRToken(memberRef, m_class.Assembly), _rtv);
 
-            ppFunction = nanoCLR_TypeSystem.CorDebugFunctionFromMethodIndex( mdVirtual, this.m_appDomain );
+            ppFunction = nanoCLR_TypeSystem.CorDebugFunctionFromMethodIndex( mdVirtual, _appDomain);
 
             return COM_HResults.S_OK;                             
         }
@@ -1018,7 +1018,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         int ICorDebugObjectValue.IsValueClass( out int pbIsValueClass )
         {
-            pbIsValueClass = Boolean.BoolToInt( m_rtv.IsValueType );
+            pbIsValueClass = Boolean.BoolToInt( _rtv.IsValueType );
 
             return COM_HResults.S_OK;                      
         }
@@ -1047,22 +1047,22 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         int ICorDebugGenericValue.GetType( out CorElementType pType )
         {
-            return this.ICorDebugValue.GetType( out pType );             
+            return ICorDebugValue.GetType( out pType );             
         }
 
         int ICorDebugGenericValue.GetSize( out uint pSize )
         {
-            return this.ICorDebugValue.GetSize( out pSize );            
+            return ICorDebugValue.GetSize( out pSize );            
         }
 
         int ICorDebugGenericValue.GetAddress( out ulong pAddress )
         {
-            return this.ICorDebugValue.GetAddress( out pAddress );            
+            return ICorDebugValue.GetAddress( out pAddress );            
         }
 
         int ICorDebugGenericValue.CreateBreakpoint( out ICorDebugValueBreakpoint ppBreakpoint )
         {
-            return this.ICorDebugValue.CreateBreakpoint( out ppBreakpoint );            
+            return ICorDebugValue.CreateBreakpoint( out ppBreakpoint );            
         }
 
         #endregion
@@ -1073,7 +1073,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         {
             int hr = COM_HResults.S_OK;
 
-            if (this.IsValuePrimitive())
+            if (IsValuePrimitive())
             {
                 hr = m_valuePrimitive.ICorDebugGenericValue.GetValue(pTo);
             }
@@ -1093,7 +1093,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         {
             int hr = COM_HResults.S_OK;
 
-            if (this.IsValuePrimitive())
+            if (IsValuePrimitive())
             {
                 hr = m_valuePrimitive.ICorDebugGenericValue.SetValue(pFrom);
             }
@@ -1121,7 +1121,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         {
             get
             {
-                string ret = m_rtv.Value as string;
+                string ret = _rtv.Value as string;
                 return (ret == null) ? "" : ret;
             }
         }
@@ -1133,22 +1133,22 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         int ICorDebugStringValue.GetType( out CorElementType pType )
         {
-            return this.ICorDebugValue.GetType( out pType );
+            return ICorDebugValue.GetType( out pType );
         }
 
         int ICorDebugStringValue.GetSize( out uint pSize )
         {
-            return this.ICorDebugValue.GetSize( out pSize );   
+            return ICorDebugValue.GetSize( out pSize );   
         }
 
         int ICorDebugStringValue.GetAddress( out ulong pAddress )
         {
-            return this.ICorDebugValue.GetAddress( out pAddress );
+            return ICorDebugValue.GetAddress( out pAddress );
         }
 
         int ICorDebugStringValue.CreateBreakpoint( out ICorDebugValueBreakpoint ppBreakpoint )
         {
-            return this.ICorDebugValue.CreateBreakpoint( out ppBreakpoint );
+            return ICorDebugValue.CreateBreakpoint( out ppBreakpoint );
         }
 
         #endregion
@@ -1157,12 +1157,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         int ICorDebugStringValue.IsValid( out int pbValid )
         {
-            return this.ICorDebugHeapValue.IsValid( out pbValid );
+            return ICorDebugHeapValue.IsValid( out pbValid );
         }
 
         int ICorDebugStringValue.CreateRelocBreakpoint( out ICorDebugValueBreakpoint ppBreakpoint )
         {
-            return this.ICorDebugHeapValue.CreateRelocBreakpoint( out ppBreakpoint );
+            return ICorDebugHeapValue.CreateRelocBreakpoint( out ppBreakpoint );
         }
 
         #endregion

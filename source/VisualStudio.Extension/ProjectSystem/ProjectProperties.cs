@@ -15,7 +15,6 @@ using System.Diagnostics.CodeAnalysis;
 namespace nanoFramework.Tools.VisualStudio.Extension
 {
     [Export]
-    [ExcludeFromCodeCoverage]
     internal partial class ProjectProperties : StronglyTypedPropertyAccess
     {
         /// <summary>
@@ -25,15 +24,15 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         public ProjectProperties(ConfiguredProject configuredProject)
             : base(configuredProject)
         {
-
-            try
-            {
-                ActivateDebugEngine();
-            }
-            catch (Exception e)
-            {
-                NanoFrameworkPackage.MessageCentre.InternalErrorMessage(false, String.Format("Unable to register debug engine: {0}", e.Message));
-            }
+            // not sure if this is required when using the debugger from the command line (untested...)
+            //try
+            //{
+            //    ActivateDebugEngine();
+            //}
+            //catch (Exception e)
+            //{
+            //    MessageCentre.InternalErrorMessage(false, String.Format("Unable to register debug engine: {0}", e.Message));
+            //}
         }
 
         /// <summary>
@@ -66,6 +65,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         }
 
         static uint debugEngineCmdUICookie = 0;
+
         private void ActivateDebugEngine()
         {
             // The debug engine will not work unless we enable a CmdUIContext using the engine's GUID.

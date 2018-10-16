@@ -3,7 +3,7 @@
 // See LICENSE file in the project root for full license information.
 //
 
-using Microsoft.Practices.ServiceLocation;
+using GalaSoft.MvvmLight.Ioc;
 using Microsoft.VisualStudio.ProjectSystem;
 using Microsoft.VisualStudio.ProjectSystem.Debug;
 using Microsoft.VisualStudio.ProjectSystem.References;
@@ -40,14 +40,14 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         public override async Task<IReadOnlyList<IDebugLaunchSettings>> QueryDebugTargetsAsync(DebugLaunchOptions launchOptions)
         {
-            var deployDeviceName = ServiceLocator.Current.GetInstance<DeviceExplorerViewModel>().SelectedDevice.Description;
-            var portName = ServiceLocator.Current.GetInstance<DeviceExplorerViewModel>().SelectedTransportType.ToString();
+            var deployDeviceName = SimpleIoc.Default.GetInstance<DeviceExplorerViewModel>().SelectedDevice.Description;
+            var portName = SimpleIoc.Default.GetInstance<DeviceExplorerViewModel>().SelectedTransportType.ToString();
 
             string commandLine = await GetCommandLineForLaunchAsync();
             commandLine = string.Format("{0} \"{1}{2}\"", commandLine, CorDebugProcess.DeployDeviceName, deployDeviceName);
 
             // The properties that are available via DebuggerProperties are determined by the property XAML files in your project.
-            var debuggerProperties = await this.Properties.GetNanoDebuggerPropertiesAsync();
+            var debuggerProperties = await Properties.GetNanoDebuggerPropertiesAsync();
 
             var settings = new DebugLaunchSettings(launchOptions)
             {
@@ -75,53 +75,57 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
             cb.AddArguments("/waitfordebugger");
 
-            ///////////////////////////////////////////////////////
-            // get the list of assemblies referenced by the project
-            var referencedAssemblies = await Properties.ConfiguredProject.Services.AssemblyReferences.GetResolvedReferencesAsync();
+            // For a known project output assembly path, this shall contain the corresponding
+            // ConfiguredProject:
+            Dictionary<string, ConfiguredProject> configuredProjectsByOutputAssemblyPath =
+                new Dictionary<string, ConfiguredProject>();
 
-            //////////////////////////////////////////////////////////////////////////
-            // get the list of other projects referenced by the project being deployed
-            var referencedProjects = await Properties.ConfiguredProject.Services.ProjectReferences.GetResolvedReferencesAsync();
+            // For a known ConfiguredProject, this shall contain the corresponding project output assembly
+            // path:
+            Dictionary<ConfiguredProject, string> outputAssemblyPathsByConfiguredProject =
+                new Dictionary<ConfiguredProject, string>();
 
-            /////////////////////////////////////////////////////////
-            // get the target path to reach the PE for the executable
 
-            //... we need to access the target path using reflection (step by step)
-            // get type for ConfiguredProject
-            var projSystemType = Properties.ConfiguredProject.GetType();
+            // Fill these two dictionaries for all projects contained in the solution
+            // (whether they belong to the deployment or not):
+            await ReferenceCrawler.CollectProjectsAndOutputAssemblyPathsAsync(
+                ProjectService,
+                configuredProjectsByOutputAssemblyPath,
+                outputAssemblyPathsByConfiguredProject);
 
-            // get private property MSBuildProject
-            var buildProject = projSystemType.GetTypeInfo().GetDeclaredProperty("MSBuildProject");
+            // This HashSet shall contain a list of full paths to all assemblies to be deployed, including
+            // the compiled output assemblies of our solution's project and also all assemblies such as
+            // NuGet packages referenced by those projects.
+            // The HashSet will take care of only containing any string once even if added multiple times.
+            // However, this is dependent on getting all paths always in the same casing.
+            // Be aware that on file systems which ignore casing, we would end up having assemblies added
+            // more than once here if the GetFullPathAsync() methods used below should not always reliably
+            // return the path to the same assembly in the same casing.
+            HashSet<string> assemblyPathsToDeploy = new HashSet<string>();
 
-            // get value of MSBuildProject property from ConfiguredProject object
-            // this result is of type Microsoft.Build.Evaluation.Project
-            var projectResult = ((System.Threading.Tasks.Task<Microsoft.Build.Evaluation.Project>)buildProject.GetValue(Properties.ConfiguredProject));
+            // Starting with the startup project, collect all assemblies to be deployed.
+            // This will only add assemblies of projects which are actually referenced directly or
+            // indirectly by the startup project. Any project in the solution which is not referenced
+            // directly or indirectly by the startup project will not be included in the list of assemblies
+            // to be deployed.
+            await ReferenceCrawler.CollectAssembliesToDeployAsync(
+                configuredProjectsByOutputAssemblyPath,
+                outputAssemblyPathsByConfiguredProject,
+                assemblyPathsToDeploy,
+                Properties.ConfiguredProject);
 
-            // we want the target path property
-            var targetPath = projectResult.Result.Properties.First(p => p.Name == "TargetPath").EvaluatedValue;
 
             // build a list with the full path for each DLL, referenced DLL and EXE
             List<string> assemblyList = new List<string>();
 
-            foreach (IAssemblyReference reference in referencedAssemblies)
+            foreach (string assemblyPath in assemblyPathsToDeploy)
             {
-                assemblyList.Add(await reference.GetFullPathAsync());
+                assemblyList.Add(assemblyPath);
             }
 
-            // loop through each project that is set to build
-            foreach (IBuildDependencyProjectReference project in referencedProjects)
-            {
-                if (await project.GetReferenceOutputAssemblyAsync())
-                {
-                    assemblyList.Add(await project.GetFullPathAsync());
-                }
-            }
-
-            // now add the executable to this list
-            assemblyList.Add(targetPath);
-
+            // if there are referenced project, the assembly list contains repeated assemblies so need to use Linq Distinct()
             // build a list with the PE files corresponding to each DLL and EXE
-            List<string> peCollection = assemblyList.Select(a => a.Replace(".dll", ".pe").Replace(".exe", ".pe")).ToList();
+            List<string> peCollection = assemblyList.Distinct().Select(a => a.Replace(".dll", ".pe").Replace(".exe", ".pe")).ToList();
 
             foreach (string peFile in peCollection)
             {

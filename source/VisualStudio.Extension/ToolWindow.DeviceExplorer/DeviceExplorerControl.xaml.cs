@@ -6,7 +6,6 @@
 namespace nanoFramework.Tools.VisualStudio.Extension
 {
     using GalaSoft.MvvmLight.Messaging;
-    using Microsoft.Practices.ServiceLocation;
     using Microsoft.VisualStudio.Shell;
     using nanoFramework.Tools.Debugger;
     using nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel;
@@ -20,17 +19,25 @@ namespace nanoFramework.Tools.VisualStudio.Extension
     public partial class DeviceExplorerControl : UserControl
     {
         // strongly-typed view models enable x:bind
-        public DeviceExplorerViewModel ViewModel => this.DataContext as DeviceExplorerViewModel;
+        public DeviceExplorerViewModel ViewModel => DataContext as DeviceExplorerViewModel;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DeviceExplorerControl"/> class.
         /// </summary>
         public DeviceExplorerControl()
         {
-            this.InitializeComponent();
+            InitializeComponent();
+
+            Loaded += DeviceExplorerControl_Loaded;
 
             deviceTreeView.SelectedItemChanged += DevicesTreeView_SelectedItemChanged;
             Messenger.Default.Register<NotificationMessage>(this, DeviceExplorerViewModel.MessagingTokens.ForceSelectionOfNanoDevice, (message) => ForceSelectionOfNanoDeviceHandler());
+        }
+
+        private void DeviceExplorerControl_Loaded(object sender, System.Windows.RoutedEventArgs e)
+        {
+            // update the status of the control button
+            DeviceExplorerCommand.UpdateShowInternalErrorsButton(NanoFrameworkPackage.OptionShowInternalErrors);
         }
 
         private void Hyperlink_RequestNavigate(object sender, System.Windows.Navigation.RequestNavigateEventArgs e)
@@ -49,19 +56,19 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         private void DevicesTreeView_SelectedItemChanged(object sender, System.Windows.RoutedPropertyChangedEventArgs<object> e)
         {
-            // if user has selected the 'devices' TreeViewItem (colapsing the tree view...)
+            // if user has selected the 'devices' TreeViewItem (collapsing the tree view...)
             if (e.NewValue.GetType().Equals(typeof(TreeViewItem)))
             {
                 // clear selected device
                 // can't select header as the selected device
-                (this.DataContext as DeviceExplorerViewModel).SelectedDevice = null;
+                (DataContext as DeviceExplorerViewModel).SelectedDevice = null;
                 return;
             }
 
             // sanity check for no device in tree view
             if ((sender as TreeView).Items.Count > 0)
             {
-                (this.DataContext as DeviceExplorerViewModel).SelectedDevice = (NanoDeviceBase)e.NewValue;
+                (DataContext as DeviceExplorerViewModel).SelectedDevice = (NanoDeviceBase)e.NewValue;
             }
         }
 
@@ -78,7 +85,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     if (deviceTreeView.SelectedItem.GetType().Equals(typeof(NanoDeviceBase)))
                     {
                         // check if it's the same so we don't switch 
-                        if (((NanoDeviceBase)deviceTreeView.SelectedItem).Description == (this.DataContext as DeviceExplorerViewModel).SelectedDevice.Description)
+                        if (((NanoDeviceBase)deviceTreeView.SelectedItem).Description == (DataContext as DeviceExplorerViewModel).SelectedDevice.Description)
                         {
                             // nothing to do here
                             return;
@@ -87,7 +94,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 }
 
                 // select the device
-                var deviceItem = DevicesHeaderItem.ItemContainerGenerator.ContainerFromItem((this.DataContext as DeviceExplorerViewModel).SelectedDevice) as TreeViewItem;
+                var deviceItem = DevicesHeaderItem.ItemContainerGenerator.ContainerFromItem((DataContext as DeviceExplorerViewModel).SelectedDevice) as TreeViewItem;
                 if (deviceItem != null)
                 {
                     // switch to UI main thread

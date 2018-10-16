@@ -179,6 +179,7 @@
     <ClCompile Include="MetaDataProcessor.cpp" />
     <ClCompile Include="minheap.cpp" />
     <ClCompile Include="mintime.cpp" />
+    <ClCompile Include="nanoHAL_Watchdog_stubs.cpp" />
     <ClCompile Include="ParseOptions_Win32.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -197,9 +198,6 @@
     <ProjectReference Include="..\..\nf-interpreter\src\CLR\Core\Hardware\Hardware.vcxproj">
       <Project>{5d50772e-dac8-407d-972f-37deb4450b72}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\..\nf-interpreter\src\CLR\Core\HeapPersistence\HeapPersistence.vcxproj">
-      <Project>{bc2245b0-32e0-410e-b3f2-e2bfa0b503b3}</Project>
-    </ProjectReference>
     <ProjectReference Include="..\..\nf-interpreter\src\CLR\Core\InterruptHandler\InterruptHandler.vcxproj">
       <Project>{d32ee397-7e49-452d-ac95-afcb3c962e3d}</Project>
     </ProjectReference>
@@ -211,9 +209,6 @@
     </ProjectReference>
     <ProjectReference Include="..\..\nf-interpreter\src\CLR\CorLib\CorLib.vcxproj">
       <Project>{58e950cc-2ff6-423c-b006-a70a19272f20}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\..\nf-interpreter\src\CLR\Debugger\Debugger.vcxproj">
-      <Project>{dd397ec4-844b-4b59-a67b-cad6b46f1f00}</Project>
     </ProjectReference>
     <ProjectReference Include="..\..\nf-interpreter\src\CLR\Diagnostics\Diagnostics.vcxproj">
       <Project>{a5e9ae41-f4fa-40ce-ad82-a7861eba007b}</Project>

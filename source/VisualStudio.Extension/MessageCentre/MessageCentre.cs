@@ -9,133 +9,140 @@ using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 using System;
 using System.Diagnostics;
-using System.Runtime.InteropServices;
 
 namespace nanoFramework.Tools.VisualStudio.Extension
 {
-    public class MessageCentre : MessageCentreBase
+    public class MessageCentre
     {
-        private IVsOutputWindow     _outputWindow;
-        private IVsOutputWindowPane _debugPane;
-        private IVsOutputWindowPane _deploymentMessagesPane;
-        private IVsStatusbar        _statusBar;
-        private bool                _showInternalErrors;
+        protected static readonly Guid s_InternalErrorsPaneGuid = Guid.NewGuid();
+        protected static readonly Guid s_DeploymentMessagesPaneGuid = Guid.NewGuid();
 
-        public MessageCentre()
+        private static IVsOutputWindow _outputWindow;
+        private static IVsOutputWindowPane _debugPane;
+        private static IVsOutputWindowPane _nanoFrameworkMessagesPane;
+        private static IVsStatusbar _statusBar;
+        private static string _paneName;
+
+        public static async System.Threading.Tasks.Task InitializeAsync(AsyncPackage package, string name)
         {
-            _outputWindow = Package.GetGlobalService(typeof(SVsOutputWindow)) as IVsOutputWindow;
+            // seems OK to call these API here without switching to the main thread as we are just getting the service not actually accessing the output window
+#pragma warning disable VSTHRD010
+            _outputWindow = await package.GetServiceAsync(typeof(SVsOutputWindow)) as IVsOutputWindow;
+            _statusBar = await package.GetServiceAsync(typeof(SVsStatusbar)) as IVsStatusbar;
+#pragma warning restore VSTHRD010
 
-            if(_outputWindow == null) throw new Exception( "Package.GetGlobalService(SVsOutputWindow) failed to provide the output window" );
+            _paneName = name;
 
-            Guid tempId = VSConstants.GUID_OutWindowDebugPane;
-            _outputWindow.GetPane(ref tempId, out _debugPane);
-
-            tempId = s_DeploymentMessagesPaneGuid;
-            _outputWindow.CreatePane(ref tempId, "nanoFramework Extension", 0, 1);
-
-            tempId = s_DeploymentMessagesPaneGuid;
-            _outputWindow.GetPane(ref tempId, out _deploymentMessagesPane);
-
-            _showInternalErrors = false;
-            // TODO replace with project user option exposed in device explorer
-            //if (RegistryAccess.GetBoolValue(@"\NonVersionSpecific\UserInterface", "showInternalErrors", out m_fShowInternalErrors, false))
-            //{
-            //    this.Message(m_deploymentMessagesPane, "nanoFramework deployment internal errors will be reported.");
-            //}
-
-            _statusBar = Package.GetGlobalService(typeof(SVsStatusbar)) as IVsStatusbar;
-        }
-
-        public override void DebugMessage(string Message)
-        {
-            this.Message(_debugPane, Message==null?"":Message);
-        }
-
-        public override void ClearDeploymentMessages()
-        {
-            try
+            await ThreadHelper.JoinableTaskFactory.RunAsync(async () =>
             {
-                if (_deploymentMessagesPane != null)
-                    _deploymentMessagesPane.Clear();
-            }
-            catch (InvalidOperationException)
+                await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+
+                // get VS debug pane
+                Guid tempId = VSConstants.GUID_OutWindowDebugPane;
+                _outputWindow.GetPane(ref tempId, out _debugPane);
+
+                // create nanoFramework pane
+                tempId = s_DeploymentMessagesPaneGuid;
+                _outputWindow.CreatePane(ref tempId, _paneName, 0, 1);
+                _outputWindow.GetPane(ref tempId, out _nanoFrameworkMessagesPane);
+            });
+        }
+
+        /// <summary>
+        /// Write a message to Visual Studio Debug output pane.
+        /// </summary>
+        /// <param name="message">Message to be outputted.</param>
+        public static void DebugMessage(string message)
+        {
+            Message(_debugPane, message ?? "");
+        }
+
+        public static void ClearDeploymentMessages()
+        {
+            ThreadHelper.JoinableTaskFactory.RunAsync(async () =>
             {
-            }
+                await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+                _nanoFrameworkMessagesPane.Clear();
+            });
         }
 
-        public override void DeploymentMessage(string message)
+        public static void DeploymentMessage(string message)
         {
-            this.Message(_deploymentMessagesPane, message);
+            Message(_nanoFrameworkMessagesPane, message);
         }
 
-        public override void InternalErrorMessage(string message)
+        public static void InternalErrorMessage(string message)
         {
-            this.InternalErrorMessage(false, message);
+            InternalErrorMessage(false, message);
         }
 
-        public override void InternalErrorMessage(bool assertion, string message)
+        public static void InternalErrorMessage(bool assertion, string message)
         {
-            this.InternalErrorMessage(assertion, message, -1);
+            InternalErrorMessage(assertion, message, -1);
         }
 
-        public override void InternalErrorMessage(bool assertion, string message, int skipFrames)
+        public static void InternalErrorMessage(bool assertion, string message, int skipFrames)
         {
-            if (!assertion && _showInternalErrors)
+            if (!assertion && NanoFrameworkPackage.OptionShowInternalErrors)
             {
                 message = String.IsNullOrEmpty(message) ? "Unknown Error" : message;
-                
+
                 if (skipFrames >= 0)
                 {
                     StackTrace st = new StackTrace(skipFrames + 1, true);
-                    this.Message(_deploymentMessagesPane, String.Format("[@ {0}: {1} @]", message, st.ToString()));
+                    Message(_nanoFrameworkMessagesPane, $"{DateTime.Now.ToString("u")} [{message}: { st.ToString() }]");
                 }
                 else
                 {
-                    this.Message(_deploymentMessagesPane, "[@ " + message + " @]");
+                    Message(_nanoFrameworkMessagesPane, $"{DateTime.Now.ToString("u")} [{ message }]");
                 }
             }
         }
 
-        public override void OutputMessageHandler(object sendingProcess, DataReceivedEventArgs outLine)
+        public static void OutputMessageHandler(object sendingProcess, DataReceivedEventArgs outLine)
         {
-            this.DebugMessage(outLine.Data);
+            DebugMessage(outLine.Data);
         }
 
-
-        public override void ErrorMessageHandler(object sendingProcess, DataReceivedEventArgs outLine)
+        /// <summary>
+        /// Write a message to the nanoFramework output pane.
+        /// </summary>
+        /// <param name="message">Message to be outputted.</param>
+        public static void OutputMessage(string message)
         {
-            this.DebugMessage(outLine.Data);
+            Message(_nanoFrameworkMessagesPane, message);
         }
 
-        private void Message(IVsOutputWindowPane pane, String message)
+        public static void ErrorMessageHandler(object sendingProcess, DataReceivedEventArgs outLine)
         {
-            if(pane == null)
-                return;
+            DebugMessage(outLine.Data);
+        }
 
-            if(message==null)
+        private static void Message(IVsOutputWindowPane pane, String message)
+        {
+            if (message == null)
+            {
                 message = "[no message string provided to MessageCentre.Message()" + new StackTrace().ToString();
-
-            try
-            {
-                lock (pane)
-                {
-                    pane.Activate();
-                    pane.OutputStringThreadSafe(message + "\r\n");
-                }
-            }
-            catch( InvalidComObjectException )
-            {
             }
 
+            ThreadHelper.JoinableTaskFactory.RunAsync(async () =>
+            {
+                await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+
+                pane.Activate();
+                pane.OutputStringThreadSafe(message + "\r\n");
+            });
         }
 
-        public override void StartProgressMessage(string message)
+        public static void StartProgressMessage(string message)
         {
-            // stock general animation icon
-            object icon = (short)Microsoft.VisualStudio.Shell.Interop.Constants.SBAI_General;
-
-            try
+            ThreadHelper.JoinableTaskFactory.RunAsync(async () =>
             {
+                await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+
+                // stock general animation icon
+                object icon = (short)Constants.SBAI_General;
+
 
                 // Make sure the status bar is not frozen  
                 int frozen;
@@ -150,20 +157,20 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                 // start icon animation
                 _statusBar.Animation(1, ref icon);
-            }
-            catch (InvalidOperationException)
-            {
-            }
 
+            });
         }
 
-        public override void StopProgressMessage(string message)
+        public static void StopProgressMessage(string message = null)
         {
-            // stock general animation icon
-            object icon = (short)Microsoft.VisualStudio.Shell.Interop.Constants.SBAI_General;
 
-            try
+            ThreadHelper.JoinableTaskFactory.RunAsync(async () =>
             {
+                await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+
+                // stock general animation icon
+                object icon = (short)Constants.SBAI_General;
+
                 // Make sure the status bar is not frozen  
                 int frozen;
                 _statusBar.IsFrozen(out frozen);
@@ -185,11 +192,10 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                 // stop the animation
                 _statusBar?.Animation(0, ref icon);
-            }
-            catch (InvalidOperationException)
-            {
-            }
+
+            });
         }
+
     }
 }
 

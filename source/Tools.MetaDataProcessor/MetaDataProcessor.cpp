@@ -11,6 +11,9 @@
 #include <Commdlg.h>
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+#define METADATAPROCESSOR_HEADER_STRING L"\nnanoFramework MetaDataProcessor Utility v1.7.0\r\n"
+#define METADATAPROCESSOR_COPYRIGHT_STRING L"Copyright (c) 2017 nanoFramework project contributors\r\n"
+
 struct Settings : CLR_RT_ParseOptions
 {
 	PELoader                       peLoader;
@@ -842,7 +845,8 @@ struct Settings : CLR_RT_ParseOptions
 
 	void Usage()
 	{
-		wprintf(L"\nnanoFramework MetaDataProcessor Utility v1.0.0\r\n");
+		wprintf(METADATAPROCESSOR_HEADER_STRING);
+		wprintf(METADATAPROCESSOR_COPYRIGHT_STRING);
 
 		wprintf(L"Available command line switches:\n\n");
 
@@ -982,7 +986,9 @@ int _tmain(int argc, _TCHAR* argv[])
 
 	::CoInitialize(0);
 
-	wprintf(L"nanoFramework MetaDataProcessor v1.0.25\r\n");
+	wprintf(METADATAPROCESSOR_HEADER_STRING);
+	wprintf(METADATAPROCESSOR_COPYRIGHT_STRING);
+	wprintf(L"For documentation, report issues and support visit our GitHub repo: www.GitHub.com\\nanoFramework\r\n\r\n");
 
 	NANOCLR_CHECK_HRESULT(HAL_Windows::Memory_Resize(64 * 1024 * 1024));
 	// TODO check if we are still using this.....

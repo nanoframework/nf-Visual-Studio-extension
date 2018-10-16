@@ -5,7 +5,6 @@
     <Description>A project for a nanoFramework application to be deployed into a target board.</Description>
     <Icon>CSApplication.ico</Icon>
     <ProjectType>CSharp</ProjectType>
-    <RequiredFrameworkVersion>4.6</RequiredFrameworkVersion>
     <SortOrder>1000</SortOrder>
     <TemplateID>26c4ac40-4260-42ad-a9ab-d324de259780</TemplateID>
     <CreateNewFolder>true</CreateNewFolder>
@@ -25,7 +24,7 @@
   </WizardExtension>
   <WizardData>
     <packages repository="extension" repositoryId="47973986-ed3c-4b64-ba40-a9da73b44ef7">
-      <package id="nanoFramework.CoreLibrary" version="1.0.0-preview038"/>
+      <package id="nanoFramework.CoreLibrary" version="1.0.1-preview127"/>
     </packages>  
   </WizardData>
 </VSTemplate>

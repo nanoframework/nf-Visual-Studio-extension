@@ -36,6 +36,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         // this list holds the official assemblies name
         List<string> frameworkAssemblies_v1_0 = new List<string> {
             "mscorlib",
+            "nanoframework.hardware.esp32",
+            "nanoframework.networking.sntp",
             "nanoframework.runtime.events",
             "nanoframework.runtime.native",
             "windows.devices.adc",
@@ -44,7 +46,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             "windows.devices.pwm",
             "windows.devices.serialcommunication",
             "windows.devices.spi",
+            "windows.networking.sockets",
             "windows.storage.streams",
+            "system.net",
         };
 
 
@@ -116,7 +120,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         private FileStream EnsureFileStream()
         {
-            if(this.IsPrimaryAssembly)
+            if(IsPrimaryAssembly)
             {
                 if(_path != null && _fileStream == null)
                 {
@@ -139,7 +143,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         public CorDebugAssembly CreateAssemblyInstance( CorDebugAppDomain appDomain )
         {
             //Ensure the metadata import is created.  
-            IMetaDataImport iMetaDataImport = this.MetaDataImport;
+            IMetaDataImport iMetaDataImport = MetaDataImport;
 
             CorDebugAssembly assm = (CorDebugAssembly)MemberwiseClone();
             assm._appDomain = appDomain;
@@ -274,19 +278,19 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         public CorDebugProcess Process
         {
-            [System.Diagnostics.DebuggerHidden]
+            [DebuggerHidden]
             get { return _process; }
         }
 
         public CorDebugAppDomain AppDomain
         {
-            [System.Diagnostics.DebuggerHidden]
+            [DebuggerHidden]
             get { return _appDomain; }
         }
 
         public uint Idx
         {
-            [System.Diagnostics.DebuggerHidden]
+            [DebuggerHidden]
             get { return _idx; }
         }
 
@@ -319,8 +323,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             {
                 uint index = nanoCLR_TypeSystem.ClassMemberIndexFromnanoCLRToken( tk, this );
 
-                Debugger.WireProtocol.Commands.Debugging_Resolve_Method.Result resolvedMethod = this.Process.Engine.ResolveMethod(index);
-                Debug.Assert( nanoCLR_TypeSystem.IdxAssemblyFromIndex( resolvedMethod.m_td ) == this.Idx );
+                Debugger.WireProtocol.Commands.Debugging_Resolve_Method.Result resolvedMethod = Process.Engine.ResolveMethod(index);
+                Debug.Assert( nanoCLR_TypeSystem.IdxAssemblyFromIndex( resolvedMethod.m_td ) == Idx);
 
                 uint tkMethod = nanoCLR_TypeSystem.SymbollessSupport.MethodDefTokenFromnanoCLRToken( tk );
                 uint tkClass = nanoCLR_TypeSystem.nanoCLRTokenFromTypeIndex( resolvedMethod.m_td );
@@ -401,7 +405,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         int ICorDebugAssembly.GetProcess( out ICorDebugProcess ppProcess )
         {
-            ppProcess = this.Process;
+            ppProcess = Process;
 
             return COM_HResults.S_OK;            
         }
@@ -442,7 +446,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         int ICorDebugModule.GetProcess( out ICorDebugProcess ppProcess )
         {
-            ppProcess = this.Process;
+            ppProcess = Process;
 
             return COM_HResults.S_OK;            
         }
@@ -464,7 +468,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         int ICorDebugModule.GetName( uint cchName, IntPtr pcchName, IntPtr szName )
         {
-            return this.ICorDebugAssembly.GetName( cchName, pcchName, szName );            
+            return ICorDebugAssembly.GetName( cchName, pcchName, szName );            
         }
 
         int ICorDebugModule.EnableJITDebugging( int bTrackJITInfo, int bAllowJitOpts )
@@ -514,13 +518,13 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         int ICorDebugModule.GetMetaDataInterface( ref Guid riid, out IntPtr ppObj )
         {
-            IntPtr pMetaDataImport = Marshal.GetIUnknownForObject( this.MetaDataImport );
+            IntPtr pMetaDataImport = Marshal.GetIUnknownForObject(MetaDataImport);
 
             Marshal.QueryInterface( pMetaDataImport, ref riid, out ppObj );
             int cRef = Marshal.Release( pMetaDataImport );
 
             Debug.Assert( riid == typeof( IMetaDataImport ).GUID || riid == typeof( IMetaDataImport2 ).GUID || riid == typeof( IMetaDataAssemblyImport ).GUID );
-            Debug.Assert( this.MetaDataImport != null && ppObj != IntPtr.Zero );
+            Debug.Assert(MetaDataImport != null && ppObj != IntPtr.Zero );
 
             return COM_HResults.S_OK;
         }
@@ -579,16 +583,16 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
             int hres = fJMC ? COM_HResults.E_FAIL : COM_HResults.S_OK;
 
-            Debug.Assert( Utility.FImplies( fJMC, this.HasSymbols ) );
+            Debug.Assert( Utility.FImplies( fJMC, HasSymbols) );
 
-            if (this.HasSymbols)
+            if (HasSymbols)
             {
-                if (this.Process.Engine.Info_SetJMC(fJMC, ReflectionDefinition.Kind.REFLECTION_ASSEMBLY, nanoCLR_TypeSystem.IndexFromIdxAssemblyIdx(this.Idx)))
+                if (Process.Engine.Info_SetJMC(fJMC, ReflectionDefinition.Kind.REFLECTION_ASSEMBLY, nanoCLR_TypeSystem.IndexFromIdxAssemblyIdx(Idx)))
                 {
-                    if(!this._isFrameworkAssembly)
+                    if(!_isFrameworkAssembly)
                     {
                         //now update the debugger JMC state...
-                        foreach (Pdbx.Class c in this._pdbxAssembly.Classes)
+                        foreach (Pdbx.Class c in _pdbxAssembly.Classes)
                         {
                             foreach (Pdbx.Method m in c.Methods)
                             {

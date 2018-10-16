@@ -9,6 +9,7 @@ using nanoFramework.Tools.Debugger;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Threading;
 
 namespace nanoFramework.Tools.VisualStudio.Extension
 {
@@ -16,14 +17,14 @@ namespace nanoFramework.Tools.VisualStudio.Extension
     {
         const int SCRATCH_PAD_INDEX_NOT_INITIALIZED = -1;
 
-        bool m_fActive;
-        CorDebugThread m_threadReal;
-        CorDebugThread m_threadVirtual;
-        CorDebugAppDomain m_appDomain;
-        int m_iScratchPad;
-        CorDebugValue m_resultValue;
-        EvalResult m_resultType;
-        bool m_fException;
+        bool _fActive;
+        CorDebugThread _threadReal;
+        CorDebugThread _threadVirtual;
+        CorDebugAppDomain _appDomain;
+        int _iScratchPad;
+        CorDebugValue _resultValue;
+        EvalResult _resultType;
+        bool _fException;
 
         public enum EvalResult
         {
@@ -35,20 +36,20 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         
         public CorDebugEval (CorDebugThread thread) 
         {
-            m_appDomain = thread.Chain.ActiveFrame.AppDomain;
-            m_threadReal = thread;
-            m_resultType = EvalResult.NotFinished;
+            _appDomain = thread.Chain.ActiveFrame.AppDomain;
+            _threadReal = thread;
+            _resultType = EvalResult.NotFinished;
             ResetScratchPadLocation ();            
         }
 
         public CorDebugThread ThreadVirtual
         {
-            get { return m_threadVirtual; }
+            get { return _threadVirtual; }
         }
 
         public CorDebugThread ThreadReal
         {
-            get { return m_threadReal; }
+            get { return _threadReal; }
         }
 
         public Engine Engine
@@ -58,38 +59,38 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         public CorDebugProcess Process
         {
-            get { return m_threadReal.Process; }
+            get { return _threadReal.Process; }
         }
 
         public CorDebugAppDomain AppDomain
         {
-            get { return m_appDomain; }
+            get { return _appDomain; }
         }
 
         private CorDebugValue GetResultValue ()
         {
-            if (m_resultValue == null)
+            if (_resultValue == null)
             {
-                m_resultValue = Process.ScratchPad.GetValue (m_iScratchPad, m_appDomain);
+                _resultValue = Process.ScratchPad.GetValue (_iScratchPad, _appDomain);
             }
 
-            return m_resultValue;
+            return _resultValue;
         }
 
         private int GetScratchPadLocation ()
         {
-            if (m_iScratchPad == SCRATCH_PAD_INDEX_NOT_INITIALIZED)
+            if (_iScratchPad == SCRATCH_PAD_INDEX_NOT_INITIALIZED)
             {
-                m_iScratchPad = Process.ScratchPad.ReserveScratchBlock ();
+                _iScratchPad = Process.ScratchPad.ReserveScratchBlock ();
             }
 
-            return m_iScratchPad;
+            return _iScratchPad;
         }
 
         private void ResetScratchPadLocation()
         {
-            m_iScratchPad = SCRATCH_PAD_INDEX_NOT_INITIALIZED;
-            m_resultValue = null;            
+            _iScratchPad = SCRATCH_PAD_INDEX_NOT_INITIALIZED;
+            _resultValue = null;            
         }
 
         public void StoppedOnUnhandledException()
@@ -102,7 +103,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
              * the fact that the result was an exception (rather than the function returning
              * an object of type exception. Hence, this flag.
             */
-            m_fException = true;
+            _fException = true;
         }
 
         public void EndEval (EvalResult resultType, bool fSynchronousEval)
@@ -112,45 +113,45 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 //This is used to avoid deadlock.  Suspend commands synchronizes on this.Process                
                 Process.SuspendCommands(true);
 
-                Debug.Assert(Utility.FImplies(fSynchronousEval, !m_fActive));
+                Debug.Assert(Utility.FImplies(fSynchronousEval, !_fActive));
 
-                if (fSynchronousEval || m_fActive)  //what to do if the eval isn't active anymore??
+                if (fSynchronousEval || _fActive)  //what to do if the eval isn't active anymore??
                 {
                     bool fKillThread = false;
 
-                    if (m_threadVirtual != null)
+                    if (_threadVirtual != null)
                     {
-                        if (m_threadReal.GetLastCorDebugThread() != m_threadVirtual)
+                        if (_threadReal.GetLastCorDebugThread() != _threadVirtual)
                             throw new ArgumentException();
 
-                        m_threadReal.RemoveVirtualThread(m_threadVirtual);
+                        _threadReal.RemoveVirtualThread(_threadVirtual);
                     }
 
                     //Stack frames don't appear if they are not refreshed
                     if (fSynchronousEval)
                     {
-                        for (CorDebugThread thread = this.m_threadReal; thread != null; thread = thread.NextThread)
+                        for (CorDebugThread thread = _threadReal; thread != null; thread = thread.NextThread)
                         {
                             thread.RefreshChain();
                         }
                     }
 
-                    if(m_fException)
+                    if(_fException)
                     {
                         resultType = EvalResult.Exception;
                     }
 
                     //Check to see if we are able to EndEval -- is this the last virtual thread?
-                    m_fActive = false;
-                    m_resultType = resultType;
+                    _fActive = false;
+                    _resultType = resultType;
                     switch (resultType)
                     {
                         case EvalResult.Complete:
-                            Process.EnqueueEvent(new ManagedCallbacks.ManagedCallbackEval(m_threadReal, this, ManagedCallbacks.ManagedCallbackEval.EventType.EvalComplete));
+                            Process.EnqueueEvent(new ManagedCallbacks.ManagedCallbackEval(_threadReal, this, ManagedCallbacks.ManagedCallbackEval.EventType.EvalComplete));
                             break;
 
                         case EvalResult.Exception:
-                            Process.EnqueueEvent(new ManagedCallbacks.ManagedCallbackEval(m_threadReal, this, ManagedCallbacks.ManagedCallbackEval.EventType.EvalException));                             
+                            Process.EnqueueEvent(new ManagedCallbacks.ManagedCallbackEval(_threadReal, this, ManagedCallbacks.ManagedCallbackEval.EventType.EvalException));                             
                             break;
 
                         case EvalResult.Abort:
@@ -159,13 +160,13 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                              * If we do not give VS a EvalComplete message within 3 seconds of them calling ICorDebugEval::Abort then VS will attempt a RudeAbort
                              * and will display a scary error message about a serious internal debugger error and ignore all future debugging requests, among other bad things.
                              */
-                            Process.EnqueueEvent(new ManagedCallbacks.ManagedCallbackEval(m_threadReal, this, ManagedCallbacks.ManagedCallbackEval.EventType.EvalComplete));
+                            Process.EnqueueEvent(new ManagedCallbacks.ManagedCallbackEval(_threadReal, this, ManagedCallbacks.ManagedCallbackEval.EventType.EvalComplete));
                             break;
                     }
 
-                    if (fKillThread && m_threadVirtual != null)
+                    if (fKillThread && _threadVirtual != null)
                     {
-                        Engine.KillThread(m_threadVirtual.ID);
+                        Engine.KillThread(_threadVirtual.ID);
                     }
 
                     if (resultType == EvalResult.Abort)
@@ -190,8 +191,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             }
             else
             {
-                CorDebugProcess.BuiltinType builtInType = this.Process.ResolveBuiltInType(elementType);
-                tdIndex = builtInType.GetClass(this.m_appDomain).TypeDef_Index;
+                CorDebugProcess.BuiltinType builtInType = Process.ResolveBuiltInType(elementType);
+                tdIndex = builtInType.GetClass(_appDomain).TypeDef_Index;
             }
 
             return tdIndex;
@@ -201,21 +202,21 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         int ICorDebugEval.IsActive (out int pbActive)
         {
-            pbActive = Boolean.BoolToInt (m_fActive);
+            pbActive = Boolean.BoolToInt (_fActive);
 
             return COM_HResults.S_OK;
         }
 
         int ICorDebugEval.GetThread( out ICorDebugThread ppThread )
         {
-            ppThread = m_threadReal;
+            ppThread = _threadReal;
 
             return COM_HResults.S_OK;
         }
 
         int ICorDebugEval.GetResult( out ICorDebugValue ppResult )
         {
-            switch (m_resultType)
+            switch (_resultType)
             {
                 case EvalResult.Exception:
                 case EvalResult.Complete:
@@ -232,8 +233,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         int ICorDebugEval.NewArray(CorElementType elementType, ICorDebugClass pElementClass, uint rank, ref uint dims, ref uint lowBounds)
         {         
             if(rank != 1) return COM_HResults.E_FAIL;
-            
-            this.Process.SetCurrentAppDomain( this.AppDomain );
+
+            Process.SetCurrentAppDomain(AppDomain);
             uint tdIndex = GetTypeDef_Index(elementType, pElementClass);
             Engine.AllocateArray(GetScratchPadLocation(), tdIndex, 1, (int)dims);
             EndEval (EvalResult.Complete, true);
@@ -263,13 +264,13 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 {
                     Debug.Assert(nArgs > 0);
                     
-                    md = this.Engine.GetVirtualMethod(function.MethodDef_Index, ((CorDebugValue)ppArgs[0]).RuntimeValue);
+                    md = Engine.GetVirtualMethod(function.MethodDef_Index, ((CorDebugValue)ppArgs[0]).RuntimeValue);
                 }
 
-                this.Process.SetCurrentAppDomain( this.AppDomain );
+                Process.SetCurrentAppDomain(AppDomain);
 
                 //Send the selected thread ID to the device so calls that use Thread.CurrentThread work as the user expects.
-                uint pid = this.Engine.CreateThread(md, GetScratchPadLocation(), m_threadReal.ID);
+                uint pid = Engine.CreateThread(md, GetScratchPadLocation(), _threadReal.ID);
 
                 if (pid == uint.MaxValue)
                 {
@@ -279,24 +280,24 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 //If anything below fails, we need to clean up by killing the thread
                 if (nArgs > 0)
                 {
-                    List<RuntimeValue> stackFrameValues = this.Engine.GetStackFrameValueAll(pid, 0, function.NumArg, Engine.StackValueKind.Argument);
+                    List<RuntimeValue> stackFrameValues = Engine.GetStackFrameValueAll(pid, 0, function.NumArg, Engine.StackValueKind.Argument);
 
                     for (int iArg = 0; iArg < nArgs; iArg++)
                     {
-                        CorDebugValue valSrc = (CorDebugValue)ppArgs[iArg];
-                        CorDebugValue valDst = CorDebugValue.CreateValue (stackFrameValues[iArg], m_appDomain);
+                        CorDebugValue valueSource = (CorDebugValue)ppArgs[iArg];
+                        CorDebugValue valueDestination = CorDebugValue.CreateValue (stackFrameValues[iArg], _appDomain);
 
-                        if (valDst.RuntimeValue.Assign(valSrc.RuntimeValue) == null)
+                        if (valueDestination.RuntimeValue.Assign(valueSource.RuntimeValue) == null)
                         {
                             throw new ArgumentException("nanoCLR cannot set argument " + iArg);
                         }
                     }
                 }
 
-                m_threadVirtual = new CorDebugThread (this.Process, pid, this);
-                m_threadReal.AttachVirtualThread (m_threadVirtual);
-                Debug.Assert (!m_fActive);
-                m_fActive = true;                
+                _threadVirtual = new CorDebugThread (Process, pid, this);
+                _threadReal.AttachVirtualThread (_threadVirtual);
+                Debug.Assert (!_fActive);
+                _fActive = true;                
 
                 //It is possible that a hard breakpoint is hit, the first line of the function
                 //to evaluate.  If that is the case, than breakpoints need to be drained so the 
@@ -306,11 +307,11 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 //In the desktop, the hard breakpoint will not get hit until execution is resumed.
                 //The nanoCLR can hit the breakpoint during the Thread_Create call.
                 
-                Process.DrainBreakpointsAsync().Wait();
+                Process.DrainBreakpoints();
             }
             finally
             {
-                Process.SuspendCommands (false);                
+                Process.SuspendCommands (false);    
             }
 
             return COM_HResults.S_OK;
@@ -318,7 +319,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         int ICorDebugEval.NewString( string @string )
         {
-            this.Process.SetCurrentAppDomain( this.AppDomain );
+            Process.SetCurrentAppDomain(AppDomain);
             
             //changing strings is dependant on this method working....
             Engine.AllocateString(GetScratchPadLocation(), @string);
@@ -329,7 +330,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         int ICorDebugEval.NewObjectNoConstructor( ICorDebugClass pClass )
         {
-            this.Process.SetCurrentAppDomain( this.AppDomain );
+            Process.SetCurrentAppDomain(AppDomain);
             Engine.AllocateObject(GetScratchPadLocation (), ((CorDebugClass)pClass).TypeDef_Index);
             EndEval (EvalResult.Complete, true);
 
@@ -339,9 +340,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         int ICorDebugEval.CreateValue(CorElementType elementType, ICorDebugClass pElementClass, out ICorDebugValue ppValue)
         {
             uint tdIndex = GetTypeDef_Index(elementType, pElementClass);
-            Debug.Assert(Utility.FImplies(pElementClass != null, elementType == CorElementType.ELEMENT_TYPE_VALUETYPE)); 
+            Debug.Assert(Utility.FImplies(pElementClass != null, elementType == CorElementType.ELEMENT_TYPE_VALUETYPE));
 
-            this.Process.SetCurrentAppDomain( this.AppDomain );
+            Process.SetCurrentAppDomain(AppDomain);
             Engine.AllocateObject(GetScratchPadLocation (), tdIndex);
 
             ppValue = GetResultValue ();
@@ -357,7 +358,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             CorDebugFunction f = (CorDebugFunction)pConstructor;
             CorDebugClass c = f.Class;
 
-            this.Process.SetCurrentAppDomain( this.AppDomain );
+            Process.SetCurrentAppDomain(AppDomain);
             Engine.AllocateObject(GetScratchPadLocation (), c.TypeDef_Index);
             
             ICorDebugValue[] args = new ICorDebugValue[nArgs + 1];

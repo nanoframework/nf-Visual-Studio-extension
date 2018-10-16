@@ -14,6 +14,10 @@
       <IDSymbol name="Ping" value="50" />
       <IDSymbol name="DeviceCapabilities" value="70" />
       <IDSymbol name="NanoFrameworkProject" value="80" />
+      <IDSymbol name="ShowInternalErrors" value="90" />
+      <IDSymbol name="DeviceErase" value="100" />
+      <IDSymbol name="NetworkConfig" value="110" />
+      <IDSymbol name="Reboot" value="120" />
     </GuidSymbol>
   </Symbols>
 </CommandTable>

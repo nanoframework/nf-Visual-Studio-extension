@@ -7,6 +7,7 @@
   <UsingTask TaskName="MetaDataProcessorTask"             AssemblyFile="$(MSBuildThisFileDirectory)nanoFramework.Tools.BuildTasks.dll" />
   <UsingTask TaskName="ResolveRuntimeDependenciesTask"    AssemblyFile="$(MSBuildThisFileDirectory)nanoFramework.Tools.BuildTasks.dll" />
   <UsingTask TaskName="GenerateNanoResourceTask"          AssemblyFile="$(MSBuildThisFileDirectory)nanoFramework.Tools.BuildTasks.dll" />
+  <UsingTask TaskName="GenerateBinaryOutputTask"          AssemblyFile="$(MSBuildThisFileDirectory)nanoFramework.Tools.BuildTasks.dll" />
 
   <!-- 
     ###########################################################
@@ -86,7 +87,7 @@
       PrepareResourceNames;
       ResGen;
       CompileLicxFiles;
-      <!--NanoResourceGenerator-->
+      NanoResourceGenerator
     </PrepareResourcesDependsOn>
 
     <ResolveReferencesDependsOn>
@@ -105,7 +106,7 @@
     <Delete Condition="EXISTS('$(ProjectDir)$(OutDir)$(TargetName).pdbx')" Files="$(ProjectDir)$(OutDir)$(TargetName).pdbx" />
   </Target>
 
-  <Target Name="CopyToOutDir" >
+  <Target Name="CopyToOutDir">
     <Copy
         Condition="Exists('$(ProjectDir)$(IntermediateOutputPath)$(TargetName).exe')"
         SourceFiles="$(ProjectDir)$(IntermediateOutputPath)$(TargetName).exe"
@@ -121,6 +122,12 @@
     <Copy
         Condition="Exists('$(ProjectDir)$(IntermediateOutputPath)$(TargetName).pdbx')"
         SourceFiles="$(ProjectDir)$(IntermediateOutputPath)$(TargetName).pdbx"
+        DestinationFolder="$(ProjectDir)$(OutDir)" >
+      <Output TaskParameter="DestinationFiles" ItemName="FileWrites" />
+    </Copy>
+    <Copy
+        Condition="Exists('$(ProjectDir)$(IntermediateOutputPath)$(TargetName).bin')"
+        SourceFiles="$(ProjectDir)$(IntermediateOutputPath)$(TargetName).bin"
         DestinationFolder="$(ProjectDir)$(OutDir)" >
       <Output TaskParameter="DestinationFiles" ItemName="FileWrites" />
     </Copy>
@@ -181,7 +188,7 @@
         LoadHints="@(ReferencePath);@(ReferenceDependencyPaths);@(ReferenceSatellitePaths)"
         Parse="$(NanoFramework_Assembly)$(TargetExt)"
         Compile="$(NanoFramework_IntermediateAssembly).pe"
-        ImportResources="@(nanoFramework_Resources)"
+        ImportResources="@(NanoFramework_Resources)"
         Minimize="true">
 
       <Output TaskParameter="FilesWritten" ItemName="FileWrites" />
@@ -190,6 +197,8 @@
 
     <!--CallTarget is less than ideal... NF_GeneratedStubFile isn't a complete list...-->
     <CallTarget Targets="GenerateStubs" Condition="'$(NF_GenerateStubs)'=='true'" />
+
+    <CallTarget Targets="NanoGenerateBinaryOutput"/>
 
   </Target>
 
@@ -263,7 +272,7 @@
     <NFMDP_PE_DumpAll>$(ProjectDir)$(IntermediateOutputPath)$(TargetName)_all.txt</NFMDP_PE_DumpAll>
 
     <!-- nanoFramework MetaDataProcessor DUMP options -->
-    <NFMDP_DUMP_SKIP>false</NFMDP_DUMP_SKIP>
+    <NFMDP_DUMP_FILES>true</NFMDP_DUMP_FILES>
     <NFMDP_DUMP_DumpAll>$(ProjectDir)$(IntermediateOutputPath)$(TargetName).dump</NFMDP_DUMP_DumpAll>
 
     <!-- nanoFramework MetaDataProcessor STUB options -->
@@ -288,9 +297,7 @@
   <PropertyGroup Condition="'$(NF_IsCoreLibrary)' == 'True' ">
     <!--<MetaDataProcessorDependsOn>Compile</MetaDataProcessorDependsOn>-->
     <CoreBuildDependsOn>$(CoreBuildDependsOn);MetaDataProcessorCompile</CoreBuildDependsOn>
-    <PrepareResourcesDependsOn>
-      $(PrepareResourcesDependsOn)<!--;NanoResourceGenerator-->
-    </PrepareResourcesDependsOn>
+    <PrepareResourcesDependsOn>$(PrepareResourcesDependsOn);NanoResourceGenerator</PrepareResourcesDependsOn>
     <CleanDependsOn>$(CleanDependsOn);NanoCLR_CleanExtraFiles</CleanDependsOn>
     <ResolveReferencesDependsOn>$(ResolveReferencesDependsOn);ResolveRuntimeDependencies;</ResolveReferencesDependsOn>
     <BuildingProject Condition=" '$(BuildingProject)'=='' " >false</BuildingProject>
@@ -337,14 +344,14 @@
         $(NFMDP_PE_SaveStrings);
         $(NFMDP_PE_GenerateStringsTable);
         $(NFMDP_PE_DumpAll);
-        $(NFMDP_PE_Compile);
         $(NFMDP_PE_DumpExports);
+        $(NFMDP_PE_Compile);
         $(NFMDP_PE_RefreshAssemblyOutput);
         $(NFMDP_PE_CreateDatabaseFile);
         $(NFMDP_PE_GenerateDependency)"
 
     DependsOnTargets="ResolveRuntimeDependencies"
-    Condition="'$(NFMDP_PE_SKIP)' != 'true'">
+    Condition="'$(NFMDP_GENERATE_PE)' == 'true'">
 
     <ItemGroup>
       <NFMDP_PE_CreatedFiles Include="$(NFMDP_PE_CreateDatabaseFile)" Condition="'$(NFMDP_PE_CreateDatabaseFile)'!=''"/>
@@ -361,7 +368,7 @@
 
     <PropertyGroup>
       <!-- correct path for stubs output if set -->
-      <NFMDP_STUB_GenerateSkeletonFile Condition="'$(NFMDP_STUB_SKIP)' != 'true' AND '$(NFMDP_STUB_GenerateSkeletonFile)'!=''">$(ProjectDir)$(OutDir)$(NFMDP_STUB_GenerateSkeletonFile)</NFMDP_STUB_GenerateSkeletonFile>
+      <NFMDP_STUB_GenerateSkeletonFile Condition="'$(NFMDP_GENERATE_STUBS)' == 'true' AND '$(NFMDP_STUB_GenerateSkeletonFile)'!=''">$(ProjectDir)$(OutDir)$(NFMDP_STUB_GenerateSkeletonFile)</NFMDP_STUB_GenerateSkeletonFile>
     </PropertyGroup>
 
     <ItemGroup>
@@ -369,7 +376,7 @@
       <NFMDP_STUB_CreatedFiles Include="$(NFMDP_STUB_GenerateSkeletonFile)"  Condition="'$(NFMDP_STUB_GenerateSkeletonFile)'!=''"/>
       <NFMDP_STUB_CreatedFiles Include="$(NFMDP_STUB_GenerateDependency)"  Condition="'$(NFMDP_STUB_GenerateDependency)'!=''"/>
     </ItemGroup>
-    <MakeDir Directories="@(NFMDP_STUB_CreatedFiles->'%(RootDir)%(Directory)')" Condition="'$(NFMDP_STUB_SKIP)' != 'true'"/>
+    <MakeDir Directories="@(NFMDP_STUB_CreatedFiles->'%(RootDir)%(Directory)')" Condition="'$(NFMDP_GENERATE_STUBS)' == 'true'"/>
 
     <PropertyGroup>
       <NFMDP_STUB_GenerateSkeletonProject Condition="'$(NFMDP_STUB_GenerateSkeletonProject)'==''" >$(AssemblyName)</NFMDP_STUB_GenerateSkeletonProject>
@@ -441,7 +448,7 @@
       LoadDatabase="@(NFMDP_STUB_LoadDatabase)"
       ExcludeClassByName="@(NFMDP_STUB_ExcludeClassByName)"
       OutputCommandLine="$(NFMDP_CMD_LINE_OUTPUT)"
-      Condition="'$(NFMDP_STUB_SKIP)' != 'true'">
+      Condition="'$(NFMDP_GENERATE_STUBS)' == 'true'">
 
       <Output TaskParameter="FilesWritten" ItemName="FileWrites"/>
 
@@ -481,7 +488,7 @@
         $(NFMDP_DAT_RefreshAssemblyOutput);
         $(NFMDP_DAT_CreateDatabaseFile);
         $(NFMDP_DAT_GenerateDependency)"
-    Condition="'$(NFMDP_DAT_SKIP)' != 'true'">
+    Condition="'$(NFMDP_DAT_FILES)' == 'true'">
 
     <CallTarget Targets="MetaDataProcessorDat_MSG" Condition="'$(NFMDP_DAT_Verbose)'=='true'" />
 
@@ -541,7 +548,7 @@
         $(NFMDP_XML_RefreshAssemblyOutput);
         $(NFMDP_XML_CreateDatabaseFile);
         $(NFMDP_XML_GenerateDependency)"
-    Condition="'$(NFMDP_XML_SKIP)' != 'true'">
+    Condition="'$(NFMDP_XML_FILES)' == 'true'">
 
     <Message Text="Creating dependency map $(NFMDP_XML_GenerateDependency)..." />
 
@@ -663,7 +670,7 @@
         $(NFMDP_DUMP_RefreshAssemblyOutput);
         $(NFMDP_DUMP_CreateDatabaseFile);
         $(NFMDP_DUMP_GenerateDependency)"
-    Condition="'$(NFMDP_DUMP_SKIP)' != 'true'"
+    Condition="'$(NFMDP_DUMP_FILES)' == 'true'"
     >
     <!-- Create DUMP file -->
     <MetaDataProcessorTask
@@ -748,6 +755,25 @@
 
   </Target>
 
+  <Target Name="NanoResourceGenerator"
+    Condition="'@(EmbeddedResource)'!='' and '$(NF_IsCoreLibrary)' == 'True'"
+    DependsOnTargets="$(NanoResourceGeneratorDependsOn)"
+    >
+    <GenerateNanoResourceTask
+      Sources="@(EmbeddedResource)"
+      Condition=" '%(EmbeddedResource.Type)' == 'Resx' and '%(EmbeddedResource.GenerateResource)' != 'false'"
+      References="@(ReferencePath)"
+      UseSourcePath="$(UseSourcePath)"
+      StateFile="$(IntermediateOutputPath)$(MSBuildProjectFile).NanoResourceGenerator.Cache"
+      OutputResources="@(EmbeddedResource->'$(ProjectDir)$(IntermediateOutputPath)%(ManifestResourceName).nanoresources')"
+      >
+
+      <Output TaskParameter="OutputResources" ItemName="NFMDP_PE_Resource"/>
+      <Output TaskParameter="OutputResources" ItemName="FileWrites"/>
+    </GenerateNanoResourceTask>
+  </Target>
+
+
   <Target Name="Disasm"
     Condition="Exists('$(NanoFramework_DisasmInput)')"
     Inputs="$(NanoFramework_DisasmInput)"
@@ -777,9 +803,8 @@
       GenerateSkeletonName="$(TargetName)"
       GenerateSkeletonFile="$(NF_GenerateSkeletonFile)"
       GenerateSkeletonProject="$(NF_GenerateSkeletonProjectName)"
-      RefreshAssemblyName="$(AssemblyName)"
+      RefreshAssemblyName="$(TargetName)"
       RefreshAssemblyOutput="$(NanoFramework_IntermediateAssembly).pe"
-      Resolve="true"
       OutputCommandLine="$(NFMDP_CMD_LINE_OUTPUT)">
 
       <Output TaskParameter="FilesWritten" ItemName="FileWrites"/>
@@ -797,7 +822,7 @@
     </ItemGroup>
   </Target>
 
-  <!--<Target Name="NanoResourceGenerator"
+  <Target Name="NanoResourceGenerator"
     Condition="'@(EmbeddedResource)'!=''"
     DependsOnTargets="$(NanoResourceGeneratorDependsOn)"
     >
@@ -807,13 +832,13 @@
       References="@(ReferencePath)"
       UseSourcePath="$(UseSourcePath)"
       StateFile="$(IntermediateOutputPath)$(MSBuildProjectFile).NanoGenerateResource.Cache"
-      OutputResources="@(EmbeddedResource->'$(IntermediateOutputPath)%(ManifestResourceName).nanoresources')"
+      OutputResources="@(EmbeddedResource->'$(ProjectDir)$(IntermediateOutputPath)%(ManifestResourceName).nanoresources')"
       >
 
-      <Output TaskParameter="OutputResources" ItemName="NFMDP_PE_Resource"/>
+      <Output TaskParameter="OutputResources" ItemName="NanoFramework_Resources"/>
       <Output TaskParameter="FilesWritten" ItemName="FileWrites"/>
     </GenerateNanoResourceTask>
-  </Target>-->
+  </Target>
 
   <!--
           CoreClean isn't very good at cleaning files not built into IntermediateDirectory or OutDirectory.  Just clean
@@ -831,4 +856,16 @@
       />
   </Target>
 
+  <Target Name="NanoGenerateBinaryOutput">
+
+    <GenerateBinaryOutputTask
+        AssemblyPE="$(NanoFramework_IntermediateAssembly).pe"
+        Assembly="$(NanoFramework_Assembly)$(TargetExt)"
+        AssemblyReferences="@(ReferencePath);@(ReferenceDependencyPaths)">
+
+      <Output TaskParameter="FileWritten" ItemName="FileWrites" />
+    </GenerateBinaryOutputTask>
+
+  </Target>
+  
 </Project>

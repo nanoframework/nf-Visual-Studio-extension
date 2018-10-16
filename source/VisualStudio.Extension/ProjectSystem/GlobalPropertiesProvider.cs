@@ -13,28 +13,28 @@ using System.Threading.Tasks;
 
 namespace nanoFramework.Tools.VisualStudio.Extension
 {
-    [Export(typeof(IProjectGlobalPropertiesProvider))]
-    [AppliesTo(NanoCSharpProjectUnconfigured.UniqueCapability)]
-    internal class GlobalPropertiesProvider : StaticGlobalPropertiesProviderBase
-    {
-        public const string NanoCSharpProjectPathPropertyName = "NanoCSharpProjectPath";
+    //[Export(typeof(IProjectGlobalPropertiesProvider))]
+    //[AppliesTo(NanoCSharpProjectUnconfigured.UniqueCapability)]
+    //internal class GlobalPropertiesProvider : StaticGlobalPropertiesProviderBase
+    //{
+    //    public const string NanoCSharpProjectPathPropertyName = "NanoCSharpProjectPath";
 
-        [ImportingConstructor]
-        internal GlobalPropertiesProvider(IProjectService projectService)
-            : base(projectService.Services)
-        { }
+    //    [ImportingConstructor]
+    //    internal GlobalPropertiesProvider(IProjectService projectService)
+    //        : base(projectService.Services)
+    //    { }
 
-        //[ImportingConstructor]
-        //internal GlobalPropertiesProvider(IThreadHandling threadHandling)
-        //    : base(threadHandling.JoinableTaskContext)
-        //{
-        //}
+    //    //[ImportingConstructor]
+    //    //internal GlobalPropertiesProvider(IThreadHandling threadHandling)
+    //    //    : base(threadHandling.JoinableTaskContext)
+    //    //{
+    //    //}
 
-        public override Task<IImmutableDictionary<string, string>> GetGlobalPropertiesAsync(CancellationToken cancellationToken) =>
-            Task.FromResult<IImmutableDictionary<string, string>>(
-                Empty.PropertiesMap.SetItem(
-                    NanoCSharpProjectPathPropertyName,
-                    Path.Combine(Path.GetDirectoryName(this.GetType().Assembly.Location), "Targets")));
+    //    public override Task<IImmutableDictionary<string, string>> GetGlobalPropertiesAsync(CancellationToken cancellationToken) =>
+    //        Task.FromResult<IImmutableDictionary<string, string>>(
+    //            Empty.PropertiesMap.SetItem(
+    //                NanoCSharpProjectPathPropertyName,
+    //                Path.Combine(Path.GetDirectoryName(GetType().Assembly.Location), "Targets")));
 
-    }
+    //}
 }

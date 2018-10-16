@@ -17,7 +17,7 @@
              d:DesignHeight="300" d:DesignWidth="300"
              x:Name="DeviceExplorer">
     <UserControl.DataContext>
-        <!--It's OK to use this static resource this way becuase it has been added programaticaly in the VS package constructor.-->
+        <!--It's OK to use this static resource this way because it has been added programatically in the VS package constructor.-->
         <Binding Mode="OneWay" Path="DeviceExplorer" Source="{StaticResource Locator}"/>
     </UserControl.DataContext>
 
@@ -40,22 +40,23 @@
                         <Setter Property="HeaderTemplate">
                             <Setter.Value>
                                 <DataTemplate>
-                                    <TextBlock Text="{Binding}" FontWeight="Bold"/>
+                                    <TextBlock Text="{Binding}" FontWeight="Bold" />
+                                </DataTemplate>
+                            </Setter.Value>
+                        </Setter>
+                        <Setter Property="ItemTemplate">
+                            <Setter.Value>
+                                <DataTemplate DataType="{x:Type debugger:NanoDeviceBase}">
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Top" HorizontalAlignment="Stretch">
+                                        <TextBlock Text="{Binding Description, Mode=OneWay}" Foreground="{DynamicResource {x:Static vsp:EnvironmentColors.ToolWindowTextBrushKey}}"/>
+                                    </StackPanel>
                                 </DataTemplate>
                             </Setter.Value>
                         </Setter>
                     </Style>
                 </TreeView.ItemContainerStyle>
 
-                <TreeView.Resources>
-                    <DataTemplate x:Key="NanoDeviceItemTemplate" DataType="{x:Type debugger:NanoDeviceBase}">
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Top" HorizontalAlignment="Stretch">
-                            <TextBlock Text="{Binding Description, Mode=OneWay}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
-                        </StackPanel>
-                    </DataTemplate>
-                </TreeView.Resources>
-
-                <TreeViewItem x:Name="DevicesHeaderItem" Header="Devices" IsExpanded="True" ItemTemplate="{StaticResource NanoDeviceItemTemplate}" Focusable="False" ItemsSource="{Binding AvailableDevices, Mode=OneWay}"/>
+                <TreeViewItem x:Name="DevicesHeaderItem" Header="Devices" IsExpanded="True" Focusable="False" ItemsSource="{Binding AvailableDevices, Mode=OneWay}"/>
 
             </TreeView>
 
@@ -95,26 +96,50 @@
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
-                        
+
                         <imaging:CrispImage Grid.Row="0" Grid.Column="0" Width="32" Height="32" HorizontalAlignment="Left" Margin="0" Focusable="False" 
                                             Moniker="{x:Static nfCatalog:NanoFrameworkMonikers.NanoFramework}" 
                                             theming:ImageThemingUtilities.ImageBackgroundColor="{Binding Background, ElementName=BackgroundInvert, Converter={StaticResource BrushToColorConverter}}" />
-                        
+
                         <StackPanel Grid.Row="0" Grid.Column="1"  HorizontalAlignment="Left" Orientation="Vertical">
-                            <!--<TextBlock Margin="10,0,0,0" VerticalAlignment="Center" Style="{StaticResource {x:Static vsfx:VsResourceKeys.ThemedDialogTextBoxStyleKey}}">Visit our website <Hyperlink NavigateUri="http//www.nanoframework.net" Style="{StaticResource {x:Static vsfx:VsResourceKeys.ThemedDialogHyperlinkStyleKey}}">here</Hyperlink>!</TextBlock>-->
+                            <!--Style="{StaticResource {x:Static vsfx:VsResourceKeys.ThemedDialogTextBoxStyleKey}}"-->
+                            <TextBlock Margin="10,0,0,0" VerticalAlignment="Center" >
+                                Visit our 
+                                    <Hyperlink Style="{StaticResource {x:Static vsfx:VsResourceKeys.ThemedDialogHyperlinkStyleKey}}"
+                                                NavigateUri="http://www.nanoframework.net"
+                                                RequestNavigate="Hyperlink_RequestNavigate">
+                                    website</Hyperlink>!
+                            </TextBlock>
+
                             <TextBlock Margin="10,0,0,0" VerticalAlignment="Center">
-                                Join our Slack community 
+                                Search the  
                                 <Hyperlink Style="{StaticResource {x:Static vsfx:VsResourceKeys.ThemedDialogHyperlinkStyleKey}}"
-                                           NavigateUri="https://nanoframework.wordpress.com/slack-invite-form/"
+                                           NavigateUri="http://docs.nanoframework.net/api/index.html" 
                                            RequestNavigate="Hyperlink_RequestNavigate" >
-                                    here</Hyperlink>.
+                                    API reference</Hyperlink>.
+                            </TextBlock>
+
+                            <TextBlock Margin="10,0,0,0" VerticalAlignment="Center">
+                                Report issues on our 
+                                <Hyperlink Style="{StaticResource {x:Static vsfx:VsResourceKeys.ThemedDialogHyperlinkStyleKey}}"
+                                           NavigateUri="https://github.com/nanoframework/Home/issues" 
+                                           RequestNavigate="Hyperlink_RequestNavigate" >
+                                    GitHub repo</Hyperlink>.
+                            </TextBlock>
+
+                            <TextBlock Margin="10,0,0,0" VerticalAlignment="Center">
+                                Take advantage of nanoFramework    
+                                <Hyperlink Style="{StaticResource {x:Static vsfx:VsResourceKeys.ThemedDialogHyperlinkStyleKey}}"
+                                           NavigateUri="http://docs.nanoframework.net/articles/intro.html" 
+                                           RequestNavigate="Hyperlink_RequestNavigate" >
+                                    knowledge base</Hyperlink>.
                             </TextBlock>
                             <TextBlock Margin="10,0,0,0" VerticalAlignment="Center">
-                                Engage with the community 
+                                Join our lively Discord
                                 <Hyperlink Style="{StaticResource {x:Static vsfx:VsResourceKeys.ThemedDialogHyperlinkStyleKey}}"
-                                           NavigateUri="https://nanoframework.slack.com" 
+                                           NavigateUri="https://discord.gg/gCyBu8T"
                                            RequestNavigate="Hyperlink_RequestNavigate" >
-                                    here</Hyperlink>.
+                                    community</Hyperlink>.
                             </TextBlock>
                         </StackPanel>
 

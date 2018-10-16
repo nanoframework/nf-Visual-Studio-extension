@@ -2365,7 +2365,7 @@ HRESULT MetaData::Parser::Analyze( LPCWSTR szFileName )
     if(m_fNoAttributes == false)
     {
         //Manifest resources are currently ignored.
-        //-ImportResource to grab .tinyresources format.
+        //-ImportResource to grab .nanoresources format.
         //NANOCLR_CHECK_HRESULT(EnumManifestResources());
 
         NANOCLR_CHECK_HRESULT(EnumCustomAttributes());
