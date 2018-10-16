@@ -1,7 +1,6 @@
 # Change Log
 
-## [**Changes available only in 'Preview' version:**](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/HEAD)
-
+## [v1.0.0.0](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v1.0.0.0) (2018-10-16)
 [Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v0.6.8.2...HEAD)
 
 **Updated dependencies and other chores:**
