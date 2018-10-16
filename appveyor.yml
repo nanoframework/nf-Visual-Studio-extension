@@ -35,6 +35,8 @@ environment:
     secure: /NpmL1KqwHyHFnF0GlUovA586wDIt8Hg/Q8Dro6kUpk=
   GitHubToken:
     secure: i/2hGsqVMwzdM5yIS4rxOIeG3ftx7su7klWYN80s/fHvgk7A5H2fF3oUTNLcyTbw
+  GitRestAuth:
+    secure: E3bCMe4LtDdAhHSYRcLp0N6DixJe1m8TNxhYeJW/GnqM3WXdRqsgkHSbwootPjJQtOQJrps4twmzTVzofLSVgPgbzU8PxU0AkJV7zwkyVOE=
 
 init:
   - git config --global core.autocrlf true
