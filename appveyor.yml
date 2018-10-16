@@ -87,8 +87,6 @@ deploy:
   draft: true
   prerelease: false
   force_update: true
-  on:
-    appveyor_repo_tag: true
 
 on_success:
   - ps: .\upload-vsix-myget.ps1
@@ -123,6 +121,4 @@ for:
     artifact: VS_extension
     draft: true
     prerelease: true
-    force_update: true    
-    on:
-      appveyor_repo_tag: true
+    force_update: true
