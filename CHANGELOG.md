@@ -1,20 +1,5 @@
 # Change Log
 
-## [v0.6.7.10](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v0.6.7.10) (2018-10-16)
-[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v0.6.6.9...v0.6.7.10)
-
-## [v0.6.6.9](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v0.6.6.9) (2018-10-16)
-[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v0.6.5.2...v0.6.6.9)
-
-## [v0.6.5.2](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v0.6.5.2) (2018-10-16)
-[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v0.6.4.8...v0.6.5.2)
-
-## [v0.6.4.8](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v0.6.4.8) (2018-10-16)
-[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v0.6.3.2...v0.6.4.8)
-
-## [v0.6.3.2](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v0.6.3.2) (2018-10-15)
-[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v0.6.2.3...v0.6.3.2)
-
 ## [v0.6.2.3](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v0.6.2.3) (2018-10-15)
 [Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v0.6.1.2...v0.6.2.3)
 
