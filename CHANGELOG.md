@@ -1,5 +1,8 @@
 # Change Log
 
+## [v0.6.7.10](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v0.6.7.10) (2018-10-16)
+[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v0.6.6.9...v0.6.7.10)
+
 ## [v0.6.6.9](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v0.6.6.9) (2018-10-16)
 [Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v0.6.5.2...v0.6.6.9)
 
