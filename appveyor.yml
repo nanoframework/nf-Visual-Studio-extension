@@ -76,18 +76,6 @@ artifacts:
 - path: '**\*.vsix'
   name: VS_extension
 
-deploy:
-- provider: GitHub
-  tag: v$(GitVersion_NuGetVersionV2)
-  release: nanoFramework VS2017 Extension v$(GitVersion_MajorMinorPatch)
-  description: 'Check the [changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/blob/master/CHANGELOG.md).\n\n### Install from Visual Studio Marketplace\n\nThe following Visual Studio Extensions are available for install from this release\n\n- [nanoFramework VS2017 Extension](https://marketplace.visualstudio.com/items?itemName=vs-publisher-1470366.nanoFrameworkVS2017Extension)'
-  auth_token:
-    secure: DNixoFFE+pGlwyhj7McfZoln42vOmj0iY1iNV9zXEr3y0NpXlOIgL8k5ehzlFM1S
-  artifact:
-  draft: true
-  prerelease: false
-  force_update: true
-
 on_success:
   - ps: .\upload-vsix-myget.ps1
 
@@ -109,16 +97,50 @@ for:
 -
   branches:
     only:
+      - master
+
+  deploy:
+  - provider: GitHub
+    tag: v$(GitVersion_MajorMinorPatch).$(GitVersion_CommitsSinceVersionSource)
+    release: nanoFramework VS2017 Extension v$(GitVersion_MajorMinorPatch)
+    description: 'Check the [changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/blob/master/CHANGELOG.md).\n\n### Install from Visual Studio Marketplace\n\nThe following Visual Studio Extensions are available for install from this release\n\n- [nanoFramework VS2017 Extension](https://marketplace.visualstudio.com/items?itemName=vs-publisher-1470366.nanoFrameworkVS2017Extension)'
+    auth_token:
+      secure: DNixoFFE+pGlwyhj7McfZoln42vOmj0iY1iNV9zXEr3y0NpXlOIgL8k5ehzlFM1S
+    artifact:
+    draft: true
+    prerelease: false
+    force_update: true
+
+-
+  branches:
+    only:
       - /dev.*/
 
   deploy:
   - provider: GitHub
     tag: v$(GitVersion_MajorMinorPatch).$(GitVersion_CommitsSinceVersionSource)
     release: nanoFramework VS2017 Extension v$(GitVersion_MajorMinorPatch).$(GitVersion_CommitsSinceVersionSource)
-    description: 'Check the [changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/blob/develop/CHANGELOG.md).\n\n## Install from nanoFramework MyGet development feed\n\nThe following Visual Studio Extensions are available for install from this release\n\n- [nanoFramework VS2017 Extension](https://www.myget.org/feed/nanoframework-dev/package/vsix/47973986-ed3c-4b64-ba40-a9da73b44ef7)'
+    description: 'Check the [changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/blob/$(appveyor_repo_branch)/CHANGELOG.md).\n\n## Install from nanoFramework MyGet development feed\n\nThe following Visual Studio Extensions are available for install from this release\n\n- [nanoFramework VS2017 Extension](https://www.myget.org/feed/nanoframework-dev/package/vsix/47973986-ed3c-4b64-ba40-a9da73b44ef7)'
     auth_token:
       secure: DNixoFFE+pGlwyhj7McfZoln42vOmj0iY1iNV9zXEr3y0NpXlOIgL8k5ehzlFM1S
     artifact: VS_extension
+    draft: true
+    prerelease: true
+    force_update: true
+
+-
+  branches:
+    only:
+      - /release.*/
+
+  deploy:
+  - provider: GitHub
+    tag: v$(GitVersion_MajorMinorPatch).$(GitVersion_CommitsSinceVersionSource)
+    release: nanoFramework VS2017 Extension v$(GitVersion_MajorMinorPatch)
+    description: 'Check the [changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/blob/$(appveyor_repo_branch)/CHANGELOG.md).\n\n### Install from Visual Studio Marketplace\n\nThe following Visual Studio Extensions are available for install from this release\n\n- [nanoFramework VS2017 Extension](https://marketplace.visualstudio.com/items?itemName=vs-publisher-1470366.nanoFrameworkVS2017Extension)'
+    auth_token:
+      secure: DNixoFFE+pGlwyhj7McfZoln42vOmj0iY1iNV9zXEr3y0NpXlOIgL8k5ehzlFM1S
+    artifact:
     draft: true
     prerelease: true
     force_update: true
