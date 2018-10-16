@@ -64,7 +64,7 @@ before_build:
 build_script:
 - ps: >-
 
-    msbuild source\nanoFramework.Tools.VisualStudio.sln /p:Configuration=Release  /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
+    msbuild source\nanoFramework.Tools.VisualStudio.sln /p:Configuration=Release /m /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
 
 before_deploy:
 - ps:  >-
