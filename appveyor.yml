@@ -67,12 +67,10 @@ build_script:
     msbuild source\nanoFramework.Tools.VisualStudio.sln /p:Configuration=Release  /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
 
 before_deploy:
-# need this to keep ruby happy
-- ps: md c:\tmp
-- bundle exec github_changelog_generator --token %GitHubToken%
-# add here the updated changelog and the updated assembly info files
-- git add .
-- git commit --amend --no-edit
+- ps:  >-
+    .\commit-assemblyinfo-changes.ps1
+
+    .\generate-change-log.ps1
 
 artifacts:
 - path: '**\*.vsix'
