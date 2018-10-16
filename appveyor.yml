@@ -1,6 +1,13 @@
-# configuration for all branches
+# configuration these branches
+branches:
+  only:
+    - master
+    - /dev.*/
+    - /release.*/
 
 image: Visual Studio 2017
+
+skip_tags: false
 
 skip_branch_with_pr: true
 
