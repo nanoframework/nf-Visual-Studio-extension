@@ -8,7 +8,7 @@ else
     # updated assembly info files   
     git add "source\VisualStudio.Extension\Properties\AssemblyInfo.cs"
     git add "source\VisualStudio.Extension\source.extension.vsixmanifest"
-    git commit -m "Update versions for v$env:GitVersion_AssemblySemVer"
+    git commit -m "Update versions for v$env:GitVersion_AssemblySemVer" -m"[version update]"
     git push origin --porcelain -q > $null
     
     'Updated version info...' | Write-Host -ForegroundColor White -NoNewline
