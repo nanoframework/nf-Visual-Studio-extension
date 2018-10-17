@@ -1,15 +1,15 @@
-# configuration these branches
-branches:
-  only:
-    - master
-    - /dev.*/
-    - /release.*/
+# configuration for all branches
 
 image: Visual Studio 2017
 
 skip_tags: false
 
 skip_branch_with_pr: true
+
+test: off
+
+pull_requests:
+  do_not_increment_build_number: true
 
 # Skipping commits affecting specific files
 skip_commits:
@@ -22,8 +22,6 @@ skip_commits:
 
 build:
   verbosity: minimal
-
-test: off
 
 environment:
   APPVEYOR_SAVE_CACHE_ON_ERROR: true
@@ -102,6 +100,7 @@ for:
   branches:
     only:
       - master
+      - /v.*/
 
   deploy:
   - provider: GitHub
@@ -114,6 +113,8 @@ for:
     draft: true
     prerelease: false
     force_update: true
+    on:
+      appveyor_repo_tag: false
 
 -
   branches:
@@ -131,6 +132,8 @@ for:
     draft: true
     prerelease: true
     force_update: true
+    on:
+      appveyor_repo_tag: false
 
 -
   branches:
@@ -148,3 +151,5 @@ for:
     draft: true
     prerelease: true
     force_update: true
+    on:
+      appveyor_repo_tag: false
