@@ -420,18 +420,18 @@ static const CHAR c_WARNING_FILE_OVERWRITE_Header[] =
 "//    prevent loss of your changes when the tool is\n"
 "//    re-run.\n"
 "//\n"
-"//-----------------------------------------------------------------------------\n"
-"\n\n";
+"//-----------------------------------------------------------------------------\n";
 
 // the include name bellow has to be in LOWER case
 static const CHAR c_Include_Header_Begin[] =
 "\n"
 "#include \"%S_native.h\"\n"
-"\n"
 "\n";
 
 static const CHAR c_Include_Interop_h[] =
-"#include <nanoCLR_Interop.h>\n";
+"#include <nanoCLR_Interop.h>\n"
+"#include <nanoCLR_Runtime.h>\n"
+;
 
 //--//
 
@@ -1737,7 +1737,7 @@ void CLR_RT_Assembly::GenerateSkeleton_NoInterop(LPCWSTR szFileName, LPCWSTR szP
 		iStaticFields += td->sFields_Num;
 	}
 
-	//Dump_Printf( c_Declaration_End, strAssemblyIDName.c_str() );
+	Dump_Printf("\n\nextern const CLR_RT_NativeAssemblyData g_CLR_AssemblyNative_%s;\n\n", strAssemblyIDName.c_str());
 
 	Dump_Printf("#endif  //%s\n", strHeaderDefineMacro.c_str());
 	Dump_CloseDevice();
