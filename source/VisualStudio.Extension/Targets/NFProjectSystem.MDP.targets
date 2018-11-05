@@ -80,7 +80,8 @@
     <PrepareForRunDependsOn>
       MetaDataProcessor;
       CopyFilesToOutputDirectory;
-      CopyNanoFrameworkFiles
+      CopyNanoFrameworkFiles;
+      CopyBackNanoFrameworkDlls
     </PrepareForRunDependsOn>
 
     <PrepareResourcesDependsOn>
@@ -170,6 +171,18 @@
         SourceFiles="@(ReferenceCopyLocalPaths->'%(RootDir)%(Directory)%(Filename).pdbx')"
         DestinationFiles="@(ReferenceCopyLocalPaths->'$(OutDir)%(DestinationSubDirectory)%(Filename).pdbx')"
         SkipUnchangedFiles="true">
+      <Output TaskParameter="DestinationFiles" ItemName="FileWrites" />
+    </Copy>
+
+  </Target>
+
+  <Target Name="CopyBackNanoFrameworkDlls" >
+
+    <Copy
+        SourceFiles="@(ReferenceCopyLocalPaths)"
+        DestinationFiles="@(ReferenceCopyLocalPaths->'$(IntermediateOutputPath)%(Filename)%(Extension)')"
+        SkipUnchangedFiles="false"
+            >
       <Output TaskParameter="DestinationFiles" ItemName="FileWrites" />
     </Copy>
 
@@ -459,6 +472,7 @@
     <!-- Copy files (dll, pe, pdb and pdbx) to ouput directory -->
     <CallTarget Targets="CopyFilesToOutputDirectory" />
     <CallTarget Targets="CopyNanoFrameworkFiles" />
+    <CallTarget Targets="CopyBackNanoFrameworkDlls" />
   </Target>
 
 
