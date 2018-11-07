@@ -6,10 +6,14 @@
 
 **Implemented enhancements:**
 
+- Add task to copy referenced DLLs to obj folder [\#318](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/318) [[Area: VS-extension](https://github.com/nanoframework/nf-Visual-Studio-extension/labels/Area:%20VS-extension)]
+- Add Windows version check on extension load [\#317](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/317) [[Area: VS-extension](https://github.com/nanoframework/nf-Visual-Studio-extension/labels/Area:%20VS-extension)]
 - Improve stubs skeletons [\#314](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/314) [[Area: Tools](https://github.com/nanoframework/nf-Visual-Studio-extension/labels/Area:%20Tools)]
 
 **Updated dependencies and other chores:**
 
+- Update debugger library [\#319](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/319) [[Area: VS-extension](https://github.com/nanoframework/nf-Visual-Studio-extension/labels/Area:%20VS-extension)]
+- Update several NuGets [\#316](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/316)
 - Update mscorlib NuGet to v1.0.4 [\#315](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/315)
 
 ## [v1.0.0.0](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v1.0.0.0) (2018-10-16)
