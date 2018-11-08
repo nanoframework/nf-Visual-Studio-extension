@@ -47,8 +47,7 @@ install:
 - bundle config --local path vendor/bundle
 - gem install bundler --quiet --no-ri --no-rdoc
 - gem install github_changelog_generator --quiet --no-ri --no-rdoc
-# this needs to be replace with the official version and nuget package as soon as it's released
-- dotnet tool install -g --version 4.0.0-pullrequest1422-1625 --add-source https://ci.appveyor.com/nuget/gitversion-8nigugxjftrw GitVersion.CommandLine.DotNetCore.Tool
+- dotnet tool install --tool-path . nbgv
 
 before_build:
 - ps: >-
@@ -56,18 +55,14 @@ before_build:
 
     nuget restore source\nanoFramework.Tools.VisualStudio.sln
 
-    dotnet-gitversion /l console /output buildserver /updateAssemblyInfo "source\VisualStudio.Extension\Properties\AssemblyInfo.cs"
-
-    .\update-vsix-manifest.ps1 $env:GitVersion_AssemblySemVer
+    .\nbgv cloud -p source -a -c
 
 build_script:
-- ps: >-
-
-    msbuild source\nanoFramework.Tools.VisualStudio.sln /p:Configuration=Release /m /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
+- ps: msbuild source\nanoFramework.Tools.VisualStudio.sln /p:Configuration=Release /m /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
 
 before_deploy:
 - ps:  >-
-    .\commit-assemblyinfo-changes.ps1
+    .\nbgv cloud --version=$env:NBGV_SemVer1
 
     .\generate-change-log.ps1
 
@@ -99,12 +94,12 @@ for:
 
   deploy:
   - provider: GitHub
-    tag: v$(GitVersion_MajorMinorPatch).$(GitVersion_CommitsSinceVersionSource)
-    release: nanoFramework VS2017 Extension v$(GitVersion_MajorMinorPatch).$(GitVersion_CommitsSinceVersionSource)
-    description: 'Check the [changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/blob/master/CHANGELOG.md).\n\n### Install from Visual Studio Marketplace\n\nThe following Visual Studio Extensions are available for install from this release\n\n- [nanoFramework VS2017 Extension](https://marketplace.visualstudio.com/items?itemName=vs-publisher-1470366.nanoFrameworkVS2017Extension)'
+    tag: v$(NBGV_Version)
+    release: nanoFramework VS2017 Extension v$(NBGV_Version)
+    description: 'Check the [changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/blob/$(appveyor_repo_branch)/CHANGELOG.md).\n\n### Install from Visual Studio Marketplace\n\nThe following Visual Studio Extensions are available for install from this release\n\n- [nanoFramework VS2017 Extension](https://marketplace.visualstudio.com/items?itemName=vs-publisher-1470366.nanoFrameworkVS2017Extension)'
     auth_token:
       secure: DNixoFFE+pGlwyhj7McfZoln42vOmj0iY1iNV9zXEr3y0NpXlOIgL8k5ehzlFM1S
-    artifact:
+    artifact: VS_extension
     draft: true
     prerelease: false
     force_update: true
@@ -118,8 +113,8 @@ for:
 
   deploy:
   - provider: GitHub
-    tag: v$(GitVersion_MajorMinorPatch).$(GitVersion_CommitsSinceVersionSource).$(GitVersion_CommitsSinceVersionSource)
-    release: nanoFramework VS2017 Extension v$(GitVersion_MajorMinorPatch).$(GitVersion_CommitsSinceVersionSource)
+    tag: v$(NBGV_Version)
+    release: nanoFramework VS2017 Extension v$(NBGV_Version)
     description: 'Check the [changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/blob/$(appveyor_repo_branch)/CHANGELOG.md).\n\n## Install from nanoFramework MyGet development feed\n\nThe following Visual Studio Extensions are available for install from this release\n\n- [nanoFramework VS2017 Extension](https://www.myget.org/feed/nanoframework-dev/package/vsix/47973986-ed3c-4b64-ba40-a9da73b44ef7)'
     auth_token:
       secure: DNixoFFE+pGlwyhj7McfZoln42vOmj0iY1iNV9zXEr3y0NpXlOIgL8k5ehzlFM1S
@@ -137,12 +132,12 @@ for:
 
   deploy:
   - provider: GitHub
-    tag: v$(GitVersion_MajorMinorPatch).$(GitVersion_CommitsSinceVersionSource)
-    release: nanoFramework VS2017 Extension v$(GitVersion_MajorMinorPatch).$(GitVersion_CommitsSinceVersionSource)
+    tag: v$(NBGV_Version)
+    release: nanoFramework VS2017 Extension v$(NBGV_Version)
     description: 'Check the [changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/blob/$(appveyor_repo_branch)/CHANGELOG.md).\n\n### Install from Visual Studio Marketplace\n\nThe following Visual Studio Extensions are available for install from this release\n\n- [nanoFramework VS2017 Extension](https://marketplace.visualstudio.com/items?itemName=vs-publisher-1470366.nanoFrameworkVS2017Extension)'
     auth_token:
       secure: DNixoFFE+pGlwyhj7McfZoln42vOmj0iY1iNV9zXEr3y0NpXlOIgL8k5ehzlFM1S
-    artifact:
+    artifact: VS_extension
     draft: true
     prerelease: true
     force_update: true
