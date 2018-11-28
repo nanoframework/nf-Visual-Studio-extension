@@ -14,7 +14,7 @@ This repo contains **nanoFramework** Visual Studio extension and associated tool
 
 | Component | Build Status | Stable version | Preview version |
 |:-|---|---|---|
-| Visual Studio extension | [![Build status](https://ci.appveyor.com/api/projects/status/9mtqen1wi0tv8x54?svg=true)](https://ci.appveyor.com/project/nfbot/nf-visual-studio-extension) | [![Visual Studio Marketplace](https://img.shields.io/vscode-marketplace/v/vs-publisher-1470366.nanoFrameworkVS2017Extension.svg)](https://marketplace.visualstudio.com/items?itemName=vs-publisher-1470366.nanoFrameworkVS2017Extension) | [![MyGet Vsix feed](https://img.shields.io/badge/MyGet%20Vsix%20feed-(preview)-yellow.svg)](https://www.myget.org/feed/nanoframework-dev/package/vsix/47973986-ed3c-4b64-ba40-a9da73b44ef7) |
+| Visual Studio extension | [![Build Status](https://dev.azure.com/nanoframework/Visual-Studio-extension/_apis/build/status/nanoframework.nf-Visual-Studio-extension)](https://dev.azure.com/nanoframework/Visual-Studio-extension/_build/latest?definitionId=17) | [![Visual Studio Marketplace](https://img.shields.io/vscode-marketplace/v/vs-publisher-1470366.nanoFrameworkVS2017Extension.svg)](https://marketplace.visualstudio.com/items?itemName=vs-publisher-1470366.nanoFrameworkVS2017Extension) | [![MyGet Vsix feed](https://img.shields.io/badge/MyGet%20Vsix%20feed-(preview)-yellow.svg)](https://www.myget.org/feed/nanoframework-dev/package/vsix/47973986-ed3c-4b64-ba40-a9da73b44ef7) |
 
 
 ## Feedback and documentation

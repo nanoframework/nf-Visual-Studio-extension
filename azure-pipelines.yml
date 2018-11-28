@@ -1,0 +1,212 @@
+trigger:
+  branches:
+    include:
+    - master
+    - develop
+    - release/*
+    - refs/tags/*
+  paths:
+    exclude:
+    - /*.md
+    - .gitignore
+    - appveyor.yml
+  # waiting for feature to become available
+  # tags:
+  #   include:
+  #   - v/*
+
+pr:
+  branches:
+    include:
+    - master
+    - develop
+    - release/*
+  autoCancel: true
+
+# add nf-tools repo to resources (for Azure Pipelines templates)
+resources:
+  repositories:
+    - repository: templates
+      type: github
+      name: nanoframework/nf-tools
+      endpoint: nfbot
+
+pool:
+  vmImage: 'VS2017-Win2016'
+
+variables:
+  solution: '**/source/nanoFramework.Tools.VisualStudio.sln'
+  buildPlatform: 'Any CPU'
+  buildConfiguration: 'Release'
+
+steps:
+
+# need this here in order to persist GitHub credentials AND init submodules
+- checkout: self
+  submodules: true
+  persistCredentials: true
+
+- script: |
+    git config --global user.email "${{ parameters.gitUser }}"
+    git config --global user.name "${{ parameters.gitEmail }}"
+  displayName: Setup git identity
+
+- task: NuGetToolInstaller@0
+
+- task: NuGetCommand@2
+  inputs:
+    restoreSolution: '$(solution)'
+    feedsToUse: config
+    nugetConfigPath: source/NuGet.config
+    verbosityRestore: quiet
+
+- task: VSBuild@1
+  inputs:
+    solution: '$(solution)'
+    platform: '$(buildPlatform)'
+    configuration: '$(buildConfiguration)'
+    clean: false
+    maximumCpuCount: true
+
+# we don't have tests (yet)
+# - task: VSTest@2
+#   inputs:
+#     platform: '$(buildPlatform)'
+#     configuration: '$(buildConfiguration)'
+
+- task: UseRubyVersion@0
+  inputs:
+    versionSpec: '>= 2.4' 
+    addToPath: true
+  condition: and( succeeded(), not( startsWith(variables['Build.SourceBranch'], 'refs/pull') ) )
+  displayName: Setup Ruby
+
+# generate change log
+- powershell: |
+      gem install github_changelog_generator --quiet --no-ri --no-rdoc
+      # need to call it passing both cache options with full path otherwise it won't work
+      github_changelog_generator --token $(GitHubToken) --cache-log  $env:AGENT_TEMPDIRECTORY\github-changelog-logger.log --cache-file $env:AGENT_TEMPDIRECTORY\github-changelog-http-cache
+  condition: and( succeeded(), not( startsWith(variables['Build.SourceBranch'], 'refs/pull') ), not( startsWith(variables['Build.SourceBranch'], 'refs/tags/v') ), or( eq(variables['Build.SourceBranchName'], 'master'), contains(variables['Build.SourceBranchName'], 'release') ) )
+  displayName: Generate change log
+
+# generate change log including future version
+- powershell: |
+      gem install github_changelog_generator --quiet --no-ri --no-rdoc
+      # need to call it passing both cache options with full path otherwise it won't work
+      github_changelog_generator --token $(GitHubToken) --cache-log  $env:AGENT_TEMPDIRECTORY\github-changelog-logger.log --cache-file $env:AGENT_TEMPDIRECTORY\github-changelog-http-cache --future-release v$env:MY_NUGET_VERSION
+  condition: and( succeeded(), not( startsWith(variables['Build.SourceBranch'], 'refs/pull') ), not( startsWith(variables['Build.SourceBranch'], 'refs/tags/v') ), not( or( eq(variables['Build.SourceBranchName'], 'master'), contains(variables['Build.SourceBranchName'], 'release') ) ) )
+  displayName: Generate change log
+
+# copy change log to artifacts directory
+- task: CopyFiles@2
+  inputs:
+    SourceFolder: '$(System.DefaultWorkingDirectory)'
+    Contents: 'CHANGELOG.md'
+    TargetFolder: '$(Build.ArtifactStagingDirectory)'
+  condition: and( succeeded(), not( startsWith(variables['Build.SourceBranch'], 'refs/pull') ), not( startsWith(variables['Build.SourceBranch'], 'refs/tags/v') ) )
+  displayName: Copy Changelog
+  
+# push new changelog to GitHub repo
+- script: |
+      git add CHANGELOG.md
+      git commit -m "Update CHANGELOG for v$(NBGV_Version)" -m"***NO_CI***"
+      git push origin "HEAD:$(Build.SourceBranchName)" --porcelain
+  workingDirectory: $(System.DefaultWorkingDirectory)
+  condition: and( succeeded(), not( startsWith(variables['Build.SourceBranch'], 'refs/pull') ), not( startsWith(variables['Build.SourceBranch'], 'refs/tags/v') ) )
+  displayName: Push changelog to GitHub
+  
+# update could build number (only possible if this is not a PR from a fork)
+- task: PowerShell@2
+  inputs:
+      targetType: 'inline'
+      script: Write-Host "$("##vso[build.updatebuildnumber]")$env:NBGV_Version"
+  condition: and( succeeded(), ne(variables['system.pullrequest.isfork'], true) )
+  displayName: Update cloud build number
+
+- task: CopyFiles@1
+  inputs:
+    sourceFolder: $(Build.SourcesDirectory)
+    Contents: |
+      '**\*.vsix
+    TargetFolder: '$(Build.ArtifactStagingDirectory)'
+    flattenFolders: true
+  condition: succeeded()
+  displayName: Collecting deployable artifacts
+
+# publish artifacts (only possible if this is not a PR originated on a fork)
+- task: PublishBuildArtifacts@1
+  inputs:
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+    ArtifactName: deployables
+    ArtifactType: Container
+  condition: and( succeeded(), ne(variables['system.pullrequest.isfork'], true) )
+  displayName: Publish deployables artifacts
+
+# upload extension to MyGet feed (only possible if this is not a PR from a fork)
+- task: PowerShell@2
+  inputs:
+      targetType: 'inline'
+      script: |
+
+        $artifactsSearchPattern = "./*.vsix"
+        $artifactsCollection = (Get-ChildItem $artifactsSearchPattern -Recurse)
+
+        $vsixMyGetUploadEndpoint = "https://www.myget.org/F/nanoframework-dev/vsix/upload"
+
+        foreach($file in $artifactsCollection)
+        {
+            'Uploading VSIX package to MyGet feed...' | Write-Host
+
+            $webClient = New-Object System.Net.WebClient
+            $webClient.Headers.add('X-NuGet-ApiKey', $(MYGET_TOKEN))
+            $webClient.UploadFile($vsixMyGetUploadEndpoint, 'POST', $file)
+            'OK' | Write-Host -ForegroundColor Green
+        }
+  condition: and( succeeded(), ne(variables['system.pullrequest.isfork'], true), not( startsWith(variables['Build.SourceBranch'], 'refs/pull') ) )
+  displayName: Upload vsix to MyGet feed
+
+# create or update GitHub release
+- task: GitHubReleasePublish@1
+  inputs:
+    githubEndpoint: 'nfbot'
+    githubOwner: 'nanoframework'
+    githubRepositoryName: $(repoName)
+    githubTag: v$(NBGV_Version)
+    githubReleaseTitle: 'nanoFramework VS2017 Extension v$(NBGV_Version)'
+    githubReleaseNotes: 'Check the [changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/blob/$(Build.SourceBranchName)/CHANGELOG.md).<br><br><h4>Install from nanoFramework MyGet development feed</h4><br>The following Visual Studio Extensions are available for install from this release<br><br>- [nanoFramework VS2017 Extension](https://www.myget.org/feed/nanoframework-dev/package/vsix/47973986-ed3c-4b64-ba40-a9da73b44ef7)'
+    githubTargetCommitsh: $(Build.SourceVersion)
+    githubReleaseDraft: true
+    githubReleasePrerelease: true
+    githubReuseDraftOnly: true
+    githubReuseRelease: true
+    githubEditRelease: true
+    githubReleaseAsset: '$(Build.ArtifactStagingDirectory)/$(nugetPackageName).$(MY_NUGET_VERSION).nupkg'
+  condition: and( succeeded(), not( startsWith(variables['Build.SourceBranch'], 'refs/pull') ) )
+  displayName: Create/Update GitHub release
+
+# create or update GitHub release ON tags from release or master branches
+- task: GitHubReleasePublish@1
+  inputs:
+    githubEndpoint: 'nfbot'
+    githubOwner: 'nanoframework'
+    githubRepositoryName: $(repoName)
+    githubTag: v$(NBGV_Version)
+    githubReleaseTitle: 'nanoFramework VS2017 Extension v$(NBGV_Version)'
+    githubReleaseNotes: 'Check the [changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/blob/$(Build.SourceBranchName)/CHANGELOG.md).<br><br><h4>Install from Visual Studio Marketplace</h4><br>The following Visual Studio Extensions are available for install from this release<br>- [nanoFramework VS2017 Extension](https://marketplace.visualstudio.com/items?itemName=vs-publisher-1470366.nanoFrameworkVS2017Extension)'
+    githubTargetCommitsh: $(Build.SourceVersion)
+    githubReleaseDraft: true
+    githubReleasePrerelease: false
+    githubReuseDraftOnly: true
+    githubReuseRelease: true
+    githubEditRelease: true
+    githubReleaseAsset: '$(Build.ArtifactStagingDirectory)/$(nugetPackageName).$(MY_NUGET_VERSION).nupkg'
+  condition: and( succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/v'), or( eq(variables['Build.SourceBranchName'], 'master'), contains(variables['Build.SourceBranchName'], 'release') ) )
+  displayName: Create/Update GitHub release
+
+# step from template @ nf-tools repo
+# report error
+- template: azure-pipelines-templates/discord-webhook-task.yml@templates  
+  parameters:
+    status: 'failure'
+    webhookUrl: '$(DiscordWebhook)'
+    message: ''
