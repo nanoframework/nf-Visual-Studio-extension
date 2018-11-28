@@ -127,7 +127,7 @@ steps:
   inputs:
     sourceFolder: $(Build.SourcesDirectory)
     Contents: |
-      '**\*.vsix
+      **\*.vsix
     TargetFolder: '$(Build.ArtifactStagingDirectory)'
     flattenFolders: true
   condition: succeeded()
@@ -155,12 +155,11 @@ steps:
 
         foreach($file in $artifactsCollection)
         {
-            'Uploading VSIX package to MyGet feed...' | Write-Host
+            "Uploading VSIX package to MyGet feed..." | Write-Host
 
             $webClient = New-Object System.Net.WebClient
-            $webClient.Headers.add('X-NuGet-ApiKey', $(MYGET_TOKEN))
-            $webClient.UploadFile($vsixMyGetUploadEndpoint, 'POST', $file)
-            'OK' | Write-Host -ForegroundColor Green
+            $webClient.Headers.add("X-NuGet-ApiKey", "$(MYGET_TOKEN)")
+            $webClient.UploadFile($vsixMyGetUploadEndpoint, "POST", $file)
         }
   condition: and( succeeded(), ne(variables['system.pullrequest.isfork'], true), not( startsWith(variables['Build.SourceBranch'], 'refs/pull') ) )
   displayName: Upload vsix to MyGet feed
