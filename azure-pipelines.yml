@@ -167,7 +167,7 @@ steps:
   inputs:
     githubEndpoint: 'nfbot'
     githubOwner: 'nanoframework'
-    githubRepositoryName: $(repoName)
+    githubRepositoryName: 'nf-Visual-Studio-extension'
     githubTag: v$(NBGV_Version)
     githubReleaseTitle: 'nanoFramework VS2017 Extension v$(NBGV_Version)'
     githubReleaseNotes: 'Check the [changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/blob/$(Build.SourceBranchName)/CHANGELOG.md).<br><br><h4>Install from nanoFramework MyGet development feed</h4><br>The following Visual Studio Extensions are available for install from this release<br><br>- [nanoFramework VS2017 Extension](https://www.myget.org/feed/nanoframework-dev/package/vsix/47973986-ed3c-4b64-ba40-a9da73b44ef7)'
@@ -186,7 +186,7 @@ steps:
   inputs:
     githubEndpoint: 'nfbot'
     githubOwner: 'nanoframework'
-    githubRepositoryName: $(repoName)
+    githubRepositoryName: 'nf-Visual-Studio-extension'
     githubTag: v$(NBGV_Version)
     githubReleaseTitle: 'nanoFramework VS2017 Extension v$(NBGV_Version)'
     githubReleaseNotes: 'Check the [changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/blob/$(Build.SourceBranchName)/CHANGELOG.md).<br><br><h4>Install from Visual Studio Marketplace</h4><br>The following Visual Studio Extensions are available for install from this release<br>- [nanoFramework VS2017 Extension](https://marketplace.visualstudio.com/items?itemName=vs-publisher-1470366.nanoFrameworkVS2017Extension)'
