@@ -179,7 +179,7 @@ steps:
     githubReuseDraftOnly: true
     githubReuseRelease: true
     githubEditRelease: true
-    githubReleaseAsset: '$(Build.ArtifactStagingDirectory)/$(nugetPackageName).$(MY_NUGET_VERSION).nupkg'
+    githubReleaseAsset: '$(Build.ArtifactStagingDirectory)/*.vsix'
   condition: and( succeeded(), not( startsWith(variables['Build.SourceBranch'], 'refs/pull') ) )
   displayName: Create/Update GitHub release
 
@@ -198,7 +198,7 @@ steps:
     githubReuseDraftOnly: true
     githubReuseRelease: true
     githubEditRelease: true
-    githubReleaseAsset: '$(Build.ArtifactStagingDirectory)/$(nugetPackageName).$(MY_NUGET_VERSION).nupkg'
+    githubReleaseAsset: '$(Build.ArtifactStagingDirectory)/*.vsix'
   condition: and( succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/v'), or( eq(variables['Build.SourceBranchName'], 'master'), contains(variables['Build.SourceBranchName'], 'release') ) )
   displayName: Create/Update GitHub release
 
