@@ -65,8 +65,6 @@ steps:
     solution: '$(solution)'
     platform: '$(buildPlatform)'
     configuration: '$(buildConfiguration)'
-    clean: false
-    maximumCpuCount: true
 
 # we don't have tests (yet)
 # - task: VSTest@2
