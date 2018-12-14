@@ -7,6 +7,7 @@ trigger:
     - refs/tags/*
   paths:
     exclude:
+    - CHANGELOG.md
     - /*.md
     - .gitignore
     - appveyor.yml
@@ -29,7 +30,7 @@ resources:
     - repository: templates
       type: github
       name: nanoframework/nf-tools
-      endpoint: nfbot
+      endpoint: nanoframework
 
 pool:
   vmImage: 'VS2017-Win2016'
