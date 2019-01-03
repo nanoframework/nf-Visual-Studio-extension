@@ -159,8 +159,8 @@
     <Compile Include="Utilities\ReferenceCrawler.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="..\packages\nanoFramework.CoreLibrary.1.0.4\nanoFramework.CoreLibrary.1.0.4.nupkg">
-      <Link>Packages\nanoFramework.CoreLibrary.1.0.4.nupkg</Link>
+    <Content Include="..\packages\nanoFramework.CoreLibrary.1.1.0\nanoFramework.CoreLibrary.1.1.0.nupkg">
+      <Link>Packages\nanoFramework.CoreLibrary.1.1.0.nupkg</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
@@ -241,7 +241,12 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="envdte, Version=8.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <Reference Include="EnvDTE, Version=8.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+      <HintPath>..\packages\EnvDTE.8.0.2\lib\net10\EnvDTE.dll</HintPath>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </Reference>
+    <Reference Include="EnvDTE80, Version=8.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+      <HintPath>..\packages\EnvDTE80.8.0.3\lib\net10\EnvDTE80.dll</HintPath>
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </Reference>
     <Reference Include="GalaSoft.MvvmLight, Version=5.4.1.0, Culture=neutral, PublicKeyToken=0ffbc31322e9d308, processorArchitecture=MSIL">
@@ -250,24 +255,24 @@
     <Reference Include="GalaSoft.MvvmLight.Platform, Version=5.4.1.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\MvvmLightLibsStd10.5.4.1.1\lib\net45\GalaSoft.MvvmLight.Platform.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.Build">
-      <HintPath>$(MSBuildBinPath)\Microsoft.Build.dll</HintPath>
+    <Reference Include="Microsoft.Build, Version=15.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Build.15.9.20\lib\net46\Microsoft.Build.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.Build.Framework">
-      <HintPath>$(MSBuildBinPath)\Microsoft.Build.Framework.dll</HintPath>
+    <Reference Include="Microsoft.Build.Framework, Version=15.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Build.Framework.15.9.20\lib\net46\Microsoft.Build.Framework.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Build.Tasks.Core, Version=15.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Build.Tasks.Core.15.8.166\lib\net46\Microsoft.Build.Tasks.Core.dll</HintPath>
+      <HintPath>..\packages\Microsoft.Build.Tasks.Core.15.9.20\lib\net46\Microsoft.Build.Tasks.Core.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.Build.Utilities.Core">
-      <HintPath>$(MSBuildBinPath)\Microsoft.Build.Utilities.Core.dll</HintPath>
+    <Reference Include="Microsoft.Build.Utilities.Core, Version=15.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Build.Utilities.Core.15.9.20\lib\net46\Microsoft.Build.Utilities.Core.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="Microsoft.VisualStudio.Composition, Version=15.8.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.VisualStudio.Composition.15.8.98\lib\net46\Microsoft.VisualStudio.Composition.dll</HintPath>
+      <HintPath>..\packages\Microsoft.VisualStudio.Composition.15.8.112\lib\net46\Microsoft.VisualStudio.Composition.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.VisualStudio.Composition.NetFxAttributes, Version=15.8.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.VisualStudio.Composition.NetFxAttributes.15.8.98\lib\net45\Microsoft.VisualStudio.Composition.NetFxAttributes.dll</HintPath>
+      <HintPath>..\packages\Microsoft.VisualStudio.Composition.NetFxAttributes.15.8.112\lib\net45\Microsoft.VisualStudio.Composition.NetFxAttributes.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.VisualStudio.CoreUtility, Version=15.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.VisualStudio.CoreUtility.15.8.525\lib\net46\Microsoft.VisualStudio.CoreUtility.dll</HintPath>
@@ -283,10 +288,10 @@
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </Reference>
     <Reference Include="Microsoft.VisualStudio.ImageCatalog, Version=15.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.VisualStudio.ImageCatalog.15.8.28010\lib\net45\Microsoft.VisualStudio.ImageCatalog.dll</HintPath>
+      <HintPath>..\packages\Microsoft.VisualStudio.ImageCatalog.15.9.28307\lib\net45\Microsoft.VisualStudio.ImageCatalog.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.VisualStudio.Imaging, Version=15.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.VisualStudio.Imaging.15.8.28010\lib\net45\Microsoft.VisualStudio.Imaging.dll</HintPath>
+      <HintPath>..\packages\Microsoft.VisualStudio.Imaging.15.9.28307\lib\net45\Microsoft.VisualStudio.Imaging.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.VisualStudio.Imaging.Interop.14.0.DesignTime, Version=14.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.VisualStudio.Imaging.Interop.14.0.DesignTime.14.3.26930\lib\net20\Microsoft.VisualStudio.Imaging.Interop.14.0.DesignTime.dll</HintPath>
@@ -311,10 +316,10 @@
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </Reference>
     <Reference Include="Microsoft.VisualStudio.Shell.15.0, Version=15.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.VisualStudio.Shell.15.0.15.8.28010\lib\net45\Microsoft.VisualStudio.Shell.15.0.dll</HintPath>
+      <HintPath>..\packages\Microsoft.VisualStudio.Shell.15.0.15.9.28307\lib\net45\Microsoft.VisualStudio.Shell.15.0.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.VisualStudio.Shell.Framework, Version=15.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.VisualStudio.Shell.Framework.15.8.28010\lib\net45\Microsoft.VisualStudio.Shell.Framework.dll</HintPath>
+      <HintPath>..\packages\Microsoft.VisualStudio.Shell.Framework.15.9.28307\lib\net45\Microsoft.VisualStudio.Shell.Framework.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.VisualStudio.Shell.Interop, Version=7.1.40304.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
       <HintPath>..\packages\Microsoft.VisualStudio.Shell.Interop.7.10.6072\lib\net11\Microsoft.VisualStudio.Shell.Interop.dll</HintPath>
@@ -361,6 +366,10 @@
       <HintPath>..\packages\Microsoft.VisualStudio.Shell.Interop.9.0.9.0.30730\lib\net11\Microsoft.VisualStudio.Shell.Interop.9.0.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Microsoft.VisualStudio.TemplateWizardInterface, Version=8.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\VSSDK.TemplateWizardInterface.12.0.4\lib\net20\Microsoft.VisualStudio.TemplateWizardInterface.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="Microsoft.VisualStudio.Text.Data, Version=15.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.VisualStudio.Text.Data.15.8.525\lib\net46\Microsoft.VisualStudio.Text.Data.dll</HintPath>
     </Reference>
@@ -373,22 +382,22 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.VisualStudio.TextTemplating.15.0, Version=15.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.VisualStudio.TextTemplating.15.0.15.4.27004\lib\net45\Microsoft.VisualStudio.TextTemplating.15.0.dll</HintPath>
+      <HintPath>..\packages\Microsoft.VisualStudio.TextTemplating.15.0.15.9.28307\lib\net45\Microsoft.VisualStudio.TextTemplating.15.0.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.VisualStudio.TextTemplating.Interfaces.10.0, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.VisualStudio.TextTemplating.Interfaces.10.0.10.0.30319\lib\net40\Microsoft.VisualStudio.TextTemplating.Interfaces.10.0.dll</HintPath>
+      <HintPath>..\packages\Microsoft.VisualStudio.TextTemplating.Interfaces.10.0.10.0.30320\lib\net40\Microsoft.VisualStudio.TextTemplating.Interfaces.10.0.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.VisualStudio.TextTemplating.Interfaces.11.0, Version=11.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.VisualStudio.TextTemplating.Interfaces.11.0.11.0.50727\lib\net45\Microsoft.VisualStudio.TextTemplating.Interfaces.11.0.dll</HintPath>
+      <HintPath>..\packages\Microsoft.VisualStudio.TextTemplating.Interfaces.11.0.11.0.50728\lib\net45\Microsoft.VisualStudio.TextTemplating.Interfaces.11.0.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.VisualStudio.TextTemplating.VSHost.15.0, Version=15.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.VisualStudio.TextTemplating.VSHost.15.0.15.4.27004\lib\Microsoft.VisualStudio.TextTemplating.VSHost.15.0.dll</HintPath>
+      <HintPath>..\packages\Microsoft.VisualStudio.TextTemplating.VSHost.15.0.15.9.28307\lib\net45\Microsoft.VisualStudio.TextTemplating.VSHost.15.0.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.VisualStudio.Threading, Version=15.8.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.VisualStudio.Threading.15.8.168\lib\net46\Microsoft.VisualStudio.Threading.dll</HintPath>
+      <HintPath>..\packages\Microsoft.VisualStudio.Threading.15.8.209\lib\net46\Microsoft.VisualStudio.Threading.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.VisualStudio.Utilities, Version=15.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.VisualStudio.Utilities.15.8.28010\lib\net46\Microsoft.VisualStudio.Utilities.dll</HintPath>
+      <HintPath>..\packages\Microsoft.VisualStudio.Utilities.15.9.28307\lib\net46\Microsoft.VisualStudio.Utilities.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.VisualStudio.Validation, Version=15.3.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.VisualStudio.Validation.15.3.58\lib\net45\Microsoft.VisualStudio.Validation.dll</HintPath>
@@ -396,11 +405,15 @@
     <Reference Include="Microsoft.Win32.Primitives, Version=4.0.2.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Win32.Primitives.4.3.0\lib\net46\Microsoft.Win32.Primitives.dll</HintPath>
     </Reference>
-    <Reference Include="nanoFramework.Tools.Debugger, Version=1.0.1.16, Culture=neutral, PublicKeyToken=e520bb6b53f04733, processorArchitecture=MSIL">
-      <HintPath>..\packages\nanoFramework.Tools.Debugger.Net.1.0.1-preview-016\lib\net46\nanoFramework.Tools.Debugger.dll</HintPath>
+    <Reference Include="nanoFramework.Tools.Debugger, Version=1.0.1.37, Culture=neutral, PublicKeyToken=e520bb6b53f04733, processorArchitecture=MSIL">
+      <HintPath>..\packages\nanoFramework.Tools.Debugger.Net.1.0.1-preview-037\lib\net46\nanoFramework.Tools.Debugger.dll</HintPath>
     </Reference>
-    <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.11.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.12.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="NuGet.VisualStudio, Version=4.9.2.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\NuGet.VisualStudio.4.9.2\lib\net46\NuGet.VisualStudio.dll</HintPath>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
     </Reference>
     <!-- reference this assembly when Configuration is Release (on Debug reference the project directly instead) -->
     <Reference Include="PresentationCore" />
@@ -411,12 +424,19 @@
     <Reference Include="PropertyChanging, Version=1.29.3.0, Culture=neutral, PublicKeyToken=8b75edd8e1086950, processorArchitecture=MSIL">
       <HintPath>..\packages\PropertyChanging.Fody.1.29.3\lib\net452\PropertyChanging.dll</HintPath>
     </Reference>
-    <Reference Include="StreamJsonRpc, Version=1.4.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\StreamJsonRpc.1.4.128\lib\net46\StreamJsonRpc.dll</HintPath>
+    <Reference Include="stdole, Version=7.0.3300.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+      <HintPath>..\packages\stdole.7.0.3303\lib\net10\stdole.dll</HintPath>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </Reference>
+    <Reference Include="StreamJsonRpc, Version=1.5.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\StreamJsonRpc.1.5.43\lib\net46\StreamJsonRpc.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.AppContext, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.AppContext.4.3.0\lib\net46\System.AppContext.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Buffers, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Buffers.4.5.0\lib\netstandard1.1\System.Buffers.dll</HintPath>
     </Reference>
     <Reference Include="System.Collections.Immutable, Version=1.2.3.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Collections.Immutable.1.5.0\lib\netstandard1.3\System.Collections.Immutable.dll</HintPath>
@@ -763,8 +783,9 @@
     </XamlPropertyRule>
   </ItemGroup>
   <ItemGroup>
-    <Analyzer Include="..\packages\Microsoft.VisualStudio.SDK.Analyzers.15.8.33\analyzers\cs\Microsoft.VisualStudio.SDK.Analyzers.dll" />
-    <Analyzer Include="..\packages\Microsoft.VisualStudio.Threading.Analyzers.15.8.168\analyzers\cs\Microsoft.VisualStudio.Threading.Analyzers.dll" />
+    <Analyzer Include="..\packages\Microsoft.VisualStudio.SDK.Analyzers.15.8.36\analyzers\cs\Microsoft.VisualStudio.SDK.Analyzers.dll" />
+    <Analyzer Include="..\packages\Microsoft.VisualStudio.Threading.Analyzers.15.8.209\analyzers\cs\Microsoft.VisualStudio.Threading.Analyzers.CodeFixes.dll" />
+    <Analyzer Include="..\packages\Microsoft.VisualStudio.Threading.Analyzers.15.8.209\analyzers\cs\Microsoft.VisualStudio.Threading.Analyzers.dll" />
     <Analyzer Include="..\packages\UwpDesktop.10.0.14393.3\analyzers\dotnet\UwpDesktopAnalyzer.dll" />
   </ItemGroup>
   <ItemGroup>
@@ -783,11 +804,8 @@
   <Target Name="ForceIncludeXamlRuleSources" BeforeTargets="CoreCompile" DependsOnTargets="GenerateRuleSourceFromXaml" />
   <Import Project="..\packages\UwpDesktop.10.0.14393.3\build\portable-net45+uap\UwpDesktop.targets" Condition="Exists('..\packages\UwpDesktop.10.0.14393.3\build\portable-net45+uap\UwpDesktop.targets')" />
   <Import Project="..\packages\Microsoft.VisualStudio.SDK.VsixSuppression.14.1.37\build\Microsoft.VisualStudio.SDK.VsixSuppression.targets" Condition="Exists('..\packages\Microsoft.VisualStudio.SDK.VsixSuppression.14.1.37\build\Microsoft.VisualStudio.SDK.VsixSuppression.targets')" />
-  <Import Project="..\packages\Microsoft.VisualStudio.SDK.Analyzers.15.8.33\build\Microsoft.VisualStudio.SDK.Analyzers.targets" Condition="Exists('..\packages\Microsoft.VisualStudio.SDK.Analyzers.15.8.33\build\Microsoft.VisualStudio.SDK.Analyzers.targets')" />
-  <Import Project="..\packages\Microsoft.VisualStudio.SDK.EmbedInteropTypes.15.0.21\build\Microsoft.VisualStudio.SDK.EmbedInteropTypes.targets" Condition="Exists('..\packages\Microsoft.VisualStudio.SDK.EmbedInteropTypes.15.0.21\build\Microsoft.VisualStudio.SDK.EmbedInteropTypes.targets')" />
   <Import Project="..\packages\Microsoft.VisualStudio.ProjectSystem.Sdk.Tools.15.8.243\build\Microsoft.VisualStudio.ProjectSystem.Sdk.Tools.targets" Condition="Exists('..\packages\Microsoft.VisualStudio.ProjectSystem.Sdk.Tools.15.8.243\build\Microsoft.VisualStudio.ProjectSystem.Sdk.Tools.targets')" />
   <Import Project="..\packages\Microsoft.VisualStudio.ProjectSystem.15.8.243\build\Microsoft.VisualStudio.ProjectSystem.targets" Condition="Exists('..\packages\Microsoft.VisualStudio.ProjectSystem.15.8.243\build\Microsoft.VisualStudio.ProjectSystem.targets')" />
-  <Import Project="..\packages\Microsoft.VisualStudio.Threading.Analyzers.15.8.168\build\Microsoft.VisualStudio.Threading.Analyzers.targets" Condition="Exists('..\packages\Microsoft.VisualStudio.Threading.Analyzers.15.8.168\build\Microsoft.VisualStudio.Threading.Analyzers.targets')" />
   <Import Project="..\packages\Fody.3.3.2\build\Fody.targets" Condition="Exists('..\packages\Fody.3.3.2\build\Fody.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
@@ -795,17 +813,22 @@
     </PropertyGroup>
     <Error Condition="!Exists('..\packages\UwpDesktop.10.0.14393.3\build\portable-net45+uap\UwpDesktop.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\UwpDesktop.10.0.14393.3\build\portable-net45+uap\UwpDesktop.targets'))" />
     <Error Condition="!Exists('..\packages\Microsoft.VisualStudio.SDK.VsixSuppression.14.1.37\build\Microsoft.VisualStudio.SDK.VsixSuppression.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.VisualStudio.SDK.VsixSuppression.14.1.37\build\Microsoft.VisualStudio.SDK.VsixSuppression.targets'))" />
-    <Error Condition="!Exists('..\packages\Microsoft.VisualStudio.SDK.Analyzers.15.8.33\build\Microsoft.VisualStudio.SDK.Analyzers.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.VisualStudio.SDK.Analyzers.15.8.33\build\Microsoft.VisualStudio.SDK.Analyzers.targets'))" />
-    <Error Condition="!Exists('..\packages\Microsoft.VisualStudio.SDK.EmbedInteropTypes.15.0.21\build\Microsoft.VisualStudio.SDK.EmbedInteropTypes.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.VisualStudio.SDK.EmbedInteropTypes.15.0.21\build\Microsoft.VisualStudio.SDK.EmbedInteropTypes.targets'))" />
     <Error Condition="!Exists('..\packages\Microsoft.VisualStudio.ProjectSystem.Sdk.Tools.15.8.243\build\Microsoft.VisualStudio.ProjectSystem.Sdk.Tools.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.VisualStudio.ProjectSystem.Sdk.Tools.15.8.243\build\Microsoft.VisualStudio.ProjectSystem.Sdk.Tools.targets'))" />
     <Error Condition="!Exists('..\packages\Microsoft.VisualStudio.ProjectSystem.15.8.243\build\Microsoft.VisualStudio.ProjectSystem.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.VisualStudio.ProjectSystem.15.8.243\build\Microsoft.VisualStudio.ProjectSystem.targets'))" />
-    <Error Condition="!Exists('..\packages\Microsoft.VisualStudio.Threading.Analyzers.15.8.168\build\Microsoft.VisualStudio.Threading.Analyzers.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.VisualStudio.Threading.Analyzers.15.8.168\build\Microsoft.VisualStudio.Threading.Analyzers.targets'))" />
     <Error Condition="!Exists('..\packages\PropertyChanging.Fody.1.29.3\build\PropertyChanging.Fody.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\PropertyChanging.Fody.1.29.3\build\PropertyChanging.Fody.props'))" />
     <Error Condition="!Exists('..\packages\Fody.3.3.2\build\Fody.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Fody.3.3.2\build\Fody.targets'))" />
     <Error Condition="!Exists('..\packages\PropertyChanged.Fody.2.6.0\build\PropertyChanged.Fody.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\PropertyChanged.Fody.2.6.0\build\PropertyChanged.Fody.props'))" />
-    <Error Condition="!Exists('..\packages\Nerdbank.GitVersioning.2.2.33\build\Nerdbank.GitVersioning.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Nerdbank.GitVersioning.2.2.33\build\Nerdbank.GitVersioning.targets'))" />
+    <Error Condition="!Exists('..\packages\Microsoft.VisualStudio.SDK.EmbedInteropTypes.15.0.27\build\Microsoft.VisualStudio.SDK.EmbedInteropTypes.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.VisualStudio.SDK.EmbedInteropTypes.15.0.27\build\Microsoft.VisualStudio.SDK.EmbedInteropTypes.targets'))" />
+    <Error Condition="!Exists('..\packages\Nerdbank.GitVersioning.2.3.38\build\Nerdbank.GitVersioning.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Nerdbank.GitVersioning.2.3.38\build\Nerdbank.GitVersioning.targets'))" />
+    <Error Condition="!Exists('..\packages\Microsoft.VisualStudio.Threading.Analyzers.15.8.209\build\Microsoft.VisualStudio.Threading.Analyzers.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.VisualStudio.Threading.Analyzers.15.8.209\build\Microsoft.VisualStudio.Threading.Analyzers.targets'))" />
+    <Error Condition="!Exists('..\packages\NuGet.VisualStudio.4.9.2\build\NuGet.VisualStudio.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\NuGet.VisualStudio.4.9.2\build\NuGet.VisualStudio.targets'))" />
+    <Error Condition="!Exists('..\packages\Microsoft.VisualStudio.SDK.Analyzers.15.8.36\build\Microsoft.VisualStudio.SDK.Analyzers.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.VisualStudio.SDK.Analyzers.15.8.36\build\Microsoft.VisualStudio.SDK.Analyzers.targets'))" />
   </Target>
-  <Import Project="..\packages\Nerdbank.GitVersioning.2.2.33\build\Nerdbank.GitVersioning.targets" Condition="Exists('..\packages\Nerdbank.GitVersioning.2.2.33\build\Nerdbank.GitVersioning.targets')" />
+  <Import Project="..\packages\Microsoft.VisualStudio.SDK.EmbedInteropTypes.15.0.27\build\Microsoft.VisualStudio.SDK.EmbedInteropTypes.targets" Condition="Exists('..\packages\Microsoft.VisualStudio.SDK.EmbedInteropTypes.15.0.27\build\Microsoft.VisualStudio.SDK.EmbedInteropTypes.targets')" />
+  <Import Project="..\packages\Nerdbank.GitVersioning.2.3.38\build\Nerdbank.GitVersioning.targets" Condition="Exists('..\packages\Nerdbank.GitVersioning.2.3.38\build\Nerdbank.GitVersioning.targets')" />
+  <Import Project="..\packages\Microsoft.VisualStudio.Threading.Analyzers.15.8.209\build\Microsoft.VisualStudio.Threading.Analyzers.targets" Condition="Exists('..\packages\Microsoft.VisualStudio.Threading.Analyzers.15.8.209\build\Microsoft.VisualStudio.Threading.Analyzers.targets')" />
+  <Import Project="..\packages\NuGet.VisualStudio.4.9.2\build\NuGet.VisualStudio.targets" Condition="Exists('..\packages\NuGet.VisualStudio.4.9.2\build\NuGet.VisualStudio.targets')" />
+  <Import Project="..\packages\Microsoft.VisualStudio.SDK.Analyzers.15.8.36\build\Microsoft.VisualStudio.SDK.Analyzers.targets" Condition="Exists('..\packages\Microsoft.VisualStudio.SDK.Analyzers.15.8.36\build\Microsoft.VisualStudio.SDK.Analyzers.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

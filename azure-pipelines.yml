@@ -65,6 +65,7 @@ steps:
   inputs:
     solution: '$(solution)'
     platform: '$(buildPlatform)'
+    msbuildArgs: '/p:PublicRelease=true'
     configuration: '$(buildConfiguration)'
 
 # we don't have tests (yet)
