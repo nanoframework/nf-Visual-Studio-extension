@@ -45,11 +45,10 @@ steps:
 # need this here in order to persist GitHub credentials AND init submodules
 - checkout: self
   submodules: true
-  persistCredentials: true
 
 - script: |
-    git config --global user.email "nfbot"
-    git config --global user.name "nanoframework@outlook.com"
+    git config --global user.email 'nanoframework@outlook.com'
+    git config --global user.name 'nfbot'
   displayName: Setup git identity
 
 - task: NuGetToolInstaller@0
@@ -105,13 +104,24 @@ steps:
     TargetFolder: '$(Build.ArtifactStagingDirectory)'
   condition: and( succeeded(), not( startsWith(variables['Build.SourceBranch'], 'refs/pull') ), not( startsWith(variables['Build.SourceBranch'], 'refs/tags/v') ) )
   displayName: Copy Changelog
-  
+
 # push new changelog to GitHub repo
-- script: |
-      git add CHANGELOG.md
-      git commit -m "Update CHANGELOG for v$(NBGV_Version)" -m"***NO_CI***"
-      git push origin "HEAD:$(Build.SourceBranchName)" --porcelain
-  workingDirectory: $(System.DefaultWorkingDirectory)
+- task: PowerShell@2
+  inputs:
+      targetType: 'inline'
+      script: |
+          git add CHANGELOG.md
+          git commit -m "Update CHANGELOG for v$(NBGV_AssemblyVersion)" -m"***NO_CI***"
+
+          git config user.email 'nanoframework@outlook.com'
+          git config user.name 'nfbot'
+          
+          # compute authorization header in format "AUTHORIZATION: basic 'encoded token'"
+          # 'encoded token' is the Base64 of the string "nfbot:personal-token"
+          $auth = "basic $([System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes("nfbot:$(GitHubToken)"))))"
+
+          git -c http.extraheader="AUTHORIZATION: $auth" push origin "HEAD:$(Build.SourceBranchName)"
+
   condition: and( succeeded(), not( startsWith(variables['Build.SourceBranch'], 'refs/pull') ), not( startsWith(variables['Build.SourceBranch'], 'refs/tags/v') ) )
   displayName: Push changelog to GitHub
   
@@ -119,7 +129,7 @@ steps:
 - task: PowerShell@2
   inputs:
       targetType: 'inline'
-      script: Write-Host "$("##vso[build.updatebuildnumber]")$env:NBGV_Version"
+      script: Write-Host "$("##vso[build.updatebuildnumber]")$env:NBGV_AssemblyVersion"
   condition: and( succeeded(), ne(variables['system.pullrequest.isfork'], true) )
   displayName: Update cloud build number
 
@@ -128,6 +138,7 @@ steps:
     sourceFolder: $(Build.SourcesDirectory)
     Contents: |
       **\*.vsix
+      **\CHANGELOG.md
     TargetFolder: '$(Build.ArtifactStagingDirectory)'
     flattenFolders: true
   condition: succeeded()
@@ -167,11 +178,11 @@ steps:
 # create or update GitHub release
 - task: GitHubReleasePublish@1
   inputs:
-    githubEndpoint: 'nfbot'
+    githubEndpoint: 'nanoframework'
     githubOwner: 'nanoframework'
     githubRepositoryName: 'nf-Visual-Studio-extension'
-    githubTag: v$(NBGV_Version)
-    githubReleaseTitle: 'nanoFramework VS2017 Extension v$(NBGV_Version)'
+    githubTag: v$(NBGV_AssemblyVersion)
+    githubReleaseTitle: 'nanoFramework VS2017 Extension v$(NBGV_AssemblyVersion)'
     githubReleaseNotes: 'Check the [changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/blob/$(Build.SourceBranchName)/CHANGELOG.md).<br><br><h4>Install from nanoFramework MyGet development feed</h4><br>The following Visual Studio Extensions are available for install from this release<br><br>- [nanoFramework VS2017 Extension](https://www.myget.org/feed/nanoframework-dev/package/vsix/47973986-ed3c-4b64-ba40-a9da73b44ef7)'
     githubTargetCommitsh: $(Build.SourceVersion)
     githubReleaseDraft: true
@@ -186,16 +197,16 @@ steps:
 # create or update GitHub release ON tags from release or master branches
 - task: GitHubReleasePublish@1
   inputs:
-    githubEndpoint: 'nfbot'
+    githubEndpoint: 'nanoframework'
     githubOwner: 'nanoframework'
     githubRepositoryName: 'nf-Visual-Studio-extension'
-    githubTag: v$(NBGV_Version)
-    githubReleaseTitle: 'nanoFramework VS2017 Extension v$(NBGV_Version)'
+    githubTag: v$(NBGV_AssemblyVersion)
+    githubReleaseTitle: 'nanoFramework VS2017 Extension v$(NBGV_AssemblyVersion)'
     githubReleaseNotes: 'Check the [changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/blob/$(Build.SourceBranchName)/CHANGELOG.md).<br><br><h4>Install from Visual Studio Marketplace</h4><br>The following Visual Studio Extensions are available for install from this release<br>- [nanoFramework VS2017 Extension](https://marketplace.visualstudio.com/items?itemName=vs-publisher-1470366.nanoFrameworkVS2017Extension)'
     githubTargetCommitsh: $(Build.SourceVersion)
-    githubReleaseDraft: true
+    githubReleaseDraft: false
     githubReleasePrerelease: false
-    githubReuseDraftOnly: true
+    githubReuseDraftOnly: false
     githubReuseRelease: true
     githubEditRelease: true
     githubReleaseAsset: '$(Build.ArtifactStagingDirectory)/*.vsix'
