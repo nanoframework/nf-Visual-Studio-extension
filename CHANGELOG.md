@@ -1,8 +1,17 @@
 # Change Log
 
-## [**Changes available only in 'Preview' version:**](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/HEAD)
+## [v](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v) (2019-01-03)
+[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v1.0.1.0...v)
 
-[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v1.0.0.0...HEAD)
+**Updated dependencies and other chores:**
+
+- Update several NuGets [\#323](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/323)
+- Update nf-interpreter sub-module [\#322](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/322)
+- Switch to Azure Pipelines [\#321](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/321)
+- Update debugger lib to 1.0.1-preview-016 [\#320](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/320)
+
+## [v1.0.1.0](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v1.0.1.0) (2018-11-08)
+[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v1.0.0.0...v1.0.1.0)
 
 **Implemented enhancements:**
 
