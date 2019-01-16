@@ -5,6 +5,7 @@
 
 **Implemented enhancements:**
 
+- Improve deployment experience [\#326](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/326) [[Area: VS-extension](https://github.com/nanoframework/nf-Visual-Studio-extension/labels/Area:%20VS-extension)]
 - Remove reboot command from DeviceErase [\#325](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/325) [[Area: VS-extension](https://github.com/nanoframework/nf-Visual-Studio-extension/labels/Area:%20VS-extension)] [[Breaking-Change](https://github.com/nanoframework/nf-Visual-Studio-extension/labels/Breaking-Change)]
 
 **Fixed bugs:**
