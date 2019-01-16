@@ -446,9 +446,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                             // reset the hash for the connected device so the deployment information can be refreshed, if and when requested
                             ViewModelLocator.DeviceExplorer.LastDeviceConnectedHash = 0;
 
-                            // reboot device
-                            NanoDeviceCommService.Device.DebugEngine.RebootDevice(Debugger.RebootOptions.ClrOnly | Debugger.RebootOptions.NoShutdown);
-
                             // yield to give the UI thread a chance to respond to user input
                             await Task.Yield();
                         }
