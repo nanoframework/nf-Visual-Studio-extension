@@ -3,6 +3,10 @@
 ## [v](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v) (2019-01-16)
 [Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v1.0.3.15...v)
 
+**Implemented enhancements:**
+
+- Remove reboot command from DeviceErase [\#325](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/325) [[Area: VS-extension](https://github.com/nanoframework/nf-Visual-Studio-extension/labels/Area:%20VS-extension)] [[Breaking-Change](https://github.com/nanoframework/nf-Visual-Studio-extension/labels/Breaking-Change)]
+
 **Fixed bugs:**
 
 - Fix deployment issue with repeated assemblies [\#324](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/324) [[Area: VS-extension](https://github.com/nanoframework/nf-Visual-Studio-extension/labels/Area:%20VS-extension)]
