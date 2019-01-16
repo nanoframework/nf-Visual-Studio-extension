@@ -1,7 +1,14 @@
 # Change Log
 
-## [v](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v) (2019-01-03)
-[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v1.0.1.0...v)
+## [v](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v) (2019-01-16)
+[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v1.0.3.15...v)
+
+**Fixed bugs:**
+
+- Fix deployment issue with repeated assemblies [\#324](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/324) [[Area: VS-extension](https://github.com/nanoframework/nf-Visual-Studio-extension/labels/Area:%20VS-extension)]
+
+## [v1.0.3.15](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v1.0.3.15) (2019-01-03)
+[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v1.0.1.0...v1.0.3.15)
 
 **Updated dependencies and other chores:**
 
