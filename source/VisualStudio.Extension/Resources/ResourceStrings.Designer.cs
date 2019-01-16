@@ -223,6 +223,15 @@ namespace nanoFramework.Tools.VisualStudio.Extension.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Failed to erase deployment area of target device..
+        /// </summary>
+        internal static string EraseTargetDeploymentFailed {
+            get {
+                return ResourceManager.GetString("EraseTargetDeploymentFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The nanoDevice target and the debugger engine failed to initialize because of unspecified device errors..
         /// </summary>
         internal static string InitializationFailed {

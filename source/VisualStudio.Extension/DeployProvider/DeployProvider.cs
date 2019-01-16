@@ -32,7 +32,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         private const int _numberOfRetries = 5;
 
         // timeout when performing a deploy operation
-        private const int _timeoutMiliseconds = 500;
+        private const int _timeoutMiliseconds = 1000;
 
         private static ViewModelLocator _viewModelLocator;
 
@@ -94,172 +94,202 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 // connect to the device
                 if (await device.DebugEngine.ConnectAsync(5000, true))
                 {
-
-                    // initial check 
-                    if (device.DebugEngine.IsDeviceInInitializeState())
+                    // erase the target deployment area to ensure a clean deployment and execution start
+                    if (await device.EraseAsync(EraseOptions.Deployment, CancellationToken.None))
                     {
-                        // set flag
-                        deviceIsInInitializeState = true;
-
-                        // device is still in initialization state, try resume execution
-                        device.DebugEngine.ResumeExecution();
-                    }
-
-                    // handle the workflow required to try resuming the execution on the device
-                    // only required if device is not already there
-                    // retry 5 times with a 500ms interval between retries
-                    while (retryCount++ < _numberOfRetries && deviceIsInInitializeState)
-                    {
-                        if (!device.DebugEngine.IsDeviceInInitializeState())
+                        // ESP32 seems to be a bit stubborn to restart a debug session after the previous one ends
+                        // rebooting the device improves this behaviour
+                        if (device.DebugEngine.Capabilities.SolutionReleaseInfo.targetVendorInfo.Contains("ESP32"))
                         {
-                            // done here
-                            deviceIsInInitializeState = false;
-                            break;
+                            // send reset command to device
+                            device.DebugEngine.RebootDevice(RebootOptions.NormalReboot);
+
+                            // give it a little rest to allow reboot to complete
+                            await Task.Delay(TimeSpan.FromMilliseconds(2000));
                         }
 
-                        // provide feedback to user on the 1st pass
-                        if (retryCount == 0)
+                        // initial check 
+                        if (device.DebugEngine.IsDeviceInInitializeState())
                         {
-                            await outputPaneWriter.WriteLineAsync(ResourceStrings.WaitingDeviceInitialization);
+                            // set flag
+                            deviceIsInInitializeState = true;
+
+                            // device is still in initialization state, try resume execution
+                            device.DebugEngine.ResumeExecution();
                         }
 
-                        if (device.DebugEngine.ConnectionSource == Tools.Debugger.WireProtocol.ConnectionSource.nanoBooter)
+                        // handle the workflow required to try resuming the execution on the device
+                        // only required if device is not already there
+                        // retry 5 times with a 500ms interval between retries
+                        while (retryCount++ < _numberOfRetries && deviceIsInInitializeState)
                         {
-                            // request nanoBooter to load CLR
-                            device.DebugEngine.ExecuteMemory(0);
-                        }
-                        else if (device.DebugEngine.ConnectionSource == Tools.Debugger.WireProtocol.ConnectionSource.nanoCLR)
-                        {
-                            // already running nanoCLR try rebooting the CLR
-                            device.DebugEngine.RebootDevice(RebootOptions.ClrOnly);
-                        }
-
-                        // wait before next pass
-                        await Task.Delay(TimeSpan.FromMilliseconds(_timeoutMiliseconds));
-                    };
-
-                    Thread.Yield();
-
-                    // check if device is still in initialized state
-                    if (!deviceIsInInitializeState)
-                    {
-                        // device has left initialization state
-                        await outputPaneWriter.WriteLineAsync(ResourceStrings.DeviceInitialized);
-
-                        //////////////////////////////////////////////////////////
-                        // sanity check for devices without native assemblies ?!?!
-                        if (device.DeviceInfo.NativeAssemblies.Count == 0)
-                        {
-                            // there are no assemblies deployed?!
-                            throw new DeploymentException($"Couldn't find any native assemblies deployed in {_viewModelLocator.DeviceExplorer.SelectedDevice.Description}! If the situation persists reboot the device.");
-                        }
-
-                        // For a known project output assembly path, this shall contain the corresponding
-                        // ConfiguredProject:
-                        Dictionary<string, ConfiguredProject> configuredProjectsByOutputAssemblyPath =
-                            new Dictionary<string, ConfiguredProject>();
-
-                        // For a known ConfiguredProject, this shall contain the corresponding project output assembly
-                        // path:
-                        Dictionary<ConfiguredProject, string> outputAssemblyPathsByConfiguredProject =
-                            new Dictionary<ConfiguredProject, string>();
-
-                        // Fill these two dictionaries for all projects contained in the solution
-                        // (whether they belong to the deployment or not):
-                        await ReferenceCrawler.CollectProjectsAndOutputAssemblyPathsAsync(
-                            ProjectService,
-                            configuredProjectsByOutputAssemblyPath, 
-                            outputAssemblyPathsByConfiguredProject);
-
-                        // This HashSet shall contain a list of full paths to all assemblies to be deployed, including
-                        // the compiled output assemblies of our solution's project and also all assemblies such as
-                        // NuGet packages referenced by those projects.
-                        // The HashSet will take care of only containing any string once even if added multiple times.
-                        // However, this is dependent on getting all paths always in the same casing.
-                        // Be aware that on file systems which ignore casing, we would end up having assemblies added
-                        // more than once here if the GetFullPathAsync() methods used below should not always reliably
-                        // return the path to the same assembly in the same casing.
-                        HashSet<string> assemblyPathsToDeploy = new HashSet<string>();
-
-                        // Starting with the startup project, collect all assemblies to be deployed.
-                        // This will only add assemblies of projects which are actually referenced directly or
-                        // indirectly by the startup project. Any project in the solution which is not referenced
-                        // directly or indirectly by the startup project will not be included in the list of assemblies
-                        // to be deployed.
-                        await ReferenceCrawler.CollectAssembliesToDeployAsync(
-                            configuredProjectsByOutputAssemblyPath,
-                            outputAssemblyPathsByConfiguredProject,
-                            assemblyPathsToDeploy,
-                            Properties.ConfiguredProject);
-
-                        // build a list with the full path for each DLL, referenced DLL and EXE
-                        List<DeploymentAssembly> assemblyList = new List<DeploymentAssembly>();
-
-                        foreach (string assemblyPath in assemblyPathsToDeploy)
-                        {
-                            // load assembly to get the version
-                            var assembly = Assembly.Load(File.ReadAllBytes(assemblyPath)).GetName();
-                            assemblyList.Add(new DeploymentAssembly(assemblyPath, $"{assembly.Version.ToString(4)}"));
-                        }
-
-                        // if there are referenced project, the assembly list contains repeated assemblies so need to use Linq Distinct()
-                        // an IEqualityComparer is required implementing the proper comparison
-                        List<DeploymentAssembly> distinctAssemblyList = assemblyList.Distinct(new DeploymentAssemblyDistinctEquality()).ToList();
-
-                        // build a list with the PE files corresponding to each DLL and EXE
-                        List<DeploymentAssembly> peCollection = distinctAssemblyList.Select(a => new DeploymentAssembly(a.Path.Replace(".dll", ".pe").Replace(".exe", ".pe"), a.Version)).ToList();
-
-                        var checkAssembliesResult = await CheckNativeAssembliesAvailabilityAsync(device.DeviceInfo.NativeAssemblies, peCollection);
-                        if (checkAssembliesResult != "")
-                        {
-                            // can't deploy
-                            throw new DeploymentException(checkAssembliesResult);
-                        }
-
-                        // Keep track of total assembly size
-                        long totalSizeOfAssemblies = 0;
-
-                        // now we will re-deploy all system assemblies
-                        foreach (DeploymentAssembly peItem in peCollection)
-                        {
-                            // append to the deploy blob the assembly
-                            using (FileStream fs = File.Open(peItem.Path, FileMode.Open, FileAccess.Read))
+                            if (!device.DebugEngine.IsDeviceInInitializeState())
                             {
-                                long length = (fs.Length + 3) / 4 * 4;
-                                await outputPaneWriter.WriteLineAsync($"Adding {Path.GetFileNameWithoutExtension(peItem.Path)} v{peItem.Version} ({length.ToString()} bytes) to deployment bundle");
-                                byte[] buffer = new byte[length];
-
-                                await fs.ReadAsync(buffer, 0, (int)fs.Length);
-                                assemblies.Add(buffer);
-
-                                // Increment totalizer
-                                totalSizeOfAssemblies += length;
+                                // done here
+                                deviceIsInInitializeState = false;
+                                break;
                             }
-                        }
 
-                        await outputPaneWriter.WriteLineAsync($"Deploying {peCollection.Count:N0} assemblies to device... Total size in bytes is {totalSizeOfAssemblies.ToString()}.");
+                            // provide feedback to user on the 1st pass
+                            if (retryCount == 0)
+                            {
+                                await outputPaneWriter.WriteLineAsync(ResourceStrings.WaitingDeviceInitialization);
+                            }
+
+                            if (device.DebugEngine.ConnectionSource == Tools.Debugger.WireProtocol.ConnectionSource.nanoBooter)
+                            {
+                                // request nanoBooter to load CLR
+                                device.DebugEngine.ExecuteMemory(0);
+                            }
+                            else if (device.DebugEngine.ConnectionSource == Tools.Debugger.WireProtocol.ConnectionSource.nanoCLR)
+                            {
+                                // already running nanoCLR try rebooting the CLR
+                                device.DebugEngine.RebootDevice(RebootOptions.ClrOnly);
+                            }
+
+                            // wait before next pass
+                            await Task.Delay(TimeSpan.FromMilliseconds(_timeoutMiliseconds));
+                        };
 
                         Thread.Yield();
 
-                        if (!device.DebugEngine.DeploymentExecute(assemblies, false))
+                        // check if device is still in initialized state
+                        if (!deviceIsInInitializeState)
                         {
-                            // throw exception to signal deployment failure
-                            throw new DeploymentException("Deploy failed.");
+                            // device has left initialization state
+                            await outputPaneWriter.WriteLineAsync(ResourceStrings.DeviceInitialized);
+
+                            //////////////////////////////////////////////////////////
+                            // sanity check for devices without native assemblies ?!?!
+                            if (device.DeviceInfo.NativeAssemblies.Count == 0)
+                            {
+                                // there are no assemblies deployed?!
+                                throw new DeploymentException($"Couldn't find any native assemblies deployed in {_viewModelLocator.DeviceExplorer.SelectedDevice.Description}! If the situation persists reboot the device.");
+                            }
+
+                            // For a known project output assembly path, this shall contain the corresponding
+                            // ConfiguredProject:
+                            Dictionary<string, ConfiguredProject> configuredProjectsByOutputAssemblyPath =
+                                new Dictionary<string, ConfiguredProject>();
+
+                            // For a known ConfiguredProject, this shall contain the corresponding project output assembly
+                            // path:
+                            Dictionary<ConfiguredProject, string> outputAssemblyPathsByConfiguredProject =
+                                new Dictionary<ConfiguredProject, string>();
+
+                            // Fill these two dictionaries for all projects contained in the solution
+                            // (whether they belong to the deployment or not):
+                            await ReferenceCrawler.CollectProjectsAndOutputAssemblyPathsAsync(
+                                ProjectService,
+                                configuredProjectsByOutputAssemblyPath,
+                                outputAssemblyPathsByConfiguredProject);
+
+                            // This HashSet shall contain a list of full paths to all assemblies to be deployed, including
+                            // the compiled output assemblies of our solution's project and also all assemblies such as
+                            // NuGet packages referenced by those projects.
+                            // The HashSet will take care of only containing any string once even if added multiple times.
+                            // However, this is dependent on getting all paths always in the same casing.
+                            // Be aware that on file systems which ignore casing, we would end up having assemblies added
+                            // more than once here if the GetFullPathAsync() methods used below should not always reliably
+                            // return the path to the same assembly in the same casing.
+                            HashSet<string> assemblyPathsToDeploy = new HashSet<string>();
+
+                            // Starting with the startup project, collect all assemblies to be deployed.
+                            // This will only add assemblies of projects which are actually referenced directly or
+                            // indirectly by the startup project. Any project in the solution which is not referenced
+                            // directly or indirectly by the startup project will not be included in the list of assemblies
+                            // to be deployed.
+                            await ReferenceCrawler.CollectAssembliesToDeployAsync(
+                                configuredProjectsByOutputAssemblyPath,
+                                outputAssemblyPathsByConfiguredProject,
+                                assemblyPathsToDeploy,
+                                Properties.ConfiguredProject);
+
+                            // build a list with the full path for each DLL, referenced DLL and EXE
+                            List<DeploymentAssembly> assemblyList = new List<DeploymentAssembly>();
+
+                            foreach (string assemblyPath in assemblyPathsToDeploy)
+                            {
+                                // load assembly to get the version
+                                var assembly = Assembly.Load(File.ReadAllBytes(assemblyPath)).GetName();
+                                assemblyList.Add(new DeploymentAssembly(assemblyPath, $"{assembly.Version.ToString(4)}"));
+                            }
+
+                            // if there are referenced project, the assembly list contains repeated assemblies so need to use Linq Distinct()
+                            // an IEqualityComparer is required implementing the proper comparison
+                            List<DeploymentAssembly> distinctAssemblyList = assemblyList.Distinct(new DeploymentAssemblyDistinctEquality()).ToList();
+
+                            // build a list with the PE files corresponding to each DLL and EXE
+                            List<DeploymentAssembly> peCollection = distinctAssemblyList.Select(a => new DeploymentAssembly(a.Path.Replace(".dll", ".pe").Replace(".exe", ".pe"), a.Version)).ToList();
+
+                            var checkAssembliesResult = await CheckNativeAssembliesAvailabilityAsync(device.DeviceInfo.NativeAssemblies, peCollection);
+                            if (checkAssembliesResult != "")
+                            {
+                                // can't deploy
+                                throw new DeploymentException(checkAssembliesResult);
+                            }
+
+                            // Keep track of total assembly size
+                            long totalSizeOfAssemblies = 0;
+
+                            // now we will re-deploy all system assemblies
+                            foreach (DeploymentAssembly peItem in peCollection)
+                            {
+                                // append to the deploy blob the assembly
+                                using (FileStream fs = File.Open(peItem.Path, FileMode.Open, FileAccess.Read))
+                                {
+                                    long length = (fs.Length + 3) / 4 * 4;
+                                    await outputPaneWriter.WriteLineAsync($"Adding {Path.GetFileNameWithoutExtension(peItem.Path)} v{peItem.Version} ({length.ToString()} bytes) to deployment bundle");
+                                    byte[] buffer = new byte[length];
+
+                                    await fs.ReadAsync(buffer, 0, (int)fs.Length);
+                                    assemblies.Add(buffer);
+
+                                    // Increment totalizer
+                                    totalSizeOfAssemblies += length;
+                                }
+                            }
+
+                            await outputPaneWriter.WriteLineAsync($"Deploying {peCollection.Count:N0} assemblies to device... Total size in bytes is {totalSizeOfAssemblies.ToString()}.");
+
+                            Thread.Yield();
+
+                            if (!device.DebugEngine.DeploymentExecute(assemblies, false))
+                            {
+                                // give it another try, ESP32 seems to be a bit stubborn at times...
+
+                                // wait before next pass
+                                await Task.Delay(TimeSpan.FromSeconds(1));
+
+                                Thread.Yield();
+
+                                if (!device.DebugEngine.DeploymentExecute(assemblies, false))
+                                {
+                                    // throw exception to signal deployment failure
+                                    throw new DeploymentException("Deploy failed.");
+                                }
+                            }
+
+                            Thread.Yield();
+
+                            // deployment successful
+                            await outputPaneWriter.WriteLineAsync("Deployment successful.");
+
+                            // reset the hash for the connected device so the deployment information can be refreshed
+                            _viewModelLocator.DeviceExplorer.LastDeviceConnectedHash = 0;
                         }
-
-                        Thread.Yield();
-
-                        // deployment successful
-                        await outputPaneWriter.WriteLineAsync("Deployment successful.");
-
-                        // reset the hash for the connected device so the deployment information can be refreshed
-                        _viewModelLocator.DeviceExplorer.LastDeviceConnectedHash = 0;
+                        else
+                        {
+                            // after retry policy applied seems that we couldn't resume execution on the device...
+                            // throw exception to signal deployment failure
+                            throw new DeploymentException(ResourceStrings.DeviceInitializationTimeout);
+                        }
                     }
                     else
                     {
-                        // after retry policy applied seems that we couldn't resume execution on the device...
+                        // failed to erase deployment area, despite not critical, better abort
                         // throw exception to signal deployment failure
-                        throw new DeploymentException(ResourceStrings.DeviceInitializationTimeout);
+                        throw new DeploymentException(ResourceStrings.EraseTargetDeploymentFailed);
                     }
                 }
                 else

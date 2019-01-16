@@ -171,6 +171,9 @@
   <data name="DispatchEventsFailed" xml:space="preserve">
     <value>The debugger engine failed to receive any debug events from the nanoDevice target</value>
   </data>
+  <data name="EraseTargetDeploymentFailed" xml:space="preserve">
+    <value>Failed to erase deployment area of target device.</value>
+  </data>
   <data name="InitializationFailed" xml:space="preserve">
     <value>The nanoDevice target and the debugger engine failed to initialize because of unspecified device errors.</value>
   </data>
