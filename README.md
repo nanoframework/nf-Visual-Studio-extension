@@ -33,6 +33,9 @@ In case you want to be in the bleeding edge of technology and use the new stuff 
 Please follow the instructions [here](http://docs.myget.org/docs/walkthrough/getting-started-with-vsix#Working_with_your_Vsix_feed) on how to add the feed to your Visual Studio instance. 
 Use this URL for the feed: `https://www.myget.org/F/nanoframework-dev/vsix/`.
 
+## Developing for the Visual Studio extension
+
+If you are working on developing code for **nanoFramework** Visual Studio extension please take a look at the available documentation [here](). 
 
 ## Credits
 
