@@ -193,18 +193,21 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                             Properties.ConfiguredProject);
 
                         // build a list with the full path for each DLL, referenced DLL and EXE
-                        List<(string path, string version)> assemblyList = new List<(string path, string version)>();
+                        List<DeploymentAssembly> assemblyList = new List<DeploymentAssembly>();
 
                         foreach (string assemblyPath in assemblyPathsToDeploy)
                         {
                             // load assembly to get the version
                             var assembly = Assembly.Load(File.ReadAllBytes(assemblyPath)).GetName();
-                            assemblyList.Add((assemblyPath, $"{assembly.Version.ToString(4)}"));
+                            assemblyList.Add(new DeploymentAssembly(assemblyPath, $"{assembly.Version.ToString(4)}"));
                         }
 
                         // if there are referenced project, the assembly list contains repeated assemblies so need to use Linq Distinct()
+                        // an IEqualityComparer is required implementing the proper comparison
+                        List<DeploymentAssembly> distinctAssemblyList = assemblyList.Distinct(new DeploymentAssemblyDistinctEquality()).ToList();
+
                         // build a list with the PE files corresponding to each DLL and EXE
-                        List<(string path, string version)> peCollection = assemblyList.Distinct().Select(a => (a.path.Replace(".dll", ".pe").Replace(".exe", ".pe"), a.version)).ToList();
+                        List<DeploymentAssembly> peCollection = distinctAssemblyList.Select(a => new DeploymentAssembly(a.Path.Replace(".dll", ".pe").Replace(".exe", ".pe"), a.Version)).ToList();
 
                         var checkAssembliesResult = await CheckNativeAssembliesAvailabilityAsync(device.DeviceInfo.NativeAssemblies, peCollection);
                         if (checkAssembliesResult != "")
@@ -217,13 +220,13 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         long totalSizeOfAssemblies = 0;
 
                         // now we will re-deploy all system assemblies
-                        foreach ((string path, string version) peItem in peCollection)
+                        foreach (DeploymentAssembly peItem in peCollection)
                         {
                             // append to the deploy blob the assembly
-                            using (FileStream fs = File.Open(peItem.path, FileMode.Open, FileAccess.Read))
+                            using (FileStream fs = File.Open(peItem.Path, FileMode.Open, FileAccess.Read))
                             {
                                 long length = (fs.Length + 3) / 4 * 4;
-                                await outputPaneWriter.WriteLineAsync($"Adding {Path.GetFileNameWithoutExtension(peItem.path)} v{peItem.version} ({length.ToString()} bytes) to deployment bundle");
+                                await outputPaneWriter.WriteLineAsync($"Adding {Path.GetFileNameWithoutExtension(peItem.Path)} v{peItem.Version} ({length.ToString()} bytes) to deployment bundle");
                                 byte[] buffer = new byte[length];
 
                                 await fs.ReadAsync(buffer, 0, (int)fs.Length);
@@ -277,7 +280,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             }
         }
 
-        private async System.Threading.Tasks.Task<string> CheckNativeAssembliesAvailabilityAsync(List<CLRCapabilities.NativeAssemblyProperties> nativeAssemblies, List<(string path, string version)> peCollection)
+        private async System.Threading.Tasks.Task<string> CheckNativeAssembliesAvailabilityAsync(List<CLRCapabilities.NativeAssemblyProperties> nativeAssemblies, List<DeploymentAssembly> peCollection)
         {
             string errorMessage = string.Empty;
 
@@ -285,7 +288,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             foreach (var peItem in peCollection)
             {
                 // open the PE file and load content
-                using (FileStream fs = File.Open(peItem.path, FileMode.Open, FileAccess.Read))
+                using (FileStream fs = File.Open(peItem.Path, FileMode.Open, FileAccess.Read))
                 {
                     // get PE checksum
                     byte[] buffer = new byte[4];
@@ -305,7 +308,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         var nativeAssembly = nativeAssemblies.Find(a => a.Checksum == peChecksum);
 
                         // check the version now
-                        if (nativeAssembly.Version.ToString(4) == peItem.version)
+                        if (nativeAssembly.Version.ToString(4) == peItem.Version)
                         {
                             // we are good with this one
                             continue;
@@ -323,7 +326,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         exceptionAssemblies.Add(new CLRCapabilities.NativeAssemblyProperties("Windows.Storage.Streams", 0, new Version()));
                         //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-                        if (exceptionAssemblies.Exists(a => a.Name == Path.GetFileNameWithoutExtension(peItem.path)))
+                        if (exceptionAssemblies.Exists(a => a.Name == Path.GetFileNameWithoutExtension(peItem.Path)))
                         {
                             // we are good with this one
                             continue;
@@ -338,7 +341,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     }
 
                     // no suitable native assembly found present a (hopefully) helpful message to the developer
-                    errorMessage += $"Couldn't find a valid native assembly required by {Path.GetFileNameWithoutExtension(peItem.path)} v{peItem.version}, checksum 0x{peChecksum.ToString("X8")}." + Environment.NewLine;
+                    errorMessage += $"Couldn't find a valid native assembly required by {Path.GetFileNameWithoutExtension(peItem.Path)} v{peItem.Version}, checksum 0x{peChecksum.ToString("X8")}." + Environment.NewLine;
                 }
             }
 

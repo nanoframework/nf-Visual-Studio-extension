@@ -102,6 +102,8 @@
     <Compile Include="CorDebug\Pdbx.cs" />
     <Compile Include="CorDebug\PdbxFile.cs" />
     <Compile Include="CorDebug\ProcessExitException.cs" />
+    <Compile Include="DeployProvider\DeploymentAssembly.cs" />
+    <Compile Include="DeployProvider\DeploymentAssemblyDistinctEquality.cs" />
     <Compile Include="DeployProvider\DeploymentException.cs" />
     <Compile Include="IPMaskedTextBox\IPMaskedTextBox.xaml.cs">
       <DependentUpon>IPMaskedTextBox.xaml</DependentUpon>
