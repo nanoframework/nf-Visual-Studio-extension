@@ -1,7 +1,16 @@
 # Change Log
 
 ## [v](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v) (2019-01-28)
-[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v1.0.3.15...v)
+[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v1.0.3.24...v)
+
+**Updated dependencies and other chores:**
+
+- Update referenced version of mscorlib in templates [\#330](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/330) [[Area: VS-extension](https://github.com/nanoframework/nf-Visual-Studio-extension/labels/Area:%20VS-extension)]
+- Improve deployment provider error message [\#329](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/329)
+- Update debugger lib [\#328](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/328) [[Area: VS-extension](https://github.com/nanoframework/nf-Visual-Studio-extension/labels/Area:%20VS-extension)]
+
+## [v1.0.3.24](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v1.0.3.24) (2019-01-28)
+[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v1.0.3.15...v1.0.3.24)
 
 **Implemented enhancements:**
 
