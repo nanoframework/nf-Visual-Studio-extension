@@ -25,7 +25,7 @@ bool Watchdog_GetSetEnabled(bool enabled, bool fSet)
 
 void Watchdog_ResetCounter() {}
 
-//void CPU_Reset() {}
+void CPU_Reset() {}
 
 //unsigned int Events_MaskedRead(unsigned int) { return 0; }
 
