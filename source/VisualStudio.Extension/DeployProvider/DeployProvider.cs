@@ -313,6 +313,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         private async System.Threading.Tasks.Task<string> CheckNativeAssembliesAvailabilityAsync(List<CLRCapabilities.NativeAssemblyProperties> nativeAssemblies, List<DeploymentAssembly> peCollection)
         {
             string errorMessage = string.Empty;
+            string wrongAssemblies = string.Empty;
+            string missingAssemblies = string.Empty;
 
             // loop through each PE to deploy...
             foreach (var peItem in peCollection)
@@ -320,6 +322,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 // open the PE file and load content
                 using (FileStream fs = File.Open(peItem.Path, FileMode.Open, FileAccess.Read))
                 {
+                    CLRCapabilities.NativeAssemblyProperties nativeAssembly;
                     // get PE checksum
                     byte[] buffer = new byte[4];
                     fs.Position = 0x14;
@@ -335,7 +338,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     // try to find a native assembly matching the checksum for this PE
                     if (nativeAssemblies.Exists(a => a.Checksum == peChecksum))
                     {
-                        var nativeAssembly = nativeAssemblies.Find(a => a.Checksum == peChecksum);
+                        nativeAssembly = nativeAssemblies.Find(a => a.Checksum == peChecksum);
 
                         // check the version now
                         if (nativeAssembly.Version.ToString(4) == peItem.Version)
@@ -343,6 +346,11 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                             // we are good with this one
                             continue;
                         }
+
+                        // no suitable native assembly found build a (hopefully) helpful message to the developer
+                        wrongAssemblies += $"Couldn't find a valid native assembly required by {Path.GetFileNameWithoutExtension(peItem.Path)} v{peItem.Version}, checksum 0x{peChecksum.ToString("X8")}." + Environment.NewLine +
+                                        $"This project is referencing {Path.GetFileNameWithoutExtension(peItem.Path)} NuGet package with v{peItem.Version}." + Environment.NewLine +
+                                        $"The connected target is has support for v{nativeAssembly.Version.ToString(4)}." + Environment.NewLine;
                     }
                     else
                     {
@@ -361,19 +369,41 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                             // we are good with this one
                             continue;
                         }
-                    }
 
-                    if (string.IsNullOrEmpty(errorMessage))
-                    {
-                        // init error message
-                        errorMessage = "Deploy failed." + Environment.NewLine +
-                                        "***************************************" + Environment.NewLine;
-                    }
+                        // no suitable native assembly found build a (hopefully) helpful message to the developer
+                        missingAssemblies = $"Couldn't find a valid native assembly required by {Path.GetFileNameWithoutExtension(peItem.Path)} v{peItem.Version}, checksum 0x{peChecksum.ToString("X8")}." + Environment.NewLine +
+                                        $"This project is referencing {Path.GetFileNameWithoutExtension(peItem.Path)} NuGet package with v{peItem.Version}." + Environment.NewLine +
+                                        $"The connected target does not have support for {Path.GetFileNameWithoutExtension(peItem.Path)}." + Environment.NewLine;
 
-                    // no suitable native assembly found present a (hopefully) helpful message to the developer
-                    errorMessage += $"Couldn't find a valid native assembly required by {Path.GetFileNameWithoutExtension(peItem.Path)} v{peItem.Version}, checksum 0x{peChecksum.ToString("X8")}." + Environment.NewLine;
+                    }
                 }
             }
+
+
+            if (!string.IsNullOrEmpty(wrongAssemblies) ||
+                !string.IsNullOrEmpty(missingAssemblies))
+            {
+                // init error message
+                errorMessage = "Deploy failed." + Environment.NewLine +
+                                "***************************************" + Environment.NewLine;
+            }
+
+            if (!string.IsNullOrEmpty(wrongAssemblies))
+            {
+                errorMessage += wrongAssemblies;
+                errorMessage += $"Please check: " + Environment.NewLine +
+                               $"  1) if the target is running the most updated image." + Environment.NewLine +
+                               $"  2) if the project is referring the appropriate version of the assembly." + Environment.NewLine;
+            }
+
+            if (string.IsNullOrEmpty(missingAssemblies))
+            {
+                errorMessage += missingAssemblies;
+                errorMessage += "Please check: " + Environment.NewLine +
+                                    "  1) if the target is running the most updated image." + Environment.NewLine +
+                                    "  2) if the target image was built to include support for referenced assembly." + Environment.NewLine;
+            }
+
 
             // close error message, if needed
             if (!string.IsNullOrEmpty(errorMessage))
