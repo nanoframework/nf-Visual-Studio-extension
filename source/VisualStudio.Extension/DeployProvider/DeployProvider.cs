@@ -396,7 +396,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                                $"  2) if the project is referring the appropriate version of the assembly." + Environment.NewLine;
             }
 
-            if (string.IsNullOrEmpty(missingAssemblies))
+            if (!string.IsNullOrEmpty(missingAssemblies))
             {
                 errorMessage += missingAssemblies;
                 errorMessage += "Please check: " + Environment.NewLine +
