@@ -95,8 +95,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             }
 
             // select the device
-            var deviceItem = DevicesHeaderItem.ItemContainerGenerator.ContainerFromItem((DataContext as DeviceExplorerViewModel).SelectedDevice) as TreeViewItem;
-            if (deviceItem != null)
+            if (DevicesHeaderItem.ItemContainerGenerator.ContainerFromItem((DataContext as DeviceExplorerViewModel).SelectedDevice) is TreeViewItem deviceItem)
             {
                 // switch to UI main thread
                 await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();

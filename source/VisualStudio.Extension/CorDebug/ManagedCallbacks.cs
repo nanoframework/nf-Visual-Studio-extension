@@ -29,7 +29,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             }
 
             protected CorDebugThread m_thread;
-            private EventType m_eventType;
+            private readonly EventType m_eventType;
             protected bool m_fSuspendThreadEvents;
 
             public ManagedCallbackThread(CorDebugThread thread, EventType eventType)
@@ -49,6 +49,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 get { return m_thread.GetRealCorDebugThread(); }
             }
 
+            public EventType EventType1 => m_eventType;
+
             public sealed override void Dispatch( ICorDebugManagedCallback callback )
             {
                 bool fSuspendThreadEventsSav = m_thread.SuspendThreadEvents;
@@ -66,7 +68,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
             public virtual void DispatchThreadEvent(ICorDebugManagedCallback callback)
             {
-                switch (m_eventType)
+                switch (EventType1)
                 {
                     case EventType.CreateThread:
                         callback.CreateThread(m_thread.AppDomain, m_thread);
@@ -120,10 +122,10 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         public class ManagedCallbackDebugMessage : ManagedCallbackThread
         {
-            private string m_switchName;
-            private string m_message;
-            private LoggingLevelEnum m_level;
-            private CorDebugAppDomain m_appDomain;
+            private readonly string m_switchName;
+            private readonly string m_message;
+            private readonly LoggingLevelEnum m_level;
+            private readonly CorDebugAppDomain m_appDomain;
 
             public ManagedCallbackDebugMessage(CorDebugThread thread, CorDebugAppDomain appDomain, string switchName, string message, LoggingLevelEnum level) : base (thread)
             {
@@ -141,7 +143,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         public class ManagedCallbackBreakpointSetError : ManagedCallbackBreakpoint
         {
-            uint m_error;
+            readonly uint m_error;
 
             public ManagedCallbackBreakpointSetError(CorDebugThread thread, CorDebugBreakpoint breakpoint, uint error) : base(thread, breakpoint)
             {
@@ -156,8 +158,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         public class ManagedCallbackStepComplete : ManagedCallbackThread
         {
-            CorDebugStepper m_stepper;
-            CorDebugStepReason m_reason;
+            readonly CorDebugStepper m_stepper;
+            readonly CorDebugStepReason m_reason;
 
             public ManagedCallbackStepComplete(CorDebugThread thread, CorDebugStepper stepper, CorDebugStepReason reason) : base(thread)
             {
@@ -185,9 +187,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         
         public class ManagedCallbackException : ManagedCallbackThread
         {
-            CorDebugExceptionCallbackType m_type;
+            readonly CorDebugExceptionCallbackType m_type;
             CorDebugFrame m_frame;
-            uint m_ip;
+            readonly uint m_ip;
 
             public ManagedCallbackException(CorDebugThread thread, CorDebugFrame frame, uint ip, CorDebugExceptionCallbackType type) : base(thread)
             {
@@ -217,8 +219,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         public class ManagedCallbackExceptionUnwind : ManagedCallbackThread
         {
-            CorDebugExceptionUnwindCallbackType m_type;
-            CorDebugFrame m_frame;
+            readonly CorDebugExceptionUnwindCallbackType m_type;
+            readonly CorDebugFrame m_frame;
 
             public ManagedCallbackExceptionUnwind(CorDebugThread thread, CorDebugFrame frame, CorDebugExceptionUnwindCallbackType type) : base(thread)
             {
@@ -227,9 +229,11 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 m_frame = frame;
             }
 
+            public CorDebugExceptionUnwindCallbackType Type => m_type;
+
             public override void DispatchThreadEvent(ICorDebugManagedCallback callback)
             {
-                ((ICorDebugManagedCallback2)callback).ExceptionUnwind(m_thread.AppDomain, m_thread, m_type, 0);
+                ((ICorDebugManagedCallback2)callback).ExceptionUnwind(m_thread.AppDomain, m_thread, Type, 0);
             }
         }
 
@@ -241,8 +245,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 EvalException
             }
 
-            CorDebugEval m_eval;
-            EventType m_eventType;
+            readonly CorDebugEval m_eval;
+            readonly EventType m_eventType;
 
             public ManagedCallbackEval(CorDebugThread thread, CorDebugEval eval, EventType eventType) : base(thread)
             {
@@ -276,7 +280,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             }
 
             protected CorDebugProcess m_process;
-            EventType m_eventType;
+            readonly EventType m_eventType;
 
             public ManagedCallbackProcess(CorDebugProcess process, EventType eventType)
             {
@@ -306,8 +310,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         public class ManagedCallbackProcessError : ManagedCallbackProcess
         {
-            int m_errorHR;
-            uint m_errorCode;
+            readonly int m_errorHR;
+            readonly uint m_errorCode;
 
             public ManagedCallbackProcessError(CorDebugProcess process, int errorHR, uint errorCode) : base(process, EventType.Other)
             {
@@ -332,7 +336,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             }
                         
             protected CorDebugAppDomain m_appDomain;
-            EventType m_eventType;
+            readonly EventType m_eventType;
 
             public ManagedCallbackAppDomain(CorDebugAppDomain appDomain, EventType eventType)
             {
@@ -369,7 +373,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             }
 
             CorDebugAssembly m_assembly;
-            EventType m_eventType;
+            readonly EventType m_eventType;
 
             public ManagedCallbackAssembly(CorDebugAssembly assembly, EventType eventType)
             {
@@ -409,8 +413,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             }
 
             CorDebugClass m_class;
-
-            EventType m_eventType;
+            readonly EventType m_eventType;
 
             public ManagedCallbackClass(CorDebugClass c, EventType eventType)
             {

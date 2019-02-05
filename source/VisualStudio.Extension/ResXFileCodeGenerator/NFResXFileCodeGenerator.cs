@@ -137,7 +137,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             {
                 if (codeDomProvider == null)
                 {
-                    IVSMDCodeDomProvider vsmdCodeDomProvider = (IVSMDCodeDomProvider)GetService(CodeDomServiceGuid);
+                    IVSMDCodeDomProvider vsmdCodeDomProvider = (IVSMDCodeDomProvider)GetServiceAsync(CodeDomServiceGuid);
                     if (vsmdCodeDomProvider != null)
                     {
                         codeDomProvider = (CodeDomProvider)vsmdCodeDomProvider.CodeDomProvider;
@@ -148,12 +148,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             }
             set
             {
-                if (value == null)
-                {
-                    throw new ArgumentNullException();
-                }
-
-                codeDomProvider = value;
+                codeDomProvider = value ?? throw new ArgumentNullException();
             }
         }
 
@@ -161,8 +156,11 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         {
             get
             {
+                ThreadHelper.ThrowIfNotOnUIThread();
+
                 if (serviceProvider == null)
                 {
+
                     IOleServiceProvider oleServiceProvider = site as IOleServiceProvider;
                     Debug.Assert(oleServiceProvider != null, "Unable to get IOleServiceProvider from site object.");
 
@@ -172,13 +170,17 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             }
         }
 
-        protected Object GetService(Guid serviceGuid)
+        protected async System.Threading.Tasks.Task<object> GetServiceAsync(Guid serviceGuid)
         {
+            await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+
             return SiteServiceProvider.GetService(serviceGuid);
         }
 
-        protected object GetService(Type serviceType)
+        protected async System.Threading.Tasks.Task<object> GetServiceAsync(Type serviceType)
         {
+            await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+
             return SiteServiceProvider.GetService(serviceType);
         }
 
@@ -253,7 +255,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
     //[ComVisible(true)]
     [Guid(ComponentGuid)]
+#pragma warning disable IDE1006 // Naming Styles
     internal class nFResXFileCodeGenerator : BaseCodeGeneratorWithSite, IObjectWithSite
+#pragma warning restore IDE1006 // Naming Styles
     {
         public const string Name = nameof(nFResXFileCodeGenerator);
         public const string Description = "nanoFramework code-behind generator for managed resources";
@@ -271,10 +275,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             string resourcesNamespace = null;
             try
             {
-                IntPtr punkVsBrowseObject;
                 Guid vsBrowseObjectGuid = typeof(IVsBrowseObject).GUID;
 
-                GetSite(ref vsBrowseObjectGuid, out punkVsBrowseObject);
+                GetSite(ref vsBrowseObjectGuid, out IntPtr punkVsBrowseObject);
 
                 if (punkVsBrowseObject != IntPtr.Zero)
                 {
@@ -286,10 +289,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                     if (vsBrowseObject != null)
                     {
-                        IVsHierarchy vsHierarchy;
-                        uint vsitemid;
-
-                        vsBrowseObject.GetProjectItem(out vsHierarchy, out vsitemid);
+                        vsBrowseObject.GetProjectItem(out IVsHierarchy vsHierarchy, out uint vsitemid);
 
                         Debug.Assert(vsHierarchy != null, "GetProjectItem should have thrown or returned a valid IVsHierarchy");
                         Debug.Assert(vsitemid != 0, "GetProjectItem should have thrown or returned a valid VSITEMID");
@@ -297,11 +297,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                         if (vsHierarchy != null)
                         {
-                            object obj;
-
-                            vsHierarchy.GetProperty(vsitemid, (int)__VSHPROPID.VSHPROPID_DefaultNamespace, out obj);
-                            string objStr = obj as string;
-                            if (objStr != null)
+                            vsHierarchy.GetProperty(vsitemid, (int)__VSHPROPID.VSHPROPID_DefaultNamespace, out object obj);
+                            if (obj is string objStr)
                             {
                                 resourcesNamespace = objStr;
                             }
@@ -321,10 +318,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         public override int DefaultExtension(out string ext)
         {
             //copied from ResXFileCodeGenerator
-            string baseExtension;
             ext = String.Empty;
 
-            int hResult = base.DefaultExtension(out baseExtension);
+            int hResult = base.DefaultExtension(out string baseExtension);
 
             if (hResult != COM_HResults.S_OK)
             {
@@ -503,12 +499,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 }
                 set
                 {
-                    if (value == null)
-                    {
-                        throw new ArgumentNullException();
-                    }
-
-                    codeDomProvider = value;
+                    codeDomProvider = value ?? throw new ArgumentNullException();
                 }
             }
 
