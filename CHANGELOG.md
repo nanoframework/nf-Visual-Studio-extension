@@ -5,6 +5,7 @@
 
 **Implemented enhancements:**
 
+- Improvements in deploy provider [\#334](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/334) [[Area: VS-extension](https://github.com/nanoframework/nf-Visual-Studio-extension/labels/Area:%20VS-extension)]
 - Improve deploy provider output [\#333](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/333) [[Area: VS-extension](https://github.com/nanoframework/nf-Visual-Studio-extension/labels/Area:%20VS-extension)]
 
 ## [v1.0.3.32](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v1.0.3.32) (2019-01-30)
