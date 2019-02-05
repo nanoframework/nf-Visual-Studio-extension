@@ -5,6 +5,7 @@
 
 **Implemented enhancements:**
 
+- Improvements and fixes related with several async and await calls [\#336](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/336) [[Area: VS-extension](https://github.com/nanoframework/nf-Visual-Studio-extension/labels/Area:%20VS-extension)]
 - Improvements in deploy provider [\#334](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/334) [[Area: VS-extension](https://github.com/nanoframework/nf-Visual-Studio-extension/labels/Area:%20VS-extension)]
 - Improve deploy provider output [\#333](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/333) [[Area: VS-extension](https://github.com/nanoframework/nf-Visual-Studio-extension/labels/Area:%20VS-extension)]
 
