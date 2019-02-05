@@ -160,10 +160,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
                     // is there a single device
                     if (AvailableDevices.Count == 1)
                     {
-                        ThreadHelper.JoinableTaskFactory.RunAsync(async () =>
-                        {
-                            ForceNanoDeviceSelection(AvailableDevices[0]);
-                        });
+                        ForceNanoDeviceSelectionAsync(AvailableDevices[0]).ConfigureAwait(false);
                     }
                 }
             }
@@ -199,10 +196,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
                     if (deviceToReSelect != null)
                     {
                         // device seems to be back online, select it
-                        ThreadHelper.JoinableTaskFactory.RunAsync(async () =>
-                        {
-                            ForceNanoDeviceSelection(deviceToReSelect);
-                        });
+                        ForceNanoDeviceSelectionAsync(deviceToReSelect).ConfigureAwait(false);
 
                         // clear device to reselect
                         DeviceToReSelect = null;
@@ -214,10 +208,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
                     // is there a single device
                     if (AvailableDevices.Count == 1)
                     {
-                        ThreadHelper.JoinableTaskFactory.RunAsync(async () =>
-                        {
-                            ForceNanoDeviceSelection(AvailableDevices[0]);
-                        });
+                        ForceNanoDeviceSelectionAsync(AvailableDevices[0]).ConfigureAwait(false);
                     }
                     else
                     {
@@ -225,29 +216,26 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
                         if (SelectedDevice != null)
                         {
                             // maintain selection
-                            ThreadHelper.JoinableTaskFactory.RunAsync(async () =>
-                            {
-                                ForceNanoDeviceSelection(AvailableDevices.FirstOrDefault(d => d.Description == SelectedDevice.Description));
-                            });
+                            ForceNanoDeviceSelectionAsync(AvailableDevices.FirstOrDefault(d => d.Description == SelectedDevice.Description)).ConfigureAwait(false);
                         }
                     }
                 }
             }
         }
 
-        private void ForceNanoDeviceSelection(NanoDeviceBase nanoDevice)
+        private async Task ForceNanoDeviceSelectionAsync(NanoDeviceBase nanoDevice)
         {
             // select the device
             SelectedDevice = nanoDevice;
 
             // request forced selection of device in UI
-            MessengerInstance.Send(new NotificationMessage(""), MessagingTokens.ForceSelectionOfNanoDevice);
+            await Task.Run(() => { MessengerInstance.Send(new NotificationMessage(""), MessagingTokens.ForceSelectionOfNanoDevice); });
         }
 
-        public void  ForceNanoDeviceSelection()
+        public async Task ForceNanoDeviceSelectionAsync()
         {
             // request forced selection of device in UI
-            MessengerInstance.Send(new NotificationMessage(""), MessagingTokens.ForceSelectionOfNanoDevice);
+            await Task.Run(() => { MessengerInstance.Send(new NotificationMessage(""), MessagingTokens.ForceSelectionOfNanoDevice); });
         }
 
         public void OnSelectedDeviceChanging()
@@ -263,26 +251,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
 
             // signal event that the selected device has changed
             MessengerInstance.Send(new NotificationMessage(""), MessagingTokens.SelectedNanoDeviceHasChanged);
-        }
-
-        public void RebootSelectedDevice()
-        {
-            // this is only possible to perform if there is a device connected 
-            if (SelectedDevice != null)
-            {
-                // save previous device
-                PreviousSelectedDeviceDescription = DeviceToReSelect;
-
-                // reboot the device
-                ThreadHelper.JoinableTaskFactory.Run(async () =>
-                {
-                    // remove device selection
-                    // reset property to force that device capabilities are retrieved on next connection
-                    LastDeviceConnectedHash = 0;
-
-                    SelectedDevice.DebugEngine.RebootDevice(RebootOptions.NormalReboot);
-                });
-            }
         }
 
 

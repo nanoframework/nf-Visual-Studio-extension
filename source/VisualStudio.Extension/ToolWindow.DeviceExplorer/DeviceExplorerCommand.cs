@@ -4,9 +4,13 @@
 //
 
 using GalaSoft.MvvmLight.Messaging;
+using Microsoft;
+using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
+using nanoFramework.Tools.Debugger;
 using nanoFramework.Tools.Debugger.Extensions;
+using nanoFramework.Tools.Debugger.WireProtocol;
 using nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel;
 using System;
 using System.ComponentModel.Design;
@@ -76,18 +80,17 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             this.package = package ?? throw new ArgumentNullException("Package can't be null.");
 
             _commandService = ServiceProvider.GetService(typeof(IMenuCommandService)) as OleMenuCommandService;
-            if (_commandService != null)
-            {
-                var menuCommandID = new CommandID(CommandSet, CommandId);
-                var menuItem = new MenuCommand(ShowToolWindow, menuCommandID);
-                _commandService.AddCommand(menuItem);
-            }
+            Assumes.Present(_commandService);
+
+            var menuCommandID = new CommandID(CommandSet, CommandId);
+            var menuItem = new MenuCommand(ShowToolWindow, menuCommandID);
+            _commandService.AddCommand(menuItem);
         }
 
         /// <summary>
         /// Gets the service provider from the owner package.
         /// </summary>
-        private System.IServiceProvider ServiceProvider
+        private IServiceProvider ServiceProvider
         {
             get
             {
@@ -122,6 +125,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         {
             // Create the handles for the toolbar commands
             var menuCommandService = ServiceProvider.GetService(typeof(IMenuCommandService)) as OleMenuCommandService;
+            Assumes.Present(menuCommandService);
 
             CommandID toolbarButtonCommandId;
             MenuCommand menuItem;
@@ -195,7 +199,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             }
 
             IVsWindowFrame windowFrame = (IVsWindowFrame)window.Frame;
-            Microsoft.VisualStudio.ErrorHandler.ThrowOnFailure(windowFrame.Show());
+            ErrorHandler.ThrowOnFailure(windowFrame.Show());
         }
 
 
@@ -221,10 +225,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 (sender as MenuCommand).Enabled = false;
 
                 // make sure this device is showing as selected in Device Explorer tree view
-                await ThreadHelper.JoinableTaskFactory.RunAsync(async () =>
-                {
-                    ViewModelLocator.DeviceExplorer.ForceNanoDeviceSelection();
-                });
+                await ViewModelLocator.DeviceExplorer.ForceNanoDeviceSelectionAsync();
 
                 // check if debugger engine exists
                 if (NanoDeviceCommService.Device.DebugEngine == null)
@@ -240,12 +241,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                     switch (ViewModelLocator.DeviceExplorer.SelectedDevice.DebugEngine.ConnectionSource)
                     {
-                        case Tools.Debugger.WireProtocol.ConnectionSource.Unknown:
+                        case ConnectionSource.Unknown:
                             MessageCentre.OutputMessage($"No reply from {ViewModelLocator.DeviceExplorer.SelectedDevice.Description}");
                             break;
 
-                        case Tools.Debugger.WireProtocol.ConnectionSource.nanoBooter:
-                        case Tools.Debugger.WireProtocol.ConnectionSource.nanoCLR:
+                        case ConnectionSource.nanoBooter:
+                        case ConnectionSource.nanoCLR:
                             MessageCentre.OutputMessage($"{ViewModelLocator.DeviceExplorer.SelectedDevice.Description} is active running {ViewModelLocator.DeviceExplorer.SelectedDevice.DebugEngine.ConnectionSource.ToString()}");
                             break;
                     }
@@ -289,10 +290,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 (sender as MenuCommand).Enabled = false;
 
                 // make sure this device is showing as selected in Device Explorer tree view
-                await ThreadHelper.JoinableTaskFactory.RunAsync(async () =>
-                {
-                    ViewModelLocator.DeviceExplorer.ForceNanoDeviceSelection();
-                });
+                await ViewModelLocator.DeviceExplorer.ForceNanoDeviceSelectionAsync();
 
                 // only query device if it's different 
                 if (ViewModelLocator.DeviceExplorer.SelectedDevice.Description.GetHashCode() != ViewModelLocator.DeviceExplorer.LastDeviceConnectedHash)
@@ -423,10 +421,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 (sender as MenuCommand).Enabled = false;
 
                 // make sure this device is showing as selected in Device Explorer tree view
-                await ThreadHelper.JoinableTaskFactory.RunAsync(async () =>
-                {
-                    ViewModelLocator.DeviceExplorer.ForceNanoDeviceSelection();
-                });
+                await ViewModelLocator.DeviceExplorer.ForceNanoDeviceSelectionAsync();
 
                 // check if debugger engine exists
                 if (NanoDeviceCommService.Device.DebugEngine == null)
@@ -439,7 +434,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 {
                     try
                     {
-                        if (await NanoDeviceCommService.Device.EraseAsync(Debugger.EraseOptions.Deployment, CancellationToken.None))
+                        if (await NanoDeviceCommService.Device.EraseAsync(EraseOptions.Deployment, CancellationToken.None))
                         {
                             MessageCentre.OutputMessage($"{ViewModelLocator.DeviceExplorer.SelectedDevice.Description} deployment area erased.");
 
@@ -506,10 +501,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 (sender as MenuCommand).Enabled = false;
 
                 // make sure this device is showing as selected in Device Explorer tree view
-                await ThreadHelper.JoinableTaskFactory.RunAsync(async () =>
-                {
-                    ViewModelLocator.DeviceExplorer.ForceNanoDeviceSelection();
-                });
+                await ViewModelLocator.DeviceExplorer.ForceNanoDeviceSelectionAsync();
 
                 // check if debugger engine exists
                 if (NanoDeviceCommService.Device.DebugEngine == null)
@@ -531,7 +523,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         }
                         else
                         {
-                            ViewModelLocator.DeviceExplorer.DeviceNetworkConfiguration = new Debugger.DeviceConfiguration.NetworkConfigurationProperties();
+                            ViewModelLocator.DeviceExplorer.DeviceNetworkConfiguration = new DeviceConfiguration.NetworkConfigurationProperties();
                         }
 
                         // for now, just get the 1st Wi-Fi configuration, if exists
@@ -543,7 +535,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         }
                         else
                         {
-                            ViewModelLocator.DeviceExplorer.DeviceWireless80211Configuration = new Debugger.DeviceConfiguration.Wireless80211ConfigurationProperties();
+                            ViewModelLocator.DeviceExplorer.DeviceWireless80211Configuration = new DeviceConfiguration.Wireless80211ConfigurationProperties();
                         }
 
                         // yield to give the UI thread a chance to respond to user input
@@ -603,10 +595,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 (sender as MenuCommand).Enabled = false;
 
                 // make sure this device is showing as selected in Device Explorer tree view
-                await ThreadHelper.JoinableTaskFactory.RunAsync(async () =>
-                {
-                    ViewModelLocator.DeviceExplorer.ForceNanoDeviceSelection();
-                });
+                await ViewModelLocator.DeviceExplorer.ForceNanoDeviceSelectionAsync();
 
                 // check if debugger engine exists
                 if (NanoDeviceCommService.Device.DebugEngine == null)
@@ -622,7 +611,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         // reset the hash for the connected device so the deployment information can be refreshed, if and when requested
                         ViewModelLocator.DeviceExplorer.LastDeviceConnectedHash = 0;
 
-                        NanoDeviceCommService.Device.DebugEngine.RebootDevice(Debugger.RebootOptions.NormalReboot);
+                        NanoDeviceCommService.Device.DebugEngine.RebootDevice(RebootOptions.NormalReboot);
 
                         MessageCentre.OutputMessage($"Sent reboot command to {ViewModelLocator.DeviceExplorer.PreviousSelectedDeviceDescription}.");
 
@@ -693,13 +682,13 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             }
 
             // update toolbar 
-            UpdateToolbarButtons();
+            UpdateToolbarButtonsAsync().ConfigureAwait(false);
         }
 
         private void NanoDevicesCollectionChangedHandler()
         {
             // update toolbar 
-            UpdateToolbarButtons();
+            UpdateToolbarButtonsAsync().ConfigureAwait(false);
         }
 
         #endregion
@@ -707,13 +696,14 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         #region tool and status bar update and general managers
 
-        private async void UpdateToolbarButtons()
+        private async Task UpdateToolbarButtonsAsync()
         {
             // switch to UI main thread
             await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
             // get the menu command service to reach the toolbar commands
             var menuCommandService = ServiceProvider.GetService(typeof(IMenuCommandService)) as OleMenuCommandService;
+            Assumes.Present(menuCommandService);
 
             // are there any devices available
             if (ViewModelLocator.DeviceExplorer.AvailableDevices.Count > 0)
