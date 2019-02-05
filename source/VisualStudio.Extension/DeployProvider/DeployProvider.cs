@@ -63,7 +63,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         public async Task DeployAsync(CancellationToken cancellationToken, TextWriter outputPaneWriter)
         {
             // just in case....
-            if ((_viewModelLocator?.DeviceExplorer.SelectedDevice == null))
+            if (_viewModelLocator?.DeviceExplorer.SelectedDevice == null)
             {
                 // can't debug
                 // throw exception to signal deployment failure
@@ -85,6 +85,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
             try
             {
+                MessageCentre.InternalErrorMessage("Check and start debug engine on nanoDevice.");
+
                 // check if debugger engine exists
                 if (NanoDeviceCommService.Device.DebugEngine == null)
                 {
@@ -94,13 +96,19 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 // connect to the device
                 if (await device.DebugEngine.ConnectAsync(5000, true))
                 {
+                    MessageCentre.InternalErrorMessage("Connect successful.");
+
                     // erase the target deployment area to ensure a clean deployment and execution start
                     if (await device.EraseAsync(EraseOptions.Deployment, CancellationToken.None))
                     {
+                        MessageCentre.InternalErrorMessage("Erase deployment area successful.");
+
                         // ESP32 seems to be a bit stubborn to restart a debug session after the previous one ends
                         // rebooting the device improves this behaviour
                         if (device.DebugEngine.Capabilities.SolutionReleaseInfo.targetVendorInfo.Contains("ESP32"))
                         {
+                            MessageCentre.InternalErrorMessage("Rebooting ESP32 device.");
+
                             // send reset command to device
                             device.DebugEngine.RebootDevice(RebootOptions.NormalReboot);
 
@@ -111,6 +119,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         // initial check 
                         if (device.DebugEngine.IsDeviceInInitializeState())
                         {
+                            MessageCentre.InternalErrorMessage("Device status verified as being in initialized state.");
+
                             // set flag
                             deviceIsInInitializeState = true;
 
@@ -125,10 +135,14 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         {
                             if (!device.DebugEngine.IsDeviceInInitializeState())
                             {
+                                MessageCentre.InternalErrorMessage("Device status verified as being in initialized state.");
+
                                 // done here
                                 deviceIsInInitializeState = false;
                                 break;
                             }
+
+                            MessageCentre.InternalErrorMessage($"Waiting for device to report initialization completed ({_numberOfRetries}/{retryCount}).");
 
                             // provide feedback to user on the 1st pass
                             if (retryCount == 0)
@@ -138,11 +152,15 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                             if (device.DebugEngine.ConnectionSource == Tools.Debugger.WireProtocol.ConnectionSource.nanoBooter)
                             {
+                                MessageCentre.InternalErrorMessage("Device reported running nanoBooter. Requesting to load nanoCLR.");
+
                                 // request nanoBooter to load CLR
                                 device.DebugEngine.ExecuteMemory(0);
                             }
                             else if (device.DebugEngine.ConnectionSource == Tools.Debugger.WireProtocol.ConnectionSource.nanoCLR)
                             {
+                                MessageCentre.InternalErrorMessage("Device reported running nanoCLR. Requesting to reboot nanoCLR.");
+
                                 // already running nanoCLR try rebooting the CLR
                                 device.DebugEngine.RebootDevice(RebootOptions.ClrOnly);
                             }
@@ -163,9 +181,13 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                             // sanity check for devices without native assemblies ?!?!
                             if (device.DeviceInfo.NativeAssemblies.Count == 0)
                             {
+                                MessageCentre.InternalErrorMessage("Device reporting no assemblies loaded. This can not happen. Sanity check failed.");
+
                                 // there are no assemblies deployed?!
                                 throw new DeploymentException($"Couldn't find any native assemblies deployed in {_viewModelLocator.DeviceExplorer.SelectedDevice.Description}! If the situation persists reboot the device.");
                             }
+
+                            MessageCentre.InternalErrorMessage("Computing deployment blob.");
 
                             // For a known project output assembly path, this shall contain the corresponding
                             // ConfiguredProject:
@@ -225,6 +247,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                             var checkAssembliesResult = await CheckNativeAssembliesAvailabilityAsync(device.DeviceInfo.NativeAssemblies, peCollection);
                             if (checkAssembliesResult != "")
                             {
+                                MessageCentre.InternalErrorMessage("Assemblies mismatches in deployment check.");
+
                                 // can't deploy
                                 throw new DeploymentException(checkAssembliesResult);
                             }
@@ -254,6 +278,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                             Thread.Yield();
 
+                            MessageCentre.InternalErrorMessage("Deploying assemblies.");
+
                             if (!device.DebugEngine.DeploymentExecute(assemblies, false))
                             {
                                 // give it another try, ESP32 seems to be a bit stubborn at times...
@@ -261,10 +287,14 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                                 // wait before next pass
                                 await Task.Delay(TimeSpan.FromSeconds(1));
 
+                                MessageCentre.InternalErrorMessage("Deploying assemblies. Second attempt.");
+
                                 Thread.Yield();
 
                                 if (!device.DebugEngine.DeploymentExecute(assemblies, false))
                                 {
+                                    MessageCentre.InternalErrorMessage("Deployment failed.");
+
                                     // throw exception to signal deployment failure
                                     throw new DeploymentException("Deploy failed.");
                                 }
@@ -281,6 +311,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         else
                         {
                             // after retry policy applied seems that we couldn't resume execution on the device...
+
+                            MessageCentre.InternalErrorMessage("Failed to initialize device.");
+
                             // throw exception to signal deployment failure
                             throw new DeploymentException(ResourceStrings.DeviceInitializationTimeout);
                         }
@@ -288,23 +321,36 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     else
                     {
                         // failed to erase deployment area, despite not critical, better abort
+
+                        MessageCentre.InternalErrorMessage("Failing to erase deployment area.");
+
                         // throw exception to signal deployment failure
                         throw new DeploymentException(ResourceStrings.EraseTargetDeploymentFailed);
                     }
                 }
                 else
                 {
+                    MessageCentre.InternalErrorMessage("Failing to connect to device.");
+
                     // throw exception to signal deployment failure
                     throw new DeploymentException($"{_viewModelLocator.DeviceExplorer.SelectedDevice.Description} is not responding. Please retry the deployment. If the situation persists reboot the device.");
                 }
             }
             catch (DeploymentException ex)
             {
+                MessageCentre.InternalErrorMessage($"Exception occurred during deployment." +
+                    $"{Environment.NewLine} {ex.Message} " +
+                    $"{Environment.NewLine} {ex.InnerException} " +
+                    $"{Environment.NewLine} {ex.StackTrace}");
+
                 throw ex;
             }
             catch (Exception ex)
             {
-                MessageCentre.InternalErrorMessage($"Unhandled exception with deployment provider: {ex.Message}.");
+                MessageCentre.InternalErrorMessage($"Unhandled exception with deployment provider:"  +
+                    $"{Environment.NewLine} {ex.Message} " +
+                    $"{Environment.NewLine} {ex.InnerException} " +
+                    $"{Environment.NewLine} {ex.StackTrace}");
 
                 throw new Exception("Unexpected error. Please retry the deployment. If the situation persists reboot the device.");
             }
