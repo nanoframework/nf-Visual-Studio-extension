@@ -103,19 +103,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     {
                         MessageCentre.InternalErrorMessage("Erase deployment area successful.");
 
-                        // ESP32 seems to be a bit stubborn to restart a debug session after the previous one ends
-                        // rebooting the device improves this behaviour
-                        if (device.DebugEngine.Capabilities.SolutionReleaseInfo.targetVendorInfo.Contains("ESP32"))
-                        {
-                            MessageCentre.InternalErrorMessage("Rebooting ESP32 device.");
-
-                            // send reset command to device
-                            device.DebugEngine.RebootDevice(RebootOptions.NormalReboot);
-
-                            // give it a little rest to allow reboot to complete
-                            await Task.Delay(TimeSpan.FromMilliseconds(2000));
-                        }
-
                         // initial check 
                         if (device.DebugEngine.IsDeviceInInitializeState())
                         {
@@ -142,7 +129,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                                 break;
                             }
 
-                            MessageCentre.InternalErrorMessage($"Waiting for device to report initialization completed ({_numberOfRetries}/{retryCount}).");
+                            MessageCentre.InternalErrorMessage($"Waiting for device to report initialization completed ({retryCount}/{_numberOfRetries}).");
 
                             // provide feedback to user on the 1st pass
                             if (retryCount == 0)
@@ -280,7 +267,11 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                             MessageCentre.InternalErrorMessage("Deploying assemblies.");
 
-                            if (!device.DebugEngine.DeploymentExecute(assemblies, false))
+                            // ESP32 seems to be a bit stubborn to start a debug session 
+                            // rebooting the device after deployment improves this behaviour so we'll request a deploy WITH reboot afterwards
+                            bool rebootTarget = device.DebugEngine.Capabilities.SolutionReleaseInfo.targetVendorInfo.Contains("ESP32") ? true : false;
+
+                            if (!device.DebugEngine.DeploymentExecute(assemblies, rebootTarget))
                             {
                                 // give it another try, ESP32 seems to be a bit stubborn at times...
 
@@ -291,7 +282,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                                 Thread.Yield();
 
-                                if (!device.DebugEngine.DeploymentExecute(assemblies, false))
+                                if (!device.DebugEngine.DeploymentExecute(assemblies, rebootTarget))
                                 {
                                     MessageCentre.InternalErrorMessage("Deployment failed.");
 
