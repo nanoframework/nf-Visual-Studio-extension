@@ -619,12 +619,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 {
                     try
                     {
-                        NanoDeviceCommService.Device.DebugEngine.RebootDevice(Debugger.RebootOptions.NormalReboot);
-
-                        MessageCentre.OutputMessage($"Sent reboot command to {ViewModelLocator.DeviceExplorer.SelectedDevice.Description}.");
-
                         // reset the hash for the connected device so the deployment information can be refreshed, if and when requested
                         ViewModelLocator.DeviceExplorer.LastDeviceConnectedHash = 0;
+
+                        NanoDeviceCommService.Device.DebugEngine.RebootDevice(Debugger.RebootOptions.NormalReboot);
+
+                        MessageCentre.OutputMessage($"Sent reboot command to {ViewModelLocator.DeviceExplorer.PreviousSelectedDeviceDescription}.");
 
                         // yield to give the UI thread a chance to respond to user input
                         await Task.Yield();
@@ -632,7 +632,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     catch
                     {
                         // report issue to user
-                        MessageCentre.OutputMessage($"Error sending reboot command to {ViewModelLocator.DeviceExplorer.SelectedDevice.Description}.");
+                        MessageCentre.OutputMessage($"Error sending reboot command to {ViewModelLocator.DeviceExplorer.PreviousSelectedDeviceDescription}.");
 
                         return;
                     }
@@ -642,7 +642,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     // reset property to force that device capabilities are retrieved on next connection
                     ViewModelLocator.DeviceExplorer.LastDeviceConnectedHash = 0;
 
-                    MessageCentre.OutputMessage($"{ViewModelLocator.DeviceExplorer.SelectedDevice.Description} is not responding, please reboot the device.");
+                    MessageCentre.OutputMessage($"{ViewModelLocator.DeviceExplorer.PreviousSelectedDeviceDescription} is not responding, please reboot the device.");
 
                     return;
                 }
