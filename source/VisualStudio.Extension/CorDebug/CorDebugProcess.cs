@@ -49,7 +49,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         Hashtable _tdBuiltin;
         ScratchPadArea _scratchPad;
         ulong _fakeAssemblyAddressNext;
-        object _syncTerminatingObject;
+        readonly object _syncTerminatingObject;
         Thread _threadDispatch;
 
         const ulong c_fakeAddressStart = 0x100000000;
@@ -133,9 +133,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
             try
             {
-                Process process = sender as Process;
-
-                if (process != null)
+                if (sender is Process process)
                 {
                     // this is a "Process"
                     isProcess = true;
@@ -732,10 +730,11 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         {
             get
             {
-                AD_PROCESS_ID id = new AD_PROCESS_ID();
-
-                id.ProcessIdType = (uint) AD_PROCESS_ID_TYPE.AD_PROCESS_ID_SYSTEM;
-                id.dwProcessId = _pid;
+                AD_PROCESS_ID id = new AD_PROCESS_ID
+                {
+                    ProcessIdType = (uint)AD_PROCESS_ID_TYPE.AD_PROCESS_ID_SYSTEM,
+                    dwProcessId = _pid
+                };
                 return id;
             }
         }
@@ -1261,9 +1260,10 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         public static CorDebugProcess CreateProcessEx(IDebugPort2 pPort, string lpApplicationName, string lpCommandLine, System.IntPtr lpProcessAttributes, System.IntPtr lpThreadAttributes, int bInheritHandles, uint dwCreationFlags, System.IntPtr lpEnvironment, string lpCurrentDirectory, ref _STARTUPINFO lpStartupInfo, ref _PROCESS_INFORMATION lpProcessInformation, uint debuggingFlags)
         {
-            DebugPort port = pPort as DebugPort;
-            if (port == null)
+            if (!(pPort is DebugPort port))
+            {
                 throw new Exception("IDebugPort2 object passed to nanoFramework package by Visual Studio is not a valid device port");
+            }
 
             CommandLineBuilder cb = new CommandLineBuilder(lpCommandLine);
             string[] args = cb.Arguments;
@@ -1293,9 +1293,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         {
             ulong address = _fakeAssemblyAddressNext;
 
-            uint size;
-
-            assembly.ICorDebugModule.GetSize(out size);
+            assembly.ICorDebugModule.GetSize(out uint size);
 
             _fakeAssemblyAddressNext += size;
 
@@ -1602,8 +1600,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         public class BuiltinType
         {
             private CorDebugAssembly m_assembly;
-            private uint m_tkCLR;
-            private CorDebugClass m_class;
+            private readonly uint m_tkCLR;
+            private readonly CorDebugClass m_class;
 
             public BuiltinType( CorDebugAssembly assembly, uint tkCLR, CorDebugClass cls )
             {
@@ -1961,10 +1959,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 {
                     CorDebugAssembly assembly = (CorDebugAssembly)_assemblies[iAssembly];
 
-                    ulong baseAddress;
-                    uint assemblySize;
-                    assembly.ICorDebugModule.GetBaseAddress(out baseAddress);
-                    assembly.ICorDebugModule.GetSize(out assemblySize);
+                    assembly.ICorDebugModule.GetBaseAddress(out ulong baseAddress);
+                    assembly.ICorDebugModule.GetSize(out uint assemblySize);
 
                     if (address >= baseAddress && address < baseAddress + assemblySize)
                     {
@@ -1996,9 +1992,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
             if (address < c_fakeAddressStart)
             {
-                var writeMemory = Engine.WriteMemory((uint)address, buffer);
+                var (ErrorCode, Success) = Engine.WriteMemory((uint)address, buffer);
 
-                if (writeMemory.Success)
+                if (Success)
                 {
                     written = size;
                 }
@@ -2066,8 +2062,10 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         int ICorDebugProcess2.GetVersion( out _COR_VERSION version )
         {
-            version = new _COR_VERSION();
-            version.dwMajor = 1;    //This is needed to handle v1 exceptions.
+            version = new _COR_VERSION
+            {
+                dwMajor = 1    //This is needed to handle v1 exceptions.
+            };
 
             return COM_HResults.S_OK;
         }
@@ -2186,8 +2184,10 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         int Microsoft.VisualStudio.Debugger.Interop.IDebugProcess2.GetInfo(enum_PROCESS_INFO_FIELDS Fields, PROCESS_INFO[] pProcessInfo)
         {
-            PROCESS_INFO pi = new PROCESS_INFO();
-            pi.Fields = Fields;
+            PROCESS_INFO pi = new PROCESS_INFO
+            {
+                Fields = Fields
+            };
 
             if (_debugPort == null)
             {

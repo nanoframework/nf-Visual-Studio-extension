@@ -42,7 +42,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
 
         // for serial devices we wait 10 seconds for the device to be available again
         private const int SerialDeviceReconnectMaximumAttempts = 4 * 10;
-        private DeviceConfiguration.NetworkConfigurationProperties _deviceNetworkConfiguration;
 
         // keep this here otherwise Fody won't be able to properly implement INotifyPropertyChanging
 #pragma warning disable 67
@@ -82,10 +81,11 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
             if (IsInDesignMode)
             {
                 // Code runs in Blend --> create design time data.
-                AvailableDevices = new ObservableCollection<NanoDeviceBase>();
-
-                AvailableDevices.Add(new NanoDevice<NanoSerialDevice>() { Description = "Awesome nanodevice1" });
-                AvailableDevices.Add(new NanoDevice<NanoSerialDevice>() { Description = "Awesome nanodevice2" });
+                AvailableDevices = new ObservableCollection<NanoDeviceBase>
+                {
+                    new NanoDevice<NanoSerialDevice>() { Description = "Awesome nanodevice1" },
+                    new NanoDevice<NanoSerialDevice>() { Description = "Awesome nanodevice2" }
+                };
             }
             else
             {

@@ -3,6 +3,9 @@
 // See LICENSE file in the project root for full license information.
 //
 using GalaSoft.MvvmLight.Ioc;
+using Microsoft;
+using Microsoft.VisualStudio;
+using Microsoft.VisualStudio.OLE.Interop;
 using Microsoft.VisualStudio.ProjectSystem.VS;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
@@ -19,6 +22,7 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows;
 
 [assembly: ProjectTypeRegistration(projectTypeGuid: NanoFrameworkPackage.ProjectTypeGuid,
                                 displayName: "NanoCSharpProject",
@@ -32,15 +36,14 @@ using System.Threading.Tasks;
 
 namespace nanoFramework.Tools.VisualStudio.Extension
 {
-    [ProvideAutoLoad(UIContextGuids.NoSolution)]
-    [ProvideAutoLoad(UIContextGuids.SolutionExists)]
+    [ProvideAutoLoad(UIContextGuids.SolutionExists, PackageAutoLoadFlags.BackgroundLoad)]
     [PackageRegistration(AllowsBackgroundLoading = true, RegisterUsing = RegistrationMethod.CodeBase, UseManagedResourcesOnly = true)]
     // info that shown on extension catalog
     [Description("Visual Studio 2017 extension for nanoFramework. Enables creating C# Solutions to be deployed to a target board and provides debugging tools.")]
     // menu for ToolWindow
     [ProvideMenuResource("Menus.ctmenu", 1)]
     // declaration of Device Explorer ToolWindow that (as default) will show tabbed in Solution Explorer
-    [ProvideToolWindow(typeof(DeviceExplorer), Style = VsDockStyle.Tabbed, Window = "3ae79031-e1bc-11d0-8f78-00a0c9110057")]
+    [ProvideToolWindow(toolType: typeof(DeviceExplorer), Style = VsDockStyle.Tabbed, Window = "3ae79031-e1bc-11d0-8f78-00a0c9110057")]
     // register nanoDevice communication service
     [ProvideService((typeof(NanoDeviceCommService)), IsAsyncQueryable = true)]
     [Guid(NanoFrameworkPackage.PackageGuid)]
@@ -51,7 +54,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
     [ProvideObject(typeof(nFResXFileCodeGenerator))]
     [ProvideCodeGenerator(typeof(nFResXFileCodeGenerator), nFResXFileCodeGenerator.Name, nFResXFileCodeGenerator.Description, true, ProjectSystem = ProvideCodeGeneratorAttribute.CSharpProjectGuid)]
     [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1650:ElementDocumentationMustBeSpelledCorrectly", Justification = "pkgdef, VS and vsixmanifest are valid VS terms")]
-    public sealed class NanoFrameworkPackage : AsyncPackage, Microsoft.VisualStudio.OLE.Interop.IOleCommandTarget
+    public sealed class NanoFrameworkPackage : AsyncPackage, IOleCommandTarget
     {
         /// <summary>
         /// The GUID for this project type
@@ -123,7 +126,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             {
                 if (s_nanoDeviceCommService == null)
                 {
-                    s_nanoDeviceCommService = (s_instance as IServiceProvider).GetService(typeof(NanoDeviceCommService)) as INanoDeviceCommService;
+                    s_nanoDeviceCommService = (s_instance as System.IServiceProvider).GetService(typeof(NanoDeviceCommService)) as INanoDeviceCommService;
                 }
 
                 return s_nanoDeviceCommService;
@@ -178,13 +181,13 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             // Need to add the View model Locator to the application resource dictionary programmatically 
             // because at the extension level we don't have 'XAML' access to it
             // try to find if the view model locator is already in the app resources dictionary
-            if (System.Windows.Application.Current.TryFindResource("Locator") == null)
+            if (Application.Current.TryFindResource("Locator") == null)
             {
                 // instantiate the view model locator...
                 ViewModelLocator = new ViewModelLocator();
 
                 // ... and add it there
-                System.Windows.Application.Current.Resources.Add("Locator", ViewModelLocator);
+                Application.Current.Resources.Add("Locator", ViewModelLocator);
             }
 
             SimpleIoc.Default.GetInstance<DeviceExplorerViewModel>().Package = this;
@@ -219,10 +222,10 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         private void OutputWelcomeMessage()
         {
-            System.Threading.Tasks.Task.Run(() => 
+            System.Threading.Tasks.Task.Run(async () => 
             {
                 // schedule this to wait for a few seconds before doing it's thing allow VS to load
-                System.Threading.Tasks.Task.Delay(5000);
+                await System.Threading.Tasks.Task.Delay(5000);
 
                 // loaded 
                 MessageCentre.OutputMessage($"** nanoFramework extension v{NanoFrameworkExtensionVersion.ToString()} loaded **");
@@ -249,12 +252,11 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     MessageCentre.OutputMessage("*************************************************************************");
                     MessageCentre.OutputMessage(Environment.NewLine);
                 }
-            });
+            }).ConfigureAwait(false);
         }
 
         private int LaunchNanoDebug(uint nCmdExecOpt, IntPtr pvaIn, IntPtr pvaOut)
         {
-            int hr;
             string executable = string.Empty;
             string options = string.Empty;
 
@@ -269,7 +271,10 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             //  EXPERIMENTAL to launch debug from VS command line //
             ////////////////////////////////////////////////////////
             await JoinableTaskFactory.SwitchToMainThreadAsync();
+
             IVsDebugger4 debugger = (IVsDebugger4)GetServiceAsync(typeof(IVsDebugger));
+            Assumes.Present(debugger);
+
             VsDebugTargetInfo4[] debugTargets = new VsDebugTargetInfo4[1];
             debugTargets[0].dlo = (uint)DEBUG_LAUNCH_OPERATION.DLO_CreateProcess;
             debugTargets[0].bstrExe = typeof(CorDebugProcess).Assembly.Location;
@@ -284,9 +289,13 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         #region IOleCommandTarget Members
 
-        int Microsoft.VisualStudio.OLE.Interop.IOleCommandTarget.Exec(ref Guid cmdGroup, uint nCmdID, uint nCmdExecOpt, IntPtr pvaIn, IntPtr pvaOut)
+        // can't make these methods async because this in implementing IOleCommandTarget interface
+#pragma warning disable VSTHRD010 // Invoke single-threaded types on Main thread
+
+        int IOleCommandTarget.Exec(ref Guid cmdGroup, uint nCmdID, uint nCmdExecOpt, IntPtr pvaIn, IntPtr pvaOut)
         {
-            Microsoft.VisualStudio.OLE.Interop.IOleCommandTarget oleCommandTarget = (Microsoft.VisualStudio.OLE.Interop.IOleCommandTarget)GetService(typeof(Microsoft.VisualStudio.OLE.Interop.IOleCommandTarget));
+
+            IOleCommandTarget oleCommandTarget = (IOleCommandTarget)GetService(typeof(IOleCommandTarget));
 
             if (oleCommandTarget != null)
             {
@@ -299,7 +308,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                         default:
                             Debug.Fail("Unknown command id");
-                            return Microsoft.VisualStudio.VSConstants.E_NOTIMPL;
+                            return VSConstants.E_NOTIMPL;
                     }
                 }
 
@@ -309,31 +318,33 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             return -2147221248;
         }
 
-        int Microsoft.VisualStudio.OLE.Interop.IOleCommandTarget.QueryStatus(ref Guid cmdGroup, uint cCmds, Microsoft.VisualStudio.OLE.Interop.OLECMD[] prgCmds, IntPtr pCmdText)
+        int IOleCommandTarget.QueryStatus(ref Guid cmdGroup, uint cCmds, OLECMD[] prgCmds, IntPtr pCmdText)
         {
-            Microsoft.VisualStudio.OLE.Interop.IOleCommandTarget oleCommandTarget = (Microsoft.VisualStudio.OLE.Interop.IOleCommandTarget)GetService(typeof(Microsoft.VisualStudio.OLE.Interop.IOleCommandTarget));
-
-            if (oleCommandTarget != null)
+            if ((IOleCommandTarget)GetService(typeof(IOleCommandTarget)) != null)
             {
                 if (cmdGroup == s_guidNanoDebugPackageCmdSet)
                 {
                     switch (prgCmds[0].cmdID)
                     {
                         case _cmdidLaunchNanoDebug:
-                            prgCmds[0].cmdf |= (uint)(Microsoft.VisualStudio.OLE.Interop.OLECMDF.OLECMDF_SUPPORTED | Microsoft.VisualStudio.OLE.Interop.OLECMDF.OLECMDF_ENABLED | Microsoft.VisualStudio.OLE.Interop.OLECMDF.OLECMDF_INVISIBLE);
-                            return Microsoft.VisualStudio.VSConstants.S_OK;
+                            prgCmds[0].cmdf |= (uint)(OLECMDF.OLECMDF_SUPPORTED | OLECMDF.OLECMDF_ENABLED | OLECMDF.OLECMDF_INVISIBLE);
+                            return VSConstants.S_OK;
 
                         default:
                             Debug.Fail("Unknown command id");
-                            return Microsoft.VisualStudio.VSConstants.E_NOTIMPL;
+                            return VSConstants.E_NOTIMPL;
                     }
                 }
 
-                return oleCommandTarget.QueryStatus(ref cmdGroup, cCmds, prgCmds, pCmdText);
+                var service = (IOleCommandTarget)GetService(typeof(IOleCommandTarget));
+                Assumes.Present(service);
+
+                return service.QueryStatus(ref cmdGroup, cCmds, prgCmds, pCmdText);
             }
 
             return -2147221248;
         }
+#pragma warning restore VSTHRD010 // Invoke single-threaded types on Main thread
 
         #endregion
 
