@@ -103,6 +103,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     {
                         MessageCentre.InternalErrorMessage("Erase deployment area successful.");
 
+                        // ESP32 need a bit more time to reboot
+                        if(device.DebugEngine.Capabilities.SolutionReleaseInfo.targetVendorInfo.Contains("ESP32"))
+                        {
+                            await Task.Delay(TimeSpan.FromMilliseconds(_timeoutMiliseconds));
+                        }
+
                         // initial check 
                         if (device.DebugEngine.IsDeviceInInitializeState())
                         {
