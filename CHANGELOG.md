@@ -1,10 +1,11 @@
 # Change Log
 
-## [v](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v) (2019-02-05)
+## [v](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v) (2019-02-06)
 [Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v1.0.3.40...v)
 
 **Implemented enhancements:**
 
+- Major code rework and clean-up [\#338](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/338) [[Area: VS-extension](https://github.com/nanoframework/nf-Visual-Studio-extension/labels/Area:%20VS-extension)] [[Breaking-Change](https://github.com/nanoframework/nf-Visual-Studio-extension/labels/Breaking-Change)]
 - Add strong name to Build.Tasks project [\#337](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/337) [[Area: Tools](https://github.com/nanoframework/nf-Visual-Studio-extension/labels/Area:%20Tools)]
 
 ## [v1.0.3.40](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v1.0.3.40) (2019-02-05)
