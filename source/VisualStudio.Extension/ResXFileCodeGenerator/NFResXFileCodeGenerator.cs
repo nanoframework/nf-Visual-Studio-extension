@@ -137,7 +137,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             {
                 if (codeDomProvider == null)
                 {
-                    IVSMDCodeDomProvider vsmdCodeDomProvider = (IVSMDCodeDomProvider)GetServiceAsync(CodeDomServiceGuid);
+                    IVSMDCodeDomProvider vsmdCodeDomProvider = (IVSMDCodeDomProvider)GetService(CodeDomServiceGuid);
                     if (vsmdCodeDomProvider != null)
                     {
                         codeDomProvider = (CodeDomProvider)vsmdCodeDomProvider.CodeDomProvider;
@@ -156,11 +156,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         {
             get
             {
-                ThreadHelper.ThrowIfNotOnUIThread();
-
                 if (serviceProvider == null)
                 {
-
                     IOleServiceProvider oleServiceProvider = site as IOleServiceProvider;
                     Debug.Assert(oleServiceProvider != null, "Unable to get IOleServiceProvider from site object.");
 
@@ -170,17 +167,13 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             }
         }
 
-        protected async System.Threading.Tasks.Task<object> GetServiceAsync(Guid serviceGuid)
+        protected Object GetService(Guid serviceGuid)
         {
-            await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
-
             return SiteServiceProvider.GetService(serviceGuid);
         }
 
-        protected async System.Threading.Tasks.Task<object> GetServiceAsync(Type serviceType)
+        protected object GetService(Type serviceType)
         {
-            await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
-
             return SiteServiceProvider.GetService(serviceType);
         }
 
@@ -255,9 +248,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
     //[ComVisible(true)]
     [Guid(ComponentGuid)]
-#pragma warning disable IDE1006 // Naming Styles
     internal class nFResXFileCodeGenerator : BaseCodeGeneratorWithSite, IObjectWithSite
-#pragma warning restore IDE1006 // Naming Styles
     {
         public const string Name = nameof(nFResXFileCodeGenerator);
         public const string Description = "nanoFramework code-behind generator for managed resources";
@@ -576,7 +567,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             {
                 if (site == null)
                 {
-                   // COM_HResults.Throw(COM_HResults.E_FAIL);
+                    // COM_HResults.Throw(COM_HResults.E_FAIL);
                 }
 
                 IntPtr pUnknownPointer = Marshal.GetIUnknownForObject(site);
