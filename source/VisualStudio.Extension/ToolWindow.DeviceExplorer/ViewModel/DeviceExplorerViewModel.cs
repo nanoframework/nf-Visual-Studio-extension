@@ -160,7 +160,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
                     // is there a single device
                     if (AvailableDevices.Count == 1)
                     {
-                        ForceNanoDeviceSelectionAsync(AvailableDevices[0]).ConfigureAwait(false);
+                        ForceNanoDeviceSelectionAsync(AvailableDevices[0]).ConfigureAwait(true);
                     }
                 }
             }
@@ -196,7 +196,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
                     if (deviceToReSelect != null)
                     {
                         // device seems to be back online, select it
-                        ForceNanoDeviceSelectionAsync(deviceToReSelect).ConfigureAwait(false);
+                        ForceNanoDeviceSelectionAsync(deviceToReSelect).ConfigureAwait(true);
 
                         // clear device to reselect
                         DeviceToReSelect = null;
@@ -208,7 +208,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
                     // is there a single device
                     if (AvailableDevices.Count == 1)
                     {
-                        ForceNanoDeviceSelectionAsync(AvailableDevices[0]).ConfigureAwait(false);
+                        ForceNanoDeviceSelectionAsync(AvailableDevices[0]).ConfigureAwait(true);
                     }
                     else
                     {
