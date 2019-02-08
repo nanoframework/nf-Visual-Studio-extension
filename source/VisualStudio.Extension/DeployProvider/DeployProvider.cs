@@ -103,16 +103,22 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     {
                         MessageCentre.InternalErrorMessage("Erase deployment area successful.");
 
-                        // ESP32 need a bit more time to reboot
-                        if(device.DebugEngine.Capabilities.SolutionReleaseInfo.targetVendorInfo.Contains("ESP32"))
+                        // ESP32 tends to be a bit stubborn to start a debug session 
+                        // fully rebooting the device after erasing seems to improves this behaviour
+                        if (device.DebugEngine.Capabilities.SolutionReleaseInfo.targetVendorInfo.Contains("ESP32"))
                         {
-                            await Task.Delay(TimeSpan.FromMilliseconds(_timeoutMiliseconds));
+                            // this makes sure that we are connecting to the device debugger engine after the CLR reboots following the deployment erase
+                            device.Ping();
+
+                            MessageCentre.InternalErrorMessage("Request full reboot of nanoDevice.");
+
+                            device.DebugEngine.RebootDevice(RebootOptions.NormalReboot);
                         }
 
                         // initial check 
                         if (device.DebugEngine.IsDeviceInInitializeState())
                         {
-                            MessageCentre.InternalErrorMessage("Device status verified as being in initialized state.");
+                            MessageCentre.InternalErrorMessage("Device status verified as being in initialized state. Requesting to resume execution.");
 
                             // set flag
                             deviceIsInInitializeState = true;
@@ -128,7 +134,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         {
                             if (!device.DebugEngine.IsDeviceInInitializeState())
                             {
-                                MessageCentre.InternalErrorMessage("Device status verified as being in initialized state.");
+                                MessageCentre.InternalErrorMessage("Device has completed initialization.");
 
                                 // done here
                                 deviceIsInInitializeState = false;
@@ -159,7 +165,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                             }
 
                             // wait before next pass
-                            await Task.Delay(TimeSpan.FromMilliseconds(_timeoutMiliseconds));
+                            // use a back-off strategy of increasing the wait time to accommodate slower or less responsive targets (such as networked ones)
+                            await Task.Delay(TimeSpan.FromMilliseconds(_timeoutMiliseconds * (retryCount + 1)));
                         };
 
                         Thread.Yield();
@@ -240,7 +247,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                             var checkAssembliesResult = await CheckNativeAssembliesAvailabilityAsync(device.DeviceInfo.NativeAssemblies, peCollection);
                             if (checkAssembliesResult != "")
                             {
-                                MessageCentre.InternalErrorMessage("Assemblies mismatches in deployment check.");
+                                MessageCentre.InternalErrorMessage("Found assemblies mismatches when checking for deployment pre-check.");
 
                                 // can't deploy
                                 throw new DeploymentException(checkAssembliesResult);
@@ -273,13 +280,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                             MessageCentre.InternalErrorMessage("Deploying assemblies.");
 
-                            // ESP32 seems to be a bit stubborn to start a debug session 
-                            // rebooting the device after deployment improves this behaviour so we'll request a deploy WITH reboot afterwards
-                            bool rebootTarget = device.DebugEngine.Capabilities.SolutionReleaseInfo.targetVendorInfo.Contains("ESP32") ? true : false;
-
-                            if (!device.DebugEngine.DeploymentExecute(assemblies, rebootTarget))
+                            if (!device.DebugEngine.DeploymentExecute(assemblies, false))
                             {
-                                // give it another try, ESP32 seems to be a bit stubborn at times...
+                                // if the first attempt fails, give it another try
 
                                 // wait before next pass
                                 await Task.Delay(TimeSpan.FromSeconds(1));
@@ -288,7 +291,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                                 Thread.Yield();
 
-                                if (!device.DebugEngine.DeploymentExecute(assemblies, rebootTarget))
+                                if (!device.DebugEngine.DeploymentExecute(assemblies, false))
                                 {
                                     MessageCentre.InternalErrorMessage("Deployment failed.");
 
