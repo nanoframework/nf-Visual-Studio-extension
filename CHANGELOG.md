@@ -14,6 +14,10 @@
 
 - Fix issues with device selection on treeview [\#341](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/341) [[Area: VS-extension](https://github.com/nanoframework/nf-Visual-Studio-extension/labels/Area:%20VS-extension)]
 
+**Updated dependencies and other chores:**
+
+- Update NuGets [\#342](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/342) [[Area: VS-extension](https://github.com/nanoframework/nf-Visual-Studio-extension/labels/Area:%20VS-extension)]
+
 ## [v1.0.3.40](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v1.0.3.40) (2019-02-05)
 [Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v1.0.3.32...v1.0.3.40)
 
