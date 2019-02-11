@@ -148,7 +148,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             }
             set
             {
-                codeDomProvider = value ?? throw new ArgumentNullException();
+                if (value == null)
+                {
+                    throw new ArgumentNullException();
+                }
+
+                codeDomProvider = value;
             }
         }
 
@@ -266,9 +271,10 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             string resourcesNamespace = null;
             try
             {
+                IntPtr punkVsBrowseObject;
                 Guid vsBrowseObjectGuid = typeof(IVsBrowseObject).GUID;
 
-                GetSite(ref vsBrowseObjectGuid, out IntPtr punkVsBrowseObject);
+                GetSite(ref vsBrowseObjectGuid, out punkVsBrowseObject);
 
                 if (punkVsBrowseObject != IntPtr.Zero)
                 {
@@ -280,7 +286,10 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                     if (vsBrowseObject != null)
                     {
-                        vsBrowseObject.GetProjectItem(out IVsHierarchy vsHierarchy, out uint vsitemid);
+                        IVsHierarchy vsHierarchy;
+                        uint vsitemid;
+
+                        vsBrowseObject.GetProjectItem(out vsHierarchy, out vsitemid);
 
                         Debug.Assert(vsHierarchy != null, "GetProjectItem should have thrown or returned a valid IVsHierarchy");
                         Debug.Assert(vsitemid != 0, "GetProjectItem should have thrown or returned a valid VSITEMID");
@@ -288,8 +297,11 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                         if (vsHierarchy != null)
                         {
-                            vsHierarchy.GetProperty(vsitemid, (int)__VSHPROPID.VSHPROPID_DefaultNamespace, out object obj);
-                            if (obj is string objStr)
+                            object obj;
+
+                            vsHierarchy.GetProperty(vsitemid, (int)__VSHPROPID.VSHPROPID_DefaultNamespace, out obj);
+                            string objStr = obj as string;
+                            if (objStr != null)
                             {
                                 resourcesNamespace = objStr;
                             }
@@ -309,9 +321,10 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         public override int DefaultExtension(out string ext)
         {
             //copied from ResXFileCodeGenerator
+            string baseExtension;
             ext = String.Empty;
 
-            int hResult = base.DefaultExtension(out string baseExtension);
+            int hResult = base.DefaultExtension(out baseExtension);
 
             if (hResult != COM_HResults.S_OK)
             {
@@ -490,7 +503,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 }
                 set
                 {
-                    codeDomProvider = value ?? throw new ArgumentNullException();
+                    if (value == null)
+                    {
+                        throw new ArgumentNullException();
+                    }
+
+                    codeDomProvider = value;
                 }
             }
 

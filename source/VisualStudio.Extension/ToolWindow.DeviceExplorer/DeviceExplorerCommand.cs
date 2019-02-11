@@ -6,7 +6,6 @@
 using GalaSoft.MvvmLight.Messaging;
 using Microsoft;
 using Microsoft.VisualStudio;
-using Microsoft.VisualStudio.ProjectSystem;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 using nanoFramework.Tools.Debugger;
@@ -45,6 +44,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         /// VS Package that provides this command, not null.
         /// </summary>
         private readonly Package package;
+
+        private DeviceExplorer window;
+
+        private Application windowApp;
+
+        uint _statusBarCookie = 0;
 
         // command set Guids
         public const string guidDeviceExplorerCmdSet = "DF641D51-1E8C-48E4-B549-CC6BCA9BDE19";  // this GUID is coming from the .vsct file  
@@ -99,11 +104,10 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         /// <param name="package">Owner package, not null.</param>
         public static async Task InitializeAsync(AsyncPackage package, ViewModelLocator vmLocator, INanoDeviceCommService nanoDeviceCommService)
         {
-            s_instance = new DeviceExplorerCommand(package)
-            {
-                ViewModelLocator = vmLocator,
-                NanoDeviceCommService = nanoDeviceCommService
-            };
+            s_instance = new DeviceExplorerCommand(package);
+
+            s_instance.ViewModelLocator = vmLocator;
+            s_instance.NanoDeviceCommService = nanoDeviceCommService;
 
             //windowApp = ();
 
@@ -129,61 +133,49 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             // PingCommand
             toolbarButtonCommandId = GenerateCommandID(PingDeviceCommandID);
             menuItem = new MenuCommand(new EventHandler(
-                PingDeviceCommandHandler), toolbarButtonCommandId)
-            {
-                Enabled = false,
-                Visible = true
-            };
+                PingDeviceCommandHandler), toolbarButtonCommandId);
+            menuItem.Enabled = false;
+            menuItem.Visible = true;
             menuCommandService.AddCommand(menuItem);
 
             // DeviceCapabilities
             toolbarButtonCommandId = GenerateCommandID(DeviceCapabilitiesID);
             menuItem = new MenuCommand(new EventHandler(
-                DeviceCapabilitiesCommandHandler), toolbarButtonCommandId)
-            {
-                Enabled = false,
-                Visible = true
-            };
+                DeviceCapabilitiesCommandHandler), toolbarButtonCommandId);
+            menuItem.Enabled = false;
+            menuItem.Visible = true;
             menuCommandService.AddCommand(menuItem);
 
             // DeviceErase
             toolbarButtonCommandId = GenerateCommandID(DeviceEraseID);
             menuItem = new MenuCommand(new EventHandler(
-                DeviceEraseCommandHandler), toolbarButtonCommandId)
-            {
-                Enabled = false,
-                Visible = true
-            };
+                DeviceEraseCommandHandler), toolbarButtonCommandId);
+            menuItem.Enabled = false;
+            menuItem.Visible = true;
             menuCommandService.AddCommand(menuItem);
 
             // Reboot
             toolbarButtonCommandId = GenerateCommandID(RebootID);
             menuItem = new MenuCommand(new EventHandler(
-                RebootCommandHandler), toolbarButtonCommandId)
-            {
-                Enabled = false,
-                Visible = true
-            };
+                RebootCommandHandler), toolbarButtonCommandId);
+            menuItem.Enabled = false;
+            menuItem.Visible = true;
             menuCommandService.AddCommand(menuItem);
 
             // NetworkConfig
             toolbarButtonCommandId = GenerateCommandID(NetworkConfigID);
             menuItem = new MenuCommand(new EventHandler(
-                NetworkConfigCommandHandler), toolbarButtonCommandId)
-            {
-                Enabled = false,
-                Visible = true
-            };
+                NetworkConfigCommandHandler), toolbarButtonCommandId);
+            menuItem.Enabled = false;
+            menuItem.Visible = true;
             menuCommandService.AddCommand(menuItem);
 
             // Show Internal Errors
             toolbarButtonCommandId = GenerateCommandID(ShowInternalErrorsCommandID);
             menuItem = new MenuCommand(new EventHandler(
-                ShowInternalErrorsCommandHandler), toolbarButtonCommandId)
-            {
-                Enabled = true,
-                Visible = true
-            };
+                ShowInternalErrorsCommandHandler), toolbarButtonCommandId);
+            menuItem.Enabled = true;
+            menuItem.Visible = true;
             // can't set the checked status here because the service provider of the preferences persistence is not available at this time
             // deferring to when the Device Explorer control is loaded
             //menuItem.Checked = NanoFrameworkPackage.OptionShowInternalErrors;
@@ -197,24 +189,17 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         /// <param name="e">The event args.</param>
         private void ShowToolWindow(object sender, EventArgs e)
         {
-            Task.Run(async () =>
+            // Get the instance number 0 of this tool window. This window is single instance so this instance
+            // is actually the only one.
+            // The last flag is set to true so that if the tool window does not exists it will be created.
+            ToolWindowPane window = package.FindToolWindow(typeof(DeviceExplorer), 0, true);
+            if ((null == window) || (null == window.Frame))
             {
-                // Get the instance number 0 of this tool window. This window is single instance so this instance
-                // is actually the only one.
-                // The last flag is set to true so that if the tool window does not exists it will be created.
-                ToolWindowPane window = package.FindToolWindow(typeof(DeviceExplorer), 0, true);
-                if ((null == window) || (null == window.Frame))
-                {
-                    throw new NotSupportedException("Cannot create nanoFramework Device Explorer tool window.");
-                }
+                throw new NotSupportedException("Cannot create nanoFramework Device Explorer tool window.");
+            }
 
-                await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
-
-                IVsWindowFrame windowFrame = (IVsWindowFrame)window.Frame;
-
-                ErrorHandler.ThrowOnFailure(windowFrame.Show());
-
-            }).ConfigureAwait(false);
+            IVsWindowFrame windowFrame = (IVsWindowFrame)window.Frame;
+            ErrorHandler.ThrowOnFailure(windowFrame.Show());
         }
 
 
@@ -273,7 +258,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             }
             catch (Exception ex)
             {
-                MessageCentre.InternalErrorMessage($"Exception at {nameof(PingDeviceCommandHandler)}: {Environment.NewLine} {ex.Message} {Environment.NewLine} {ex.StackTrace}");
+
             }
             finally
             {
@@ -403,7 +388,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             }
             catch (Exception ex)
             {
-                MessageCentre.InternalErrorMessage($"Exception at {nameof(DeviceCapabilitiesCommandHandler)}: {Environment.NewLine} {ex.Message} {Environment.NewLine} {ex.StackTrace}");
+
             }
             finally
             {
@@ -485,7 +470,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             }
             catch (Exception ex)
             {
-                MessageCentre.InternalErrorMessage($"Exception at {nameof(DeviceEraseCommandHandler)}: {Environment.NewLine} {ex.Message} {Environment.NewLine} {ex.StackTrace}");
+
             }
             finally
             {
@@ -557,11 +542,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         await Task.Yield();
 
                         // show network configuration dialogue
-                        var networkConfigDialog = new NetworkConfigurationDialog
-                        {
-                            HasMinimizeButton = false,
-                            HasMaximizeButton = false
-                        };
+                        var networkConfigDialog = new NetworkConfigurationDialog();
+                        networkConfigDialog.HasMinimizeButton = false;
+                        networkConfigDialog.HasMaximizeButton = false;
                         networkConfigDialog.ShowModal();
                     }
                     catch
@@ -581,7 +564,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             }
             catch (Exception ex)
             {
-                MessageCentre.InternalErrorMessage($"Exception at {nameof(NetworkConfigCommandHandler)}: {Environment.NewLine} {ex.Message} {Environment.NewLine} {ex.StackTrace}");
+
             }
             finally
             {
@@ -655,7 +638,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             }
             catch (Exception ex)
             {
-                MessageCentre.InternalErrorMessage($"Exception at {nameof(RebootCommandHandler)}: {Environment.NewLine} {ex.Message} {Environment.NewLine} {ex.StackTrace}");
+
             }
             finally
             {
