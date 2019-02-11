@@ -179,8 +179,9 @@ namespace nanoFramework.Tools
             }
             catch (ArgumentException ae)
             {
-                if (ae.InnerException is XmlException xe)
+                if (ae.InnerException is XmlException)
                 {
+                    XmlException xe = (XmlException)ae.InnerException;
                     logger.LogError(null, inFile, xe.LineNumber, xe.LinePosition, 0, 0, "General.InvalidResxFile", xe.Message);
                 }
                 else
@@ -400,11 +401,9 @@ namespace nanoFramework.Tools
         {
             CodeCompileUnit ccu = CreateStronglyTypedResourceFile(resourceName, resources,
                 StronglyTypedClassName, StronglyTypedNamespace, provider, out errors);
-            CodeGeneratorOptions codeGenOptions = new CodeGeneratorOptions
-            {
-                BlankLinesBetweenMembers = false,
-                BracingStyle = "C"
-            };
+            CodeGeneratorOptions codeGenOptions = new CodeGeneratorOptions();
+            codeGenOptions.BlankLinesBetweenMembers = false;
+            codeGenOptions.BracingStyle = "C";
 
             provider.GenerateCodeFromCompileUnit(ccu, writer, codeGenOptions);
             writer.Flush();
@@ -416,7 +415,9 @@ namespace nanoFramework.Tools
 
             ReadResources(inputFileName, true);
 
-            CreateStronglyTypedResources(provider, writer, resourceName, out string[] errors);
+            string[] errors = null;
+
+            CreateStronglyTypedResources(provider, writer, resourceName, out errors);
 
             if (errors != null && errors.Length > 0)
             {
@@ -448,10 +449,8 @@ namespace nanoFramework.Tools
 
                 if (iPlus < 0)
                 {
-                    codeTypeDeclaration = new CodeTypeDeclaration(type)
-                    {
-                        IsPartial = true
-                    };
+                    codeTypeDeclaration = new CodeTypeDeclaration(type);
+                    codeTypeDeclaration.IsPartial = true;
 
                     codeNamespace.Types.Add(codeTypeDeclaration);
                 }
@@ -572,10 +571,8 @@ namespace nanoFramework.Tools
                     codeTypeDeclaration.BaseTypes.Add(new CodeTypeReference(typeof(short)));
                 }
 
-                CodeMemberField codeMemberField = new CodeMemberField(entry.ClassName, entry.Field)
-                {
-                    Attributes = MemberAttributes.Const | MemberAttributes.Static
-                };
+                CodeMemberField codeMemberField = new CodeMemberField(entry.ClassName, entry.Field);
+                codeMemberField.Attributes = MemberAttributes.Const | MemberAttributes.Static;
 
                 CodePrimitiveExpression codeExpression = new CodePrimitiveExpression(entry.Id);
                 codeMemberField.InitExpression = codeExpression;
@@ -630,12 +627,10 @@ namespace nanoFramework.Tools
                 }
             );
 
-            CodeMemberProperty propertyResourceManager = new CodeMemberProperty
-            {
-                Name = "ResourceManager",
-                Type = new CodeTypeReference("System.Resources.ResourceManager"),
-                Attributes = MemberAttributes.Public | MemberAttributes.Static
-            };
+            CodeMemberProperty propertyResourceManager = new CodeMemberProperty();
+            propertyResourceManager.Name = "ResourceManager";
+            propertyResourceManager.Type = new CodeTypeReference("System.Resources.ResourceManager");
+            propertyResourceManager.Attributes = MemberAttributes.Public | MemberAttributes.Static;
             MakeInternalIfNecessary(propertyResourceManager);
             propertyResourceManager.GetStatements.AddRange(getResourceManagerExpression);
             codeTypeDeclaration.Members.Add(propertyResourceManager);
@@ -813,7 +808,8 @@ namespace nanoFramework.Tools
                 {
                     String key = entry.Name;
                     Object v = entry.Value;
-                    if (!(v is String value))
+                    String value = v as String;
+                    if (value == null)
                     {
                         logger.LogError(null, fileName, 0, 0, 0, 0, "GenerateResource.OnlyStringsSupported", key, v.GetType().FullName);
                     }
@@ -874,7 +870,7 @@ namespace nanoFramework.Tools
                 }
             }
 
-            private static readonly ResourceTypeDescription[] typeDescriptions = new ResourceTypeDescription[]
+            private static ResourceTypeDescription[] typeDescriptions = new ResourceTypeDescription[]
                 {
                     null, //RESOURCE_Invalid
                     // TODO not supported, see issue https://github.com/nanoframework/Home/issues/120
@@ -897,10 +893,12 @@ namespace nanoFramework.Tools
 
             public static Entry CreateEntry(string name, object value, string defaultNamespace, string defaultDeclaringClass)
             {
+                string stringValue = value as string;
                 System.Drawing.Bitmap bitmapValue = value as System.Drawing.Bitmap;
+                byte[] rawValue = value as byte[];
                 Entry entry = null;
 
-                if (value is string stringValue)
+                if (stringValue != null)
                 {
                     entry = new StringEntry(name, stringValue);
                 }
@@ -908,7 +906,7 @@ namespace nanoFramework.Tools
                 {
                     entry = new BitmapEntry(name, bitmapValue);
                 }
-                if (value is byte[] rawValue)
+                if (rawValue != null)
                 {
                     entry = NanoResourcesEntry.TryCreateNanoResourcesEntry(name, rawValue);
 
@@ -949,7 +947,9 @@ namespace nanoFramework.Tools
 
                 if (val.StartsWith("0x", true, CultureInfo.InvariantCulture))
                 {
-                    fSuccess = ushort.TryParse(val.Substring(2), NumberStyles.AllowHexSpecifier, null, out ushort us);
+                    ushort us;
+
+                    fSuccess = ushort.TryParse(val.Substring(2), NumberStyles.AllowHexSpecifier, null, out us);
 
                     id = (short)us;
                 }
@@ -973,6 +973,7 @@ namespace nanoFramework.Tools
 
                 string[] tokens = name.Split(';');
                 string idValue;
+                short idT;
 
                 switch (tokens.Length)
                 {
@@ -992,7 +993,7 @@ namespace nanoFramework.Tools
 
                 if (idValue.Length > 0)
                 {
-                    if (!ParseId(idValue, out short idT))
+                    if (!ParseId(idValue, out idT))
                     {
                         throw new ApplicationException(string.Format("Cannot parse id '{0}' from resource '{1}'", idValue, name));
                     }
@@ -1028,7 +1029,7 @@ namespace nanoFramework.Tools
             }
 
             private string field;
-            private readonly string rawName;
+            private string rawName;
 
             public string Name
             {
@@ -1058,7 +1059,9 @@ namespace nanoFramework.Tools
 
             int IComparable.CompareTo(object obj)
             {
-                if (!(obj is Entry entry))
+                Entry entry = obj as Entry;
+
+                if (entry == null)
                 {
                     return -1;
                 }
@@ -1411,7 +1414,9 @@ namespace nanoFramework.Tools
             {
                 Bitmap bitmap = BitmapValue;
 
-                byte[] data = GetBitmapData(bitmap, out NanoResourceFile.CLR_GFX_BitmapDescription bitmapDescription);
+                NanoResourceFile.CLR_GFX_BitmapDescription bitmapDescription;
+
+                byte[] data = GetBitmapData(bitmap, out bitmapDescription);
 
                 MemoryStream stream = new MemoryStream();
                 BinaryWriter writer = new BinaryWriter(stream);
@@ -1573,10 +1578,8 @@ namespace nanoFramework.Tools
                         {
                             NanoResourceFile.Resource resource = file.resources[0];
 
-                            entry = new NanoResourcesEntry(name, resource.data)
-                            {
-                                resource = resource.header
-                            };
+                            entry = new NanoResourcesEntry(name, resource.data);
+                            entry.resource = resource.header;
                         }
                     }
                 }
@@ -1913,10 +1916,8 @@ namespace nanoFramework.Tools
 
         internal class NanoResourceWriter : IResourceWriter
         {
-            readonly string fileName;
+            string fileName;
             ArrayList resources;
-
-            public string FileName => fileName;
 
             public NanoResourceWriter(string fileName)
             {
@@ -1975,7 +1976,7 @@ namespace nanoFramework.Tools
                     file.AddResource(new NanoResourceFile.Resource(resource, data));
                 }
 
-                using (FileStream fileStream = File.Open(FileName, FileMode.OpenOrCreate))
+                using (FileStream fileStream = File.Open(fileName, FileMode.OpenOrCreate))
                 {
                     BinaryWriter writer = new BinaryWriter(fileStream);
                     file.Serialize(writer);

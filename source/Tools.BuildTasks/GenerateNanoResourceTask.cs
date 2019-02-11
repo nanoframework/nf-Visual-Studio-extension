@@ -120,7 +120,7 @@ namespace nanoFramework.Tools
     {
 
         // Whether the file exists or not.
-        private readonly bool exists = false;
+        bool exists = false;
 
         /// <summary>
         /// The name of the file.
@@ -512,7 +512,7 @@ namespace nanoFramework.Tools
                     // contains the .resx file as the path from which it should resolve
                     // relative paths. So we should base our timestamp/existence checking
                     // on the same switch & resolve in the same manner as ResGen.
-                    resxReader.BasePath = baseLinkedFileDirectory ?? Path.GetDirectoryName(filename);
+                    resxReader.BasePath = (baseLinkedFileDirectory == null) ? Path.GetDirectoryName(filename) : baseLinkedFileDirectory;
 
                     foreach (DictionaryEntry dictEntry in resxReader)
                     {
@@ -862,7 +862,7 @@ namespace nanoFramework.Tools
 
             // This method eats IO Exceptions
 
-            cache = ResGenDependencies.DeserializeCache(StateFile?.ItemSpec, UseSourcePath, Log);
+            cache = ResGenDependencies.DeserializeCache((StateFile == null) ? null : StateFile.ItemSpec, UseSourcePath, Log);
 
             //RWOLFF -- throw here?
             //ErrorUtilities.VerifyThrow(cache != null, "We did not create a cache!");
@@ -1109,7 +1109,7 @@ namespace nanoFramework.Tools
             if (cache.IsDirty)
             {
                 // And now we serialize the cache to save our resgen linked file resolution for later use.
-                cache.SerializeCache(StateFile?.ItemSpec, Log);
+                cache.SerializeCache((StateFile == null) ? null : StateFile.ItemSpec, Log);
             }
         }
     }

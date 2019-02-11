@@ -20,18 +20,18 @@ namespace nanoFramework.Tools.VisualStudio.Extension
     {
         CorDebugAppDomain _appDomain;
         CorDebugProcess _process;
-        readonly Hashtable _htTokenCLRToPdbx;
-        readonly Hashtable _htTokennanoCLRToPdbx;
+        Hashtable _htTokenCLRToPdbx;
+        Hashtable _htTokennanoCLRToPdbx;
         Pdbx.PdbxFile _pdbxFile;
         Pdbx.Assembly _pdbxAssembly;
         IMetaDataImport _iMetaDataImport;
-        readonly uint _idx;
-        readonly string _name;
+        uint _idx;
+        string _name;
         string _path;
         ulong _dummyBaseAddress;
         FileStream _fileStream;
         CorDebugAssembly _primaryAssembly;
-        readonly bool _isFrameworkAssembly;
+        bool _isFrameworkAssembly;
 
         // this list holds the official assemblies name
         List<string> frameworkAssemblies_v1_0 = new List<string> {
@@ -59,7 +59,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             _appDomain = null;
             _name = name;
             _pdbxFile = pdbxFile;
-            _pdbxAssembly = pdbxFile?.Assembly;
+            _pdbxAssembly = (pdbxFile != null) ? pdbxFile.Assembly : null;
             _htTokenCLRToPdbx = new Hashtable();
             _htTokennanoCLRToPdbx = new Hashtable();
             _idx = idx;
@@ -297,10 +297,11 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         private CorDebugFunction GetFunctionFromToken( uint tk, Hashtable ht )
         {
             CorDebugFunction function = null;
-            if (ht[tk] is Pdbx.Method method)
+            Pdbx.Method method = ht[tk] as Pdbx.Method;
+            if(method != null)
             {
-                CorDebugClass c = new CorDebugClass(this, method.Class);
-                function = new CorDebugFunction(c, method);
+                CorDebugClass c = new CorDebugClass( this, method.Class );
+                function = new CorDebugFunction( c, method );
             }
 
             Debug.Assert( function != null );
@@ -342,9 +343,10 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         private CorDebugClass GetClassFromToken( uint tk, Hashtable ht )
         {
             CorDebugClass cls = null;
-            if (ht[tk] is Pdbx.Class c)
+            Pdbx.Class c = ht[tk] as Pdbx.Class;
+            if(c != null)
             {
-                cls = new CorDebugClass(this, c);
+                cls = new CorDebugClass( this, c );
             }
 
             return cls;
@@ -431,7 +433,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         int ICorDebugAssembly.GetName( uint cchName, IntPtr pcchName, IntPtr szName )
         {
-            string name = _path ?? _name;
+            string name = _path != null ? _path : _name;
 
             Utility.MarshalString( name, cchName, pcchName, szName );
 

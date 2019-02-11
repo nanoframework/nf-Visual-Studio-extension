@@ -14,7 +14,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
     {
         CorDebugAssembly m_assembly;
         Pdbx.Class m_pdbxClass;
-        readonly uint m_tkSymbolless;
+        uint m_tkSymbolless;
 
         public CorDebugClass(CorDebugAssembly assembly, Pdbx.Class cls)
         {

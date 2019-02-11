@@ -73,7 +73,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
     public class CorDebugGenericType : ICorDebugType
     {
-        readonly CorElementType m_elemType;
+        CorElementType m_elemType;
         public RuntimeValue m_rtv;
         public CorDebugAppDomain m_appDomain;
 

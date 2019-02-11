@@ -154,14 +154,14 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             try
             {
                 MessageCentre.DebugMessage(Resources.ResourceStrings.Attach);
-                AD_PROCESS_ID pid = new AD_PROCESS_ID
-                {
-                    ProcessIdType = (uint)AD_PROCESS_ID_TYPE.AD_PROCESS_ID_SYSTEM,
+                AD_PROCESS_ID pid = new AD_PROCESS_ID();
 
-                    dwProcessId = id
-                };
+                pid.ProcessIdType = (uint) AD_PROCESS_ID_TYPE.AD_PROCESS_ID_SYSTEM;
 
-                pPort.GetProcess(pid, out IDebugProcess2 iDebugProcess);
+                pid.dwProcessId = id;
+
+                IDebugProcess2 iDebugProcess;
+                pPort.GetProcess(pid, out iDebugProcess);
 
                 CorDebugProcess process = (CorDebugProcess) iDebugProcess;
 
