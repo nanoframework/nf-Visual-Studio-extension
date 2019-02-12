@@ -3,14 +3,11 @@
 // See LICENSE file in the project root for full license information.
 //
 
-using Microsoft.VisualStudio.Shell;
 using nanoFramework.Tools.Debugger;
-using nanoFramework.Tools.Debugger.WireProtocol;
-using System.Collections.Generic;
+using System;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using Task = System.Threading.Tasks.Task;
 
 namespace nanoFramework.Tools.VisualStudio.Extension
 {
@@ -20,15 +17,26 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         public NanoDeviceBase Device { get; internal set; } = null;
 
-        public PortBase DebugClient { get; internal set; }
+        PortBase _debugClient = null;
+
+        public PortBase DebugClient
+        {
+            get
+            {
+                if (_debugClient == null)
+                {
+                    // create serial instance WITHOUT app associated because we don't care of app life cycle in VS extension
+                    // pass the user preference about starting the device watchers, or not
+                    _debugClient = PortBase.CreateInstanceForSerial("", null, !NanoFrameworkPackage.OptionDisableDeviceWatchers);
+                }
+
+                return _debugClient;
+            }
+        }
 
         public NanoDeviceCommService(Microsoft.VisualStudio.Shell.IAsyncServiceProvider provider)
         {
             _serviceProvider = provider;
-
-            // launches the serial client and service
-            // create serial instance WITHOUT app associated because we don't care of app life cycle in VS extension
-            DebugClient = PortBase.CreateInstanceForSerial("", null);
         }
 
         public TaskAwaiter GetAwaiter()

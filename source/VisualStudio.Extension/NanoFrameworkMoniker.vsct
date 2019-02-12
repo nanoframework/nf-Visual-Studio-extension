@@ -18,6 +18,8 @@
       <IDSymbol name="DeviceErase" value="100" />
       <IDSymbol name="NetworkConfig" value="110" />
       <IDSymbol name="Reboot" value="120" />
+      <IDSymbol name="DisableDeviceWatchers" value="130" />
+      <IDSymbol name="RescanDevices" value="140" />
     </GuidSymbol>
   </Symbols>
 </CommandTable>

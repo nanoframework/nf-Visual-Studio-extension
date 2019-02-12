@@ -87,6 +87,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         private const string EXTENSION_SUBKEY = "nanoFrameworkExtension";
 
         private const string SHOW_INTERNAL_ERRORS_KEY = "ShowInternalErrors";
+        private const string DISABLE_DEVICE_WATCHERS_KEY = "DisableDeviceWatchers";
 
         private static bool? s_OptionShowInternalErrors;
         /// <summary>
@@ -115,6 +116,34 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             }
         }
 
+
+        private static bool? s_OptionDisableDeviceWatchers;
+        /// <summary>
+        /// User option for outputting internal extension errors to the extension output pane.
+        /// The value is persisted per user.
+        /// Default is false.
+        /// </summary>
+        public static bool OptionDisableDeviceWatchers
+        {
+            get
+            {
+                if (!s_OptionDisableDeviceWatchers.HasValue)
+                {
+                    s_OptionDisableDeviceWatchers = bool.Parse((string)s_instance.UserRegistryRoot.OpenSubKey(EXTENSION_SUBKEY).GetValue(DISABLE_DEVICE_WATCHERS_KEY, "False"));
+                }
+
+                return s_OptionDisableDeviceWatchers.Value;
+            }
+
+            set
+            {
+                s_instance.UserRegistryRoot.OpenSubKey(EXTENSION_SUBKEY, true).SetValue(DISABLE_DEVICE_WATCHERS_KEY, value);
+                s_instance.UserRegistryRoot.OpenSubKey(EXTENSION_SUBKEY, true).Flush();
+
+                s_OptionDisableDeviceWatchers = value;
+            }
+        }
+
         #endregion
 
         public static INanoDeviceCommService NanoDeviceCommService
@@ -123,7 +152,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             {
                 if (s_nanoDeviceCommService == null)
                 {
-                    s_nanoDeviceCommService = (s_instance as IServiceProvider).GetService(typeof(NanoDeviceCommService)) as INanoDeviceCommService;
+                    s_nanoDeviceCommService = s_instance.GetService(typeof(NanoDeviceCommService)) as INanoDeviceCommService;
                 }
 
                 return s_nanoDeviceCommService;
@@ -191,15 +220,11 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
             await MessageCentre.InitializeAsync(this, "nanoFramework Extension");
 
-            await DeviceExplorerCommand.InitializeAsync(this, ViewModelLocator, await GetServiceAsync(typeof(NanoDeviceCommService)) as INanoDeviceCommService);
+            await DeviceExplorerCommand.InitializeAsync(this, ViewModelLocator);
             DeployProvider.Initialize(this, ViewModelLocator);
 
             // Enable debugger UI context
             UIContext.FromUIContextGuid(CorDebug.EngineGuid).IsActive = true;
-
-            await TaskScheduler.Default;
-
-            SimpleIoc.Default.GetInstance<DeviceExplorerViewModel>().NanoDeviceCommService = await GetServiceAsync(typeof(NanoDeviceCommService)) as INanoDeviceCommService;
 
             OutputWelcomeMessage();
 
@@ -247,6 +272,16 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     MessageCentre.OutputMessage("** Seems that you are running this on a Window version earlier than 10 **");
                     MessageCentre.OutputMessage("** nanoFramework debug engine component requires Windows 10            **");
                     MessageCentre.OutputMessage("*************************************************************************");
+                    MessageCentre.OutputMessage(Environment.NewLine);
+                }
+
+                // check device watchers option
+                if(OptionDisableDeviceWatchers)
+                {
+                    MessageCentre.OutputMessage(Environment.NewLine);
+                    MessageCentre.OutputMessage("*******************************************************************************");
+                    MessageCentre.OutputMessage("** Device Watchers are DISABLED. Won't be able to connect to any nanoDevice. **");
+                    MessageCentre.OutputMessage("*******************************************************************************");
                     MessageCentre.OutputMessage(Environment.NewLine);
                 }
             });
