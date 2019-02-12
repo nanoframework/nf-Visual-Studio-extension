@@ -1,7 +1,14 @@
 # Change Log
 
-## [v](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v) (2019-02-11)
-[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v1.0.3.54...v)
+## [v](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v) (2019-02-12)
+[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v1.0.3.56...v)
+
+**Implemented enhancements:**
+
+- Improvements in device discovery [\#345](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/345) [[Area: VS-extension](https://github.com/nanoframework/nf-Visual-Studio-extension/labels/Area:%20VS-extension)]
+
+## [v1.0.3.56](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v1.0.3.56) (2019-02-11)
+[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v1.0.3.54...v1.0.3.56)
 
 **Updated dependencies and other chores:**
 
