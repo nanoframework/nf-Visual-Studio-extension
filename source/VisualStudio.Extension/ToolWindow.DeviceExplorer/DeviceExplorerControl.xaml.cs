@@ -39,7 +39,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         {
             // update status of the control buttons that depend on stored user preferences
             DeviceExplorerCommand.UpdateShowInternalErrorsButton(NanoFrameworkPackage.OptionShowInternalErrors);
-            DeviceExplorerCommand.UpdateDisableDeviceWatchersButton(NanoFrameworkPackage.OptionShowInternalErrors);
+            DeviceExplorerCommand.UpdateDisableDeviceWatchersButton(NanoFrameworkPackage.OptionDisableDeviceWatchers);
         }
 
         private void Hyperlink_RequestNavigate(object sender, System.Windows.Navigation.RequestNavigateEventArgs e)
