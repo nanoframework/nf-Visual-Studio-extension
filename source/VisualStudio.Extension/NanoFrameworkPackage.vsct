@@ -59,7 +59,11 @@
       <Group guid="guidDeviceExplorerCmdSet" id="DeviceExplorerToolbarGroup2ID" priority="0x0001">
         <Parent guid="guidDeviceExplorerCmdSet" id="DeviceExplorerToolbarID" />
       </Group>
-
+   
+      <!-- this is the 3rd group for the Device Explorer Toolbar -->
+      <Group guid="guidDeviceExplorerCmdSet" id="DeviceExplorerToolbarGroup3ID" priority="0x0002">
+        <Parent guid="guidDeviceExplorerCmdSet" id="DeviceExplorerToolbarID" />
+      </Group>
     
     </Groups>
     
@@ -108,7 +112,7 @@
         </Strings>
       </Button>
 
-      <!-- DeviceCapabilities for Device Exlplorer toolbar -->
+      <!-- DeviceCapabilities for Device Explorer toolbar -->
       <Button guid="guidDeviceExplorerCmdSet" id="idDeviceCapabilitiesCommand" priority="0x0101" type="Button">
         <Parent guid="guidDeviceExplorerCmdSet" id="DeviceExplorerToolbarGroupID"/>
         <Icon guid="NanoFrameworkCatalog" id="DeviceCapabilities" />
@@ -158,9 +162,33 @@
       
       <!-- buttons for the 2nd menu -->
       
+      <!-- Disable device watchers -->
+      <Button guid="guidDeviceExplorerCmdSet" id="idDisableDeviceWatchersCommand" priority="0x0101" type="Button">
+        <Parent guid="guidDeviceExplorerCmdSet" id="DeviceExplorerToolbarGroup2ID"/>
+        <Icon guid="NanoFrameworkCatalog" id="DisableDeviceWatchers" />
+        <CommandFlag>IconIsMoniker</CommandFlag>
+        <Strings>
+          <CommandName>DisableDeviceWatchersCommand</CommandName>
+          <ButtonText>Disable Device Watchers</ButtonText>
+        </Strings>
+      </Button>
+
+      <!-- Rescan devices -->
+      <Button guid="guidDeviceExplorerCmdSet" id="idRescanDevicesCommand" priority="0x0101" type="Button">
+        <Parent guid="guidDeviceExplorerCmdSet" id="DeviceExplorerToolbarGroup2ID"/>
+        <Icon guid="NanoFrameworkCatalog" id="RescanDevices" />
+        <CommandFlag>IconIsMoniker</CommandFlag>
+        <Strings>
+          <CommandName>RescanDevicesCommand</CommandName>
+          <ButtonText>Rescan nanoDevices</ButtonText>
+        </Strings>
+      </Button>     
+      
+      <!-- buttons for the 3rd menu -->
+      
       <!-- Show internal errors for nF extension -->
       <Button guid="guidDeviceExplorerCmdSet" id="idShowInternalErrorsCommand" priority="0x0101" type="Button">
-        <Parent guid="guidDeviceExplorerCmdSet" id="DeviceExplorerToolbarGroup2ID"/>
+        <Parent guid="guidDeviceExplorerCmdSet" id="DeviceExplorerToolbarGroup3ID"/>
         <Icon guid="NanoFrameworkCatalog" id="ShowInternalErrors" />
         <CommandFlag>IconIsMoniker</CommandFlag>
         <Strings>
@@ -168,7 +196,6 @@
           <ButtonText>Show Internal Errors</ButtonText>
         </Strings>
       </Button>
-      
       
       
     </Buttons>
@@ -194,11 +221,14 @@
       <IDSymbol name="DeviceExplorerToolbarID" value="0x1000" />
       <IDSymbol name="DeviceExplorerToolbarGroupID" value="0x1001" />
       <IDSymbol name="DeviceExplorerToolbarGroup2ID" value="0x1002" />
+      <IDSymbol name="DeviceExplorerToolbarGroup3ID" value="0x1003" />
       <IDSymbol name="idPingDeviceCommand" value="0x0210" />
       <IDSymbol name="idDeviceCapabilitiesCommand" value="0x0220" />
       <IDSymbol name="idDeviceEraseCommand" value="0x0230" />
       <IDSymbol name="idRebootCommand" value="0x0240" />
       <IDSymbol name="idNetworkConfigCommand" value="0x0250" />
+      <IDSymbol name="idDisableDeviceWatchersCommand" value="0x0400" />
+      <IDSymbol name="idRescanDevicesCommand" value="0x0410" />
       <IDSymbol name="idShowInternalErrorsCommand" value="0x0300" />
     </GuidSymbol>
 

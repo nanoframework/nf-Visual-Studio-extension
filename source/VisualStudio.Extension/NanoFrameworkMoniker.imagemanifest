@@ -15,6 +15,8 @@
     <ID Name="DeviceErase" Value="100" />
     <ID Name="NetworkConfig" Value="110" />
     <ID Name="Reboot" Value="120" />
+    <ID Name="DisableDeviceWatchers" Value="130" />
+    <ID Name="RescanDevices" Value="140" />
   </Symbols>
   <Images>
     <Image Guid="$(NanoFrameworkCatalog)" ID="$(DeviceConnected)">
@@ -74,6 +76,18 @@
     <Image Guid="$(NanoFrameworkCatalog)" ID="$(Reboot)">
       <Source Uri="$(Resources)/Reboot.xaml"/>
       <Source Uri="$(Resources)/Reboot.16.16.png" >
+        <Size Value="16" />
+      </Source>
+    </Image>
+    <Image Guid="$(NanoFrameworkCatalog)" ID="$(DisableDeviceWatchers)">
+      <Source Uri="$(Resources)/DisableDeviceWatchers.xaml"/>
+      <Source Uri="$(Resources)/DisableDeviceWatchers.16.16.png" >
+        <Size Value="16" />
+      </Source>
+    </Image>
+    <Image Guid="$(NanoFrameworkCatalog)" ID="$(RescanDevices)">
+      <Source Uri="$(Resources)/RescanDevices.xaml"/>
+      <Source Uri="$(Resources)/RescanDevices.16.16.png" >
         <Size Value="16" />
       </Source>
     </Image>

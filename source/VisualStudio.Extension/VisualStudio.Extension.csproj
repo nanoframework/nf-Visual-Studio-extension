@@ -169,6 +169,7 @@
     </Content>
     <Resource Include="Resources\DeviceErase.16.16.png" />
     <Resource Include="Resources\NetworkConfig.16.16.png" />
+    <Resource Include="Resources\DisableDeviceWatchers.16.16.png" />
     <Content Include="Resources\nF-logo-128.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <IncludeInVSIX>true</IncludeInVSIX>
@@ -182,6 +183,7 @@
     <None Include="source.extension.vsixmanifest">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <Resource Include="Resources\RescanDevices.16.16.png" />
     <Content Include="Targets\NFProjectSystem.MDP.targets">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <IncludeInVSIX>true</IncludeInVSIX>
@@ -632,6 +634,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="Resources\DisableDeviceWatchers.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Resources\NanoFrameworkProject.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -666,6 +672,10 @@
     <Page Include="Resources\Reboot.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Resources\RescanDevices.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="ToolWindow.DeviceExplorer\NetworkConfigurationDialog.xaml">
       <Generator>MSBuild:Compile</Generator>

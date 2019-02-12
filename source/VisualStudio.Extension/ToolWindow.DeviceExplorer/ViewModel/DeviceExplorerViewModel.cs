@@ -127,6 +127,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
             SelectedTransportType = Debugger.WireProtocol.TransportType.Serial;
 
             UpdateAvailableDevices();
+
+            MessengerInstance.Send(new NotificationMessage(""), MessagingTokens.NanoDevicesDeviceEnumerationCompleted);
         }
 
         private void UpdateAvailableDevices()
@@ -299,6 +301,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
         {
             public static readonly string SelectedNanoDeviceHasChanged = new Guid("{C3173983-A19A-49DD-A4BD-F25D360F7334}").ToString();
             public static readonly string NanoDevicesCollectionHasChanged = new Guid("{3E8906F9-F68A-45B7-A0CE-6D42BDB22455}").ToString();
+            public static readonly string NanoDevicesDeviceEnumerationCompleted = new Guid("{347E2874-212C-4BC8-BB38-16E91FFCAB32}").ToString();
             public static readonly string ForceSelectionOfNanoDevice = new Guid("{8F012794-BC66-429D-9F9D-A9B0F546D6B5}").ToString();
         }
 

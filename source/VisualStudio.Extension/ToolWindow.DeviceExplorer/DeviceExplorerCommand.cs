@@ -3,6 +3,7 @@
 // See LICENSE file in the project root for full license information.
 //
 
+using GalaSoft.MvvmLight.Ioc;
 using GalaSoft.MvvmLight.Messaging;
 using Microsoft;
 using Microsoft.VisualStudio;
@@ -57,6 +58,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         public const int DeviceExplorerToolbarID = 0x1000;
 
         // toolbar commands
+
+        // 1st group
         public const int PingDeviceCommandID = 0x0210;
         public const int DeviceCapabilitiesID = 0x0220;
         public const int DeviceEraseID = 0x0230;
@@ -64,6 +67,10 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         public const int NetworkConfigID = 0x0250;
 
         // 2nd group
+        public const int DisableDeviceWatchersCommandID = 0x0400;
+        public const int RescanDevicesCommandID = 0x0410;
+
+        // 3r group
         public const int ShowInternalErrorsCommandID = 0x0300;
 
 
@@ -102,23 +109,28 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         /// Initializes the singleton instance of the command.
         /// </summary>
         /// <param name="package">Owner package, not null.</param>
-        public static async Task InitializeAsync(AsyncPackage package, ViewModelLocator vmLocator, INanoDeviceCommService nanoDeviceCommService)
+        public static async Task InitializeAsync(AsyncPackage package, ViewModelLocator vmLocator)
         {
             s_instance = new DeviceExplorerCommand(package);
 
             s_instance.ViewModelLocator = vmLocator;
-            s_instance.NanoDeviceCommService = nanoDeviceCommService;
 
             //windowApp = ();
 
             // need to switch to the main thread to initialize the command handlers
             await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
+            s_instance.NanoDeviceCommService = await package.GetServiceAsync(typeof(NanoDeviceCommService)) as INanoDeviceCommService;
+
+
             s_instance.CreateToolbarHandlers();
+
+            SimpleIoc.Default.GetInstance<DeviceExplorerViewModel>().NanoDeviceCommService = s_instance.NanoDeviceCommService;
 
             // setup message listeners to be notified of events occurring in the View Model
             Messenger.Default.Register<NotificationMessage>(s_instance, DeviceExplorerViewModel.MessagingTokens.SelectedNanoDeviceHasChanged, (message) => s_instance.SelectedNanoDeviceHasChangedHandler());
-            Messenger.Default.Register<NotificationMessage>(s_instance, DeviceExplorerViewModel.MessagingTokens.NanoDevicesCollectionHasChanged, (message) => s_instance.NanoDevicesCollectionChangedHandler());
+            Messenger.Default.Register<NotificationMessage>(s_instance, DeviceExplorerViewModel.MessagingTokens.NanoDevicesCollectionHasChanged, (message) => s_instance.NanoDevicesCollectionChangedHandlerAsync().ConfigureAwait(false));
+            Messenger.Default.Register<NotificationMessage>(s_instance, DeviceExplorerViewModel.MessagingTokens.NanoDevicesDeviceEnumerationCompleted, (message) => s_instance.NanoDevicesDeviceEnumerationCompletedHandlerAsync().ConfigureAwait(false));
         }
 
         private void CreateToolbarHandlers()
@@ -179,6 +191,26 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             // can't set the checked status here because the service provider of the preferences persistence is not available at this time
             // deferring to when the Device Explorer control is loaded
             //menuItem.Checked = NanoFrameworkPackage.OptionShowInternalErrors;
+            menuCommandService.AddCommand(menuItem);
+
+            // Disable Device Watchers
+            toolbarButtonCommandId = GenerateCommandID(DisableDeviceWatchersCommandID);
+            menuItem = new MenuCommand(new EventHandler(
+                DisableDeviceWatchersHandler), toolbarButtonCommandId);
+            menuItem.Enabled = true;
+            menuItem.Visible = true;
+            // can't set the checked status here because the service provider of the preferences persistence is not available at this time
+            // deferring to when the Device Explorer control is loaded
+            //menuItem.Checked = NanoFrameworkPackage.OptionDisableDeviceWatchers;
+            menuCommandService.AddCommand(menuItem);
+
+            // Rescan Devices
+            toolbarButtonCommandId = GenerateCommandID(RescanDevicesCommandID);
+            menuItem = new MenuCommand(new EventHandler(
+                RescanDevicesCommandHandler), toolbarButtonCommandId);
+            // making it disabled for now, it will be updated according to DisableDeviceWatchers status when appropriate
+            menuItem.Enabled = false;
+            menuItem.Visible = true;
             menuCommandService.AddCommand(menuItem);
         }
 
@@ -647,6 +679,29 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             }
         }
 
+
+        /// <summary>
+        /// Handler for RescanDevicesCommand
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="arguments"></param>
+        /// <remarks>OK to use async void because this is a top-level event-handler 
+        /// https://channel9.msdn.com/Series/Three-Essential-Tips-for-Async/Tip-1-Async-void-is-for-top-level-event-handlers-only
+        /// </remarks>
+        private async void RescanDevicesCommandHandler(object sender, EventArgs arguments)
+        {
+            // yield to give the UI thread a chance to respond to user input
+            await Task.Yield();
+
+            // disable the button
+            (sender as MenuCommand).Enabled = false;
+
+            NanoDeviceCommService.DebugClient.ReScanDevices();
+
+            // don't enable the button here to prevent compulsive developers to click it when the operation is still ongoing
+            // it will be enabled back at NanoDevicesCollectionChangedHandlerAsync
+        }
+
         private void ShowInternalErrorsCommandHandler(object sender, EventArgs e)
         {
             // save new status
@@ -659,6 +714,48 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             (sender as MenuCommand).Checked = !currentCheckState;
         }
 
+        private async void DisableDeviceWatchersHandler(object sender, EventArgs e)
+        {
+            // save new status
+            // the "Checked" property reflects the current state, the final value is the current one negated 
+            // this is more a "changing" event rather then a "changed" one
+            NanoFrameworkPackage.OptionDisableDeviceWatchers = !(sender as MenuCommand).Checked;
+
+            var currentCheckState = (sender as MenuCommand).Checked;
+
+            // call device port API 
+            if (currentCheckState)
+            {
+                MessageCentre.InternalErrorMessage("Starting device watchers.");
+
+                NanoDeviceCommService.DebugClient.StartDeviceWatchers();
+
+                // don't enable the rescan devices button as this will happen on device enumeration completed
+            }
+            else
+            {
+                MessageCentre.InternalErrorMessage("Stopping device watchers.");
+
+                NanoDeviceCommService.DebugClient.StopDeviceWatchers();
+
+                MessageCentre.OutputMessage(Environment.NewLine);
+                MessageCentre.OutputMessage("*******************************************************************************");
+                MessageCentre.OutputMessage("** Device Watchers are DISABLED. Won't be able to connect to any nanoDevice. **");
+                MessageCentre.OutputMessage("*******************************************************************************");
+                MessageCentre.OutputMessage(Environment.NewLine);
+
+                // get the menu command service to reach the toolbar commands
+                var menuCommandService = ServiceProvider.GetService(typeof(IMenuCommandService)) as OleMenuCommandService;
+                Assumes.Present(menuCommandService);
+
+                // set rescan devices button to disabled state
+                menuCommandService.FindCommand(GenerateCommandID(RescanDevicesCommandID)).Enabled = false;
+            }
+
+            // toggle button checked state
+            (sender as MenuCommand).Checked = !currentCheckState;
+        }
+
         #endregion
 
         public static void UpdateShowInternalErrorsButton(bool value)
@@ -666,6 +763,20 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             var toolbarButtonCommandId = GenerateCommandID(ShowInternalErrorsCommandID);
             var menuItem = _commandService.FindCommand(toolbarButtonCommandId);
             menuItem.Checked = value;
+        }
+
+        public static void UpdateDisableDeviceWatchersButton(bool value)
+        {
+            var toolbarButtonCommandId = GenerateCommandID(DisableDeviceWatchersCommandID);
+            var menuItem = _commandService.FindCommand(toolbarButtonCommandId);
+            menuItem.Checked = value;
+
+            // get the menu command service to reach the toolbar commands
+            var menuCommandService = s_instance.ServiceProvider.GetService(typeof(IMenuCommandService)) as OleMenuCommandService;
+            Assumes.Present(menuCommandService);
+
+            // enable rescan devices button because rescan operation has completed
+            menuCommandService.FindCommand(GenerateCommandID(RescanDevicesCommandID)).Enabled = !value;
         }
 
         #region MVVM messaging handlers
@@ -685,10 +796,27 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             UpdateToolbarButtonsAsync().ConfigureAwait(false);
         }
 
-        private void NanoDevicesCollectionChangedHandler()
+        private async Task NanoDevicesCollectionChangedHandlerAsync()
         {
             // update toolbar 
-            UpdateToolbarButtonsAsync().ConfigureAwait(false);
+            await UpdateToolbarButtonsAsync();
+        }
+
+        private async Task NanoDevicesDeviceEnumerationCompletedHandlerAsync()
+        {
+            // if watchers are enabled, enable rescan devices button
+            if (!NanoFrameworkPackage.OptionDisableDeviceWatchers)
+            {
+                // switch to UI main thread
+                await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+
+                // get the menu command service to reach the toolbar commands
+                var menuCommandService = ServiceProvider.GetService(typeof(IMenuCommandService)) as OleMenuCommandService;
+                Assumes.Present(menuCommandService);
+
+                // enable rescan devices button because rescan operation has completed
+                menuCommandService.FindCommand(GenerateCommandID(RescanDevicesCommandID)).Enabled = true;
+            }
         }
 
         #endregion
