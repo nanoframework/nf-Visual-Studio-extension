@@ -258,7 +258,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 MessageCentre.OutputMessage("Join our Discord community: https://discord.gg/gCyBu8T");
                 MessageCentre.OutputMessage("Join our Hackster.io platform: https://www.hackster.io/nanoframework");
                 MessageCentre.OutputMessage("Follow us on Twitter: https://twitter.com/nanoframework");
-                MessageCentre.OutputMessage("Follow our YouTube channel: https://www.youtube.com/channel/UC62nKcuCEhvUKHd9k9QEezQ");
+                MessageCentre.OutputMessage("Follow our YouTube channel: https://www.youtube.com/c/nanoFramework");
                 MessageCentre.OutputMessage("Star our GitHub repos: https://github.com/nanoframework/Home");
                 MessageCentre.OutputMessage("Add a short review or rate the VS extension: https://marketplace.visualstudio.com/items?itemName=vs-publisher-1470366.nanoFrameworkVS2017Extension");
                 MessageCentre.OutputMessage(Environment.NewLine);
