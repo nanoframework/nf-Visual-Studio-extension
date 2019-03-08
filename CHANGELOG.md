@@ -1,6 +1,6 @@
 # Change Log
 
-## [v](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v) (2019-02-22)
+## [v](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v) (2019-03-08)
 [Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v1.0.3.56...v)
 
 **Implemented enhancements:**
@@ -10,6 +10,10 @@
 **Fixed bugs:**
 
 - Fix wrong option being passed to update button handler [\#346](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/346) [[Area: VS-extension](https://github.com/nanoframework/nf-Visual-Studio-extension/labels/Area:%20VS-extension)]
+
+**Updated dependencies and other chores:**
+
+- Update debugger lib to 1.0.1-preview-058 [\#347](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/347) [[Area: VS-extension](https://github.com/nanoframework/nf-Visual-Studio-extension/labels/Area:%20VS-extension)]
 
 ## [v1.0.3.56](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v1.0.3.56) (2019-02-11)
 [Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v1.0.3.54...v1.0.3.56)
