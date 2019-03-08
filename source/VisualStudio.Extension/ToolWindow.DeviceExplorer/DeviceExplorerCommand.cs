@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright (c) 2017 The nanoFramework project contributors
 // See LICENSE file in the project root for full license information.
 //
@@ -399,16 +399,10 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                 MessageCentre.OutputMessage(string.Empty);
                 MessageCentre.OutputMessage(string.Empty);
-                MessageCentre.OutputMessage("--------------------------------");
-                MessageCentre.OutputMessage("::        Memory Map          ::");
-                MessageCentre.OutputMessage("--------------------------------");
                 MessageCentre.OutputMessage(ViewModelLocator.DeviceExplorer.DeviceMemoryMap.ToString());
 
                 MessageCentre.OutputMessage(string.Empty);
                 MessageCentre.OutputMessage(string.Empty);
-                MessageCentre.OutputMessage("-----------------------------------------------------------");
-                MessageCentre.OutputMessage("::                   Flash Sector Map                    ::");
-                MessageCentre.OutputMessage("-----------------------------------------------------------");
                 MessageCentre.OutputMessage(ViewModelLocator.DeviceExplorer.DeviceFlashSectorMap.ToString());
 
                 MessageCentre.OutputMessage(string.Empty);
