@@ -692,6 +692,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
             NanoDeviceCommService.DebugClient.ReScanDevices();
 
+            // need to remove event handler
+            NanoDeviceCommService.DebugClient.NanoFrameworkDevices.CollectionChanged -= ViewModelLocator.DeviceExplorer.NanoFrameworkDevices_CollectionChanged;
+
             // don't enable the button here to prevent compulsive developers to click it when the operation is still ongoing
             // it will be enabled back at NanoDevicesCollectionChangedHandlerAsync
         }
@@ -731,6 +734,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 MessageCentre.InternalErrorMessage("Stopping device watchers.");
 
                 NanoDeviceCommService.DebugClient.StopDeviceWatchers();
+
+                // need to remove event handler
+                NanoDeviceCommService.DebugClient.NanoFrameworkDevices.CollectionChanged -= ViewModelLocator.DeviceExplorer.NanoFrameworkDevices_CollectionChanged;
 
                 MessageCentre.OutputMessage(Environment.NewLine);
                 MessageCentre.OutputMessage("*******************************************************************************");
