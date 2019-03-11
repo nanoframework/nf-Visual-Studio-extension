@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
   <!-- Declares the MSBuild tasks that are provided by nanoFramework tools.
@@ -156,21 +156,21 @@
         that are marked as CopyLocal. A couple of notes.  @(ReferenceCopyLocalPaths) can contain the
         .dll and .pdb files, so there is likely duplicate copying going on here: the copy command
         is a little smart, but we are still doing a bit more work than necessary.
-        Also, if the pdbx files are in a separate directory from the .dll, then this may fail.
-        I haven't tried yet.
+        The ContinueOnError set to true is required because the local paths on the referenced file contain the extension.
+        This would cause the task to fail because it would be trying to copy myreferenced.dll.pe and myreferenced.dll.pbx, which obviously don't exit.
         -->
 
     <Copy
         SourceFiles="@(ReferenceCopyLocalPaths->'%(RootDir)%(Directory)%(Filename).pe')"
         DestinationFiles="@(ReferenceCopyLocalPaths->'$(OutDir)%(DestinationSubDirectory)%(Filename).pe')"
-        SkipUnchangedFiles="true" >
+        SkipUnchangedFiles="true" ContinueOnError="true" >
       <Output TaskParameter="DestinationFiles" ItemName="FileWrites" />
     </Copy>
 
     <Copy
         SourceFiles="@(ReferenceCopyLocalPaths->'%(RootDir)%(Directory)%(Filename).pdbx')"
         DestinationFiles="@(ReferenceCopyLocalPaths->'$(OutDir)%(DestinationSubDirectory)%(Filename).pdbx')"
-        SkipUnchangedFiles="true">
+        SkipUnchangedFiles="true" ContinueOnError="true">
       <Output TaskParameter="DestinationFiles" ItemName="FileWrites" />
     </Copy>
 
