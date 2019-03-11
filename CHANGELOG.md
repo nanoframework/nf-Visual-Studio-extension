@@ -9,6 +9,7 @@
 
 **Fixed bugs:**
 
+- Fix bad handling of devices collection [\#350](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/350) [[Area: VS-extension](https://github.com/nanoframework/nf-Visual-Studio-extension/labels/Area:%20VS-extension)]
 - Fix copy of referenced assemblies marked with CopyLocal [\#349](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/349) [[Area: VS-extension](https://github.com/nanoframework/nf-Visual-Studio-extension/labels/Area:%20VS-extension)]
 - Remove duplicate headers in device capabilities output [\#348](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/348) [[Area: VS-extension](https://github.com/nanoframework/nf-Visual-Studio-extension/labels/Area:%20VS-extension)]
 - Fix wrong option being passed to update button handler [\#346](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/346) [[Area: VS-extension](https://github.com/nanoframework/nf-Visual-Studio-extension/labels/Area:%20VS-extension)]
