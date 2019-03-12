@@ -1,14 +1,16 @@
 # Change Log
 
-## [v](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v) (2019-03-11)
+## [v](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v) (2019-03-12)
 [Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v1.0.3.56...v)
 
 **Implemented enhancements:**
 
+- Work on DeployProvider [\#351](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/351) [[Area: VS-extension](https://github.com/nanoframework/nf-Visual-Studio-extension/labels/Area:%20VS-extension)]
 - Improvements in device discovery [\#345](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/345) [[Area: VS-extension](https://github.com/nanoframework/nf-Visual-Studio-extension/labels/Area:%20VS-extension)]
 
 **Fixed bugs:**
 
+- Work on DeployProvider [\#351](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/351) [[Area: VS-extension](https://github.com/nanoframework/nf-Visual-Studio-extension/labels/Area:%20VS-extension)]
 - Fix bad handling of devices collection [\#350](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/350) [[Area: VS-extension](https://github.com/nanoframework/nf-Visual-Studio-extension/labels/Area:%20VS-extension)]
 - Fix copy of referenced assemblies marked with CopyLocal [\#349](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/349) [[Area: VS-extension](https://github.com/nanoframework/nf-Visual-Studio-extension/labels/Area:%20VS-extension)]
 - Remove duplicate headers in device capabilities output [\#348](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/348) [[Area: VS-extension](https://github.com/nanoframework/nf-Visual-Studio-extension/labels/Area:%20VS-extension)]
@@ -16,6 +18,7 @@
 
 **Updated dependencies and other chores:**
 
+- Update debugger [\#352](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/352) [[Area: VS-extension](https://github.com/nanoframework/nf-Visual-Studio-extension/labels/Area:%20VS-extension)]
 - Update debugger lib to 1.0.1-preview-058 [\#347](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/347) [[Area: VS-extension](https://github.com/nanoframework/nf-Visual-Studio-extension/labels/Area:%20VS-extension)]
 
 ## [v1.0.3.56](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v1.0.3.56) (2019-02-11)
