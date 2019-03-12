@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright (c) 2017 The nanoFramework project contributors
 // Portions Copyright (c) Microsoft Corporation.  All rights reserved.
 // See LICENSE file in the project root for full license information.
@@ -280,7 +280,13 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                             MessageCentre.InternalErrorMessage("Deploying assemblies.");
 
-                            if (!device.DebugEngine.DeploymentExecute(assemblies, false))
+                            // need to keep a copy of the deployment blob for the second attempt (if needed)
+                            var assemblyCopy = new List<byte[]>(assemblies);
+
+                            // create a progress indicator to be used by deployment operation to post debug messages
+                            var progressIndicator = new Progress<string>(MessageCentre.InternalErrorMessage);
+
+                            if (!device.DebugEngine.DeploymentExecute(assemblies, false, progressIndicator))
                             {
                                 // if the first attempt fails, give it another try
 
@@ -291,7 +297,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                                 Thread.Yield();
 
-                                if (!device.DebugEngine.DeploymentExecute(assemblies, false))
+                                // !! need to use the deployment blob copy
+                                if (!device.DebugEngine.DeploymentExecute(assemblyCopy, false, progressIndicator))
                                 {
                                     MessageCentre.InternalErrorMessage("Deployment failed.");
 
