@@ -13,7 +13,6 @@ using nanoFramework.Tools.Debugger.WireProtocol;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Threading;
@@ -53,6 +52,21 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         Thread _threadDispatch;
 
         const ulong c_fakeAddressStart = 0x100000000;
+
+        /// <summary>
+        /// Timeout to wait for device to be initialized mode
+        /// </summary>
+        const int initDeviceWaitTimeout = 500;
+
+        /// <summary>
+        /// Sleep time between retries.
+        /// </summary>
+        const int retrySleepTime = 500;
+
+        /// <summary>
+        /// Max number of attempts to perform an operation.
+        /// </summary>
+        const int maxOperationRetries = 5;
 
         public Guid GuidProcessId { get; }
 
@@ -297,42 +311,51 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                 MessageCentre.StartProgressMessage(Resources.ResourceStrings.Rebooting);
 
-                for(int retries = 0; retries < 5; retries++)
+                for(int retries = 0; retries < maxOperationRetries; retries++)
                 {
                     if(_engine.ConnectionSource == ConnectionSource.nanoCLR)
                     {
                         if (_engine.IsDeviceInInitializeState())
                         {
+                            MessageCentre.InternalErrorMessage("Device is running CLR in initialized state.");
+
                             fSucceeded = true;
                             break;
                         }
 
+                        MessageCentre.InternalErrorMessage($"Device is running CLR, requesting reboot and pause for debugger ({retries + 1}/{ maxOperationRetries }).");
+
                         _engine.RebootDevice(RebootOptions.ClrOnly | RebootOptions.WaitForDebugger);
-
-                        // better pause here to allow the reboot to occur
-                        // use a back-off strategy of increasing the wait time to accommodate slower or less responsive targets (such as networked ones)
-                        Thread.Sleep(500 * (retries + 1));
-
-                        //Thread.Yield();
                     }
                     else if(_engine.ConnectionSource == ConnectionSource.nanoBooter)
                     {
+                        MessageCentre.InternalErrorMessage($"Device is running nanoBooter, requesting to launch CLR ({retries + 1}/{ maxOperationRetries }).");
+
                         // this is telling nanoBooter to enter CLR
                         _engine.ExecuteMemory(0);
-
-                        Thread.Yield();
                     }
                     else
                     {
+                        MessageCentre.InternalErrorMessage("Error: Device is running on an unknown state.");
+
                         // unknown connection source?!
                         // shouldn't be here, but...
                         // ...maybe this is caused by a comm timeout because the target is rebooting
-                        Thread.Yield();
                     }
+
+                    Thread.Yield();
+
+                    // better pause here to allow the reboot to occur
+                    // use a back-off strategy of increasing the wait time to accommodate slower or less responsive targets (such as networked ones)
+                    Thread.Sleep(initDeviceWaitTimeout * (retries + 1));
+
+                    Thread.Yield();
                 }
                 
                 if (!ShuttingDown && !fSucceeded)
                 {
+                    MessageCentre.InternalErrorMessage("Error: all attempts to put device in initialized state have failed.");
+
                     MessageCentre.StopProgressMessage();
                     throw new Exception(Resources.ResourceStrings.CouldNotReconnect);
                 }
@@ -343,13 +366,13 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         public Engine AttachToEngine()
         {
-            int maxRetries     = 5;
-            int retrySleepTime = 500;
 
-            for(int retry = 0; retry < maxRetries; retry++)
+            for(int retry = 0; retry < maxOperationRetries; retry++)
             {
                 if (ShuttingDown)
                 {
+                    MessageCentre.InternalErrorMessage($"Engine has shutdown flag set. Won't try attaching to engine.");
+
                     break;
                 }
                 
@@ -361,11 +384,18 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         {
                             if(Device.DebugEngine == null)
                             {
+                                MessageCentre.InternalErrorMessage("Creating debug engine for target device.");
+
                                 Device.CreateDebugEngine();
                             }
 
+                            MessageCentre.InternalErrorMessage("Assigning debug engine of target device.");
+
                             _engine = Device.DebugEngine;// new Engine(Device.Parent, Device as INanoDevice);
                         }
+
+                        _engine.ThrowOnCommunicationFailure = false;
+                        _engine.StopDebuggerOnConnect = true;
 
                         // make sure there is only one handler, so remove whatever is there before adding a new one
                         _engine.OnMessage -= new MessageEventHandler(OnMessage);
@@ -376,10 +406,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         _engine.OnNoise += new NoiseEventHandler(OnNoise);
                         _engine.OnProcessExit -= new EventHandler(OnProcessExit);
                         _engine.OnProcessExit += new EventHandler(OnProcessExit);
-
-                        _engine.ThrowOnCommunicationFailure = false;
-                        _engine.StopDebuggerOnConnect = true;
                     }
+
+                    MessageCentre.InternalErrorMessage($"Attempting to connect to device ({retry + 1}/{ maxOperationRetries }).");
 
                     var connect = ThreadHelper.JoinableTaskFactory.Run(
                         async () =>
@@ -571,11 +600,11 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             {
                 EnqueueStartupEventsAndWait();
                 
-                MessageCentre.DebugMessage(String.Format(Resources.ResourceStrings.AttachingToDevice));
+                MessageCentre.DebugMessage(Resources.ResourceStrings.AttachingToDevice);
 
                 if (AttachToEngine() == null)
                 {
-                    MessageCentre.DebugMessage(String.Format(Resources.ResourceStrings.DeploymentErrorReconnect));
+                    MessageCentre.DebugMessage(Resources.ResourceStrings.DeploymentErrorReconnect);
                     throw new Exception(Resources.ResourceStrings.DebugEngineAttachmentFailure);
                 }
 
@@ -585,23 +614,26 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 {
                     //This will reboot the device if start debugging was done without a deployment
     
-                    MessageCentre.DebugMessage(String.Format(Resources.ResourceStrings.WaitingDeviceInitialization));
+                    MessageCentre.DebugMessage(Resources.ResourceStrings.WaitingDeviceInitialization);
                     EnsureProcessIsInInitializedState();
 
-                    // need to force a connection to the device after ensuring that the device is properly initialized
+                    MessageCentre.DebugMessage("Updating nanoDevice debugger engine.");
+
+                    // need to update the debugger engine flags on the device after ensuring that the device is properly initialized
                     // this is needed to make sure that all engine flags are properly set
-                    var connect = ThreadHelper.JoinableTaskFactory.Run(
-                        async () =>
-                        {
-                            return await _engine.ConnectAsync(5000, true, ConnectionSource.Unknown);
-                        }
-                    );
+                    if (_engine.UpdateDebugFlags())
+                    {
+                        // forced update device info in order to get deployed assemblies
+                        Device.GetDeviceInfo(true);
 
-                    // forced update device info in order to get deployed assemblies
-                    Device.GetDeviceInfo(true);
-
-                    // need to update the assemblies right here or the collection won't be populated when we need it ahead
-                    UpdateAssemblies();
+                        // need to update the assemblies right here or the collection won't be populated when we need it ahead
+                        UpdateAssemblies();
+                    }
+                    else
+                    {
+                        // couldn't update debug engine flags
+                        MessageCentre.DebugMessage("Error trying to update the device debugger engine.");
+                    }
                 }
                 else
                 {
@@ -622,9 +654,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     }
                 }
             }
-            catch(Exception)
+            catch(Exception ex)
             {
                 MessageCentre.DebugMessage(Resources.ResourceStrings.InitializationFailed);
+
+                MessageCentre.InternalErrorMessage($"Exception starting CLR on device: {ex.Message}.");
+
                 throw;
             }
         }
@@ -695,7 +730,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         MessageCentre.StopProgressMessage();
 
                         ICorDebugProcess.Terminate(0);
-                        MessageCentre.DebugMessage(String.Format(Resources.ResourceStrings.DebuggerThreadTerminated, ex.Message));
+                        MessageCentre.DebugMessage(string.Format(Resources.ResourceStrings.DebuggerThreadTerminated, ex.Message));
                     }
                     finally
                     {
@@ -1271,7 +1306,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
             //Extract deployDeviceName
             if (!deployDeviceName.StartsWith(CorDebugProcess.DeployDeviceName))
-                throw new Exception(String.Format("\"{0}\" does not appear to be a valid nanoFramework device name", CorDebugProcess.DeployDeviceName));
+                throw new Exception(string.Format("\"{0}\" does not appear to be a valid nanoFramework device name", CorDebugProcess.DeployDeviceName));
 
             deployDeviceName = deployDeviceName.Substring(CorDebugProcess.DeployDeviceName.Length);
             cb.RemoveArguments(args.Length - 1, 1);
@@ -1310,7 +1345,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             string[] assemblyPathsT = new string[1];
             Pdbx.PdbxFile.Resolver resolver = new Pdbx.PdbxFile.Resolver();
 
-            DebugAssert(assemblies.Count > 0, "Error loading assemblies. Assemblies count is not 0.");
+            DebugAssert(assemblies.Count > 0, "Error loading assemblies. Assemblies count is 0.");
 
             if(assemblies.Count == 0)
             {
@@ -2294,7 +2329,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         private static void DebugAssert(bool condition, string message, string detailedMessage)
         {
-            MessageCentre.InternalErrorMessage(condition, String.Format("message: {0}\r\nDetailed Message: {1}", message, detailedMessage));
+            MessageCentre.InternalErrorMessage(condition, string.Format("message: {0}\r\nDetailed Message: {1}", message, detailedMessage));
         }
 
         private static void DebugAssert(bool condition, string message)
