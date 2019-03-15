@@ -408,21 +408,18 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         _engine.OnProcessExit += new EventHandler(OnProcessExit);
                     }
 
-                    MessageCentre.InternalErrorMessage($"Attempting to connect to device ({retry + 1}/{ maxOperationRetries }).");
+                    MessageCentre.InternalErrorMessage($"Attempting to update device debugger flags ({retry + 1}/{ maxOperationRetries }).");
 
-                    var connect = ThreadHelper.JoinableTaskFactory.Run(
-                        async () =>
-                        {
-                           return await  _engine.ConnectAsync(retrySleepTime, true, ConnectionSource.Unknown);
-                        }
-                    );
-
-                    if (connect)
+                    if (_engine.UpdateDebugFlags())
                     {
                         _engine.ThrowOnCommunicationFailure = true;
                         _engine.SetExecutionMode(Commands.DebuggingExecutionChangeConditions.State.SourceLevelDebugging, 0);
 
                         break;
+                    }
+                    else
+                    {
+                        MessageCentre.InternalErrorMessage($"Error update device debugger flags.");
                     }
 
                     Thread.Yield();
