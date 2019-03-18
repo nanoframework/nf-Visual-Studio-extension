@@ -1,6 +1,6 @@
 # Change Log
 
-## [v](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v) (2019-03-15)
+## [v](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v) (2019-03-18)
 [Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v1.0.3.56...v)
 
 **Implemented enhancements:**
@@ -20,6 +20,7 @@
 
 **Updated dependencies and other chores:**
 
+- Update debugger library [\#357](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/357) [[Area: VS-extension](https://github.com/nanoframework/nf-Visual-Studio-extension/labels/Area:%20VS-extension)]
 - Update debugger lib [\#355](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/355) [[Area: VS-extension](https://github.com/nanoframework/nf-Visual-Studio-extension/labels/Area:%20VS-extension)]
 - Update debugger lib [\#353](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/353) [[Area: VS-extension](https://github.com/nanoframework/nf-Visual-Studio-extension/labels/Area:%20VS-extension)]
 - Update debugger [\#352](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/352) [[Area: VS-extension](https://github.com/nanoframework/nf-Visual-Studio-extension/labels/Area:%20VS-extension)]
