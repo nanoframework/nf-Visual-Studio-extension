@@ -103,18 +103,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     {
                         MessageCentre.InternalErrorMessage("Erase deployment area successful.");
 
-                        // ESP32 tends to be a bit stubborn to start a debug session 
-                        // fully rebooting the device after erasing seems to improves this behaviour
-                        if (device.DebugEngine.Capabilities.SolutionReleaseInfo.targetVendorInfo.Contains("ESP32"))
-                        {
-                            // this makes sure that we are connecting to the device debugger engine after the CLR reboots following the deployment erase
-                            device.Ping();
-
-                            MessageCentre.InternalErrorMessage("Request full reboot of nanoDevice.");
-
-                            device.DebugEngine.RebootDevice(RebootOptions.NormalReboot);
-                        }
-
                         // initial check 
                         if (device.DebugEngine.IsDeviceInInitializeState())
                         {
