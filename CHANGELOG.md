@@ -1,7 +1,14 @@
 # Change Log
 
-## [v](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v) (2019-03-18)
-[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v1.0.3.56...v)
+## [v](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v) (2019-03-19)
+[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v1.0.3.83...v)
+
+**Implemented enhancements:**
+
+- Remove deployment workaround for ESP32 [\#358](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/358) [[Area: VS-extension](https://github.com/nanoframework/nf-Visual-Studio-extension/labels/Area:%20VS-extension)]
+
+## [v1.0.3.83](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v1.0.3.83) (2019-03-18)
+[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v1.0.3.56...v1.0.3.83)
 
 **Implemented enhancements:**
 
