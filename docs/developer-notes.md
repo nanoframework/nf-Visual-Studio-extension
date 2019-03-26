@@ -27,6 +27,7 @@ You'll want to reset VS experimental instance on a number of situations. Usually
 In situations where you want to debug something in the **nanoFramework** Debugger library please follow these steps:
 
 1. Make sure to update (or checkout the appropriate commit) in the `nf-debugger` git sub-module.
+1. Load the debugger Solution and perform the "NuGet package restore". You can close it after that.
 1. Load the `nanoFramework.Tools.Debugger.sln` solution there, restore the NuGets for the solution and rebuild it. After this you can close the solution.
 1. Load the **nanoFramework** extension solution in Visual Studio.
 1. Expand the folder `debugger-library` and find there 2 projects for each of the components.
