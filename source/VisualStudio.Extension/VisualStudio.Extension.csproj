@@ -603,6 +603,13 @@
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
       <IncludeOutputGroupsInVSIX>TemplateProjectOutputGroup%3b</IncludeOutputGroupsInVSIX>
     </ProjectReference>
+    <ProjectReference Include="..\CSharp.ResourceTemplate\CSharp.ResourceTemplate.csproj">
+      <Project>{8252022e-62fd-4a59-be1e-90fd52dba0fe}</Project>
+      <Name>CSharp.ResourceTemplate</Name>
+      <IncludeOutputGroupsInVSIX>TemplateProjectOutputGroup%3b</IncludeOutputGroupsInVSIX>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <VSIXSubPath>ItemTemplates</VSIXSubPath>
+    </ProjectReference>
     <ProjectReference Include="..\Tools.BuildTasks\Tools.BuildTasks.csproj">
       <Project>{ce0631f2-731d-4a48-b927-f13f6b2fb055}</Project>
       <Name>Tools.BuildTasks</Name>
