@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<VSTemplate Version="3.0.0" xmlns="http://schemas.microsoft.com/developer/vstemplate/2005" xmlns:sdk="http://schemas.microsoft.com/developer/vstemplate-sdkextension/2010" Type="Item">
+  <TemplateData>
+    <Name>Resource File (nanoFramework)</Name>
+    <Description>A file for storing nanoFramework resources.</Description>
+	  <AppliesTo>CSharp</AppliesTo>
+    <Icon>FileGroup.ico</Icon>
+    <TemplateID>9c3a4816-57a8-4d02-bff4-b90d970f1a19</TemplateID>
+    <NumberOfParentCategoriesToRollUp>1</NumberOfParentCategoriesToRollUp>
+    <DefaultName>Resource.resx</DefaultName>
+    <ProjectType>CSharp</ProjectType>
+  </TemplateData>
+  <TemplateContent>
+    <ProjectItem CustomTool="nFResXFileCodeGenerator" SubType="" TargetFileName="$fileinputname$.resx" ReplaceParameters="false">Resource.resx</ProjectItem>
+  </TemplateContent>
+</VSTemplate>
