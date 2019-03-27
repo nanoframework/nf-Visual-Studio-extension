@@ -1,6 +1,6 @@
 # Change Log
 
-## [v](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v) (2019-03-19)
+## [v](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v) (2019-03-27)
 [Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v1.0.3.83...v)
 
 **Implemented enhancements:**
