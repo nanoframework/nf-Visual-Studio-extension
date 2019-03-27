@@ -5,6 +5,7 @@
 
 **Implemented enhancements:**
 
+- Add VS template for resources file [\#360](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/360) [[Area: VS-extension](https://github.com/nanoframework/nf-Visual-Studio-extension/labels/Area:%20VS-extension)]
 - Remove deployment workaround for ESP32 [\#358](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/358) [[Area: VS-extension](https://github.com/nanoframework/nf-Visual-Studio-extension/labels/Area:%20VS-extension)]
 
 **Updated dependencies and other chores:**
