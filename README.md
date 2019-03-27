@@ -35,7 +35,7 @@ Use this URL for the feed: `https://www.myget.org/F/nanoframework-dev/vsix/`.
 
 ## Developing for the Visual Studio extension
 
-If you are working on developing code for **nanoFramework** Visual Studio extension please take a look at the available documentation [here](). 
+If you are working on developing code for **nanoFramework** Visual Studio extension please take a look at the available documentation [here](docs/README.md). 
 
 ## Credits
 
