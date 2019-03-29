@@ -291,7 +291,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 MessageCentre.OutputMessage("Follow us on Twitter: https://twitter.com/nanoframework");
                 MessageCentre.OutputMessage("Follow our YouTube channel: https://www.youtube.com/c/nanoFramework");
                 MessageCentre.OutputMessage("Star our GitHub repos: https://github.com/nanoframework/Home");
-                MessageCentre.OutputMessage("Add a short review or rate the VS extension: https://marketplace.visualstudio.com/items?itemName=vs-publisher-1470366.nanoFrameworkVS2017Extension");
+                MessageCentre.OutputMessage("Add a short review or rate the VS extension: https://marketplace.visualstudio.com/items?itemName=nanoframework.nanoFramework-VS2019-Extension");
                 MessageCentre.OutputMessage(Environment.NewLine);
 
                 // check Windows version
