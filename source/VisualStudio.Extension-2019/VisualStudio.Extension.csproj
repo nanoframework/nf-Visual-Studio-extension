@@ -368,14 +368,14 @@
     <Resource Include="Resources\Ping.16.16.png" />
     <None Include="FodyWeavers.xml" />
     <Resource Include="Resources\DeviceConnected.16.16.png" />
-    <VSCTCompile Include="..\VisualStudio.Extension\NanoFrameworkMoniker.vsct">
+    <VSCTCompile Include="NanoFrameworkMoniker.vsct">
       <SubType>Designer</SubType>
     </VSCTCompile>
     <Resource Include="Resources\NanoFramework.16.16.png" />
-    <Content Include="..\VisualStudio.Extension\NanoFrameworkMoniker.imagemanifest">
+    <Content Include="NanoFrameworkMoniker.imagemanifest">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
-    <VSCTCompile Include="..\VisualStudio.Extension\NanoFrameworkPackage.vsct">
+    <VSCTCompile Include="NanoFrameworkPackage.vsct">
       <ResourceName>Menus.ctmenu</ResourceName>
       <SubType>Designer</SubType>
     </VSCTCompile>
@@ -794,6 +794,13 @@
       <InstallRoot>MSBuild</InstallRoot>
       <VSIXSubPath>nanoFramework\v1.0\</VSIXSubPath>
       <IncludeOutputGroupsInVSIX>BuiltProjectOutputGroup</IncludeOutputGroupsInVSIX>
+    </ProjectReference>
+    <ProjectReference Include="..\Tools.MetaDataProcessor\MetaDataProcessor-vs2019.vcxproj">
+      <Project>{80209a7e-b9f0-4143-bcd1-b1891236a3cf}</Project>
+      <Name>Tools.MetaDataProcessor</Name>
+      <InstallRoot>MSBuild</InstallRoot>
+      <IncludeOutputGroupsInVSIX>BuiltProjectOutputGroup</IncludeOutputGroupsInVSIX>
+      <VSIXSubPath>nanoFramework\v1.0\</VSIXSubPath>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
