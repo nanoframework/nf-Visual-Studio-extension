@@ -56,7 +56,11 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <VSTemplate Include="CSharp.ClassLibrary.vstemplate">
+    <VSTemplate Include="CSharp.ClassLibrary.vstemplate" Condition=" '$(VisualStudioVersion)' == '15.0'">
+      <SubType>Designer</SubType>
+      <OutputSubPath>nanoFramework</OutputSubPath>
+    </VSTemplate>
+    <VSTemplate Include="CSharp.ClassLibrary-vs2019.vstemplate" Condition=" '$(VisualStudioVersion)' == '16.0'">
       <SubType>Designer</SubType>
       <OutputSubPath>nanoFramework</OutputSubPath>
     </VSTemplate>
