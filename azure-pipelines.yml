@@ -53,15 +53,15 @@ jobs:
       Write-host "Files changed:"
       $commit.files | % {$_.filename}
 
-      if( ($commit.files.filename -like "*source/CSharp.AssemblyInfoTemplate*") ||
-          ($commit.files.filename -like "*source/CSharp.BlankApplication*") ||
-          ($commit.files.filename -like "*source/CSharp.ClassLibrary*") ||
-          ($commit.files.filename -like "*source/CSharp.ClassTemplate*") ||
-          ($commit.files.filename -like "*source/CSharp.ResourceTemplate*") ||
-          ($commit.files.filename -like "*source/Tools.BuildTasks*") ||
-          ($commit.files.filename -like "*source/Tools.BuildTasks-2019*") ||
-          ($commit.files.filename -like "*source/Tools.CorHelper*") ||
-          ($commit.files.filename -like "*source/Tools.MetaDataProcessor*") ||
+      if( ($commit.files.filename -like "*source/CSharp.AssemblyInfoTemplate*") -Or
+          ($commit.files.filename -like "*source/CSharp.BlankApplication*") -Or
+          ($commit.files.filename -like "*source/CSharp.ClassLibrary*") -Or
+          ($commit.files.filename -like "*source/CSharp.ClassTemplate*") -Or
+          ($commit.files.filename -like "*source/CSharp.ResourceTemplate*") -Or
+          ($commit.files.filename -like "*source/Tools.BuildTasks*") -Or
+          ($commit.files.filename -like "*source/Tools.BuildTasks-2019*") -Or
+          ($commit.files.filename -like "*source/Tools.CorHelper*") -Or
+          ($commit.files.filename -like "*source/Tools.MetaDataProcessor*") -Or
           ($commit.files.filename -like "*source/Tools.Parser*")
         )
       {
@@ -100,6 +100,9 @@ jobs:
 ######################
 - job: VS_2017
   condition: eq( dependencies.Get_Build_Options.outputs['BuildOptions.BUILD_VS2017'], true )
+  dependsOn:
+  - Get_Build_Options
+
   pool:
     vmImage: 'VS2017-Win2016'
 
@@ -284,6 +287,9 @@ jobs:
 ######################
 - job: VS_2019
   condition: eq( dependencies.Get_Build_Options.outputs['BuildOptions.BUILD_VS2019'], true )
+  dependsOn:
+  - Get_Build_Options
+
   pool:
     vmImage: 'windows-2019'
 
