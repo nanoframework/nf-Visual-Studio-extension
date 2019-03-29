@@ -11,7 +11,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
     public static class NanoFrameworkMonikers
     {
         // GUID matching the NanoFrameworkCatalog
-        private static readonly Guid ManifestGuid = new Guid("DDAFF3F5-E076-4BFD-A359-89AB0012F52F");
+        private static readonly Guid ManifestGuid = new Guid("6CBBCC35-4BB4-4110-AFFF-9BAEF4DAA4A7");
 
         public static ImageMoniker NanoFramework
         {
