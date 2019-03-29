@@ -5,6 +5,6 @@
 // associated with an assembly.
 [assembly: AssemblyTitle("nanoFramework VisualStudio Extension")]
 [assembly: AssemblyCompany("nanoFramework")]
-[assembly: AssemblyProduct("nanoFramework MSBuild Tasks library")]
+[assembly: AssemblyProduct("nanoFramework VisualStudio Extension")]
 [assembly: AssemblyCopyright("Copyright © 2019 nanoFramework contributors")]
 [assembly: System.CLSCompliant(false)]
