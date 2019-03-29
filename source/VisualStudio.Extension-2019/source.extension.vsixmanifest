@@ -1,0 +1,28 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
+    <Metadata>
+        <Identity Id="455f2be5-bb07-451e-b351-a9faf3018dc9" Version="1.0" Language="en-US" Publisher="nanoFramework" />
+        <DisplayName>nanoFramework VS2019 Extension</DisplayName>
+        <Description xml:space="preserve">Visual Studio 2019 extension for nanoFramework. Enables creating C# applications for micro-controllers and provides debugging tools.</Description>
+        <MoreInfo>http://www.nanoframework.net</MoreInfo>
+        <License>license.txt</License>
+        <GettingStartedGuide>http://docs.nanoframework.net/articles/getting-started-intro.html</GettingStartedGuide>
+        <ReleaseNotes>https://github.com/nanoframework/nf-Visual-Studio-extension/blob/develop/CHANGELOG.md</ReleaseNotes>
+        <Icon>Resources\nF-logo-32.png</Icon>
+        <Tags>nanoFramework, netnf, netmf, MicroFramework, C#, productivity, microcontroller, I2C, PWM, Serial, SPI, IoT, STM32, ESP32, Cortex-M</Tags>
+        <Preview>true</Preview>
+    </Metadata>
+    <Installation AllUsers="true">
+        <InstallationTarget Id="Microsoft.VisualStudio.Community" Version="[16.0, 17.0)" />
+    </Installation>
+    <Dependencies>
+        <Dependency Id="Microsoft.Framework.NDP" DisplayName="Microsoft .NET Framework" d:Source="Manual" Version="[4.5,)" />
+      <Dependency Id="Microsoft.VisualStudio.MPF.16.0" DisplayName="Visual Studio MPF 16.0" d:Source="Installed" Version="[16.0,17.0)" />
+  </Dependencies>
+    <Prerequisites>
+        <Prerequisite Id="Microsoft.VisualStudio.Component.CoreEditor" Version="[16.0,17.0)" DisplayName="Visual Studio core editor" />
+    </Prerequisites>
+  <Assets>
+    <Asset Type="Microsoft.VisualStudio.VsPackage" d:Source="Project" d:ProjectName="%CurrentProject%" Path="|%CurrentProject%;PkgdefProjectOutputGroup|" />
+  </Assets>
+</PackageManifest>
