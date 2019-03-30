@@ -97,7 +97,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;METADATAPROCESSOR;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\Tools.Parser;..\..\nf-interpreter\src\CLR\CorLib;..\..\nf-interpreter\targets\os\win32\Include;..\..\nf-interpreter\src\PAL\Include;..\..\nf-interpreter\src\HAL\Include;..\..\nf-interpreter\src\CLR\Include;..\..\nf-interpreter\src\CLR\Core;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\Tools.Parser;..\..\nf-interpreter\src\CLR\CorLib;..\..\nf-interpreter\targets\os\win32\Include;..\..\nf-interpreter\src\PAL\Include;..\..\nf-interpreter\src\HAL\Include;..\..\nf-interpreter\src\CLR\Include;..\..\nf-interpreter\src\CLR\Core;..\..\nf-interpreter\src\CLR\Helpers\Base64;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
@@ -125,7 +125,7 @@
       <FunctionLevelLinking>false</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;METADATAPROCESSOR;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\Tools.Parser;..\..\nf-interpreter\src\CLR\CorLib;..\..\nf-interpreter\targets\os\win32\Include;..\..\nf-interpreter\src\PAL\Include;..\..\nf-interpreter\src\HAL\Include;..\..\nf-interpreter\src\CLR\Include;..\..\nf-interpreter\src\CLR\Core;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\Tools.Parser;..\..\nf-interpreter\src\CLR\CorLib;..\..\nf-interpreter\targets\os\win32\Include;..\..\nf-interpreter\src\PAL\Include;..\..\nf-interpreter\src\HAL\Include;..\..\nf-interpreter\src\CLR\Include;..\..\nf-interpreter\src\CLR\Core;..\..\nf-interpreter\src\CLR\Helpers\Base64;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
