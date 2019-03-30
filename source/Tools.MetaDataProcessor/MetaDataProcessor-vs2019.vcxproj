@@ -218,6 +218,9 @@
     <ProjectReference Include="..\..\nf-interpreter\src\CLR\Messaging\Messaging-vs2019.vcxproj">
       <Project>{131001e3-0201-451f-a87b-951d1c5c3eee}</Project>
     </ProjectReference>
+    <ProjectReference Include="..\..\nf-interpreter\src\CLR\WireProtocol\WireProtocol-vs2019.vcxproj">
+      <Project>{2337c4a4-3ab4-4014-9c29-9ebe32f4510e}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\Tools.CorHelper\CorHelper-vs2019.vcxproj">
       <Project>{079e1bc1-3b21-46e8-b1ba-aedb68ccdc11}</Project>
     </ProjectReference>

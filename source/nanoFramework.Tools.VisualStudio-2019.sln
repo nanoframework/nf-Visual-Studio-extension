@@ -31,10 +31,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "MSBuildSystem", "MSBuildSys
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Templates", "Templates", "{50823B49-643D-4FDA-9063-F136E5F345D2}"
 EndProject
-Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "nanoFramework.Tools.DebugLibrary.Shared", "..\nf-debugger\source\nanoFramework.Tools.DebugLibrary.Shared\nanoFramework.Tools.DebugLibrary.Shared.shproj", "{31472CAE-4B1A-4AB9-9B2A-8F28DBE01BCF}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "nanoFramework.Tools.DebugLibrary.Net", "..\nf-debugger\source\nanoFramework.Tools.DebugLibrary.Net\nanoFramework.Tools.DebugLibrary.Net.csproj", "{101D57AD-D22F-4905-A992-DE15E723F164}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSharp.AssemblyInfoTemplate", "CSharp.AssemblyInfoTemplate\CSharp.AssemblyInfoTemplate.csproj", "{EF2FEEDF-2D22-49F7-A51C-F6D4155A7932}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSharp.BlankApplication", "CSharp.BlankApplication\CSharp.BlankApplication.csproj", "{572121BD-E972-4BF7-ABF1-78251DDE1181}"
@@ -54,10 +50,6 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WireProtocol", "..\nf-interpreter\src\CLR\WireProtocol\WireProtocol-vs2019.vcxproj", "{2337C4A4-3AB4-4014-9C29-9EBE32F4510E}"
 EndProject
 Global
-	GlobalSection(SharedMSBuildProjectFiles) = preSolution
-		..\nf-debugger\source\nanoFramework.Tools.DebugLibrary.Shared\nanoFramework.Tools.DebugLibrary.Net.projitems*{101d57ad-d22f-4905-a992-de15e723f164}*SharedItemsImports = 4
-		..\nf-debugger\source\nanoFramework.Tools.DebugLibrary.Shared\nanoFramework.Tools.DebugLibrary.Net.projitems*{31472cae-4b1a-4ab9-9b2a-8f28dbe01bcf}*SharedItemsImports = 13
-	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Debug|x64 = Debug|x64
@@ -187,14 +179,6 @@ Global
 		{CE0631F2-731D-4A48-B927-F13F6B2FB055}.Release|x64.Build.0 = Release|Any CPU
 		{CE0631F2-731D-4A48-B927-F13F6B2FB055}.Release|x86.ActiveCfg = Release|Any CPU
 		{CE0631F2-731D-4A48-B927-F13F6B2FB055}.Release|x86.Build.0 = Release|Any CPU
-		{101D57AD-D22F-4905-A992-DE15E723F164}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{101D57AD-D22F-4905-A992-DE15E723F164}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{101D57AD-D22F-4905-A992-DE15E723F164}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{101D57AD-D22F-4905-A992-DE15E723F164}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{101D57AD-D22F-4905-A992-DE15E723F164}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{101D57AD-D22F-4905-A992-DE15E723F164}.Release|Any CPU.Build.0 = Release|Any CPU
-		{101D57AD-D22F-4905-A992-DE15E723F164}.Release|x64.ActiveCfg = Release|Any CPU
-		{101D57AD-D22F-4905-A992-DE15E723F164}.Release|x86.ActiveCfg = Release|Any CPU
 		{EF2FEEDF-2D22-49F7-A51C-F6D4155A7932}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{EF2FEEDF-2D22-49F7-A51C-F6D4155A7932}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EF2FEEDF-2D22-49F7-A51C-F6D4155A7932}.Debug|x64.ActiveCfg = Debug|Any CPU
@@ -293,6 +277,7 @@ Global
 		{2337C4A4-3AB4-4014-9C29-9EBE32F4510E}.Debug|x86.ActiveCfg = Debug|Win32
 		{2337C4A4-3AB4-4014-9C29-9EBE32F4510E}.Debug|x86.Build.0 = Debug|Win32
 		{2337C4A4-3AB4-4014-9C29-9EBE32F4510E}.Release|Any CPU.ActiveCfg = Release|Win32
+		{2337C4A4-3AB4-4014-9C29-9EBE32F4510E}.Release|Any CPU.Build.0 = Release|Win32
 		{2337C4A4-3AB4-4014-9C29-9EBE32F4510E}.Release|x64.ActiveCfg = Release|x64
 		{2337C4A4-3AB4-4014-9C29-9EBE32F4510E}.Release|x64.Build.0 = Release|x64
 		{2337C4A4-3AB4-4014-9C29-9EBE32F4510E}.Release|x86.ActiveCfg = Release|Win32
@@ -311,8 +296,6 @@ Global
 		{5D50772E-DAC8-407D-972F-37DEB4450B72} = {43E13DD8-FB72-4811-82FC-E6CC5AF0DA1E}
 		{D32EE397-7E49-452D-AC95-AFCB3C962E3D} = {43E13DD8-FB72-4811-82FC-E6CC5AF0DA1E}
 		{CE0631F2-731D-4A48-B927-F13F6B2FB055} = {BA15D640-224B-4CE0-B143-CFC4D80AAED9}
-		{31472CAE-4B1A-4AB9-9B2A-8F28DBE01BCF} = {48202BAA-0886-440F-9C64-4EB81DE52C26}
-		{101D57AD-D22F-4905-A992-DE15E723F164} = {48202BAA-0886-440F-9C64-4EB81DE52C26}
 		{EF2FEEDF-2D22-49F7-A51C-F6D4155A7932} = {50823B49-643D-4FDA-9063-F136E5F345D2}
 		{572121BD-E972-4BF7-ABF1-78251DDE1181} = {50823B49-643D-4FDA-9063-F136E5F345D2}
 		{4AA9A693-FF7C-4F84-B0CE-28A7EE009471} = {50823B49-643D-4FDA-9063-F136E5F345D2}
