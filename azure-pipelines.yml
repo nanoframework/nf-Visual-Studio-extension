@@ -347,6 +347,7 @@ jobs:
 # generate changelog
 - job: Generate_Changelog
   dependsOn:
+  - Get_Build_Options  
   - VS2017
   - VS2019
   condition: succeeded()
