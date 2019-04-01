@@ -187,7 +187,7 @@ jobs:
             git config user.email 'nanoframework@outlook.com'
             git config user.name 'nfbot'
 
-            git fetch origin "HEAD:$(Build.SourceBranchName)"
+            git fetch origin
 
             # compute authorization header in format "AUTHORIZATION: basic 'encoded token'"
             # 'encoded token' is the Base64 of the string "nfbot:personal-token"
@@ -286,6 +286,7 @@ jobs:
 - job: VS2019
   condition: or( eq( dependencies.Get_Build_Options.outputs['BuildOptions.BUILD_VS2019'], true ), eq(variables['BUILD_VS2019'], 'true') )
   dependsOn:
+  - VS2017
   - Get_Build_Options
 
   pool:
@@ -372,7 +373,7 @@ jobs:
             git config user.email 'nanoframework@outlook.com'
             git config user.name 'nfbot'
 
-            git fetch origin "HEAD:$(Build.SourceBranchName)"
+            git fetch origin
 
             # compute authorization header in format "AUTHORIZATION: basic 'encoded token'"
             # 'encoded token' is the Base64 of the string "nfbot:personal-token"
