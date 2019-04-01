@@ -1,6 +1,5 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/nanoframework/Home/blob/master/LICENSE) [![#yourfirstpr](https://img.shields.io/badge/first--timers--only-friendly-blue.svg)](https://github.com/nanoframework/Home/blob/master/CONTRIBUTING.md) [![Discord](https://img.shields.io/discord/478725473862549535.svg)](https://discord.gg/gCyBu8T)
 
-
 ![nanoFramework logo](https://github.com/nanoframework/Home/blob/master/resources/logo/nanoFramework-repo-logo.png)
 
 -----
@@ -14,15 +13,14 @@ This repo contains **nanoFramework** Visual Studio extension and associated tool
 
 | Component | Build Status | Stable version | Preview version |
 |:-|---|---|---|
-| Visual Studio extension | [![Build Status](https://dev.azure.com/nanoframework/Visual-Studio-extension/_apis/build/status/nanoframework.nf-Visual-Studio-extension)](https://dev.azure.com/nanoframework/Visual-Studio-extension/_build/latest?definitionId=17) | [![Visual Studio Marketplace](https://img.shields.io/vscode-marketplace/v/vs-publisher-1470366.nanoFrameworkVS2017Extension.svg)](https://marketplace.visualstudio.com/items?itemName=vs-publisher-1470366.nanoFrameworkVS2017Extension) | [![MyGet Vsix feed](https://img.shields.io/badge/MyGet%20Vsix%20feed-(preview)-yellow.svg)](https://www.myget.org/feed/nanoframework-dev/package/vsix/47973986-ed3c-4b64-ba40-a9da73b44ef7) |
-
+| Visual Studio 2019 extension | [![Build Status](https://dev.azure.com/nanoframework/Visual-Studio-extension/_apis/build/status/nanoframework.nf-Visual-Studio-extension)](https://dev.azure.com/nanoframework/Visual-Studio-extension/_build/latest?definitionId=17) | [![Visual Studio Marketplace](https://img.shields.io/vscode-marketplace/v/nanoframework.nanoFramework-VS2019-Extension.svg)](https://marketplace.visualstudio.com/items?itemName=nanoframework.nanoFramework-VS2019-Extension) | [![MyGet Vsix feed](https://img.shields.io/badge/MyGet%20Vsix%20feed-(preview)-yellow.svg)](https://www.myget.org/feed/nanoframework-dev/package/vsix/455f2be5-bb07-451e-b351-a9faf3018dc9) |
+| Visual Studio 2017 extension | [![Build Status](https://dev.azure.com/nanoframework/Visual-Studio-extension/_apis/build/status/nanoframework.nf-Visual-Studio-extension)](https://dev.azure.com/nanoframework/Visual-Studio-extension/_build/latest?definitionId=17) | [![Visual Studio Marketplace](https://img.shields.io/vscode-marketplace/v/vs-publisher-1470366.nanoFrameworkVS2017Extension.svg)](https://marketplace.visualstudio.com/items?itemName=vs-publisher-1470366.nanoFrameworkVS2017Extension) | [![MyGet Vsix feed](https://img.shields.io/badge/MyGet%20Vsix%20feed-(preview)-yellow.svg)](https://www.myget.org/feed/nanoframework-dev/package/vsix/47973986-ed3c-4b64-ba40-a9da73b44ef7) |
 
 ## Feedback and documentation
 
 For documentation, providing feedback, issues and finding out how to contribute please refer to the [Home repo](https://github.com/nanoframework/Home).
 
 Join our Discord community [here](https://discord.gg/gCyBu8T).
-
 
 ## Visual Studio extension galleries
 
@@ -35,23 +33,21 @@ Use this URL for the feed: `https://www.myget.org/F/nanoframework-dev/vsix/`.
 
 ## Developing for the Visual Studio extension
 
-If you are working on developing code for **nanoFramework** Visual Studio extension please take a look at the available documentation [here](docs/README.md). 
+If you are working on developing code for **nanoFramework** Visual Studio extension please take a look at the available documentation [here](docs/README.md).
 
 ## Credits
 
 The list of contributors to this project can be found at [CONTRIBUTORS](https://github.com/nanoframework/Home/blob/master/CONTRIBUTORS.md).
 
-
 ## Icons
 
 The icons used in the extension are courtesy of [Icons8](https://icons8.com). Thank you very much for your great work!
-
 
 ## License
 
 The **nanoFramework** Visual Studio extension and associated tools are licensed under the [Apache 2.0 license](http://www.apache.org/licenses/LICENSE-2.0).
 
-
 ## Code of Conduct
+
 This project has adopted the code of conduct defined by the [Contributor Covenant](http://contributor-covenant.org/)
 to clarify expected behavior in our community.

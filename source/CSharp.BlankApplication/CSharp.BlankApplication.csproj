@@ -56,7 +56,11 @@
     <None Include="AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <VSTemplate Include="CSharp.BlankApplication.vstemplate">
+    <VSTemplate Include="CSharp.BlankApplication.vstemplate" Condition=" '$(VisualStudioVersion)' == '15.0'">
+      <SubType>Designer</SubType>
+      <OutputSubPath>nanoFramework</OutputSubPath>
+    </VSTemplate>
+    <VSTemplate Include="CSharp.BlankApplication-vs2019.vstemplate" Condition=" '$(VisualStudioVersion)' == '16.0'">
       <SubType>Designer</SubType>
       <OutputSubPath>nanoFramework</OutputSubPath>
     </VSTemplate>

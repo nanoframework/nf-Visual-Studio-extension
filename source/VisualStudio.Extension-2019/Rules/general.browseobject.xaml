@@ -1,0 +1,80 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Rule Name="ConfigurationGeneralBrowseObject"
+	DisplayName="General"
+	PageTemplate="generic"
+	Description="General"
+    OverrideMode="Replace"      
+	xmlns="http://schemas.microsoft.com/build/2009/properties">
+
+    <Rule.Categories>
+        <Category Name="General" DisplayName="General" Description="General" />
+        <Category Name="nanoFramework" DisplayName="nanoFramework" Description="nanoFramework properties" />
+        <Category Name="nFAdvanced" DisplayName="nanoFramework (Advanced)" Description="nanoFramework advanced properties" />
+    </Rule.Categories>
+    
+    <Rule.DataSource>
+        <DataSource Persistence="ProjectFile"  HasConfigurationCondition="false" />
+    </Rule.DataSource>
+
+    <StringProperty Name="Name" />
+    <StringProperty Name="OutputName" />
+    <StringProperty Name="FullPath" ReadOnly="True">
+        <StringProperty.DataSource>
+            <DataSource Persistence="ProjectFile" PersistedName="MSBuildProjectFullPath" />
+        </StringProperty.DataSource>
+    </StringProperty>
+
+    <StringProperty Name="AssemblyName" DisplayName="Assembly Name" Visible="true">
+        <StringProperty.DataSource>
+                <DataSource PersistedName="AssemblyName" Persistence="ProjectFile" HasConfigurationCondition="false" SourceOfDefaultValue="AfterContext" />
+        </StringProperty.DataSource>
+    </StringProperty>
+
+    <StringProperty Name="RootNamespace" DisplayName="RootNamespace" Visible="False" />
+    <StringProperty Name="DefaultNamespace" DisplayName="Default Namespace" Visible="true">
+        <StringProperty.DataSource>
+            <DataSource PersistedName="RootNamespace" Persistence="ProjectFile" HasConfigurationCondition="false" SourceOfDefaultValue="AfterContext" />
+        </StringProperty.DataSource>
+    </StringProperty>
+
+
+    <!-- nanoFramework category properties -->
+    <BoolProperty Category="nanoFramework" Name="NF_GenerateStubs" DisplayName="Generate stub files" Visible="True" Default="False" Description="Enable this to generate stub files during build.">
+        <BoolProperty.DataSource>
+            <DataSource PersistedName="NF_GenerateStubs" HasConfigurationCondition="False" Label="nanoFramework" SourceOfDefaultValue="AfterContext" />
+        </BoolProperty.DataSource>
+    </BoolProperty>
+    <StringProperty Category="nanoFramework" Name="NF_GenerateStubsRootName" DisplayName="Root name for stub files" Visible="True" Default="$(TargetName)" Description="Root name for stub files.">
+        <StringProperty.DataSource>
+            <DataSource PersistedName="NF_GenerateStubsRootName" HasConfigurationCondition="False" Label="nanoFramework" SourceOfDefaultValue="AfterContext"/>
+        </StringProperty.DataSource>
+    </StringProperty>
+    <StringProperty Category="nanoFramework" Name="NF_GenerateStubsDirectory" Subtype="Folder" DisplayName="Destination of stub files" Visible="True" Default="$(ProjectDir)$(IntermediateOutputPath)" Description="Destination folder for the stub.">
+        <StringProperty.DataSource>
+            <DataSource PersistedName="NF_GenerateStubsDirectory" HasConfigurationCondition="False" Label="nanoFramework" SourceOfDefaultValue="AfterContext"/>
+        </StringProperty.DataSource>
+    </StringProperty>
+
+    <BoolProperty Category="nFAdvanced" Name="NFMDP_DUMP_FILES" DisplayName="Generate dump files" Visible="True" Description="Enable this to generate dump files during build.">
+        <BoolProperty.DataSource>
+            <DataSource PersistedName="NFMDP_DUMP_FILES" HasConfigurationCondition="False" Label="nanoFramework" SourceOfDefaultValue="AfterContext"/>
+        </BoolProperty.DataSource>
+    </BoolProperty>
+    <BoolProperty Category="nFAdvanced" Name="NFMDP_DAT_FILES" DisplayName="Generate .dat files" Visible="True" Description="Enable this to generate .dat files during build.">
+        <BoolProperty.DataSource>
+            <DataSource PersistedName="NFMDP_DAT_FILES" HasConfigurationCondition="False" Label="nanoFramework" SourceOfDefaultValue="AfterContext"/>
+        </BoolProperty.DataSource>
+    </BoolProperty>
+    <BoolProperty Category="nFAdvanced" Name="NFMDP_XML_FILES" DisplayName="Generate XML files" Visible="True" Description="Enable this to generate XML files during build.">
+        <BoolProperty.DataSource>
+            <DataSource PersistedName="NFMDP_XML_FILES" HasConfigurationCondition="False" Label="nanoFramework" SourceOfDefaultValue="AfterContext"/>
+        </BoolProperty.DataSource>
+    </BoolProperty>
+    <BoolProperty Category="nFAdvanced" Name="NFMDP_CMD_LINE_OUTPUT" DisplayName="Output MDP command line" Visible="True" Description="Enable this to output a verbose output of the command lines sent to MetaDataProcessor. (Only usefull for debugging the command execution)">
+        <BoolProperty.DataSource>
+            <DataSource Persistence="UserFile" PersistedName="NFMDP_CMD_LINE_OUTPUT" HasConfigurationCondition="True" Label="nanoFramework" SourceOfDefaultValue="AfterContext"/>
+        </BoolProperty.DataSource>
+    </BoolProperty>
+
+</Rule>
+    

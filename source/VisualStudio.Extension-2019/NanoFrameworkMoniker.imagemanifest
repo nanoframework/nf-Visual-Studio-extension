@@ -1,0 +1,96 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ImageManifest xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                           xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+                           xmlns="http://schemas.microsoft.com/VisualStudio/ImageManifestSchema/2014">
+  <Symbols>
+    <String Name="Resources" Value="/nanoFramework.Tools.VS2019.Extension;Component/Resources" />
+    <Guid Name="NanoFrameworkCatalog" Value="6CBBCC35-4BB4-4110-AFFF-9BAEF4DAA4A7" />
+    <ID Name="DeviceConnected" Value="20" />
+    <ID Name="DeviceDisconnected" Value="30" />
+    <ID Name="NanoFramework" Value="40" />
+    <ID Name="Ping" Value="50" />
+    <ID Name="DeviceCapabilities" Value="70" />
+    <ID Name="NanoFrameworkProject" Value="80" />
+    <ID Name="ShowInternalErrors" Value="90" />
+    <ID Name="DeviceErase" Value="100" />
+    <ID Name="NetworkConfig" Value="110" />
+    <ID Name="Reboot" Value="120" />
+    <ID Name="DisableDeviceWatchers" Value="130" />
+    <ID Name="RescanDevices" Value="140" />
+  </Symbols>
+  <Images>
+    <Image Guid="$(NanoFrameworkCatalog)" ID="$(DeviceConnected)">
+      <Source Uri="$(Resources)/DeviceConnected.xaml"/>
+      <Source Uri="$(Resources)/DeviceConnected.16.16.png" >
+        <Size Value="16" />
+      </Source>
+    </Image>
+    <Image Guid="$(NanoFrameworkCatalog)" ID="$(DeviceDisconnected)">
+      <Source Uri="$(Resources)/DeviceDisconnected.xaml"/>
+      <Source Uri="$(Resources)/DeviceDisconnected.16.16.png" >
+        <Size Value="16" />
+      </Source>
+    </Image>
+    <Image Guid="$(NanoFrameworkCatalog)" ID="$(NanoFramework)">
+      <Source Uri="$(Resources)/NanoFramework.xaml"/>
+      <Source Uri="$(Resources)/NanoFramework.16.16.png" >
+        <Size Value="16" />
+      </Source>
+    </Image>
+    <Image Guid="$(NanoFrameworkCatalog)" ID="$(Ping)">
+      <Source Uri="$(Resources)/Ping.xaml"/>
+      <Source Uri="$(Resources)/Ping.16.16.png" >
+        <Size Value="16" />
+      </Source>
+    </Image>
+    <Image Guid="$(NanoFrameworkCatalog)" ID="$(DeviceCapabilities)">
+      <Source Uri="$(Resources)/DeviceCapabilities.xaml"/>
+      <Source Uri="$(Resources)/DeviceCapabilities.16.16.png" >
+        <Size Value="16" />
+      </Source>
+    </Image>
+    <Image Guid="$(NanoFrameworkCatalog)" ID="$(NanoFrameworkProject)">
+      <Source Uri="$(Resources)/NanoFrameworkProject.xaml"/>
+      <Source Uri="$(Resources)/NanoFrameworkProject.16.16.png" >
+        <Size Value="16" />
+      </Source>
+    </Image>
+    <Image Guid="$(NanoFrameworkCatalog)" ID="$(ShowInternalErrors)">
+      <Source Uri="$(Resources)/ShowInternalErrors.xaml"/>
+      <Source Uri="$(Resources)/ShowInternalErrors.16.16.png" >
+        <Size Value="16" />
+      </Source>
+    </Image>
+    <Image Guid="$(NanoFrameworkCatalog)" ID="$(DeviceErase)">
+      <Source Uri="$(Resources)/DeviceErase.xaml"/>
+      <Source Uri="$(Resources)/DeviceErase.16.16.png" >
+        <Size Value="16" />
+      </Source>
+    </Image>
+    <Image Guid="$(NanoFrameworkCatalog)" ID="$(NetworkConfig)">
+      <Source Uri="$(Resources)/NetworkConfig.xaml"/>
+      <Source Uri="$(Resources)/NetworkConfig.16.16.png" >
+        <Size Value="16" />
+      </Source>
+    </Image>
+    <Image Guid="$(NanoFrameworkCatalog)" ID="$(Reboot)">
+      <Source Uri="$(Resources)/Reboot.xaml"/>
+      <Source Uri="$(Resources)/Reboot.16.16.png" >
+        <Size Value="16" />
+      </Source>
+    </Image>
+    <Image Guid="$(NanoFrameworkCatalog)" ID="$(DisableDeviceWatchers)">
+      <Source Uri="$(Resources)/DisableDeviceWatchers.xaml"/>
+      <Source Uri="$(Resources)/DisableDeviceWatchers.16.16.png" >
+        <Size Value="16" />
+      </Source>
+    </Image>
+    <Image Guid="$(NanoFrameworkCatalog)" ID="$(RescanDevices)">
+      <Source Uri="$(Resources)/RescanDevices.xaml"/>
+      <Source Uri="$(Resources)/RescanDevices.16.16.png" >
+        <Size Value="16" />
+      </Source>
+    </Image>
+  </Images>
+  <ImageLists />
+</ImageManifest>

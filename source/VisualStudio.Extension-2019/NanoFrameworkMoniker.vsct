@@ -1,0 +1,25 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<!--
+ This file defines the Guid data for the nanoFraework monikers and the ID symbols for individual 
+ icons. This file is used in conjunction with the imagemanifest file to provide the necessary 
+ data to display our custom icons in menu buttons, toolbars, etc.
+ -->
+ 
+<CommandTable xmlns="http://schemas.microsoft.com/VisualStudio/2005-10-18/CommandTable">
+  <Symbols>
+    <GuidSymbol name="NanoFrameworkCatalog" value="{6CBBCC35-4BB4-4110-AFFF-9BAEF4DAA4A7}">
+      <IDSymbol name="DeviceConnected" value="20" />
+      <IDSymbol name="DeviceDisconnected" value="30" />
+      <IDSymbol name="NanoFramework" value="40" />
+      <IDSymbol name="Ping" value="50" />
+      <IDSymbol name="DeviceCapabilities" value="70" />
+      <IDSymbol name="NanoFrameworkProject" value="80" />
+      <IDSymbol name="ShowInternalErrors" value="90" />
+      <IDSymbol name="DeviceErase" value="100" />
+      <IDSymbol name="NetworkConfig" value="110" />
+      <IDSymbol name="Reboot" value="120" />
+      <IDSymbol name="DisableDeviceWatchers" value="130" />
+      <IDSymbol name="RescanDevices" value="140" />
+    </GuidSymbol>
+  </Symbols>
+</CommandTable>
