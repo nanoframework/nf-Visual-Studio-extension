@@ -144,75 +144,6 @@ jobs:
   #     platform: '$(buildPlatform)'
   #     configuration: '$(buildConfiguration)'
 
-  - task: UseRubyVersion@0
-    inputs:
-      versionSpec: '>= 2.4' 
-      addToPath: true
-    condition: and( succeeded(), not( startsWith(variables['Build.SourceBranch'], 'refs/pull') ) )
-    displayName: Setup Ruby
-
-  # generate change log
-  - powershell: |
-        gem install github_changelog_generator --quiet --no-ri --no-rdoc
-        # need to call it passing both cache options with full path otherwise it won't work
-        github_changelog_generator --token $(GitHubToken) --cache-log  $env:AGENT_TEMPDIRECTORY\github-changelog-logger.log --cache-file $env:AGENT_TEMPDIRECTORY\github-changelog-http-cache --output CHANGELOG-VS2017.md
-    condition: and( succeeded(), not( startsWith(variables['Build.SourceBranch'], 'refs/pull') ), not( startsWith(variables['Build.SourceBranch'], 'refs/tags/v') ), or( eq(variables['Build.SourceBranchName'], 'master'), contains(variables['Build.SourceBranchName'], 'release') ) )
-    displayName: Generate change log
-
-  # generate change log including future version
-  - powershell: |
-        gem install github_changelog_generator --quiet --no-ri --no-rdoc
-        # need to call it passing both cache options with full path otherwise it won't work
-        github_changelog_generator --token $(GitHubToken) --cache-log  $env:AGENT_TEMPDIRECTORY\github-changelog-logger.log --cache-file $env:AGENT_TEMPDIRECTORY\github-changelog-http-cache --future-release v$env:MY_NUGET_VERSION --output CHANGELOG-VS2017.md
-    condition: and( succeeded(), not( startsWith(variables['Build.SourceBranch'], 'refs/pull') ), not( startsWith(variables['Build.SourceBranch'], 'refs/tags/v') ), not( or( eq(variables['Build.SourceBranchName'], 'master'), contains(variables['Build.SourceBranchName'], 'release') ) ) )
-    displayName: Generate change log
-
-  # copy change log to artifacts directory
-  - task: CopyFiles@2
-    inputs:
-      SourceFolder: '$(System.DefaultWorkingDirectory)'
-      Contents: 'CHANGELOG-VS2017.md'
-      TargetFolder: '$(Build.ArtifactStagingDirectory)'
-    condition: and( succeeded(), not( startsWith(variables['Build.SourceBranch'], 'refs/pull') ), not( startsWith(variables['Build.SourceBranch'], 'refs/tags/v') ) )
-    displayName: Copy Changelog
-
-  # push new changelog to GitHub repo
-  - task: PowerShell@2
-    inputs:
-        targetType: 'inline'
-        script: |
-            git add CHANGELOG-VS2017.md
-            git commit -m "Update CHANGELOG for VS2017 v$(NBGV_AssemblyVersion)" -m"***NO_CI***"
-
-            git config user.email 'nanoframework@outlook.com'
-            git config user.name 'nfbot'
-
-            git fetch origin
-
-            # compute authorization header in format "AUTHORIZATION: basic 'encoded token'"
-            # 'encoded token' is the Base64 of the string "nfbot:personal-token"
-            $auth = "basic $([System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes("nfbot:$(GitHubToken)"))))"
-
-            git -c http.extraheader="AUTHORIZATION: $auth" push origin "HEAD:$(Build.SourceBranchName)"
-
-    condition: and( succeeded(), not( startsWith(variables['Build.SourceBranch'], 'refs/pull') ), not( startsWith(variables['Build.SourceBranch'], 'refs/tags/v') ) )
-    displayName: Push changelog to GitHub
-
-  #####
-  # can't update could build number with release number because it's shared among VS2017 and VS2019
-  #####
-
-  - task: CopyFiles@1
-    inputs:
-      sourceFolder: $(Build.SourcesDirectory)
-      Contents: |
-        **\*.vsix
-        **\CHANGELOG-VS2017.md
-      TargetFolder: '$(Build.ArtifactStagingDirectory)'
-      flattenFolders: true
-    condition: succeeded()
-    displayName: Collecting deployable artifacts
-
   # publish artifacts (only possible if this is not a PR originated on a fork)
   - task: PublishBuildArtifacts@1
     inputs:
@@ -286,7 +217,6 @@ jobs:
 - job: VS2019
   condition: or( eq( dependencies.Get_Build_Options.outputs['BuildOptions.BUILD_VS2019'], true ), eq(variables['BUILD_VS2019'], 'true') )
   dependsOn:
-  - VS2017
   - Get_Build_Options
 
   pool:
@@ -330,60 +260,6 @@ jobs:
   #     platform: '$(buildPlatform)'
   #     configuration: '$(buildConfiguration)'
 
-  - task: UseRubyVersion@0
-    inputs:
-      versionSpec: '>= 2.4' 
-      addToPath: true
-    condition: and( succeeded(), not( startsWith(variables['Build.SourceBranch'], 'refs/pull') ) )
-    displayName: Setup Ruby
-
-  # generate change log
-  - powershell: |
-        gem install github_changelog_generator --quiet --no-ri --no-rdoc
-        # need to call it passing both cache options with full path otherwise it won't work
-        github_changelog_generator --token $(GitHubToken) --cache-log  $env:AGENT_TEMPDIRECTORY\github-changelog-logger.log --cache-file $env:AGENT_TEMPDIRECTORY\github-changelog-http-cache --output CHANGELOG-VS2019.md
-    condition: and( succeeded(), not( startsWith(variables['Build.SourceBranch'], 'refs/pull') ), not( startsWith(variables['Build.SourceBranch'], 'refs/tags/v') ), or( eq(variables['Build.SourceBranchName'], 'master'), contains(variables['Build.SourceBranchName'], 'release') ) )
-    displayName: Generate change log
-
-  # generate change log including future version
-  - powershell: |
-        gem install github_changelog_generator --quiet --no-ri --no-rdoc
-        # need to call it passing both cache options with full path otherwise it won't work
-        github_changelog_generator --token $(GitHubToken) --cache-log  $env:AGENT_TEMPDIRECTORY\github-changelog-logger.log --cache-file $env:AGENT_TEMPDIRECTORY\github-changelog-http-cache --future-release v$env:MY_NUGET_VERSION --output CHANGELOG-VS2019.md
-    condition: and( succeeded(), not( startsWith(variables['Build.SourceBranch'], 'refs/pull') ), not( startsWith(variables['Build.SourceBranch'], 'refs/tags/v') ), not( or( eq(variables['Build.SourceBranchName'], 'master'), contains(variables['Build.SourceBranchName'], 'release') ) ) )
-    displayName: Generate change log
-
-  # copy change log to artifacts directory
-  - task: CopyFiles@2
-    inputs:
-      SourceFolder: '$(System.DefaultWorkingDirectory)'
-      Contents: 'CHANGELOG-VS2019.md'
-      TargetFolder: '$(Build.ArtifactStagingDirectory)'
-    condition: and( succeeded(), not( startsWith(variables['Build.SourceBranch'], 'refs/pull') ), not( startsWith(variables['Build.SourceBranch'], 'refs/tags/v') ) )
-    displayName: Copy Changelog
-
-  # push new changelog to GitHub repo
-  - task: PowerShell@2
-    inputs:
-        targetType: 'inline'
-        script: |
-            git add CHANGELOG-VS2019.md
-            git commit -m "Update CHANGELOG for VS2019 v$(NBGV_AssemblyVersion)" -m"***NO_CI***"
-
-            git config user.email 'nanoframework@outlook.com'
-            git config user.name 'nfbot'
-
-            git fetch origin
-
-            # compute authorization header in format "AUTHORIZATION: basic 'encoded token'"
-            # 'encoded token' is the Base64 of the string "nfbot:personal-token"
-            $auth = "basic $([System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes("nfbot:$(GitHubToken)"))))"
-
-            git -c http.extraheader="AUTHORIZATION: $auth" push origin "HEAD:$(Build.SourceBranchName)"
-
-    condition: and( succeeded(), not( startsWith(variables['Build.SourceBranch'], 'refs/pull') ), not( startsWith(variables['Build.SourceBranch'], 'refs/tags/v') ) )
-    displayName: Push changelog to GitHub
-
   #####
   # can't update could build number with release number because it's shared among VS2017 and VS2019
   #####
@@ -393,7 +269,6 @@ jobs:
       sourceFolder: $(Build.SourcesDirectory)
       Contents: |
         **\*.vsix
-        **\CHANGELOG-VS2019.md
       TargetFolder: '$(Build.ArtifactStagingDirectory)'
       flattenFolders: true
     condition: succeeded()
@@ -469,12 +344,153 @@ jobs:
     displayName: Create/Update GitHub release
 
 ##################################
+# generate changelog
+- job: Generate_Changelog
+  dependsOn:
+  - VS2017
+  - VS2019
+  condition: succeeded()
+
+  pool:
+    vmImage: 'VS2017-Win2016'
+
+  steps:
+  - checkout: self
+    fetchDepth: 10
+
+  - task: UseRubyVersion@0
+    inputs:
+      versionSpec: '>= 2.4' 
+      addToPath: true
+    condition: and( succeeded(), not( startsWith(variables['Build.SourceBranch'], 'refs/pull') ) )
+    displayName: Setup Ruby
+
+  # generate VS2017 change log
+  - powershell: |
+        gem install github_changelog_generator --quiet --no-ri --no-rdoc
+        # need to call it passing both cache options with full path otherwise it won't work
+        github_changelog_generator --token $(GitHubToken) --cache-log  $env:AGENT_TEMPDIRECTORY\github-changelog-logger.log --cache-file $env:AGENT_TEMPDIRECTORY\github-changelog-http-cache --since-tag v1.0.9-VS2019 --output CHANGELOG-VS2017.md
+    condition: and( succeeded(), not( startsWith(variables['Build.SourceBranch'], 'refs/pull') ), not( startsWith(variables['Build.SourceBranch'], 'refs/tags/v') ), or( eq(variables['Build.SourceBranchName'], 'master'), contains(variables['Build.SourceBranchName'], 'release') ), or( eq( dependencies.Get_Build_Options.outputs['BuildOptions.BUILD_VS2017'], true ), eq(variables['BUILD_VS2017'], 'true') ) )
+    displayName: Generate VS2017 change log
+
+  # generate VS2017 change log including future version
+  - powershell: |
+        gem install github_changelog_generator --quiet --no-ri --no-rdoc
+        # need to call it passing both cache options with full path otherwise it won't work
+        github_changelog_generator --token $(GitHubToken) --cache-log  $env:AGENT_TEMPDIRECTORY\github-changelog-logger.log --cache-file $env:AGENT_TEMPDIRECTORY\github-changelog-http-cache --future-release v$env:MY_NUGET_VERSION --since-tag v1.0.9-VS2019 --output CHANGELOG-VS2017.md
+    condition: and( succeeded(), not( startsWith(variables['Build.SourceBranch'], 'refs/pull') ), not( startsWith(variables['Build.SourceBranch'], 'refs/tags/v') ), not( or( eq(variables['Build.SourceBranchName'], 'master'), contains(variables['Build.SourceBranchName'], 'release') ) ), or( eq( dependencies.Get_Build_Options.outputs['BuildOptions.BUILD_VS2017'], true ), eq(variables['BUILD_VS2017'], 'true') ) )
+    displayName: Generate VS2017 change log
+
+  # copy VS2017 change log to artifacts directory
+  - task: CopyFiles@2
+    inputs:
+      SourceFolder: '$(System.DefaultWorkingDirectory)'
+      Contents: 'CHANGELOG-VS2017.md'
+      TargetFolder: '$(Build.ArtifactStagingDirectory)'
+    condition: and( succeeded(), not( startsWith(variables['Build.SourceBranch'], 'refs/pull') ), not( startsWith(variables['Build.SourceBranch'], 'refs/tags/v') ), or( eq( dependencies.Get_Build_Options.outputs['BuildOptions.BUILD_VS2017'], true ), eq(variables['BUILD_VS2017'], 'true') ) )
+    displayName: Copy VS2017 Changelog
+
+  # commit VS2017 changelog
+  - task: PowerShell@2
+    inputs:
+        targetType: 'inline'
+        script: |
+            git add CHANGELOG-VS2017.md
+            git commit -m "Update CHANGELOG for VS2017 v$(NBGV_AssemblyVersion)" -m"***NO_CI***"
+
+    condition: and( succeeded(), not( startsWith(variables['Build.SourceBranch'], 'refs/pull') ), not( startsWith(variables['Build.SourceBranch'], 'refs/tags/v') ), or( eq( dependencies.Get_Build_Options.outputs['BuildOptions.BUILD_VS2017'], true ), eq(variables['BUILD_VS2017'], 'true') ) )
+    displayName: Commit VS2017 changelog
+
+  - task: CopyFiles@1
+    inputs:
+      sourceFolder: $(Build.SourcesDirectory)
+      Contents: |
+        **\CHANGELOG-VS2017.md
+      TargetFolder: '$(Build.ArtifactStagingDirectory)'
+      flattenFolders: true
+    condition: and( succeeded(), or( eq( dependencies.Get_Build_Options.outputs['BuildOptions.BUILD_VS2017'], true ), eq(variables['BUILD_VS2017'], 'true') ) )
+    displayName: Collecting VS2017 deployable artifacts
+
+  # generate VS2019 change log
+  - powershell: |
+        gem install github_changelog_generator --quiet --no-ri --no-rdoc
+        # need to call it passing both cache options with full path otherwise it won't work
+        github_changelog_generator --token $(GitHubToken) --cache-log  $env:AGENT_TEMPDIRECTORY\github-changelog-logger.log --cache-file $env:AGENT_TEMPDIRECTORY\github-changelog-http-cache --output CHANGELOG-VS2019.md
+    condition: and( succeeded(), not( startsWith(variables['Build.SourceBranch'], 'refs/pull') ), not( startsWith(variables['Build.SourceBranch'], 'refs/tags/v') ), or( eq(variables['Build.SourceBranchName'], 'master'), contains(variables['Build.SourceBranchName'], 'release') ), or( eq( dependencies.Get_Build_Options.outputs['BuildOptions.BUILD_VS2019'], true ), eq(variables['BUILD_VS2019'], 'true') ) )
+    displayName: Generate VS2019 change log
+
+  # generate VS2019 change log including future version
+  - powershell: |
+        gem install github_changelog_generator --quiet --no-ri --no-rdoc
+        # need to call it passing both cache options with full path otherwise it won't work
+        github_changelog_generator --token $(GitHubToken) --cache-log  $env:AGENT_TEMPDIRECTORY\github-changelog-logger.log --cache-file $env:AGENT_TEMPDIRECTORY\github-changelog-http-cache --future-release v$env:MY_NUGET_VERSION --output CHANGELOG-VS2019.md
+    condition: and( succeeded(), not( startsWith(variables['Build.SourceBranch'], 'refs/pull') ), not( startsWith(variables['Build.SourceBranch'], 'refs/tags/v') ), not( or( eq(variables['Build.SourceBranchName'], 'master'), contains(variables['Build.SourceBranchName'], 'release') ) ), or( eq( dependencies.Get_Build_Options.outputs['BuildOptions.BUILD_VS2019'], true ), eq(variables['BUILD_VS2019'], 'true') ) )
+    displayName: Generate VS2019 change log
+
+  # copy VS2019 change log to artifacts directory
+  - task: CopyFiles@2
+    inputs:
+      SourceFolder: '$(System.DefaultWorkingDirectory)'
+      Contents: 'CHANGELOG-VS2019.md'
+      TargetFolder: '$(Build.ArtifactStagingDirectory)'
+    condition: and( succeeded(), not( startsWith(variables['Build.SourceBranch'], 'refs/pull') ), not( startsWith(variables['Build.SourceBranch'], 'refs/tags/v') ), or( eq( dependencies.Get_Build_Options.outputs['BuildOptions.BUILD_VS2019'], true ), eq(variables['BUILD_VS2019'], 'true') ) )
+    displayName: Copy Changelog
+
+  - task: CopyFiles@1
+    inputs:
+      sourceFolder: $(Build.SourcesDirectory)
+      Contents: |
+        **\*.md
+      TargetFolder: '$(Build.ArtifactStagingDirectory)'
+      flattenFolders: true
+    condition: and( succeeded(), or( eq( dependencies.Get_Build_Options.outputs['BuildOptions.BUILD_VS2019'], true ), eq(variables['BUILD_VS2019'], 'true') ) )
+    displayName: Collecting deployable artifacts
+
+  # publish artifacts (only possible if this is not a PR originated on a fork)
+  - task: PublishBuildArtifacts@1
+    inputs:
+      PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+      ArtifactName: deployables
+      ArtifactType: Container
+    condition: and( succeeded(), ne(variables['system.pullrequest.isfork'], true) )
+    displayName: Publish deployables artifacts
+
+  # commit VS2019 changelog
+  - task: PowerShell@2
+    inputs:
+        targetType: 'inline'
+        script: |
+            git add CHANGELOG-VS2019.md
+            git commit -m "Update CHANGELOG for VS2019 v$(NBGV_AssemblyVersion)" -m"***NO_CI***"
+
+    condition: and( succeeded(), not( startsWith(variables['Build.SourceBranch'], 'refs/pull') ), not( startsWith(variables['Build.SourceBranch'], 'refs/tags/v') ), or( eq( dependencies.Get_Build_Options.outputs['BuildOptions.BUILD_VS2019'], true ), eq(variables['BUILD_VS2019'], 'true') ) )
+    displayName: Commit VS2019 changelog
+
+  # push changelogs to GitHub repo
+  - task: PowerShell@2
+    inputs:
+        targetType: 'inline'
+        script: |
+            git config user.email 'nanoframework@outlook.com'
+            git config user.name 'nfbot'
+
+            # compute authorization header in format "AUTHORIZATION: basic 'encoded token'"
+            # 'encoded token' is the Base64 of the string "nfbot:personal-token"
+            $auth = "basic $([System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes("nfbot:$(GitHubToken)"))))"
+
+            git -c http.extraheader="AUTHORIZATION: $auth" push origin "HEAD:$(Build.SourceBranchName)"
+
+    condition: and( succeeded(), not( startsWith(variables['Build.SourceBranch'], 'refs/pull') ), not( startsWith(variables['Build.SourceBranch'], 'refs/tags/v') ) )
+    displayName: Push changelogs to GitHub
+
+##################################
 # report build failure to Discord
 - job: Report_Build_Failure
   dependsOn:
   - VS2017
   - VS2019
-  condition: or( failed('VS2017'), failed('VS2019') )
+  - Generate_Changelog
+  condition: or( failed('VS2017'), failed('VS2019'), failed('Generate_Changelog') )
 
   pool:
     vmImage: 'VS2017-Win2016'
