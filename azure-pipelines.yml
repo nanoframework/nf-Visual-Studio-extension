@@ -138,6 +138,21 @@ jobs:
       msbuildArgs: '/p:PublicRelease=true'
       configuration: '$(buildConfiguration)'
 
+  - task: PowerShell@2
+    inputs:
+        targetType: 'inline'
+        script: |
+            Write-Host "VS2017 build version $env:NBGV_AssemblyVersion"
+            
+            echo "##vso[task.setvariable variable=VS2017_BUILD_VERSION;isOutput=true]$env:NBGV_AssemblyVersion"  
+
+    condition: succeeded()
+    displayName: Store VS2017 build version
+
+  #####
+  # can't update could build number with release number because it's shared among VS2017 and VS2019
+  #####
+
   # we don't have tests (yet)
   # - task: VSTest@2
   #   inputs:
@@ -260,6 +275,17 @@ jobs:
   #     platform: '$(buildPlatform)'
   #     configuration: '$(buildConfiguration)'
 
+  - task: PowerShell@2
+    inputs:
+        targetType: 'inline'
+        script: |
+            Write-Host "VS2019 build version $env:NBGV_AssemblyVersion"
+            
+            echo "##vso[task.setvariable variable=VS2019_BUILD_VERSION;isOutput=true]$env:NBGV_AssemblyVersion"  
+
+    condition: succeeded()
+    displayName: Store VS2017 build version
+
   #####
   # can't update could build number with release number because it's shared among VS2017 and VS2019
   #####
@@ -354,7 +380,9 @@ jobs:
 
   variables:
     myBuildVS2017: $[ dependencies.Get_Build_Options.outputs['BuildOptions.BUILD_VS2017'] ]
+    myVS2017Version: $[ dependencies.Get_Build_Options.outputs['VS2017.VS2017_BUILD_VERSION'] ]
     myBuildVS2019: $[ dependencies.Get_Build_Options.outputs['BuildOptions.BUILD_VS2019'] ]
+    myVS2019Version: $[ dependencies.Get_Build_Options.outputs['VS2019.VS2019_BUILD_VERSION'] ]
 
   pool:
     vmImage: 'VS2017-Win2016'
@@ -401,7 +429,7 @@ jobs:
         targetType: 'inline'
         script: |
             git add CHANGELOG-VS2017.md
-            git commit -m "Update CHANGELOG for VS2017 v$(NBGV_AssemblyVersion)" -m"***NO_CI***"
+            git commit -m "Update CHANGELOG for VS2017 v$(myVS2017Version)" -m"***NO_CI***"
 
     condition: and( succeeded(), not( startsWith(variables['Build.SourceBranch'], 'refs/pull') ), not( startsWith(variables['Build.SourceBranch'], 'refs/tags/v') ), or( eq( variables['myBuildVS2017'], true ), eq(variables['BUILD_VS2017'], 'true') ) )
     displayName: Commit VS2017 changelog
@@ -428,7 +456,7 @@ jobs:
   - powershell: |
         gem install github_changelog_generator --quiet --no-ri --no-rdoc
         # need to call it passing both cache options with full path otherwise it won't work
-        github_changelog_generator --token $(GitHubToken) --cache-log  $env:AGENT_TEMPDIRECTORY\github-changelog-logger.log --cache-file $env:AGENT_TEMPDIRECTORY\github-changelog-http-cache --future-release v$env:MY_NUGET_VERSION --output CHANGELOG-VS2019.md
+        github_changelog_generator --token $(GitHubToken) --cache-log  $env:AGENT_TEMPDIRECTORY\github-changelog-logger.log --cache-file $env:AGENT_TEMPDIRECTORY\github-changelog-http-cache --future-release v$(myVS2017Version) --output CHANGELOG-VS2019.md
     condition: and( succeeded(), not( startsWith(variables['Build.SourceBranch'], 'refs/pull') ), not( startsWith(variables['Build.SourceBranch'], 'refs/tags/v') ), not( or( eq(variables['Build.SourceBranchName'], 'master'), contains(variables['Build.SourceBranchName'], 'release') ) ), or( eq( variables['myBuildVS2019'], true ), eq(variables['BUILD_VS2019'], 'true') ) )
     displayName: Generate VS2019 change log
 
@@ -466,7 +494,7 @@ jobs:
         targetType: 'inline'
         script: |
             git add CHANGELOG-VS2019.md
-            git commit -m "Update CHANGELOG for VS2019 v$(NBGV_AssemblyVersion)" -m"***NO_CI***"
+            git commit -m "Update CHANGELOG for VS2019 v$(myVS2019Version)" -m"***NO_CI***"
 
     condition: and( succeeded(), not( startsWith(variables['Build.SourceBranch'], 'refs/pull') ), not( startsWith(variables['Build.SourceBranch'], 'refs/tags/v') ), or( eq( variables['myBuildVS2019'], true ), eq(variables['BUILD_VS2019'], 'true') ) )
     displayName: Commit VS2019 changelog
