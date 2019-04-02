@@ -90,7 +90,7 @@ jobs:
         if( $commit.files.filename -like "*source/VisualStudio.Extension-2019*" )
         {
           # changes here only impact VS2019
-          echo "##vso[task.setvariable variable=BUILD_VS2019;isOutput=true]true"  
+          echo "##vso[task.setvariable variable=BUILD_VS2019;isOutput=true]true"
         }
       }
 
@@ -144,9 +144,10 @@ jobs:
         script: |
             Write-Host "VS2017 build version $env:NBGV_AssemblyVersion"
             
-            echo "##vso[task.setvariable variable=VS2017_BUILD_VERSION;isOutput=true]$env:NBGV_AssemblyVersion"  
+            echo "##vso[task.setvariable variable=BUILD_VERSION;isOutput=true]$env:NBGV_AssemblyVersion"  
 
     condition: succeeded()
+    name: VS2017Build
     displayName: Store VS2017 build version
 
   #####
@@ -281,10 +282,11 @@ jobs:
         script: |
             Write-Host "VS2019 build version $env:NBGV_AssemblyVersion"
             
-            echo "##vso[task.setvariable variable=VS2019_BUILD_VERSION;isOutput=true]$env:NBGV_AssemblyVersion"  
+            echo "##vso[task.setvariable variable=BUILD_VERSION;isOutput=true]$env:NBGV_AssemblyVersion"  
 
     condition: succeeded()
-    displayName: Store VS2017 build version
+    name: VS2019Build
+    displayName: Store VS2019 build version
 
   #####
   # can't update could build number with release number because it's shared among VS2017 and VS2019
@@ -380,9 +382,9 @@ jobs:
 
   variables:
     myBuildVS2017: $[ dependencies.Get_Build_Options.outputs['BuildOptions.BUILD_VS2017'] ]
-    MY_VS2017_VERSION: $[ dependencies.Get_Build_Options.outputs['VS2017.VS2017_BUILD_VERSION'] ]
+    MY_VS2017_VERSION: $[ dependencies.VS2017.outputs['VS2017Build.BUILD_VERSION'] ]
     myBuildVS2019: $[ dependencies.Get_Build_Options.outputs['BuildOptions.BUILD_VS2019'] ]
-    MY_VS2019_VERSION: $[ dependencies.Get_Build_Options.outputs['VS2019.VS2019_BUILD_VERSION'] ]
+    MY_VS2019_VERSION: $[ dependencies.VS2019.outputs['VS2019Build.BUILD_VERSION'] ]
 
   pool:
     vmImage: 'VS2017-Win2016'
