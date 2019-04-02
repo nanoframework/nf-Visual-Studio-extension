@@ -391,6 +391,11 @@ jobs:
   - checkout: self
     fetchDepth: 10
 
+  - script: |
+      git config --global user.email 'nanoframework@outlook.com'
+      git config --global user.name 'nfbot'
+    displayName: Setup git identity
+
   - task: UseRubyVersion@0
     inputs:
       versionSpec: '>= 2.4' 
