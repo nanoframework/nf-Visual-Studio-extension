@@ -792,8 +792,6 @@
 - Add missing ref to mscorlib Nuget package [\#31](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/31)
 
 ## [v0.1.11-beta1](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v0.1.11-beta1) (2017-04-28)
-[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v1.0.9-VS2019...v0.1.11-beta1)
-
 **Implemented enhancements:**
 
 - Work on VS extension for initial publishing [\#26](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/26) [[Area: VS-extension](https://github.com/nanoframework/nf-Visual-Studio-extension/labels/Area:%20VS-extension)]
