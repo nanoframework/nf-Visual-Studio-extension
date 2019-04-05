@@ -7,7 +7,7 @@ To launch Visual Studio experimental instance:
 1. Open VS developer command prompt.
 2. Enter `"C:\Program Files (x86)\Microsoft Visual Studio\2017\Professional\Common7\IDE\devenv.exe"  /rootSuffix Exp`
 
-> Mind to adjust the path above to your setup.
+> Mind to adjust the path above to your setup and Visual Studio version (2017 or 2019).
 
 ## Reset VS experimental instance
 
@@ -17,8 +17,8 @@ In case you need to reset the Visual Studio experimental instance:
 2. Navigate to `e:\Program Files (x86)\Microsoft Visual Studio\2017\Professional\VSSDK\VisualStudioIntegration\Tools\Bin`.
 3. Enter `CreateExpInstance /Reset /VSInstance=15.0 /RootSuffix=_d9708c20Exp`.
 
-> Mind to adjust the path above to your setup.
-> The RootSuffix above (**_d9708c20Exp**) will be different for each installation. Please amend the above to match your local one.
+> Mind to adjust the path above to your setup and Visual Studio version (15.0 for VS2017 and 16.0 for VS2019).
+> The RootSuffix above (**_d9708c20Exp**) will be different for each installation. Please amend the above to match your local one. You can find the suffix by navigating to the following folder in the users folder `C:\Users\johndoe\AppData\Roaming\Microsoft\VisualStudio`.
 
 You'll want to reset VS experimental instance on a number of situations. Usually this is when you need to start fresh because there is too much clutter, a failed deployment that is creeplying your debugging or whenever a new Visual Studio update is installed.
 
