@@ -4,9 +4,10 @@
 // See LICENSE file in the project root for full license information.
 //
 
+using ICSharpCode.Decompiler;
+using ICSharpCode.Decompiler.CSharp;
 using Microsoft.VisualStudio.ProjectSystem;
 using Microsoft.VisualStudio.ProjectSystem.Build;
-using Microsoft.VisualStudio.ProjectSystem.References;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Threading;
 using nanoFramework.Tools.Debugger;
@@ -18,7 +19,7 @@ using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.IO;
 using System.Linq;
-using System.Reflection;
+using System.Text.RegularExpressions;
 using System.Threading;
 using Task = System.Threading.Tasks.Task;
 
@@ -220,9 +221,29 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                             foreach (string assemblyPath in assemblyPathsToDeploy)
                             {
-                                // load assembly to get the version
-                                var assembly = Assembly.Load(File.ReadAllBytes(assemblyPath)).GetName();
-                                assemblyList.Add(new DeploymentAssembly(assemblyPath, $"{assembly.Version.ToString(4)}"));
+                                // load assembly in order to get the versions
+                                var decompiler = new CSharpDecompiler(assemblyPath, new DecompilerSettings());
+                                var assemblyProperties = decompiler.DecompileModuleAndAssemblyAttributesToString();
+
+                                // read attributes using a Regex
+
+                                // AssemblyVersion
+                                string pattern = @"(?<=AssemblyVersion\("")(.*)(?=\""\)])";
+                                var match = Regex.Matches(assemblyProperties, pattern, RegexOptions.IgnoreCase);
+                                string assemblyVersion = match[0].Value;
+
+                                // AssemblyNativeVersion
+                                pattern = @"(?<=AssemblyNativeVersion\("")(.*)(?=\""\)])";
+                                match = Regex.Matches(assemblyProperties, pattern, RegexOptions.IgnoreCase);
+
+                                // only class libs have this attribute, therefore sanity check is required
+                                string nativeVersion = "";
+                                if (match.Count == 1)
+                                {
+                                    nativeVersion = match[0].Value;
+                                }
+
+                                assemblyList.Add(new DeploymentAssembly(assemblyPath, assemblyVersion, nativeVersion));
                             }
 
                             // if there are referenced project, the assembly list contains repeated assemblies so need to use Linq Distinct()
@@ -230,7 +251,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                             List<DeploymentAssembly> distinctAssemblyList = assemblyList.Distinct(new DeploymentAssemblyDistinctEquality()).ToList();
 
                             // build a list with the PE files corresponding to each DLL and EXE
-                            List<DeploymentAssembly> peCollection = distinctAssemblyList.Select(a => new DeploymentAssembly(a.Path.Replace(".dll", ".pe").Replace(".exe", ".pe"), a.Version)).ToList();
+                            List<DeploymentAssembly> peCollection = distinctAssemblyList.Select(a => new DeploymentAssembly(a.Path.Replace(".dll", ".pe").Replace(".exe", ".pe"), a.Version, a.NativeVersion)).ToList();
 
                             var checkAssembliesResult = await CheckNativeAssembliesAvailabilityAsync(device.DeviceInfo.NativeAssemblies, peCollection);
                             if (checkAssembliesResult != "")
@@ -364,7 +385,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 using (FileStream fs = File.Open(peItem.Path, FileMode.Open, FileAccess.Read))
                 {
                     CLRCapabilities.NativeAssemblyProperties nativeAssembly;
-                    // get PE checksum
+                    
+                    // read the PE checksum from the byte array at position 0x14
                     byte[] buffer = new byte[4];
                     fs.Position = 0x14;
                     await fs.ReadAsync(buffer, 0, 4);
@@ -381,8 +403,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     {
                         nativeAssembly = nativeAssemblies.Find(a => a.Checksum == peChecksum);
 
-                        // check the version now
-                        if (nativeAssembly.Version.ToString(4) == peItem.Version)
+                        // now check the native version against the requested version on the PE
+                        if (nativeAssembly.Version.ToString(4) == peItem.NativeVersion)
                         {
                             // we are good with this one
                             continue;
@@ -390,8 +412,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                         // no suitable native assembly found build a (hopefully) helpful message to the developer
                         wrongAssemblies += $"Couldn't find a valid native assembly required by {Path.GetFileNameWithoutExtension(peItem.Path)} v{peItem.Version}, checksum 0x{peChecksum.ToString("X8")}." + Environment.NewLine +
-                                        $"This project is referencing {Path.GetFileNameWithoutExtension(peItem.Path)} NuGet package with v{peItem.Version}." + Environment.NewLine +
-                                        $"The connected target is has support for v{nativeAssembly.Version.ToString(4)}." + Environment.NewLine;
+                                        $"This project is referencing {Path.GetFileNameWithoutExtension(peItem.Path)} NuGet package requiring native v{peItem.NativeVersion}." + Environment.NewLine +
+                                        $"The connected target has v{nativeAssembly.Version.ToString(4)}." + Environment.NewLine;
                     }
                     else
                     {
@@ -413,7 +435,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                         // no suitable native assembly found build a (hopefully) helpful message to the developer
                         missingAssemblies = $"Couldn't find a valid native assembly required by {Path.GetFileNameWithoutExtension(peItem.Path)} v{peItem.Version}, checksum 0x{peChecksum.ToString("X8")}." + Environment.NewLine +
-                                        $"This project is referencing {Path.GetFileNameWithoutExtension(peItem.Path)} NuGet package with v{peItem.Version}." + Environment.NewLine +
+                                        $"This project is referencing {Path.GetFileNameWithoutExtension(peItem.Path)} NuGet package requiring native v{peItem.NativeVersion}." + Environment.NewLine +
                                         $"The connected target does not have support for {Path.GetFileNameWithoutExtension(peItem.Path)}." + Environment.NewLine;
 
                     }
@@ -434,7 +456,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 errorMessage += wrongAssemblies;
                 errorMessage += $"Please check: " + Environment.NewLine +
                                $"  1) if the target is running the most updated image." + Environment.NewLine +
-                               $"  2) if the project is referring the appropriate version of the assembly." + Environment.NewLine;
+                               $"  2) if the project is referring the appropriate version of the NuGet package." + Environment.NewLine;
             }
 
             if (!string.IsNullOrEmpty(missingAssemblies))
@@ -442,7 +464,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 errorMessage += missingAssemblies;
                 errorMessage += "Please check: " + Environment.NewLine +
                                     "  1) if the target is running the most updated image." + Environment.NewLine +
-                                    "  2) if the target image was built to include support for referenced assembly." + Environment.NewLine;
+                                    "  2) if the target image was built to include support for all referenced assemblies." + Environment.NewLine;
             }
 
 
