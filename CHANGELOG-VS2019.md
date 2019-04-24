@@ -1,10 +1,11 @@
 # Change Log
 
-## [v1.0.0.138](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v1.0.0.138) (2019-04-24)
-[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v1.0.3.127-VS2017...v1.0.0.138)
+## [v1.0.0.141](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v1.0.0.141) (2019-04-24)
+[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v1.0.3.127-VS2017...v1.0.0.141)
 
 **Implemented enhancements:**
 
+- Remove autoload attributes from package [\#367](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/367) [[Area: VS-extension](https://github.com/nanoframework/nf-Visual-Studio-extension/labels/Area:%20VS-extension)]
 - Replace deprecated auto load attributes [\#366](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/366) [[Area: VS-extension](https://github.com/nanoframework/nf-Visual-Studio-extension/labels/Area:%20VS-extension)]
 
 ## [v1.0.3.127-VS2017](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v1.0.3.127-VS2017) (2019-04-24)
