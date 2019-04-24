@@ -219,10 +219,19 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                             // build a list with the full path for each DLL, referenced DLL and EXE
                             List<DeploymentAssembly> assemblyList = new List<DeploymentAssembly>();
 
+                            // set decompiler options
+                            // - don't load assembly in memory (causes issues with next solution rebuild)
+                            // - don't throw resolution errors as we are not interested on this, just the assembly metadata
+                            var decompilerSettings = new DecompilerSettings
+                            {
+                                LoadInMemory = false,
+                                ThrowOnAssemblyResolveErrors = false
+                            };
+
                             foreach (string assemblyPath in assemblyPathsToDeploy)
                             {
                                 // load assembly in order to get the versions
-                                var decompiler = new CSharpDecompiler(assemblyPath, new DecompilerSettings());
+                                var decompiler = new CSharpDecompiler(assemblyPath, decompilerSettings);
                                 var assemblyProperties = decompiler.DecompileModuleAndAssemblyAttributesToString();
 
                                 // read attributes using a Regex
