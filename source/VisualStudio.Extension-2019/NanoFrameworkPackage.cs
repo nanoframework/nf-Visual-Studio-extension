@@ -21,6 +21,7 @@ using Microsoft.VisualStudio.ProjectSystem.VS;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.TextTemplating.VSHost;
+using Microsoft.VisualStudio.Threading;
 using Microsoft.Win32;
 using nanoFramework.Tools.VisualStudio.Extension;
 using nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel;
