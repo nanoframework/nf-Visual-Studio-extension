@@ -299,7 +299,7 @@
 
     <!-- nanoFramework MetaDataProcessor XML options -->
     <NFMDP_XML_Resolve>true</NFMDP_XML_Resolve>
-    <NFMDP_XML_GenerateDependency>$(ProjectDir)$(IntermediateOutputPath)$(TargetName).xml</NFMDP_XML_GenerateDependency>
+  <NFMDP_XML_GenerateDependency>$(ProjectDir)$(IntermediateOutputPath)$(TargetName)_dependency_map.xml</NFMDP_XML_GenerateDependency>
 
     <!-- misc -->
     <NanoCLR_DisasmInput>$(ProjectDir)$(IntermediateOutputPath)$(TargetFileName)</NanoCLR_DisasmInput>
