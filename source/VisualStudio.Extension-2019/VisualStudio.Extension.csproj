@@ -320,8 +320,8 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="..\packages\nanoFramework.CoreLibrary.1.1.1\nanoFramework.CoreLibrary.1.1.1.nupkg">
-      <Link>Packages\nanoFramework.CoreLibrary.1.1.1.nupkg</Link>
+    <Content Include="..\packages\nanoFramework.CoreLibrary.1.2.1-preview-001\nanoFramework.CoreLibrary.1.2.1-preview-001.nupkg">
+      <Link>Packages\nanoFramework.CoreLibrary.1.2.1-preview-001.nupkg</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
