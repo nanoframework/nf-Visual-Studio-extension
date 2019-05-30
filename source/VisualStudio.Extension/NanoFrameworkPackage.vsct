@@ -197,6 +197,16 @@
         </Strings>
       </Button>
       
+      <!-- show settings for Device Explorer toolbar -->
+      <Button guid="guidDeviceExplorerCmdSet" id="idShowSettingsCommand" priority="0x0101" type="Button">
+        <Parent guid="guidDeviceExplorerCmdSet" id="DeviceExplorerToolbarGroup3ID"/>
+        <Icon guid="NanoFrameworkCatalog" id="Settings" />
+        <CommandFlag>IconIsMoniker</CommandFlag>
+        <Strings>
+          <CommandName>ShowSettingsCommand</CommandName>
+          <ButtonText>Show Settings</ButtonText>
+        </Strings>
+      </Button>      
       
     </Buttons>
   </Commands>
@@ -230,6 +240,7 @@
       <IDSymbol name="idDisableDeviceWatchersCommand" value="0x0400" />
       <IDSymbol name="idRescanDevicesCommand" value="0x0410" />
       <IDSymbol name="idShowInternalErrorsCommand" value="0x0300" />
+      <IDSymbol name="idShowSettingsCommand" value="0x0420" />
     </GuidSymbol>
 
   </Symbols>

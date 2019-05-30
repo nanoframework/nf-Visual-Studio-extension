@@ -17,6 +17,7 @@
     <ID Name="Reboot" Value="120" />
     <ID Name="DisableDeviceWatchers" Value="130" />
     <ID Name="RescanDevices" Value="140" />
+    <ID Name="Settings" Value="150" />
   </Symbols>
   <Images>
     <Image Guid="$(NanoFrameworkCatalog)" ID="$(DeviceConnected)">
@@ -88,6 +89,12 @@
     <Image Guid="$(NanoFrameworkCatalog)" ID="$(RescanDevices)">
       <Source Uri="$(Resources)/RescanDevices.xaml"/>
       <Source Uri="$(Resources)/RescanDevices.16.16.png" >
+        <Size Value="16" />
+      </Source>
+    </Image>
+    <Image Guid="$(NanoFrameworkCatalog)" ID="$(Settings)">
+      <Source Uri="$(Resources)/Settings.xaml"/>
+      <Source Uri="$(Resources)/Settings.16.16.png" >
         <Size Value="16" />
       </Source>
     </Image>

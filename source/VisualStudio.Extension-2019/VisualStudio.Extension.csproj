@@ -296,6 +296,9 @@
     <Compile Include="..\VisualStudio.Extension\ToolWindow.DeviceExplorer\ViewModel\ViewModelLocator.cs">
       <Link>ToolWindow.DeviceExplorer\ViewModel\ViewModelLocator.cs</Link>
     </Compile>
+    <Compile Include="..\VisualStudio.Extension\Utilities\DeploymentImageGenerator.cs">
+      <Link>Utilities\DeploymentImageGenerator.cs</Link>
+    </Compile>
     <Compile Include="..\VisualStudio.Extension\Utilities\EnumToItemsSource.cs">
       <Link>Utilities\EnumToItemsSource.cs</Link>
     </Compile>
@@ -317,6 +320,9 @@
     </Compile>
     <Compile Include="IPMaskedTextBox\IPMaskedTextBox.xaml.cs">
       <DependentUpon>IPMaskedTextBox.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="ToolWindow.DeviceExplorer\SettingsDialog.xaml.cs">
+      <DependentUpon>SettingsDialog.xaml</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
@@ -342,6 +348,7 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <Resource Include="Resources\RescanDevices.16.16.png" />
+    <Resource Include="Resources\Settings.16.16.png" />
     <Content Include="Targets\NFProjectSystem.MDP.targets">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <IncludeInVSIX>true</IncludeInVSIX>
@@ -872,6 +879,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="ToolWindow.DeviceExplorer\SettingsDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Resource Include="Resources\ShowInternalErrors.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -884,6 +895,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Resource Include="Resources\Settings.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Resource>
     <Page Include="ToolWindow.DeviceExplorer\NetworkConfigurationDialog.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

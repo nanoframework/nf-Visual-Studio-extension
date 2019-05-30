@@ -88,6 +88,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         private const string SHOW_INTERNAL_ERRORS_KEY = "ShowInternalErrors";
         private const string DISABLE_DEVICE_WATCHERS_KEY = "DisableDeviceWatchers";
+        private const string SETTINGS_GENERATE_DEPLOYMENT_IMAGE_KEY = "GenerateDeploymentImage";
+        private const string SETTINGS_INCLUDE_CONFIG_BLOCK_IN_DEPLOYMENT_IMAGE_KEY = "IncludeConfigBlockInDeploymentImage";
+        private const string SETTINGS_PATH_OF_FLASH_DUMP_CACHE_IMAGE_KEY = "PathOfFlashDumpCache";
 
         private static bool? s_OptionShowInternalErrors;
         /// <summary>
@@ -116,7 +119,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             }
         }
 
-
         private static bool? s_OptionDisableDeviceWatchers;
         /// <summary>
         /// User option for outputting internal extension errors to the extension output pane.
@@ -141,6 +143,87 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 s_instance.UserRegistryRoot.OpenSubKey(EXTENSION_SUBKEY, true).Flush();
 
                 s_OptionDisableDeviceWatchers = value;
+            }
+        }
+
+        private static bool? s_SettingGenerateDeploymentImage;
+        /// <summary>
+        /// Setting to generate deployment image on deploy.
+        /// The value is persisted per user.
+        /// Default is false.
+        /// </summary>
+        public static bool SettingGenerateDeploymentImage
+        {
+            get
+            {
+                if (!s_SettingGenerateDeploymentImage.HasValue)
+                {
+                    s_SettingGenerateDeploymentImage = bool.Parse((string)s_instance.UserRegistryRoot.OpenSubKey(EXTENSION_SUBKEY).GetValue(SETTINGS_GENERATE_DEPLOYMENT_IMAGE_KEY, "False"));
+                }
+
+                return s_SettingGenerateDeploymentImage.Value;
+            }
+
+            set
+            {
+                s_instance.UserRegistryRoot.OpenSubKey(EXTENSION_SUBKEY, true).SetValue(SETTINGS_GENERATE_DEPLOYMENT_IMAGE_KEY, value);
+                s_instance.UserRegistryRoot.OpenSubKey(EXTENSION_SUBKEY, true).Flush();
+
+                s_SettingGenerateDeploymentImage = value;
+            }
+        }
+
+        private static bool? s_SettingIncludeConfigBlockInDeploymentImage;
+        /// <summary>
+        /// Setting to include configuration block when generating deployment image.
+        /// The value is persisted per user.
+        /// Default is false.
+        /// </summary>
+        public static bool SettingIncludeConfigBlockInDeploymentImage
+        {
+            get
+            {
+                if (!s_SettingIncludeConfigBlockInDeploymentImage.HasValue)
+                {
+                    s_SettingIncludeConfigBlockInDeploymentImage = bool.Parse((string)s_instance.UserRegistryRoot.OpenSubKey(EXTENSION_SUBKEY).GetValue(SETTINGS_INCLUDE_CONFIG_BLOCK_IN_DEPLOYMENT_IMAGE_KEY, "False"));
+                }
+
+                return s_SettingIncludeConfigBlockInDeploymentImage.Value;
+            }
+
+            set
+            {
+                s_instance.UserRegistryRoot.OpenSubKey(EXTENSION_SUBKEY, true).SetValue(SETTINGS_INCLUDE_CONFIG_BLOCK_IN_DEPLOYMENT_IMAGE_KEY, value);
+                s_instance.UserRegistryRoot.OpenSubKey(EXTENSION_SUBKEY, true).Flush();
+
+                s_SettingIncludeConfigBlockInDeploymentImage = value;
+            }
+        }
+
+        private static string s_SettingPathOfFlashDumpCache = null;
+        /// <summary>
+        /// Setting to store path where to cache flash dump. If empty the cache will be the project output path.
+        /// The value is persisted per user.
+        /// Default is empty.
+        /// </summary>
+        public static string SettingPathOfFlashDumpCache
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(s_SettingPathOfFlashDumpCache))
+                {
+                    s_SettingPathOfFlashDumpCache = (string)s_instance.UserRegistryRoot.OpenSubKey(EXTENSION_SUBKEY).GetValue(SETTINGS_PATH_OF_FLASH_DUMP_CACHE_IMAGE_KEY);
+                }
+
+                return s_SettingPathOfFlashDumpCache;
+            }
+
+            set
+            {
+                s_instance.UserRegistryRoot.OpenSubKey(EXTENSION_SUBKEY, true).SetValue(SETTINGS_PATH_OF_FLASH_DUMP_CACHE_IMAGE_KEY, value);
+                s_instance.UserRegistryRoot.OpenSubKey(EXTENSION_SUBKEY, true).Flush();
+
+                s_SettingPathOfFlashDumpCache = value;
             }
         }
 
