@@ -72,6 +72,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         // 3r group
         public const int ShowInternalErrorsCommandID = 0x0300;
+        public const int ShowSettingsCommandID = 0x0420;
 
 
         INanoDeviceCommService NanoDeviceCommService;
@@ -210,6 +211,14 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 RescanDevicesCommandHandler), toolbarButtonCommandId);
             // making it disabled for now, it will be updated according to DisableDeviceWatchers status when appropriate
             menuItem.Enabled = false;
+            menuItem.Visible = true;
+            menuCommandService.AddCommand(menuItem);
+
+            // Show Settings
+            toolbarButtonCommandId = GenerateCommandID(ShowSettingsCommandID);
+            menuItem = new MenuCommand(new EventHandler(
+                ShowSettingsCommandHandler), toolbarButtonCommandId);
+            menuItem.Enabled = true;
             menuItem.Visible = true;
             menuCommandService.AddCommand(menuItem);
         }
@@ -756,7 +765,46 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             (sender as MenuCommand).Checked = !currentCheckState;
         }
 
-        #endregion
+        /// <summary>
+        /// Handler for ShowSettingsCommand
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="arguments"></param>
+        /// <remarks>OK to use async void because this is a top-level event-handler 
+        /// https://channel9.msdn.com/Series/Three-Essential-Tips-for-Async/Tip-1-Async-void-is-for-top-level-event-handlers-only
+        /// </remarks>
+        private async void ShowSettingsCommandHandler(object sender, EventArgs arguments)
+        {
+            // yield to give the UI thread a chance to respond to user input
+            await Task.Yield();
+
+            try
+            {
+                // disable the button
+                (sender as MenuCommand).Enabled = false;
+
+                // show settings dialogue
+                var allSettingsDialog = new SettingsDialog();
+                allSettingsDialog.HasMinimizeButton = false;
+                allSettingsDialog.HasMaximizeButton = false;
+                allSettingsDialog.ShowModal();
+            }
+            catch (Exception ex)
+            {
+
+            }
+            finally
+            {
+                // enable the button
+                (sender as MenuCommand).Enabled = true;
+
+                // clear status bar
+                MessageCentre.StopProgressMessage();
+            }
+        }
+
+
+    #endregion
 
         public static void UpdateShowInternalErrorsButton(bool value)
         {

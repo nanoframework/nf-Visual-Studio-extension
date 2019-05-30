@@ -20,6 +20,7 @@
       <IDSymbol name="Reboot" value="120" />
       <IDSymbol name="DisableDeviceWatchers" value="130" />
       <IDSymbol name="RescanDevices" value="140" />
+      <IDSymbol name="Settings" value="150" />
     </GuidSymbol>
   </Symbols>
 </CommandTable>

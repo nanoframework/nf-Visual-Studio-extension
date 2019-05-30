@@ -54,24 +54,24 @@
       <Group guid="guidDeviceExplorerCmdSet" id="DeviceExplorerToolbarGroupID" priority="0x0000">
         <Parent guid="guidDeviceExplorerCmdSet" id="DeviceExplorerToolbarID" />
       </Group>
-    
+
       <!-- this is the 2nd group for the Device Explorer Toolbar -->
       <Group guid="guidDeviceExplorerCmdSet" id="DeviceExplorerToolbarGroup2ID" priority="0x0001">
         <Parent guid="guidDeviceExplorerCmdSet" id="DeviceExplorerToolbarID" />
       </Group>
-   
+
       <!-- this is the 3rd group for the Device Explorer Toolbar -->
       <Group guid="guidDeviceExplorerCmdSet" id="DeviceExplorerToolbarGroup3ID" priority="0x0002">
         <Parent guid="guidDeviceExplorerCmdSet" id="DeviceExplorerToolbarID" />
       </Group>
-    
+
     </Groups>
-    
+
     <!--Buttons section. -->
     <!--This section defines the elements the user can interact with, like a menu command or a button 
         or combo box in a toolbar. -->
     <Buttons>
-      
+
       <!-- commands for command line-->
       <Button guid="guidNanoDebugPackageCmdSet" id="cmdidLaunchNanoDebug" priority="0x0100" type="Button">
         <CommandFlag>AllowParams</CommandFlag>
@@ -146,7 +146,7 @@
           <CommandName>RebootCommand</CommandName>
           <ButtonText>Reboot target device</ButtonText>
         </Strings>
-      </Button>      
+      </Button>
 
       <!-- NetworkConfig for Device Explorer toolbar -->
       <Button guid="guidDeviceExplorerCmdSet" id="idNetworkConfigCommand" priority="0x0101" type="Button">
@@ -159,9 +159,9 @@
           <ButtonText>Edit Network Configuration</ButtonText>
         </Strings>
       </Button>
-      
+
       <!-- buttons for the 2nd menu -->
-      
+
       <!-- Disable device watchers -->
       <Button guid="guidDeviceExplorerCmdSet" id="idDisableDeviceWatchersCommand" priority="0x0101" type="Button">
         <Parent guid="guidDeviceExplorerCmdSet" id="DeviceExplorerToolbarGroup2ID"/>
@@ -182,10 +182,10 @@
           <CommandName>RescanDevicesCommand</CommandName>
           <ButtonText>Rescan nanoDevices</ButtonText>
         </Strings>
-      </Button>     
-      
+      </Button>
+
       <!-- buttons for the 3rd menu -->
-      
+
       <!-- Show internal errors for nF extension -->
       <Button guid="guidDeviceExplorerCmdSet" id="idShowInternalErrorsCommand" priority="0x0101" type="Button">
         <Parent guid="guidDeviceExplorerCmdSet" id="DeviceExplorerToolbarGroup3ID"/>
@@ -196,15 +196,25 @@
           <ButtonText>Show Internal Errors</ButtonText>
         </Strings>
       </Button>
-      
-      
+
+      <!-- show settings for Device Explorer toolbar -->
+      <Button guid="guidDeviceExplorerCmdSet" id="idShowSettingsCommand" priority="0x0101" type="Button">
+        <Parent guid="guidDeviceExplorerCmdSet" id="DeviceExplorerToolbarGroup3ID"/>
+        <Icon guid="NanoFrameworkCatalog" id="SettingsID" />
+        <CommandFlag>IconIsMoniker</CommandFlag>
+        <Strings>
+          <CommandName>ShowSettingsCommand</CommandName>
+          <ButtonText>Show Settings</ButtonText>
+        </Strings>
+      </Button>
+
     </Buttons>
   </Commands>
 
   <Symbols>
     <!-- This is the package guid. -->
     <GuidSymbol name="guidNanoFrameworkPackage" value="{046B40EB-1DE1-4D08-AF61-FDB7592B9BBD}" />
-    
+
     <!-- This is the guid used to group the commands together -->
     <GuidSymbol name="guidNanoDebugPackageCmdSet" value="{6A0F19B1-00EF-4215-BD7B-29DEB4425F7C}">
       <IDSymbol name="MyMenuGroup" value="0x1020" />
@@ -230,6 +240,7 @@
       <IDSymbol name="idDisableDeviceWatchersCommand" value="0x0400" />
       <IDSymbol name="idRescanDevicesCommand" value="0x0410" />
       <IDSymbol name="idShowInternalErrorsCommand" value="0x0300" />
+      <IDSymbol name="idShowSettingsCommand" value="0x0420" />
     </GuidSymbol>
 
   </Symbols>

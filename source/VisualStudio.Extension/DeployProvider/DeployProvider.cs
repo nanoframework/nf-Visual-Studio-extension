@@ -63,6 +63,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         public async Task DeployAsync(CancellationToken cancellationToken, TextWriter outputPaneWriter)
         {
+            List<byte[]> assemblies = new List<byte[]>();
+            string targetFlashDumpFileName = "";
+            int retryCount = 0;
+
+            await Task.Yield();
+
             // just in case....
             if (_viewModelLocator?.DeviceExplorer.SelectedDevice == null)
             {
@@ -77,11 +83,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             // user feedback
             await outputPaneWriter.WriteLineAsync($"Getting things ready to deploy assemblies to nanoFramework device: {device.Description}.");
 
-            List<byte[]> assemblies = new List<byte[]>();
-
             // device needs to be in 'initialized state' for a successful and correct deployment 
             // meaning that is not running nor stopped
-            int retryCount = 0;
             bool deviceIsInInitializeState = false;
 
             try
@@ -93,6 +96,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 {
                     NanoDeviceCommService.Device.CreateDebugEngine();
                 }
+
+                await Task.Yield();
 
                 // connect to the device
                 if (await device.DebugEngine.ConnectAsync(5000, true))
@@ -156,15 +161,26 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                             // wait before next pass
                             // use a back-off strategy of increasing the wait time to accommodate slower or less responsive targets (such as networked ones)
                             await Task.Delay(TimeSpan.FromMilliseconds(_timeoutMiliseconds * (retryCount + 1)));
-                        };
 
-                        Thread.Yield();
+                            await Task.Yield();
+                        };
 
                         // check if device is still in initialized state
                         if (!deviceIsInInitializeState)
                         {
                             // device has left initialization state
                             await outputPaneWriter.WriteLineAsync(ResourceStrings.DeviceInitialized);
+
+                            await Task.Yield();
+
+                            // do we have to generate a deployment image?
+                            if (NanoFrameworkPackage.SettingGenerateDeploymentImage)
+                            {
+                                await Task.Run(async delegate
+                                {
+                                    targetFlashDumpFileName = await DeploymentImageGenerator.RunPreparationStepsToGenerateDeploymentImageAsync(device, Properties.ConfiguredProject, outputPaneWriter);
+                                });
+                            }
 
                             //////////////////////////////////////////////////////////
                             // sanity check for devices without native assemblies ?!?!
@@ -262,6 +278,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                             // build a list with the PE files corresponding to each DLL and EXE
                             List<DeploymentAssembly> peCollection = distinctAssemblyList.Select(a => new DeploymentAssembly(a.Path.Replace(".dll", ".pe").Replace(".exe", ".pe"), a.Version, a.NativeVersion)).ToList();
 
+                            await Task.Yield();
+
                             var checkAssembliesResult = await CheckNativeAssembliesAvailabilityAsync(device.DeviceInfo.NativeAssemblies, peCollection);
                             if (checkAssembliesResult != "")
                             {
@@ -270,6 +288,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                                 // can't deploy
                                 throw new DeploymentException(checkAssembliesResult);
                             }
+
+                            await Task.Yield();
 
                             // Keep track of total assembly size
                             long totalSizeOfAssemblies = 0;
@@ -284,6 +304,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                                     await outputPaneWriter.WriteLineAsync($"Adding {Path.GetFileNameWithoutExtension(peItem.Path)} v{peItem.Version} ({length.ToString()} bytes) to deployment bundle");
                                     byte[] buffer = new byte[length];
 
+                                    await Task.Yield();
+
                                     await fs.ReadAsync(buffer, 0, (int)fs.Length);
                                     assemblies.Add(buffer);
 
@@ -293,9 +315,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                             }
 
                             await outputPaneWriter.WriteLineAsync($"Deploying {peCollection.Count:N0} assemblies to device... Total size in bytes is {totalSizeOfAssemblies.ToString()}.");
-
-                            Thread.Yield();
-
                             MessageCentre.InternalErrorMessage("Deploying assemblies.");
 
                             // need to keep a copy of the deployment blob for the second attempt (if needed)
@@ -304,6 +323,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                             // create a progress indicator to be used by deployment operation to post debug messages
                             var progressIndicator = new Progress<string>(MessageCentre.InternalErrorMessage);
 
+                            await Task.Yield();
+
                             if (!device.DebugEngine.DeploymentExecute(assemblies, false, progressIndicator))
                             {
                                 // if the first attempt fails, give it another try
@@ -311,12 +332,13 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                                 // wait before next pass
                                 await Task.Delay(TimeSpan.FromSeconds(1));
 
+                                await Task.Yield();
+
                                 MessageCentre.InternalErrorMessage("Deploying assemblies. Second attempt.");
 
-                                Thread.Yield();
-
                                 // !! need to use the deployment blob copy
-                                if (!device.DebugEngine.DeploymentExecute(assemblyCopy, false, progressIndicator))
+                                var anotherAssemblyCopy = new List<byte[]>(assemblyCopy);
+                                if (!device.DebugEngine.DeploymentExecute(anotherAssemblyCopy, false, progressIndicator))
                                 {
                                     MessageCentre.InternalErrorMessage("Deployment failed.");
 
@@ -325,7 +347,16 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                                 }
                             }
 
-                            Thread.Yield();
+                            await Task.Yield();
+
+                            // do we have to generate a deployment image?
+                            if (NanoFrameworkPackage.SettingGenerateDeploymentImage)
+                            {
+                                await Task.Run(async delegate
+                                {
+                                    await DeploymentImageGenerator.GenerateDeploymentImageAsync(device, targetFlashDumpFileName, assemblyCopy, Properties.ConfiguredProject, outputPaneWriter);
+                                });
+                            }
 
                             // deployment successful
                             await outputPaneWriter.WriteLineAsync("Deployment successful.");
