@@ -76,7 +76,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     // build cache file name
                     targetFlashDumpFileName = Path.Combine(
                         cacheLocation,
-                        device.Description + device.DeviceInfo.ClrBuildVersion.ToString(4) +
+                        device.Description + " - " + device.DeviceInfo.ClrBuildVersion.ToString(4) +
                         ".dumpcache");
 
                     // do we have a cached image of the device flash
@@ -212,7 +212,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 var flashClrEndAddress = lastClrBlockStartAddress + lastClrBlockSize;
 
                 // get deployment start address
-                var deploymentStartAddress = flashSectorMap.Last(item => (item.m_flags & Commands.Monitor_FlashSectorMap.c_MEMORY_USAGE_MASK) == Commands.Monitor_FlashSectorMap.c_MEMORY_USAGE_DEPLOYMENT).m_StartAddress;
+                var deploymentStartAddress = flashSectorMap.First(item => (item.m_flags & Commands.Monitor_FlashSectorMap.c_MEMORY_USAGE_MASK) == Commands.Monitor_FlashSectorMap.c_MEMORY_USAGE_DEPLOYMENT).m_StartAddress;
 
                 // read flash dump file
                 byte[] flashDumpBuffer;

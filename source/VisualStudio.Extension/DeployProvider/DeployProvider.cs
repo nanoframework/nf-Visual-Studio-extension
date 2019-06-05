@@ -325,7 +325,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                             await Task.Yield();
 
-                            if (!device.DebugEngine.DeploymentExecute(assemblies, false, progressIndicator))
+                            if (!device.DebugEngine.DeploymentExecute(assemblyCopy, false, progressIndicator))
                             {
                                 // if the first attempt fails, give it another try
 
@@ -337,8 +337,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                                 MessageCentre.InternalErrorMessage("Deploying assemblies. Second attempt.");
 
                                 // !! need to use the deployment blob copy
-                                var anotherAssemblyCopy = new List<byte[]>(assemblyCopy);
-                                if (!device.DebugEngine.DeploymentExecute(anotherAssemblyCopy, false, progressIndicator))
+                                assemblyCopy = new List<byte[]>(assemblies);
+                                if (!device.DebugEngine.DeploymentExecute(assemblyCopy, false, progressIndicator))
                                 {
                                     MessageCentre.InternalErrorMessage("Deployment failed.");
 
@@ -354,7 +354,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                             {
                                 await Task.Run(async delegate
                                 {
-                                    await DeploymentImageGenerator.GenerateDeploymentImageAsync(device, targetFlashDumpFileName, assemblyCopy, Properties.ConfiguredProject, outputPaneWriter);
+                                    await DeploymentImageGenerator.GenerateDeploymentImageAsync(device, targetFlashDumpFileName, assemblies, Properties.ConfiguredProject, outputPaneWriter);
                                 });
                             }
 
