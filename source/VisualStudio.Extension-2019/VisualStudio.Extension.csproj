@@ -584,8 +584,8 @@
       <Private>True</Private>
       <Private>True</Private>
     </Reference>
-    <Reference Include="nanoFramework.Tools.Debugger, Version=1.0.2.78, Culture=neutral, PublicKeyToken=e520bb6b53f04733, processorArchitecture=MSIL">
-      <HintPath>..\packages\nanoFramework.Tools.Debugger.Net.1.0.2-preview.78\lib\net461\nanoFramework.Tools.Debugger.dll</HintPath>
+    <Reference Include="nanoFramework.Tools.Debugger, Version=1.1.0.11, Culture=neutral, PublicKeyToken=e520bb6b53f04733, processorArchitecture=MSIL">
+      <HintPath>..\packages\nanoFramework.Tools.Debugger.Net.1.1.0-preview.11\lib\net461\nanoFramework.Tools.Debugger.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
