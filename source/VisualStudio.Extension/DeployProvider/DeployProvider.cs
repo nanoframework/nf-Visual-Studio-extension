@@ -154,8 +154,11 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                             {
                                 MessageCentre.InternalErrorMessage("Device reported running nanoCLR. Requesting to reboot nanoCLR.");
 
-                                // already running nanoCLR try rebooting the CLR
-                                device.DebugEngine.RebootDevice(RebootOptions.ClrOnly);
+                                await Task.Run(delegate
+                                {
+                                    // already running nanoCLR try rebooting the CLR
+                                    device.DebugEngine.RebootDevice(RebootOptions.ClrOnly);
+                                });
                             }
 
                             // wait before next pass
@@ -325,27 +328,30 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                             await Task.Yield();
 
-                            if (!device.DebugEngine.DeploymentExecute(assemblyCopy, false, progressIndicator))
+                            await Task.Run(async delegate
                             {
-                                // if the first attempt fails, give it another try
-
-                                // wait before next pass
-                                await Task.Delay(TimeSpan.FromSeconds(1));
-
-                                await Task.Yield();
-
-                                MessageCentre.InternalErrorMessage("Deploying assemblies. Second attempt.");
-
-                                // !! need to use the deployment blob copy
-                                assemblyCopy = new List<byte[]>(assemblies);
                                 if (!device.DebugEngine.DeploymentExecute(assemblyCopy, false, progressIndicator))
                                 {
-                                    MessageCentre.InternalErrorMessage("Deployment failed.");
+                                    // if the first attempt fails, give it another try
 
-                                    // throw exception to signal deployment failure
-                                    throw new DeploymentException("Deploy failed.");
+                                    // wait before next pass
+                                    await Task.Delay(TimeSpan.FromSeconds(1));
+
+                                    await Task.Yield();
+
+                                    MessageCentre.InternalErrorMessage("Deploying assemblies. Second attempt.");
+
+                                    // !! need to use the deployment blob copy
+                                    assemblyCopy = new List<byte[]>(assemblies);
+                                    if (!device.DebugEngine.DeploymentExecute(assemblyCopy, false, progressIndicator))
+                                    {
+                                        MessageCentre.InternalErrorMessage("Deployment failed.");
+
+                                        // throw exception to signal deployment failure
+                                        throw new DeploymentException("Deploy failed.");
+                                    }
                                 }
-                            }
+                            });
 
                             await Task.Yield();
 
