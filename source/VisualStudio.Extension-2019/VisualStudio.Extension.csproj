@@ -844,59 +844,47 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Resources\DeviceErase.xaml">
-      <Generator>MSBuild:Compile</Generator>
+    <Resource Include="Resources\DeviceErase.xaml">
       <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Resources\DisableDeviceWatchers.xaml">
-      <Generator>MSBuild:Compile</Generator>
+    </Resource>
+    <Resource Include="Resources\DisableDeviceWatchers.xaml">
       <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Resources\NanoFrameworkProject.xaml">
-      <Generator>MSBuild:Compile</Generator>
+    </Resource>
+    <Resource Include="Resources\NanoFrameworkProject.xaml">
       <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Resources\DeviceConnected.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Resources\DeviceCapabilities.xaml">
-      <Generator>MSBuild:Compile</Generator>
+    </Resource>
+    <Resource Include="Resources\DeviceConnected.xaml">
       <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Resources\NetworkConfig.xaml">
-      <Generator>MSBuild:Compile</Generator>
+    </Resource>
+    <Resource Include="Resources\DeviceCapabilities.xaml">
       <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Resources\Ping.xaml">
-      <Generator>MSBuild:Compile</Generator>
+    </Resource>
+    <Resource Include="Resources\NetworkConfig.xaml">
       <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Resources\NanoFramework.xaml">
+    </Resource>
+    <Resource Include="Resources\Ping.xaml">
       <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Resources\DeviceDisconnected.xaml">
+    </Resource>
+    <Resource Include="Resources\NanoFramework.xaml">
       <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
+    </Resource>
+    <Resource Include="Resources\DeviceDisconnected.xaml">
+      <SubType>Designer</SubType>
+    </Resource>
     <Page Include="ToolWindow.DeviceExplorer\SettingsDialog.xaml">
-      <Generator>MSBuild:Compile</Generator>
+      <Generator>MSBuild:Compile</Generator>    
       <SubType>Designer</SubType>
     </Page>
     <Resource Include="Resources\ShowInternalErrors.xaml">
       <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
     </Resource>
-    <Page Include="Resources\Reboot.xaml">
+    <Resource Include="Resources\Reboot.xaml">
       <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Resources\RescanDevices.xaml">
-      <Generator>MSBuild:Compile</Generator>
+    </Resource>
+    <Resource Include="Resources\RescanDevices.xaml">
       <SubType>Designer</SubType>
-    </Page>
+    </Resource>
     <Resource Include="Resources\Settings.xaml">
-      <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Resource>
     <Page Include="ToolWindow.DeviceExplorer\NetworkConfigurationDialog.xaml">
@@ -904,8 +892,8 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="ToolWindow.DeviceExplorer\DeviceExplorerControl.xaml">
-      <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
   </ItemGroup>
   <ItemGroup>
