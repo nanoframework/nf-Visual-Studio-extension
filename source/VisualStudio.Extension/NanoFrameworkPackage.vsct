@@ -200,7 +200,7 @@
       <!-- show settings for Device Explorer toolbar -->
       <Button guid="guidDeviceExplorerCmdSet" id="idShowSettingsCommand" priority="0x0101" type="Button">
         <Parent guid="guidDeviceExplorerCmdSet" id="DeviceExplorerToolbarGroup3ID"/>
-        <Icon guid="NanoFrameworkCatalog" id="Settings" />
+        <Icon guid="NanoFrameworkCatalog" id="SettingsID" />
         <CommandFlag>IconIsMoniker</CommandFlag>
         <Strings>
           <CommandName>ShowSettingsCommand</CommandName>
