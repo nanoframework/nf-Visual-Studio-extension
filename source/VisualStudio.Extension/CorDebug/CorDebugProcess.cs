@@ -323,9 +323,22 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                             break;
                         }
 
-                        MessageCentre.InternalErrorMessage($"Device is running CLR, requesting reboot and pause for debugger ({retries + 1}/{ maxOperationRetries }).");
+                        // check to see if the device has type resolution failed flag set
+                        if (_engine.IsDeviceStoppedOnTypeResolutionFailed())
+                        {
+                            MessageCentre.DebugMessage("******************************************************************************");
+                            MessageCentre.DebugMessage("** Error: Device stopped after type resolution failure.                     **");
+                            MessageCentre.DebugMessage("** Check in each assembly which assemblies are referenced and their version **");
+                            MessageCentre.DebugMessage("******************************************************************************");
 
-                        _engine.RebootDevice(RebootOptions.ClrOnly | RebootOptions.WaitForDebugger);
+                            throw new Exception("Device stopped after type resolution failure. Can't start execution.");
+                        }
+                        else
+                        {
+                            MessageCentre.InternalErrorMessage($"Device is running CLR, requesting reboot and pause for debugger ({retries + 1}/{ maxOperationRetries }).");
+
+                            _engine.RebootDevice(RebootOptions.ClrOnly | RebootOptions.WaitForDebugger);
+                        }
                     }
                     else if(_engine.ConnectionSource == ConnectionSource.nanoBooter)
                     {
