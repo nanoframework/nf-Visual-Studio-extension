@@ -92,7 +92,7 @@
         <Size Value="16" />
       </Source>
     </Image>
-    <Image Guid="$(NanoFrameworkCatalog)" ID="$(Settings)">
+    <Image Guid="$(NanoFrameworkCatalog)" ID="$(SettingsID)">
       <Source Uri="$(Resources)/Settings.xaml"/>
       <Source Uri="$(Resources)/Settings.16.16.png" >
         <Size Value="16" />
