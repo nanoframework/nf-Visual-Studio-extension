@@ -11,7 +11,7 @@
     <TargetFrameworkMonikerDisplayName>.NET nanoFramework 1.0</TargetFrameworkMonikerDisplayName>
     <GenerateTargetFrameworkAttribute>true</GenerateTargetFrameworkAttribute>
     <GenerateManifests>true</GenerateManifests>
-    <DefineConstants>$(DefineConstants),NANOFRAMEWORK_V1_0</DefineConstants>
+    <DefineConstants>$(DefineConstants),NANOFRAMEWORK_1_0</DefineConstants>
   </PropertyGroup>
   
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
