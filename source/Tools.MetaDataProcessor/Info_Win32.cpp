@@ -474,6 +474,9 @@ static const CHAR c_Definition_End[] =
 "    \"%s\", \n"
 "    0x%08X,\n"
 "    method_lookup,\n"
+"    ////////////////////////////////////////////////////////////////////////////////////\n"
+"    // check if the version bellow matches the one in AssemblyNativeVersion attribute //\n"
+"    ////////////////////////////////////////////////////////////////////////////////////\n"
 "    { %d, %d, %d, %d }\n"
 "};\n";
 
@@ -1788,14 +1791,16 @@ void CLR_RT_Assembly::GenerateSkeleton_NoInterop(LPCWSTR szFileName, LPCWSTR szP
 		}
 
 		// Creates global variable of type CLR_RT_NativeAssemblyData.
+		// version is now from AssemblyNativeVersion attribute
+		// we are setting it here to zeros because there is no easy way to read it from the MDP...
 		Dump_Printf(c_Definition_End,
 			strAssemblyIDName.c_str(),
 			m_szName,
 			m_header->nativeMethodsChecksum,
-			m_header->version.iMajorVersion,
-			m_header->version.iMinorVersion,
-			m_header->version.iBuildNumber,
-			m_header->version.iRevisionNumber
+			0,
+			0,
+			0,
+			0
 		);
 
 		Dump_CloseDevice();
