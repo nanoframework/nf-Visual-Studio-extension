@@ -11,8 +11,8 @@
 #include <Commdlg.h>
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#define METADATAPROCESSOR_HEADER_STRING L"\nnanoFramework MetaDataProcessor Utility v1.9.0\r\n"
-#define METADATAPROCESSOR_COPYRIGHT_STRING L"Copyright (c) 2017 nanoFramework project contributors\r\n"
+#define METADATAPROCESSOR_HEADER_STRING L"\nnanoFramework MetaDataProcessor Utility v1.10.0\r\n"
+#define METADATAPROCESSOR_COPYRIGHT_STRING L"Copyright (c) 2019 nanoFramework project contributors\r\n"
 
 struct Settings : CLR_RT_ParseOptions
 {
