@@ -1151,7 +1151,7 @@ HRESULT MetaData::CustomAttribute::Parse()
 
         if(val != 0x0001)
         {
-            wprintf( L"Wrong signature for CustomAttribute blob: %04x\n", val );
+			CLR_Debug::Printf("Wrong signature for CustomAttribute blob: %04x\n", val);
             NANOCLR_SET_AND_LEAVE(CLR_E_PARSER_BAD_CUSTOM_ATTRIBUTE);
         }
 
@@ -1218,7 +1218,7 @@ HRESULT MetaData::CustomAttribute::Parse()
                 break;
 
             default:
-                wprintf( L"Wrong type in blob: %02x\n", et );
+				CLR_Debug::Printf("Wrong type in blob: %02x\n", et);
                 NANOCLR_SET_AND_LEAVE(CLR_E_PARSER_BAD_CUSTOM_ATTRIBUTE);
             }
 
@@ -1252,8 +1252,7 @@ HRESULT MetaData::CustomAttribute::Parse()
         NANOCLR_SET_AND_LEAVE(S_OK);
 
     InvalidBlob:
-        wprintf( L"Invalid blob:\n\n" );
-
+		CLR_Debug::Printf("Invalid blob:\n\n");
         NANOCLR_SET_AND_LEAVE(CLR_E_PARSER_BAD_CUSTOM_ATTRIBUTE);
     }
 
@@ -1807,7 +1806,11 @@ HRESULT MetaData::Parser::GetManifestResource( mdManifestResource mr )
 
         if(m_pe.GetResource( dwOffset, pResource, dwSize ) == false)
         {
-            wprintf( L"Failed to get data for ManifestResource '%s'\n", buf.Ptr() );
+			// need to convert from wchar
+			static char tmp[1024];
+			sprintf(tmp, "%ls", buf.Ptr());
+
+			CLR_Debug::Printf("Failed to get data for ManifestResource '%s'\n", tmp);
             NANOCLR_SET_AND_LEAVE(CLR_E_ENTRY_NOT_FOUND);
         }
 
@@ -2345,7 +2348,7 @@ HRESULT MetaData::Parser::Analyze( LPCWSTR szFileName )
 
         if(m_pe.GetCOMHeader( pCorHeader ) == false)
         {
-            wprintf( L"Cannot find COR header...\n" );
+			CLR_Debug::Printf("Cannot find COR header...\n");
             NANOCLR_SET_AND_LEAVE(CLR_E_FAIL);
         }
 

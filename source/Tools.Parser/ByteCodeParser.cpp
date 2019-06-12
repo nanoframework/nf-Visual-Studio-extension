@@ -55,8 +55,12 @@ HRESULT MetaData::ByteCode::Parse( const TypeDef& td, const MethodDef& md, COR_I
                     dst = FindTarget( mapOffsetToIndex_Start, ref.m_ipOffset + target , target );
                     if(dst == NULL)
                     {
-                        wprintf( L"Method: %s\n", m_name.c_str() );
-                        wprintf( L"Cannot find target opcode: %d -> %d:%d\n", i, ref.m_ipOffset, j );
+						// need to convert from wchar
+						static char tmp[1024];
+						sprintf(tmp, "%ls", m_name.c_str());
+
+						CLR_Debug::Printf("Method: %s\nCannot find target opcode: %d -> %d:%d\n", tmp, i, ref.m_ipOffset, j);
+
                         NANOCLR_SET_AND_LEAVE(CLR_E_FAIL);
                     }
                 }
