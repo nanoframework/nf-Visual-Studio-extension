@@ -11,7 +11,7 @@
 #include <Commdlg.h>
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#define METADATAPROCESSOR_HEADER_STRING L"\nnanoFramework MetaDataProcessor Utility v1.10.0\r\n"
+#define METADATAPROCESSOR_HEADER_STRING L"\nnanoFramework MetaDataProcessor Utility v1.11.0\r\n"
 #define METADATAPROCESSOR_COPYRIGHT_STRING L"Copyright (c) 2019 nanoFramework project contributors\r\n"
 
 struct Settings : CLR_RT_ParseOptions
@@ -1007,7 +1007,7 @@ int _tmain(int argc, _TCHAR* argv[])
 
 	if (FAILED(hr))
 	{
-		ErrorReporting::Print(NULL, NULL, TRUE, 0, L"%S", CLR_RT_DUMP::GETERRORMESSAGE(hr));
+		ErrorReporting::Print(NULL, NULL, TRUE, 0, L"%S (%S)", CLR_RT_DUMP::GETERRORMESSAGE(hr), CLR_RT_DUMP::GETERRORDETAIL());
 		fflush(stdout);
 	}
 

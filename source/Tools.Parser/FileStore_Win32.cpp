@@ -21,7 +21,12 @@ HRESULT CLR_RT_FileStore::LoadFile(LPCWSTR szFile, CLR_RT_Buffer& vec)
 	if (_wfopen_s(&stream, szFile, L"rb") != 0)
 #endif
 	{
-		wprintf(L"Cannot open '%s'!\n", szFile);
+		// need to convert from wchar
+		static char tmp[1024];
+		sprintf(tmp, "%ls", szFile);
+
+		CLR_Debug::Printf("Cannot open '%s'!\n", tmp);
+
 		NANOCLR_SET_AND_LEAVE(CLR_E_FAIL);
 	}
 
@@ -75,7 +80,12 @@ HRESULT CLR_RT_FileStore::SaveFile(LPCWSTR szFile, const CLR_UINT8* buf, size_t 
 	if (_wfopen_s(&stream, szFile, L"wb") != 0)
 #endif
 	{
-		wprintf(L"Cannot open '%s' for writing!\n", szFile);
+		// need to convert from wchar
+		static char tmp[1024];
+		sprintf(tmp, "%ls", szFile);
+
+		CLR_Debug::Printf("Cannot open '%s' for writing!\n", szFile);
+
 		NANOCLR_SET_AND_LEAVE(CLR_E_FAIL);
 	}
 
