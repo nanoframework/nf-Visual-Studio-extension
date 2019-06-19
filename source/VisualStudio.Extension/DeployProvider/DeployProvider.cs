@@ -471,6 +471,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
                         // assemblies not having native implementation 
                         exceptionAssemblies.Add(new CLRCapabilities.NativeAssemblyProperties("Windows.Storage.Streams", 0, new Version()));
+                        exceptionAssemblies.Add(new CLRCapabilities.NativeAssemblyProperties("System.Net.Http", 0, new Version()));
                         //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
                         if (exceptionAssemblies.Exists(a => a.Name == Path.GetFileNameWithoutExtension(peItem.Path)))
@@ -483,7 +484,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         missingAssemblies = $"Couldn't find a valid native assembly required by {Path.GetFileNameWithoutExtension(peItem.Path)} v{peItem.Version}, checksum 0x{peChecksum.ToString("X8")}." + Environment.NewLine +
                                         $"This project is referencing {Path.GetFileNameWithoutExtension(peItem.Path)} NuGet package requiring native v{peItem.NativeVersion}." + Environment.NewLine +
                                         $"The connected target does not have support for {Path.GetFileNameWithoutExtension(peItem.Path)}." + Environment.NewLine;
-
                     }
                 }
             }
