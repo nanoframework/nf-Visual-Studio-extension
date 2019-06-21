@@ -48,11 +48,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
             await Task.Yield();
 
-            if (device.DeviceInfo.SolutionBuildInfo.Contains("STM32") ||
-                device.DeviceInfo.SolutionBuildInfo.Contains("DISCO") ||
-                device.DeviceInfo.SolutionBuildInfo.Contains("NUCLEO"))
+            if (device.DeviceInfo.Platform.Contains("STM32"))
             {
-                // this seems to be a STM32 nanoDevice
+                // this is a STM32 nanoDevice
 
                 MessageCentre.InternalErrorMessage("nanoDevice is STM32, checking for flash dump on cache.");
 
