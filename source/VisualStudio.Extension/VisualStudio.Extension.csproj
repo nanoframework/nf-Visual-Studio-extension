@@ -167,8 +167,8 @@
     <Compile Include="Utilities\ReferenceCrawler.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="..\packages\nanoFramework.CoreLibrary.1.2.1-preview-001\nanoFramework.CoreLibrary.1.2.1-preview-001.nupkg">
-      <Link>Packages\nanoFramework.CoreLibrary.1.2.1-preview-001.nupkg</Link>
+    <Content Include="..\packages\nanoFramework.CoreLibrary.1.2.6-preview.1\nanoFramework.CoreLibrary.1.2.6-preview.1.nupkg">
+      <Link>Packages\nanoFramework.CoreLibrary.1.2.6-preview.1.nupkg</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
