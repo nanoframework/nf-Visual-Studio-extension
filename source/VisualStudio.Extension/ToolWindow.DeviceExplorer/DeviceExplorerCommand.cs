@@ -264,8 +264,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 MessageCentre.StartProgressMessage($"Pinging {ViewModelLocator.DeviceExplorer.SelectedDevice.Description}...");
                 try
                 {
-                    // disable the button
-                    (sender as MenuCommand).Enabled = false;
+                    // disable buttons
+                    await UpdateDeviceDependentToolbarButtonsAsync(false);
 
                     // make sure this device is showing as selected in Device Explorer tree view
                     await ViewModelLocator.DeviceExplorer.ForceNanoDeviceSelectionAsync();
@@ -305,8 +305,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 }
                 finally
                 {
-                    // enable the button
-                    (sender as MenuCommand).Enabled = true;
+                    // enable buttons
+                    await UpdateDeviceDependentToolbarButtonsAsync(true);
 
                     MessageCentre.StopProgressMessage();
                 }
@@ -332,8 +332,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             {
                 try
                 {
-                    // disable the button
-                    (sender as MenuCommand).Enabled = false;
+                    // disable buttons
+                    await UpdateDeviceDependentToolbarButtonsAsync(false);
 
                     // make sure this device is showing as selected in Device Explorer tree view
                     await ViewModelLocator.DeviceExplorer.ForceNanoDeviceSelectionAsync();
@@ -432,8 +432,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 }
                 finally
                 {
-                    // enable the button
-                    (sender as MenuCommand).Enabled = true;
+                    // enable buttons
+                    await UpdateDeviceDependentToolbarButtonsAsync(true);
 
                     // clear status bar
                     MessageCentre.StopProgressMessage();
@@ -460,8 +460,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             {
                 try
                 {
-                    // disable the button
-                    (sender as MenuCommand).Enabled = false;
+                    // disable buttons
+                    await UpdateDeviceDependentToolbarButtonsAsync(false);
 
                     // make sure this device is showing as selected in Device Explorer tree view
                     await ViewModelLocator.DeviceExplorer.ForceNanoDeviceSelectionAsync();
@@ -517,8 +517,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 }
                 finally
                 {
-                    // enable the button
-                    (sender as MenuCommand).Enabled = true;
+                    // enable buttons
+                    await UpdateDeviceDependentToolbarButtonsAsync(true);
 
                     // clear status bar
                     MessageCentre.StopProgressMessage();
@@ -543,8 +543,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             {
                 try
                 {
-                    // disable the button
-                    (sender as MenuCommand).Enabled = false;
+                    // disable buttons
+                    await UpdateDeviceDependentToolbarButtonsAsync(false);
 
                     // make sure this device is showing as selected in Device Explorer tree view
                     await ViewModelLocator.DeviceExplorer.ForceNanoDeviceSelectionAsync();
@@ -619,8 +619,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 }
                 finally
                 {
-                    // enable the button
-                    (sender as MenuCommand).Enabled = true;
+                    // enable buttons
+                    await UpdateDeviceDependentToolbarButtonsAsync(true);
 
                     // clear status bar
                     MessageCentre.StopProgressMessage();
@@ -645,8 +645,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             {
                 try
                 {
-                    // disable the button
-                    (sender as MenuCommand).Enabled = false;
+                    // disable buttons
+                    await UpdateDeviceDependentToolbarButtonsAsync(false);
 
                     // make sure this device is showing as selected in Device Explorer tree view
                     await ViewModelLocator.DeviceExplorer.ForceNanoDeviceSelectionAsync();
@@ -696,8 +696,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 }
                 finally
                 {
-                    // enable the button
-                    (sender as MenuCommand).Enabled = true;
+                    // enable buttons
+                    await UpdateDeviceDependentToolbarButtonsAsync(true);
                 }
             });
         }
@@ -867,15 +867,15 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     NanoDeviceCommService.SelectDevice(null);
                 }
 
-                // update toolbar 
-                await UpdateToolbarButtonsAsync();
+                // refresh toolbar buttons on availability change
+                await RefreshToolbarButtonsAsync();
             });
         }
 
         private async Task NanoDevicesCollectionChangedHandlerAsync()
         {
-            // update toolbar 
-            await UpdateToolbarButtonsAsync();
+            // refresh toolbar buttons on availability change
+            await RefreshToolbarButtonsAsync();
         }
 
         private async Task NanoDevicesDeviceEnumerationCompletedHandlerAsync()
@@ -903,7 +903,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         #region tool and status bar update and general managers
 
-        private async Task UpdateToolbarButtonsAsync()
+        private async Task RefreshToolbarButtonsAsync()
         {
             await Task.Run(async delegate
             {
@@ -960,6 +960,53 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     // disable reboot button
                     menuCommandService.FindCommand(GenerateCommandID(RebootID)).Enabled = false;
                 }
+            });
+        }
+
+        private async Task UpdateDeviceDependentToolbarButtonsAsync(bool isEnable)
+        {
+            await Task.Run(async delegate
+            {
+                // switch to UI main thread
+                await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+
+                // get the menu command service to reach the toolbar commands
+                var menuCommandService = ServiceProvider.GetService(typeof(IMenuCommandService)) as OleMenuCommandService;
+                Assumes.Present(menuCommandService);
+
+                // if we are to enable the buttons have to check 1st for device availability and selection
+                // because these could have been changes when the command was executing
+                // are there any devices available
+                if (isEnable)
+                {
+                    if (ViewModelLocator.DeviceExplorer.AvailableDevices.Count == 0)
+                    {
+                        // no device available!!
+                        // done here
+                        return;
+                    }
+
+                    // any device selected?
+                    if (ViewModelLocator.DeviceExplorer.SelectedDevice == null)
+                    {
+                        // no device selected!!
+                        // done here
+                        return;
+                    }
+                }
+
+                // now update button's enabled property as requested
+
+                // ping button
+                menuCommandService.FindCommand(GenerateCommandID(PingDeviceCommandID)).Enabled = isEnable;
+                // capabilities button
+                menuCommandService.FindCommand(GenerateCommandID(DeviceCapabilitiesID)).Enabled = isEnable;
+                // erase button
+                menuCommandService.FindCommand(GenerateCommandID(DeviceEraseID)).Enabled = isEnable;
+                // network config button
+                menuCommandService.FindCommand(GenerateCommandID(NetworkConfigID)).Enabled = isEnable;
+                // reboot button
+                menuCommandService.FindCommand(GenerateCommandID(RebootID)).Enabled = isEnable;
             });
         }
 
