@@ -43,6 +43,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             var deployDeviceName = SimpleIoc.Default.GetInstance<DeviceExplorerViewModel>().SelectedDevice.Description;
             var portName = SimpleIoc.Default.GetInstance<DeviceExplorerViewModel>().SelectedTransportType.ToString();
 
+            // make sure that the device is connected
+            await SimpleIoc.Default.GetInstance<DeviceExplorerViewModel>().SelectedDevice.DebugEngine.ConnectAsync(5000);
+
             string commandLine = await GetCommandLineForLaunchAsync();
             commandLine = string.Format("{0} \"{1}{2}\"", commandLine, CorDebugProcess.DeployDeviceName, deployDeviceName);
 
