@@ -581,26 +581,3 @@ jobs:
 
     condition: and( succeeded(), not( startsWith(variables['Build.SourceBranch'], 'refs/pull') ), not( startsWith(variables['Build.SourceBranch'], 'refs/tags/v') ) )
     displayName: Push changelogs to GitHub
-
-##################################
-# report build failure to Discord
-- job: Report_Build_Failure
-  dependsOn:
-  - VS2017
-  - VS2019
-  - Generate_Changelog
-  condition: or( failed('VS2017'), failed('VS2019'), failed('Generate_Changelog') )
-
-  pool:
-    vmImage: 'VS2017-Win2016'
-
-  steps:
-  - checkout: self
-    fetchDepth: 10
-
-  # step from template @ nf-tools repo
-  - template: azure-pipelines-templates/discord-webhook.yml@templates  
-    parameters:
-      status: 'failure'
-      webhookUrl: '$(DiscordWebhook)'
-      message: ''
