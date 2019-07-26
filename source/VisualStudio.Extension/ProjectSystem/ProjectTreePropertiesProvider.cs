@@ -9,10 +9,12 @@ using System.ComponentModel.Composition;
 namespace nanoFramework.Tools.VisualStudio.Extension
 {
     /// <summary>
-    /// Updates nodes in the project tree by overriding property values calcuated so far by lower priority providers.
+    /// Updates nodes in the project tree by overriding property values calculated so far by lower priority providers.
     /// </summary>
     [Export(typeof(IProjectTreePropertiesProvider))]
     [AppliesTo(NanoCSharpProjectUnconfigured.UniqueCapability)]
+    // need to set an order here so it can override the default CPS icon
+    [Order(100)]
     internal class ProjectTreePropertiesProvider : IProjectTreePropertiesProvider
     {
         /// <summary>
