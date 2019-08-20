@@ -168,6 +168,8 @@ jobs:
       sourceFolder: $(Build.SourcesDirectory)
       Contents: |
         **\*.vsix
+        **\vs2017-extension-manifest.json
+        **\vs2017-marketplace-overview.md
       TargetFolder: '$(Build.ArtifactStagingDirectory)'
       flattenFolders: true
     condition: succeeded()
@@ -335,6 +337,8 @@ jobs:
       sourceFolder: $(Build.SourcesDirectory)
       Contents: |
         **\*.vsix
+        **\vs2019-extension-manifest.json
+        **\vs2019-marketplace-overview.md
       TargetFolder: '$(Build.ArtifactStagingDirectory)'
       flattenFolders: true
     condition: succeeded()
@@ -471,6 +475,29 @@ jobs:
     condition: succeeded()
     displayName: Install github_changelog_generator
 
+  # generate VS2019 change log
+  - powershell: |
+        # need to call it passing both cache options with full path otherwise it won't work
+        github_changelog_generator --token $(GitHubToken) --cache-log  $env:AGENT_TEMPDIRECTORY\github-changelog-logger.log --cache-file $env:AGENT_TEMPDIRECTORY\github-changelog-http-cache --since-tag v1.1.0.101-VS2019 --output CHANGELOG-VS2019.md
+    condition: and( succeeded(), not( startsWith(variables['Build.SourceBranch'], 'refs/pull') ), not( startsWith(variables['Build.SourceBranch'], 'refs/tags/v') ), or( eq(variables['Build.SourceBranchName'], 'master'), contains(variables['Build.SourceBranchName'], 'release') ), or( eq( variables['myBuildVS2019'], true ), eq(variables['BUILD_VS2019'], 'true') ) )
+    displayName: Generate VS2019 change log
+
+  # generate VS2019 change log including future version
+  - powershell: |
+        # need to call it passing both cache options with full path otherwise it won't work
+        github_changelog_generator --token $(GitHubToken) --cache-log  $env:AGENT_TEMPDIRECTORY\github-changelog-logger.log --cache-file $env:AGENT_TEMPDIRECTORY\github-changelog-http-cache --since-tag v1.1.0.101-VS2019 --future-release v$(MY_VS2019_VERSION) --output CHANGELOG-VS2019.md
+    condition: and( succeeded(), not( startsWith(variables['Build.SourceBranch'], 'refs/pull') ), not( startsWith(variables['Build.SourceBranch'], 'refs/tags/v') ), not( or( eq(variables['Build.SourceBranchName'], 'master'), contains(variables['Build.SourceBranchName'], 'release') ) ), or( eq( variables['myBuildVS2019'], true ), eq(variables['BUILD_VS2019'], 'true') ) )
+    displayName: Generate VS2019 change log
+
+  # copy VS2019 change log to artifacts directory
+  - task: CopyFiles@2
+    inputs:
+      SourceFolder: '$(System.DefaultWorkingDirectory)'
+      Contents: 'CHANGELOG-VS2019.md'
+      TargetFolder: '$(Build.ArtifactStagingDirectory)'
+    condition: and( succeeded(), not( startsWith(variables['Build.SourceBranch'], 'refs/pull') ), not( startsWith(variables['Build.SourceBranch'], 'refs/tags/v') ), or( eq( variables['myBuildVS2019'], true ), eq(variables['BUILD_VS2019'], 'true') ) )
+    displayName: Copy Changelog
+
   # generate VS2017 change log
   - powershell: |
         # need to call it passing both cache options with full path otherwise it won't work
@@ -514,29 +541,6 @@ jobs:
       flattenFolders: true
     condition: and( succeeded(), or( eq( variables['myBuildVS2017'], true ), eq(variables['BUILD_VS2017'], 'true') ) )
     displayName: Collecting VS2017 deployable artifacts
-
-  # generate VS2019 change log
-  - powershell: |
-        # need to call it passing both cache options with full path otherwise it won't work
-        github_changelog_generator --token $(GitHubToken) --cache-log  $env:AGENT_TEMPDIRECTORY\github-changelog-logger.log --cache-file $env:AGENT_TEMPDIRECTORY\github-changelog-http-cache --since-tag v1.0.9-VS2019 --output CHANGELOG-VS2019.md
-    condition: and( succeeded(), not( startsWith(variables['Build.SourceBranch'], 'refs/pull') ), not( startsWith(variables['Build.SourceBranch'], 'refs/tags/v') ), or( eq(variables['Build.SourceBranchName'], 'master'), contains(variables['Build.SourceBranchName'], 'release') ), or( eq( variables['myBuildVS2019'], true ), eq(variables['BUILD_VS2019'], 'true') ) )
-    displayName: Generate VS2019 change log
-
-  # generate VS2019 change log including future version
-  - powershell: |
-        # need to call it passing both cache options with full path otherwise it won't work
-        github_changelog_generator --token $(GitHubToken) --cache-log  $env:AGENT_TEMPDIRECTORY\github-changelog-logger.log --cache-file $env:AGENT_TEMPDIRECTORY\github-changelog-http-cache --since-tag v1.0.9-VS2019 --future-release v$(MY_VS2019_VERSION) --output CHANGELOG-VS2019.md
-    condition: and( succeeded(), not( startsWith(variables['Build.SourceBranch'], 'refs/pull') ), not( startsWith(variables['Build.SourceBranch'], 'refs/tags/v') ), not( or( eq(variables['Build.SourceBranchName'], 'master'), contains(variables['Build.SourceBranchName'], 'release') ) ), or( eq( variables['myBuildVS2019'], true ), eq(variables['BUILD_VS2019'], 'true') ) )
-    displayName: Generate VS2019 change log
-
-  # copy VS2019 change log to artifacts directory
-  - task: CopyFiles@2
-    inputs:
-      SourceFolder: '$(System.DefaultWorkingDirectory)'
-      Contents: 'CHANGELOG-VS2019.md'
-      TargetFolder: '$(Build.ArtifactStagingDirectory)'
-    condition: and( succeeded(), not( startsWith(variables['Build.SourceBranch'], 'refs/pull') ), not( startsWith(variables['Build.SourceBranch'], 'refs/tags/v') ), or( eq( variables['myBuildVS2019'], true ), eq(variables['BUILD_VS2019'], 'true') ) )
-    displayName: Copy Changelog
 
   - task: CopyFiles@1
     inputs:
