@@ -926,6 +926,12 @@
       <InstallRoot>MSBuild</InstallRoot>
       <VSIXSubPath>nanoFramework\v1.0\Rules\</VSIXSubPath>
     </Content>
+    <Content Include="Rules\EmbeddedResource.BrowseObject.xaml">
+      <SubType>Designer</SubType>
+      <IncludeInVSIX>true</IncludeInVSIX>
+      <InstallRoot>MSBuild</InstallRoot>
+      <VSIXSubPath>nanoFramework\v1.0\Rules\</VSIXSubPath>
+    </Content>
     <Content Include="Rules\general.browseobject.xaml">
       <SubType>Designer</SubType>
       <IncludeInVSIX>true</IncludeInVSIX>
@@ -945,6 +951,12 @@
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
     <Content Include="Rules\none.xaml">
+      <SubType>Designer</SubType>
+      <InstallRoot>MSBuild</InstallRoot>
+      <VSIXSubPath>nanoFramework\v1.0\Rules\</VSIXSubPath>
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
+    <Content Include="Rules\None.BrowseObject.xaml">
       <SubType>Designer</SubType>
       <InstallRoot>MSBuild</InstallRoot>
       <VSIXSubPath>nanoFramework\v1.0\Rules\</VSIXSubPath>
@@ -976,6 +988,7 @@
     <XamlPropertyRule Include="Rules\EmbeddedResource.xaml">
       <SubType>Designer</SubType>
     </XamlPropertyRule>
+    <XamlPropertyRuleNoCodeBehind Include="Rules\EmbeddedResource.BrowseObject.xaml" />
     <XamlPropertyRule Include="Rules\folder.xaml">
       <SubType>Designer</SubType>
     </XamlPropertyRule>
@@ -991,6 +1004,7 @@
     <XamlPropertyRule Include="Rules\none.xaml">
       <SubType>Designer</SubType>
     </XamlPropertyRule>
+    <XamlPropertyRuleNoCodeBehind Include="Rules\None.BrowseObject.xaml" />
     <XamlPropertyRule Include="Rules\NanoDebugger.xaml">
       <SubType>Designer</SubType>
     </XamlPropertyRule>

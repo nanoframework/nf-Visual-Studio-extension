@@ -1,28 +1,94 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<!--Copyright, Microsoft Corporation, All rights reserved.-->
-<Rule
-	Name="None"
-	DisplayName="General"
-	PageTemplate="generic"
-	Description="Non-build items"
-	xmlns="http://schemas.microsoft.com/build/2009/properties">
-    <Rule.DataSource>
-        <DataSource Persistence="ProjectFile" HasConfigurationCondition="False" ItemType="None" />
-    </Rule.DataSource>
+<!--Copyright (c) Microsoft.  All Rights Reserved.  Licensed under the Apache License, Version 2.0.  See License.txt in the project root for license information.-->
+<Rule Name="None"
+      PageTemplate="generic"
+      PropertyPagesHidden="true"
+      xmlns="http://schemas.microsoft.com/build/2009/properties">
+  <Rule.DataSource>
+    <DataSource HasConfigurationCondition="False"
+                ItemType="None"
+                Persistence="ProjectFile"
+                SourceOfDefaultValue="AfterContext" />
+  </Rule.DataSource>
 
-    <StringProperty Name="Identity" DisplayName="File Name" ReadOnly="true" Category="Misc">
-        <StringProperty.DataSource>
-            <DataSource Persistence="Intrinsic" ItemType="None" PersistedName="Identity" />
-        </StringProperty.DataSource>
-    </StringProperty>
+  <DynamicEnumProperty Name="{}{ItemType}"
+                       EnumProvider="ItemTypes" />
 
-    <StringProperty Name="FullPath" DisplayName="Full Path" ReadOnly="true" Category="Misc">
-        <StringProperty.DataSource>
-            <DataSource Persistence="Intrinsic" ItemType="None" PersistedName="FullPath" />
-        </StringProperty.DataSource>
-    </StringProperty>
+  <BoolProperty Name="AutoGen"
+                Visible="false" />
 
-    <BoolProperty Name="Visible" Visible="false" />
-    <StringProperty Name="DependentUpon" Visible="false" />
-    <StringProperty Name="Link" Visible="false" />
+  <EnumProperty Name="CopyToOutputDirectory">
+    <EnumValue Name="Never" />
+    <EnumValue Name="Always" />
+    <EnumValue Name="PreserveNewest" />
+  </EnumProperty>
+
+  <StringProperty Name="CustomTool"
+                  Visible="false">
+    <StringProperty.DataSource>
+      <DataSource HasConfigurationCondition="False"
+                  ItemType="None"
+                  PersistedName="Generator"
+                  Persistence="ProjectFile"
+                  SourceOfDefaultValue="AfterContext" />
+    </StringProperty.DataSource>
+  </StringProperty>
+
+  <StringProperty Name="CustomToolNamespace" />
+
+  <StringProperty Name="DependentUpon"
+                  Visible="false">
+    <StringProperty.Metadata>
+      <NameValuePair Name="DoNotCopyAcrossProjects"
+                     Value="true" />
+    </StringProperty.Metadata>
+  </StringProperty>
+
+  <BoolProperty Name="DesignTime"
+                Visible="false" />
+
+  <BoolProperty Name="DesignTimeSharedInput"
+                Visible="false" />
+
+  <StringProperty Name="FullPath"
+                  ReadOnly="true"
+                  Visible="false">
+    <StringProperty.DataSource>
+      <DataSource ItemType="None"
+                  PersistedName="FullPath"
+                  Persistence="Intrinsic"
+                  SourceOfDefaultValue="AfterContext" />
+    </StringProperty.DataSource>
+  </StringProperty>
+
+  <StringProperty Name="Generator" />
+
+  <StringProperty Name="LastGenOutput"
+                  Visible="false" />
+
+  <StringProperty Name="Link"
+                  Visible="false">
+    <StringProperty.DataSource>
+      <DataSource PersistenceStyle="Attribute"
+                  SourceOfDefaultValue="AfterContext" />
+    </StringProperty.DataSource>
+    <StringProperty.Metadata>
+      <NameValuePair Name="DoNotCopyAcrossProjects"
+                     Value="true" />
+    </StringProperty.Metadata>
+  </StringProperty>
+
+  <StringProperty Name="SubType"
+                  Visible="false">
+    <StringProperty.DataSource>
+      <DataSource Persistence="DesignTimeItemPropertiesStorage"
+                  ItemType="None"
+                  PersistedName="SubType"
+                  HasConfigurationCondition="false"/>
+    </StringProperty.DataSource>
+  </StringProperty>
+
+  <BoolProperty Name="Visible"
+                Visible="false" />
+
 </Rule>
