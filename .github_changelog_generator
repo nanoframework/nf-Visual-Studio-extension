@@ -1,6 +1,6 @@
 user=nanoframework
 project=nf-Visual-Studio-extension
-issues=true
+issues=false
 add_issues_wo_labels=false
 add_pr_wo_labels=false
 add_issues_wo_labels=false
