@@ -465,9 +465,14 @@ jobs:
     condition: and( succeeded(), not( startsWith(variables['Build.SourceBranch'], 'refs/pull') ) )
     displayName: Setup Ruby
 
-  # generate VS2017 change log
+  # install github_changelog_generator
   - powershell: |
         gem install github_changelog_generator --quiet --no-ri --no-rdoc
+    condition: succeeded()
+    displayName: Install github_changelog_generator
+
+  # generate VS2017 change log
+  - powershell: |
         # need to call it passing both cache options with full path otherwise it won't work
         github_changelog_generator --token $(GitHubToken) --cache-log  $env:AGENT_TEMPDIRECTORY\github-changelog-logger.log --cache-file $env:AGENT_TEMPDIRECTORY\github-changelog-http-cache --output CHANGELOG-VS2017.md
     condition: and( succeeded(), not( startsWith(variables['Build.SourceBranch'], 'refs/pull') ), not( startsWith(variables['Build.SourceBranch'], 'refs/tags/v') ), or( eq(variables['Build.SourceBranchName'], 'master'), contains(variables['Build.SourceBranchName'], 'release') ), or( eq( variables['myBuildVS2017'], true ), eq(variables['BUILD_VS2017'], 'true') ) )
@@ -475,7 +480,6 @@ jobs:
 
   # generate VS2017 change log including future version
   - powershell: |
-        gem install github_changelog_generator --quiet --no-ri --no-rdoc
         # need to call it passing both cache options with full path otherwise it won't work
         github_changelog_generator --token $(GitHubToken) --cache-log  $env:AGENT_TEMPDIRECTORY\github-changelog-logger.log --cache-file $env:AGENT_TEMPDIRECTORY\github-changelog-http-cache --future-release v$(MY_VS2017_VERSION) --output CHANGELOG-VS2017.md
     condition: and( succeeded(), not( startsWith(variables['Build.SourceBranch'], 'refs/pull') ), not( startsWith(variables['Build.SourceBranch'], 'refs/tags/v') ), not( or( eq(variables['Build.SourceBranchName'], 'master'), contains(variables['Build.SourceBranchName'], 'release') ) ), or( eq( variables['myBuildVS2017'], true ), eq(variables['BUILD_VS2017'], 'true') ) )
@@ -513,7 +517,6 @@ jobs:
 
   # generate VS2019 change log
   - powershell: |
-        gem install github_changelog_generator --quiet --no-ri --no-rdoc
         # need to call it passing both cache options with full path otherwise it won't work
         github_changelog_generator --token $(GitHubToken) --cache-log  $env:AGENT_TEMPDIRECTORY\github-changelog-logger.log --cache-file $env:AGENT_TEMPDIRECTORY\github-changelog-http-cache --since-tag v1.0.9-VS2019 --output CHANGELOG-VS2019.md
     condition: and( succeeded(), not( startsWith(variables['Build.SourceBranch'], 'refs/pull') ), not( startsWith(variables['Build.SourceBranch'], 'refs/tags/v') ), or( eq(variables['Build.SourceBranchName'], 'master'), contains(variables['Build.SourceBranchName'], 'release') ), or( eq( variables['myBuildVS2019'], true ), eq(variables['BUILD_VS2019'], 'true') ) )
@@ -521,7 +524,6 @@ jobs:
 
   # generate VS2019 change log including future version
   - powershell: |
-        gem install github_changelog_generator --quiet --no-ri --no-rdoc
         # need to call it passing both cache options with full path otherwise it won't work
         github_changelog_generator --token $(GitHubToken) --cache-log  $env:AGENT_TEMPDIRECTORY\github-changelog-logger.log --cache-file $env:AGENT_TEMPDIRECTORY\github-changelog-http-cache --since-tag v1.0.9-VS2019 --future-release v$(MY_VS2019_VERSION) --output CHANGELOG-VS2019.md
     condition: and( succeeded(), not( startsWith(variables['Build.SourceBranch'], 'refs/pull') ), not( startsWith(variables['Build.SourceBranch'], 'refs/tags/v') ), not( or( eq(variables['Build.SourceBranchName'], 'master'), contains(variables['Build.SourceBranchName'], 'release') ) ), or( eq( variables['myBuildVS2019'], true ), eq(variables['BUILD_VS2019'], 'true') ) )
