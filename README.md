@@ -26,7 +26,7 @@ Join our Discord community [here](https://discord.gg/gCyBu8T).
 **nanoFramework** Visual Studio extension is distributed through Visual Studio Marketplace. This is for the stable version.
 
 In case you want to be in the bleeding edge of technology and use the new stuff (or interested in trying out preview versions and provide valuable feedback) you can do that by adding the Open VSIX Gallery feed to your Visual Studio configuration. Please follow the instructions [here](http://vsixgallery.com/guide/feed/) on how to add the feed to your Visual Studio instance.
-This is the feed URL: `http://vsixgallery.com/author/nanoFramework`.
+This is the feed URL: `http://vsixgallery.com/feed/author/nanoframework/`.
 
 ## Developing for the Visual Studio extension
 
