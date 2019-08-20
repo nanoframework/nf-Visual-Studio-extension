@@ -13,5 +13,15 @@
     "publisher": "nanoframework",
     "private": false,
     "qna": true,
-    "repo": "https://github.com/nanoframework/nf-Visual-Studio-extension"
+    "repo": "https://github.com/nanoframework/nf-Visual-Studio-extension",
+    "assetFiles": [
+        {
+            "pathOnDisk": "debug-session.png",
+            "targetPath": "debug-session.png"
+        },
+        {
+            "pathOnDisk": "starting-new-project.png",
+            "targetPath": "starting-new-project.png"
+        }
+    ]
 }

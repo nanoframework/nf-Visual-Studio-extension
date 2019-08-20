@@ -9,7 +9,7 @@
     <GettingStartedGuide>http://docs.nanoframework.net/articles/getting-started-intro.html</GettingStartedGuide>
     <ReleaseNotes>https://github.com/nanoframework/nf-Visual-Studio-extension/blob/develop/CHANGELOG-VS2017.md</ReleaseNotes>
     <Icon>Resources\nF-logo-32.png</Icon>
-    <Tags>nanoFramework, netnf, netmf, MicroFramework, C#, productivity, microcontroller, I2C, PWM, Serial, SPI, IoT</Tags>
+    <Tags>nanoFramework;netnf;netmf;MicroFramework;C#;productivity;microcontroller;I2C;PWM;Serial;SPI;IoT;STM32;ESP32;Cortex-M</Tags>
   </Metadata>
   <Installation AllUsers="true">
     <InstallationTarget Id="Microsoft.VisualStudio.Community" Version="[15.0]" />

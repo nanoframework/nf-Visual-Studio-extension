@@ -4,7 +4,7 @@ The nanoFramework Visual Studio extension provides the required tools to allow C
 
 ## What is nanoFramework?
 
-nanoFramework is an open-source platform that enables the writing of managed code applications for constrained embedded devices like IoT sensors, wearables, academic proof of concept, robotics, hobbyist/makers creations or even complex industrial equipment. 
+nanoFramework is an open-source platform that enables the writing of managed code applications for constrained embedded devices like IoT sensors, wearables, academic proof of concept, robotics, hobbyist/makers creations or even complex industrial equipment.
 
 Developers can harness a powerful and familiar Microsoft Visual Studio IDE and their .NET C# knowledge to quickly write code without having to worry about the low-level hardware intricacies of a microcontroller. Desktop .NET developers will feel at home and are able to use their skills in embedded systems, enlarging the pool of qualified embedded developers.
 
@@ -17,11 +17,11 @@ We currently have support for ARM Cortex-M cores and ESP32 providing reference t
 
 ## Starting a new project
 
- ![image__2.png](image__2.png)
+![starting-new-project.png](starting-new-project.png)
 
 ## A debugging session in progress
 
- ![image__3.png](image__3.png)
+![debug-session.png](debug-session.png)
 
 You can find out more in the project GitHub [here](https://github.com/nanoframework).
 

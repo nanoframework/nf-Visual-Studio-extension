@@ -17,11 +17,11 @@ We currently have support for ARM Cortex-M cores and ESP32 providing reference t
 
 ## Starting a new project
 
-![new-project-vs209.png](new-project-vs209.png)
+![starting-new-project.png](starting-new-project.png)
 
 ## A debugging session in progress
 
-![nanoframework-debug-session-vs2019.png](nanoframework-debug-session-vs2019.png)
+![debug-session.png](debug-session.png)
 
 You can find out more in the project GitHub [here](https://github.com/nanoframework).
 
