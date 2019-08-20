@@ -191,15 +191,13 @@ jobs:
           $artifactsSearchPattern = "./*.vsix"
           $artifactsCollection = (Get-ChildItem $artifactsSearchPattern -Recurse)
 
-          $vsixMyGetUploadEndpoint = "https://www.myget.org/F/nanoframework-dev/vsix/upload"
+          (new-object Net.WebClient).DownloadString("https://raw.github.com/madskristensen/ExtensionScripts/master/AppVeyor/vsix.ps1") | iex
 
           foreach($file in $artifactsCollection)
           {
-              "Uploading VSIX package to MyGet feed..." | Write-Host
+              "Uploading VSIX package to Open VSIX Gallery..." | Write-Host
 
-              $webClient = New-Object System.Net.WebClient
-              $webClient.Headers.add("X-NuGet-ApiKey", "$(MYGET_TOKEN)")
-              $webClient.UploadFile($vsixMyGetUploadEndpoint, "POST", $file)
+              Vsix-PublishToGallery $file
           }
     condition: and( succeeded(), ne(variables['system.pullrequest.isfork'], true), not( startsWith(variables['Build.SourceBranch'], 'refs/pull') ) )
     displayName: Upload vsix to MyGet feed
@@ -360,15 +358,13 @@ jobs:
           $artifactsSearchPattern = "./*.vsix"
           $artifactsCollection = (Get-ChildItem $artifactsSearchPattern -Recurse)
 
-          $vsixMyGetUploadEndpoint = "https://www.myget.org/F/nanoframework-dev/vsix/upload"
+          (new-object Net.WebClient).DownloadString("https://raw.github.com/madskristensen/ExtensionScripts/master/AppVeyor/vsix.ps1") | iex
 
           foreach($file in $artifactsCollection)
           {
-              "Uploading VSIX package to MyGet feed..." | Write-Host
+              "Uploading VSIX package to Open VSIX Gallery..." | Write-Host
 
-              $webClient = New-Object System.Net.WebClient
-              $webClient.Headers.add("X-NuGet-ApiKey", "$(MYGET_TOKEN)")
-              $webClient.UploadFile($vsixMyGetUploadEndpoint, "POST", $file)
+              Vsix-PublishToGallery $file
           }
     condition: and( succeeded(), ne(variables['system.pullrequest.isfork'], true), not( startsWith(variables['Build.SourceBranch'], 'refs/pull') ) )
     displayName: Upload vsix to MyGet feed

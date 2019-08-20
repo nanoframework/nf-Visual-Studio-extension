@@ -8,13 +8,12 @@
 
 This repo contains **nanoFramework** Visual Studio extension and associated tools.
 
-
 ## Build status
 
 | Component | Build Status | Stable version | Preview version |
 |:-|---|---|---|
-| Visual Studio 2019 extension | [![Build Status](https://dev.azure.com/nanoframework/Visual-Studio-extension/_apis/build/status/nanoframework.nf-Visual-Studio-extension)](https://dev.azure.com/nanoframework/Visual-Studio-extension/_build/latest?definitionId=17) | [![Visual Studio Marketplace](https://img.shields.io/vscode-marketplace/d/nanoframework.nanoFramework-VS2019-Extension.svg)](https://marketplace.visualstudio.com/items?itemName=nanoframework.nanoFramework-VS2019-Extension) | [![MyGet Vsix feed](https://img.shields.io/badge/MyGet%20Vsix%20feed-(preview)-yellow.svg)](https://www.myget.org/feed/nanoframework-dev/package/vsix/455f2be5-bb07-451e-b351-a9faf3018dc9) |
-| Visual Studio 2017 extension | [![Build Status](https://dev.azure.com/nanoframework/Visual-Studio-extension/_apis/build/status/nanoframework.nf-Visual-Studio-extension)](https://dev.azure.com/nanoframework/Visual-Studio-extension/_build/latest?definitionId=17) | [![Visual Studio Marketplace](https://img.shields.io/vscode-marketplace/d/vs-publisher-1470366.nanoFrameworkVS2017Extension.svg)](https://marketplace.visualstudio.com/items?itemName=vs-publisher-1470366.nanoFrameworkVS2017Extension) | [![MyGet Vsix feed](https://img.shields.io/badge/MyGet%20Vsix%20feed-(preview)-yellow.svg)](https://www.myget.org/feed/nanoframework-dev/package/vsix/47973986-ed3c-4b64-ba40-a9da73b44ef7) |
+| Visual Studio 2019 extension | [![Build Status](https://dev.azure.com/nanoframework/Visual-Studio-extension/_apis/build/status/nanoframework.nf-Visual-Studio-extension)](https://dev.azure.com/nanoframework/Visual-Studio-extension/_build/latest?definitionId=17) | [![Visual Studio Marketplace](https://img.shields.io/vscode-marketplace/d/nanoframework.nanoFramework-VS2019-Extension.svg)](https://marketplace.visualstudio.com/items?itemName=nanoframework.nanoFramework-VS2019-Extension) | [![Open VSIX Gallery](https://img.shields.io/badge/Open%20VSIX%20Gallery-(preview)-yellow.svg)](http://vsixgallery.com/extension/nanoFramework%20VS2019%20Extension) |
+| Visual Studio 2017 extension | [![Build Status](https://dev.azure.com/nanoframework/Visual-Studio-extension/_apis/build/status/nanoframework.nf-Visual-Studio-extension)](https://dev.azure.com/nanoframework/Visual-Studio-extension/_build/latest?definitionId=17) | [![Visual Studio Marketplace](https://img.shields.io/vscode-marketplace/d/vs-publisher-1470366.nanoFrameworkVS2017Extension.svg)](https://marketplace.visualstudio.com/items?itemName=vs-publisher-1470366.nanoFrameworkVS2017Extension) | [![Open VSIX Gallery](https://img.shields.io/badge/Open%20VSIX%20Gallery-(preview)-yellow.svg)](http://vsixgallery.com/extension/nanoFramework%20VS2017%20Extension) |
 
 ## Feedback and documentation
 
@@ -26,10 +25,8 @@ Join our Discord community [here](https://discord.gg/gCyBu8T).
 
 **nanoFramework** Visual Studio extension is distributed through Visual Studio Marketplace. This is for the stable version.
 
-In case you want to be in the bleeding edge of technology and use the new stuff (or interested in trying out preview versions and provide valuable feedback) you can do that by adding the **nanoFramework** Vsix feed hosted in [MyGet](https://www.myget.org/gallery/nanoframework-dev).
-
-Please follow the instructions [here](http://docs.myget.org/docs/walkthrough/getting-started-with-vsix#Working_with_your_Vsix_feed) on how to add the feed to your Visual Studio instance. 
-Use this URL for the feed: `https://www.myget.org/F/nanoframework-dev/vsix/`.
+In case you want to be in the bleeding edge of technology and use the new stuff (or interested in trying out preview versions and provide valuable feedback) you can do that by adding the Open VSIX Gallery feed to your Visual Studio configuration. Please follow the instructions [here](http://vsixgallery.com/guide/feed/) on how to add the feed to your Visual Studio instance.
+This is the feed URL: `http://vsixgallery.com/author/nanoFramework`.
 
 ## Developing for the Visual Studio extension
 
