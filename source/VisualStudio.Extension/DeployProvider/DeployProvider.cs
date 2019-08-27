@@ -4,11 +4,14 @@
 // See LICENSE file in the project root for full license information.
 //
 
+using EnvDTE;
+using EnvDTE80;
 using ICSharpCode.Decompiler;
 using ICSharpCode.Decompiler.CSharp;
 using Microsoft.VisualStudio.ProjectSystem;
 using Microsoft.VisualStudio.ProjectSystem.Build;
 using Microsoft.VisualStudio.Shell;
+using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.Threading;
 using nanoFramework.Tools.Debugger;
 using nanoFramework.Tools.Debugger.Extensions;
@@ -19,6 +22,7 @@ using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Threading;
 using Task = System.Threading.Tasks.Task;
@@ -69,12 +73,39 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
             await Task.Yield();
 
+            // need to access DTE to get StartUp project
+            DTE dte = (DTE)ServiceProvider.GetService(typeof(DTE));
+            SolutionBuild sb = dte.Solution.SolutionBuild;
+            string startupProject = ((Array)sb.StartupProjects).GetValue(0) as string;
+
+            //... we need to access the project name using reflection (step by step)
+            // get type for ConfiguredProject
+            var projSystemType = Properties.ConfiguredProject.GetType();
+
+            // get private property MSBuildProject
+            var buildProject = projSystemType.GetTypeInfo().GetDeclaredProperty("MSBuildProject");
+
+            // get value of MSBuildProject property from ConfiguredProject object
+            // this result is of type Microsoft.Build.Evaluation.Project
+            var projectResult = await ((System.Threading.Tasks.Task<Microsoft.Build.Evaluation.Project>)buildProject.GetValue(Properties.ConfiguredProject));
+
+            // we want the project file property
+            var projectFile = projectResult.Properties.First(p => p.Name == "MSBuildProjectFile").EvaluatedValue;
+
+            if(!startupProject.EndsWith(projectFile))
+            {
+                // this is not the StartUp project, don't deploy
+                return;
+            }
+
             // just in case....
             if (_viewModelLocator?.DeviceExplorer.SelectedDevice == null)
             {
                 // can't debug
                 // throw exception to signal deployment failure
+#pragma warning disable S112 // OK to use Exception here
                 throw new Exception("There is no device selected. Please select a device in Device Explorer tool window.");
+#pragma warning restore S112 // General exceptions should never be thrown
             }
 
             // get the device here so we are not always carrying the full path to the device
@@ -224,10 +255,10 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                             // return the path to the same assembly in the same casing.
                             HashSet<string> assemblyPathsToDeploy = new HashSet<string>();
 
-                            // Starting with the startup project, collect all assemblies to be deployed.
+                            // Starting with the StartUp project, collect all assemblies to be deployed.
                             // This will only add assemblies of projects which are actually referenced directly or
-                            // indirectly by the startup project. Any project in the solution which is not referenced
-                            // directly or indirectly by the startup project will not be included in the list of assemblies
+                            // indirectly by the StartUp project. Any project in the solution which is not referenced
+                            // directly or indirectly by the StartUp project will not be included in the list of assemblies
                             // to be deployed.
                             await ReferenceCrawler.CollectAssembliesToDeployAsync(
                                 configuredProjectsByOutputAssemblyPath,
