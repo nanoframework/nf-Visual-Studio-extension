@@ -1,5 +1,13 @@
 # Change Log
 
+## [v1.2.4.2](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v1.2.4.2) (2019-09-06)
+[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v1.2.1.1-VS2019...v1.2.4.2)
+
+**Updated dependencies and other chores:**
+
+- Add detailed instruction for NuGet issues [\#405](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/405) [[Area: VS-extension](https://github.com/nanoframework/nf-Visual-Studio-extension/labels/Area:%20VS-extension)]
+- Deploy provider now only deploys startup project [\#404](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/404)
+
 ## [v1.2.1.1-VS2019](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v1.2.1.1-VS2019) (2019-08-20)
 [Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v1.2.1.10-VS2017...v1.2.1.1-VS2019)
 
