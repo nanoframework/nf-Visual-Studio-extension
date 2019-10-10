@@ -1,7 +1,40 @@
 # Change Log
 
-## [v1.2.4.2](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v1.2.4.2) (2019-09-06)
-[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v1.2.1.1-VS2019...v1.2.4.2)
+## [v1.2.5.4-VS2019](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v1.2.5.4-VS2019) (2019-10-10)
+[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v1.2.5.34-VS2017...v1.2.5.4-VS2019)
+
+## [v1.2.5.34-VS2017](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v1.2.5.34-VS2017) (2019-10-10)
+[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v1.2.5.3-VS2019...v1.2.5.34-VS2017)
+
+**Updated dependencies and other chores:**
+
+- Update debugger library to 1.5.0-preview.11 [\#408](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/408)
+
+## [v1.2.5.3-VS2019](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v1.2.5.3-VS2019) (2019-09-23)
+[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v1.2.5.33-VS2017...v1.2.5.3-VS2019)
+
+## [v1.2.5.33-VS2017](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v1.2.5.33-VS2017) (2019-09-23)
+[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v1.2.5.1-VS2019...v1.2.5.33-VS2017)
+
+**Updated dependencies and other chores:**
+
+- Update debugger library [\#407](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/407) [[Area: VS-extension](https://github.com/nanoframework/nf-Visual-Studio-extension/labels/Area:%20VS-extension)]
+
+## [v1.2.5.1-VS2019](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v1.2.5.1-VS2019) (2019-09-10)
+[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v1.2.5.31-VS2017...v1.2.5.1-VS2019)
+
+## [v1.2.5.31-VS2017](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v1.2.5.31-VS2017) (2019-09-10)
+[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v1.2.4.2-VS2019...v1.2.5.31-VS2017)
+
+**Updated dependencies and other chores:**
+
+- Update debugger library [\#406](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/406) [[Area: VS-extension](https://github.com/nanoframework/nf-Visual-Studio-extension/labels/Area:%20VS-extension)]
+
+## [v1.2.4.2-VS2019](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v1.2.4.2-VS2019) (2019-09-06)
+[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v1.2.4.28-VS2017...v1.2.4.2-VS2019)
+
+## [v1.2.4.28-VS2017](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v1.2.4.28-VS2017) (2019-09-06)
+[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v1.2.1.1-VS2019...v1.2.4.28-VS2017)
 
 **Updated dependencies and other chores:**
 
@@ -12,28 +45,28 @@
 [Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v1.2.1.10-VS2017...v1.2.1.1-VS2019)
 
 ## [v1.2.1.10-VS2017](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v1.2.1.10-VS2017) (2019-08-20)
-[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v1.2.0.3-VS2017...v1.2.1.10-VS2017)
+[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v1.2.0.3-VS2019...v1.2.1.10-VS2017)
 
 **Updated dependencies and other chores:**
 
 - Update several rules files [\#402](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/402) [[Area: VS-extension](https://github.com/nanoframework/nf-Visual-Studio-extension/labels/Area:%20VS-extension)]
 - Fix project icon not showing on VS project tree [\#401](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/401) [[Area: VS-extension](https://github.com/nanoframework/nf-Visual-Studio-extension/labels/Area:%20VS-extension)]
 
-## [v1.2.0.3-VS2017](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v1.2.0.3-VS2017) (2019-07-23)
-[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v1.2.0.3-VS2019...v1.2.0.3-VS2017)
-
 ## [v1.2.0.3-VS2019](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v1.2.0.3-VS2019) (2019-07-23)
-[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v1.2.0.1-VS2019...v1.2.0.3-VS2019)
+[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v1.2.0.3-VS2017...v1.2.0.3-VS2019)
+
+## [v1.2.0.3-VS2017](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v1.2.0.3-VS2017) (2019-07-23)
+[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v1.2.0.1-VS2017...v1.2.0.3-VS2017)
 
 **Updated dependencies and other chores:**
 
 - Fix deployment issues [\#400](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/400) [[Area: VS-extension](https://github.com/nanoframework/nf-Visual-Studio-extension/labels/Area:%20VS-extension)]
 
-## [v1.2.0.1-VS2019](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v1.2.0.1-VS2019) (2019-07-23)
-[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v1.2.0.1-VS2017...v1.2.0.1-VS2019)
-
 ## [v1.2.0.1-VS2017](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v1.2.0.1-VS2017) (2019-07-23)
-[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v1.1.0.31-VS2017...v1.2.0.1-VS2017)
+[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v1.2.0.1-VS2019...v1.2.0.1-VS2017)
+
+## [v1.2.0.1-VS2019](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v1.2.0.1-VS2019) (2019-07-23)
+[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v1.1.0.31-VS2017...v1.2.0.1-VS2019)
 
 **Updated dependencies and other chores:**
 
@@ -69,17 +102,17 @@
 [Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v1.1.0.21-VS2017...v1.1.0.121-VS2019)
 
 ## [v1.1.0.21-VS2017](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v1.1.0.21-VS2017) (2019-06-14)
-[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v1.1.0.18-VS2017...v1.1.0.21-VS2017)
+[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v1.1.0.118-VS2019...v1.1.0.21-VS2017)
 
 **Updated dependencies and other chores:**
 
 - Fix deployment provider with System.Net.Http [\#386](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/386) [[Area: VS-extension](https://github.com/nanoframework/nf-Visual-Studio-extension/labels/Area:%20VS-extension)]
 
-## [v1.1.0.18-VS2017](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v1.1.0.18-VS2017) (2019-06-12)
-[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v1.1.0.118-VS2019...v1.1.0.18-VS2017)
-
 ## [v1.1.0.118-VS2019](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v1.1.0.118-VS2019) (2019-06-12)
-[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v1.1.0.11-VS2017...v1.1.0.118-VS2019)
+[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v1.1.0.18-VS2017...v1.1.0.118-VS2019)
+
+## [v1.1.0.18-VS2017](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v1.1.0.18-VS2017) (2019-06-12)
+[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v1.1.0.11-VS2017...v1.1.0.18-VS2017)
 
 **Updated dependencies and other chores:**
 
@@ -116,11 +149,14 @@
 [Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v1.1.0.103-VS2019...v1.1.0.3-VS2017)
 
 ## [v1.1.0.103-VS2019](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v1.1.0.103-VS2019) (2019-06-05)
-[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v1.1.0.101-VS2019...v1.1.0.103-VS2019)
+[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v1.1.0.1-VS2017...v1.1.0.103-VS2019)
 
 **Updated dependencies and other chores:**
 
 - Fix deployment image generator [\#375](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/375) [[Area: VS-extension](https://github.com/nanoframework/nf-Visual-Studio-extension/labels/Area:%20VS-extension)]
+
+## [v1.1.0.1-VS2017](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v1.1.0.1-VS2017) (2019-05-30)
+[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v1.1.0.101-VS2019...v1.1.0.1-VS2017)
 
 
 
