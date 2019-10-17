@@ -26,6 +26,10 @@
     <StringProperty Name="MSBuildProjectDirectory" Visible="false"/>
     <StringProperty Name="PackageAction" Visible="false" Description="The MSBuild target to use when packaging a project." />
     <StringProperty Name="DefaultContentType" Visible="false" Description="The default content type name to use when adding files." />
+    <StringProperty Name="LanguageServiceId" ReadOnly="True" Visible="False" />
+    <StringProperty Name="LanguageServiceName" ReadOnly="True" Visible="False" />
+    <StringProperty Name="MSBuildProjectFullPath" Visible="false"/>
+    <StringProperty Name="TargetPath" DisplayName="Target Path" />
     <BoolProperty Name="ShowAllFiles" Visible="False">
         <BoolProperty.DataSource>
             <DataSource Persistence="UserFile" HasConfigurationCondition="False" />
