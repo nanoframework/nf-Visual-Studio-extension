@@ -40,31 +40,42 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         public override async Task<IReadOnlyList<IDebugLaunchSettings>> QueryDebugTargetsAsync(DebugLaunchOptions launchOptions)
         {
-            var deployDeviceName = SimpleIoc.Default.GetInstance<DeviceExplorerViewModel>().SelectedDevice.Description;
-            var portName = SimpleIoc.Default.GetInstance<DeviceExplorerViewModel>().SelectedTransportType.ToString();
-
-            // make sure that the device is connected
-            await SimpleIoc.Default.GetInstance<DeviceExplorerViewModel>().SelectedDevice.DebugEngine.ConnectAsync(5000);
-
-            string commandLine = await GetCommandLineForLaunchAsync();
-            commandLine = string.Format("{0} \"{1}{2}\"", commandLine, CorDebugProcess.DeployDeviceName, deployDeviceName);
-
-            // The properties that are available via DebuggerProperties are determined by the property XAML files in your project.
-            var debuggerProperties = await Properties.GetNanoDebuggerPropertiesAsync();
-
-            var settings = new DebugLaunchSettings(launchOptions)
+            try
             {
-                CurrentDirectory = await debuggerProperties.NanoDebuggerWorkingDirectory.GetEvaluatedValueAtEndAsync(),
-                Executable = typeof(CorDebugProcess).Assembly.Location,
-                Arguments = commandLine,
-                LaunchOperation = DebugLaunchOperation.CreateProcess,
-                PortSupplierGuid = DebugPortSupplier.PortSupplierGuid,
-                PortName = NanoFrameworkPackage.NanoDeviceCommService.Device.Description,
-                Project = VsHierarchy,
-                LaunchDebugEngineGuid = CorDebug.EngineGuid
-            };
+                var deployDeviceName = SimpleIoc.Default.GetInstance<DeviceExplorerViewModel>().SelectedDevice.Description;
+                var portName = SimpleIoc.Default.GetInstance<DeviceExplorerViewModel>().SelectedTransportType.ToString();
 
-            return new IDebugLaunchSettings[] { settings };
+                // make sure that the device is connected
+                if (await SimpleIoc.Default.GetInstance<DeviceExplorerViewModel>().SelectedDevice.DebugEngine.ConnectAsync(5000))
+                {
+                    string commandLine = await GetCommandLineForLaunchAsync();
+                    commandLine = string.Format("{0} \"{1}{2}\"", commandLine, CorDebugProcess.DeployDeviceName, deployDeviceName);
+
+                    // The properties that are available via DebuggerProperties are determined by the property XAML files in your project.
+                    var debuggerProperties = await Properties.GetNanoDebuggerPropertiesAsync();
+
+                    var settings = new DebugLaunchSettings(launchOptions)
+                    {
+                        CurrentDirectory = await debuggerProperties.NanoDebuggerWorkingDirectory.GetEvaluatedValueAtEndAsync(),
+                        Executable = typeof(CorDebugProcess).Assembly.Location,
+                        Arguments = commandLine,
+                        LaunchOperation = DebugLaunchOperation.CreateProcess,
+                        PortSupplierGuid = DebugPortSupplier.PortSupplierGuid,
+                        PortName = NanoFrameworkPackage.NanoDeviceCommService.Device.Description,
+                        Project = VsHierarchy,
+                        LaunchDebugEngineGuid = CorDebug.EngineGuid
+                    };
+
+                    return new IDebugLaunchSettings[] { settings };
+                }
+            }
+            catch
+            {
+                // in case something goes wrong, we catch it here
+
+            }
+
+            return new List<DebugLaunchSettings>();
         }
 
         public override Task<bool> CanLaunchAsync(DebugLaunchOptions launchOptions)
