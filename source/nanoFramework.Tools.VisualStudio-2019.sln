@@ -23,6 +23,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSharp.ClassTemplate", "CSh
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSharp.ResourceTemplate", "CSharp.ResourceTemplate\CSharp.ResourceTemplate.csproj", "{8252022E-62FD-4A59-BE1E-90FD52DBA0FE}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{60B109AE-E582-4ECB-ABB4-B24E07DB87E1}"
+	ProjectSection(SolutionItems) = preProject
+		NuGet.Config = NuGet.Config
+		VisualStudio.Extension\version.json = VisualStudio.Extension\version.json
+		VisualStudio.Extension\vs2019-marketplace-overview.md = VisualStudio.Extension\vs2019-marketplace-overview.md
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

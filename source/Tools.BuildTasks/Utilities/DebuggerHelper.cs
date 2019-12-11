@@ -19,7 +19,7 @@ namespace nanoFramework.Tools.Utilities
             var debugEnabled = Environment.GetEnvironmentVariable(varName);
             if (!string.IsNullOrEmpty(debugEnabled) && debugEnabled.Equals("1", StringComparison.Ordinal))
             {
-                Console.WriteLine($"Waiting {timeoutSeconds} seconds for debugger attachment...");
+                Console.WriteLine($"nanoFramework Metadata Processor msbuild instrumentation task debugging is enabled. Waiting {timeoutSeconds} seconds for debugger attachment...");
 
                 var currentProcessId = Process.GetCurrentProcess().Id;
                 var currentProcessName = Process.GetProcessById(currentProcessId).ProcessName;
@@ -27,7 +27,7 @@ namespace nanoFramework.Tools.Utilities
                     string.Format("Process Id: {0}, Name: {1}", currentProcessId, currentProcessName)
                     );
 
-                // wait 30 seconds for debugger to attach
+                // wait N seconds for debugger to attach
                 while (!Debugger.IsAttached && waitForDebugToAttach.TotalSeconds > 0)
                 {
                     Thread.Sleep(1000);
