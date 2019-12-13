@@ -8,19 +8,20 @@ using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
 using System.ComponentModel;
 using System;
-using System.Reflection;
 using System.IO;
 using System.Linq;
 using System.Collections.Generic;
 using nanoFramework.Tools.Utilities;
+using nanoFramework.Tools.MetadataProcessor;
+using System.Xml;
+using nanoFramework.Tools.MetadataProcessor.Core;
+using Mono.Cecil;
 
 namespace nanoFramework.Tools
 {
     [Description("MetaDataProcessorTaskEntry")]
-    public class MetaDataProcessorTask : ToolTask  // TODO this will be replace with a simple Task when we have MetaDataProcessor in C#
+    public class MetaDataProcessorTask : Task
     {
-        private string tempDataBaseFile = null;
-
 
         #region public properties for the task
 
@@ -89,16 +90,26 @@ namespace nanoFramework.Tools
         public string DumpExports { get; set; }
 
         /// <summary>
-        /// Sets wether the command line output is sent to the Log to help debugging command execution.
+        /// Sets whether the command line output is sent to the Log to help debugging command execution.
         /// Default is false.
         /// </summary>
         public bool OutputCommandLine { private get; set; } = false;
 
-        private List<ITaskItem> _FilesWritten = new List<ITaskItem>();
+        private readonly List<ITaskItem> _filesWritten = new List<ITaskItem>();
 
         [Output]
-        public ITaskItem[] FilesWritten { get { return _FilesWritten.ToArray(); } private set {  } }
+        public ITaskItem[] FilesWritten { get { return _filesWritten.ToArray(); } }
 
+
+        #endregion
+
+        #region internal fields for MetadataProcessor
+
+        private AssemblyDefinition _assemblyDefinition;
+        private nanoAssemblyBuilder _assemblyBuilder;
+        private readonly IDictionary<string, string> _loadHints =
+            new Dictionary<string, string>(StringComparer.Ordinal);
+        private readonly List<string> _classNamesToExclude = new List<string>();
 
         #endregion
 
@@ -106,38 +117,111 @@ namespace nanoFramework.Tools
         public override bool Execute()
         {
             // report to VS output window what step the build is 
-            Log.LogCommandLine(MessageImportance.Normal, "Starting nanoFramework MetaDataProcessor...");
+            Log.LogCommandLine(MessageImportance.Normal, "Starting nanoFramework MetadataProcessor...");
 
-            // wait for debugger on var
+            /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+            // developer note: to debug this task set an environment variable like this:
+            // set NFBUILD_TASKS_DEBUG=1
+            // this will cause the execution to pause bellow so a debugger can be attached
             DebuggerHelper.WaitForDebuggerIfEnabled(TasksConstants.BuildTaskDebugVar);
+            /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
             try
             {
-                // execute the ToolTask base method which is running the command line to call MetaDataProcessor will the appropriate parameters
-                base.Execute();
+                // execution of the metadata processor have to be carried in the appropriate order
+                // failing to do so will most likely cause the task to fail
+
+                // load hints for referenced assemblies
+                if(LoadHints != null && 
+                    LoadHints.Any())
+                {
+                    if(Verbose) Log.LogMessage(MessageImportance.Normal, "Processing load hints...");
+
+                    foreach (var hint in LoadHints)
+                    {
+                        _loadHints[Path.GetFileNameWithoutExtension(hint.GetMetadata("FullPath"))] = hint.GetMetadata("FullPath");
+                    }
+                }
+
+                // class names to exclude from processing
+                if (ExcludeClassByName != null && 
+                    ExcludeClassByName.Any())
+                {
+                    if (Verbose) Log.LogMessage(MessageImportance.Normal, "Processing class exclusion list...");
+
+                    foreach (var className in ExcludeClassByName)
+                    {
+                        _classNamesToExclude.Add(className.ToString());
+                    }
+                }
+
+                // Analyses a .NET assembly
+                if (!string.IsNullOrEmpty(Parse))
+                {
+                    if (Verbose) Log.LogMessage(MessageImportance.Normal, $"Analysing .NET assembly {Path.GetFileNameWithoutExtension(Parse)}...");
+
+                    ExecuteParse(Parse);
+                }
+
+                // compiles an assembly into nanoCLR format
+                if (!string.IsNullOrEmpty(Compile))
+                {
+                    // sanity check for missing parse
+                    if (string.IsNullOrEmpty(Parse))
+                    {
+                        // can't compile without analysing first
+                        throw new ArgumentException("Can't compile without first analysing a .NET Assembly. Check the targets file for a missing option invoking MedataProcessor Task.");
+                    }
+                    else
+                    {
+                        if (Verbose) Log.LogCommandLine(MessageImportance.Normal, $"Compiling {Path.GetFileNameWithoutExtension(Compile)} into nanoCLR format...");
+
+                        ExecuteCompile(Compile);
+                    }
+                }
+
+                // generate skeleton files with stubs to add native code for an assembly
+                if( !string.IsNullOrEmpty(GenerateSkeletonFile) &&
+                    !string.IsNullOrEmpty(GenerateSkeletonProject) &&
+                    !string.IsNullOrEmpty(GenerateSkeletonName))
+                {
+                    // sanity check for missing compile (therefore parse too)
+                    if (string.IsNullOrEmpty(Compile))
+                    {
+                        // can't generate skeleton without compiling first
+                        throw new ArgumentException("Can't generate skeleton project without first compiling the .NET Assembly. Check the targets file for a missing option invoking MedataProcessor Task.");
+                    }
+                    else
+                    {
+                        if (Verbose) Log.LogMessage(MessageImportance.Normal, $"Generating skeleton...");
+
+                        ExecuteGenerateSkeleton(
+                            GenerateSkeletonFile,
+                            GenerateSkeletonName,
+                            GenerateSkeletonProject,
+                            SkeletonWithoutInterop);
+                    }
+                }
 
                 RecordFilesWritten();
             }
             catch (Exception ex)
             {
-                Log.LogError("nanoFramework build error: " + ex.Message);
-            }
-            finally
-            {
-                Cleanup();
+                Log.LogErrorFromException(ex, true);
             }
 
             // if we've logged any errors that's because there were errors (WOW!)
             return !Log.HasLoggedErrors;
         }
 
-        private void RecordFileWritten(string file)
+        private void RecordFileWritten(
+            string file)
         {
             if (!string.IsNullOrEmpty(file))
             {
                 if (File.Exists(file))
                 {
-                    _FilesWritten.Add(new TaskItem(file));
+                    _filesWritten.Add(new TaskItem(file));
                 }
             }
         }
@@ -155,152 +239,120 @@ namespace nanoFramework.Tools
             RecordFileWritten(GenerateDependency);
         }
 
-        private void Cleanup()
-        {
-            if (tempDataBaseFile != null)
-                File.Delete(tempDataBaseFile);
-        }
+        #region Metadata Processor helper methods
 
-        protected override string ToolName
+        private void ExecuteParse(
+            string fileName)
         {
-            get
+            try
             {
-                return "nanoFramework.Tools.MetaDataProcessor.exe";
+                if (Verbose) System.Console.WriteLine("Parsing assembly...");
+
+                _assemblyDefinition = AssemblyDefinition.ReadAssembly(fileName,
+                    new ReaderParameters { AssemblyResolver = new LoadHintsAssemblyResolver(_loadHints) });
+            }
+            catch (Exception)
+            {
+                Log.LogError($"Unable to parse input assembly file '{fileName}' - check if path and file exists.");
             }
         }
 
-        protected override string GenerateFullPathToTool()
+        private void ExecuteCompile(
+            string fileName)
         {
-            return Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "nanoFramework.Tools.MetaDataProcessor.exe");
-        }
-
-        protected override string GenerateCommandLineCommands()
-        {
-            // build command line to execute MetaDataProcessor
-            CommandLineBuilder commandLinedBuilder = new CommandLineBuilder();
-
-            // going through all possible options for MetaDataProcessor now...
-
-            // -loadHints
-            AppendLoadHints(commandLinedBuilder);
-
-            // -load
-            commandLinedBuilder.AppendSwitchForEachFile("-load", Load);
-
-            // -loadDatabase
-            commandLinedBuilder.AppendSwitchForEachFile("-loadDatabase", LoadDatabase);
-
-            // -loadStrings
-            commandLinedBuilder.AppendSwitchForFile("-loadStrings", LoadStrings);
-
-            // -excludeClassByName
-            commandLinedBuilder.AppendSwitchForEachFile("-excludeClassByName", ExcludeClassByName);
-
-            // -parse
-            commandLinedBuilder.AppendSwitchForFile("-parse", Parse);
-
-            // -minimize
-            commandLinedBuilder.AppendSwitchIfTrue("-minimize", Minimize);
-
-            // -resolve
-            commandLinedBuilder.AppendSwitchIfTrue("-resolve", Resolve);
-
-            // -dump_exports
-            commandLinedBuilder.AppendSwitchForFile("-dump_exports", DumpExports);
-
-            // -dump_all
-            commandLinedBuilder.AppendSwitchForFile("-dump_all", DumpAll);
-
-            // -importResource
-            commandLinedBuilder.AppendSwitchForEachFile("-importResource", ImportResources);
-
-            // -compile
-            commandLinedBuilder.AppendSwitchForFile("-compile", Compile);
-
-            // -savestrings
-            commandLinedBuilder.AppendSwitchForFile("-savestrings", SaveStrings);
-
-            // -verbose
-            commandLinedBuilder.AppendSwitchIfTrue("-verbose", Verbose);
-
-            // -verboseMinimize
-            commandLinedBuilder.AppendSwitchIfTrue("-verboseMinimize", VerboseMinimize);
-
-            // -noByteCode
-            commandLinedBuilder.AppendSwitchIfTrue("-noByteCode", NoByteCode);
-
-            // -noAttributes
-            commandLinedBuilder.AppendSwitchIfTrue("-noAttributes", NoAttributes);
-
-            // -ignoreAssembly
-            commandLinedBuilder.AppendSwitchForEachFile("-ignoreAssembly", IgnoreAssembly);
-
-            // -generateStringsTable
-            commandLinedBuilder.AppendSwitchForFile("-generateStringsTable", GenerateStringsTable);
-
-            // -generate_dependency
-            commandLinedBuilder.AppendSwitchForFile("-generate_dependency", GenerateDependency);
-
-            // -create_database
-            AppendCreateDatabase(commandLinedBuilder);
-
-            // -generate_skeleton
-            commandLinedBuilder.AppendSwitchToFileAndExtraSwitches("-generate_skeleton", GenerateSkeletonFile, GenerateSkeletonName, GenerateSkeletonProject, SkeletonWithoutInterop ? "TRUE" : "FALSE");
-
-            // -refresh_assembly
-            AppendRefreshAssemblyCommand(commandLinedBuilder);
-
-            // output command line for debug? 
-            if (OutputCommandLine)
+            try
             {
-                Log.LogWarning($"NFMDP cmd>> {GenerateFullPathToTool()} {commandLinedBuilder.ToString()} <<");
-            }
+                if (Verbose) System.Console.WriteLine("Compiling assembly...");
 
-            return commandLinedBuilder.ToString();
-        }
+                _assemblyBuilder = new nanoAssemblyBuilder(_assemblyDefinition, _classNamesToExclude, Minimize, Verbose);
 
-        #region command line helper methods
-
-        private void AppendLoadHints(CommandLineBuilder commandLinedBuilder)
-        {
-            LoadHints?.Select(hint => {
-
-                commandLinedBuilder.AppendSwitch("-loadHints");
-                commandLinedBuilder.AppendSwitch(Path.GetFileNameWithoutExtension(hint.GetMetadata("FullPath")));
-                commandLinedBuilder.AppendFileNameIfNotNull(hint);
-
-                return new object();
-            }).ToList();
-        }
-        
-        private void AppendCreateDatabase(CommandLineBuilder commandLinedBuilder)
-        {
-            if (CreateDatabase?.Length > 0)
-            {
-                if (this.CreateDatabase == null || this.CreateDatabase.Length == 0)
-                    return;
-
-                tempDataBaseFile = Path.GetTempFileName();
-                using (StreamWriter sw = new StreamWriter(tempDataBaseFile))
+                using (var stream = File.Open(fileName, FileMode.Create, FileAccess.ReadWrite))
+                using (var writer = new BinaryWriter(stream))
                 {
-                    foreach (ITaskItem item in this.CreateDatabase)
-                        sw.WriteLine(item.ItemSpec);
+                    _assemblyBuilder.Write(GetBinaryWriter(writer));
                 }
 
-                commandLinedBuilder.AppendSwitchToFileAndExtraSwitches("-create_database", tempDataBaseFile, CreateDatabaseFile);
+                using (var writer = XmlWriter.Create(Path.ChangeExtension(fileName, "pdbx")))
+                {
+                    _assemblyBuilder.Write(writer);
+                }
+            }
+            catch (Exception)
+            {
+                Log.LogError($"Unable to compile output assembly file '{fileName}' - check parse command results.");
+
+                throw;
             }
         }
 
-        private void AppendRefreshAssemblyCommand(CommandLineBuilder commandLinedBuilder)
+        private void AddClassToExclude(
+            string className)
         {
-            if (!string.IsNullOrEmpty(RefreshAssemblyName) && !string.IsNullOrEmpty(RefreshAssemblyOutput))
+            _classNamesToExclude.Add(className);
+        }
+
+        private void ExecuteGenerateSkeleton(
+            string file,
+            string name,
+            string project,
+            bool withoutInteropCode)
+        {
+            try
             {
-                commandLinedBuilder.AppendSwitch("-refresh_assembly");
-                commandLinedBuilder.AppendSwitch(RefreshAssemblyName);
-                commandLinedBuilder.AppendFileNameIfNotNull(RefreshAssemblyOutput);
+                if (!withoutInteropCode)
+                {
+                    throw new ArgumentException("Generator for Interop stubs is not supported yet.");
+                }
+
+                if (Verbose) Log.LogMessage(MessageImportance.Normal, "Generating skeleton files...");
+
+                var skeletonGenerator = new nanoSkeletonGenerator(
+                    _assemblyBuilder.TablesContext,
+                    file,
+                    name,
+                    project,
+                    withoutInteropCode);
+
+                skeletonGenerator.GenerateSkeleton();
             }
+            catch (Exception)
+            {
+                Log.LogError("Unable to generate skeleton files");
+
+                throw;
+            }
+        }
+
+        private void ExecuteGenerateDependency(
+            string fileName)
+        {
+            try
+            {
+                var dependencyGenerator = new nanoDependencyGenerator(
+                    _assemblyDefinition,
+                    _assemblyBuilder.TablesContext,
+                    fileName);
+
+                using (var writer = XmlWriter.Create(fileName))
+                {
+                    dependencyGenerator.Write(writer);
+                }
+            }
+            catch (Exception)
+            {
+                Log.LogError($"Unable to generate and write dependency graph for assembly file '{fileName}'.");
+
+                throw;
+            }
+        }
+
+        private nanoBinaryWriter GetBinaryWriter(
+            BinaryWriter writer)
+        {
+            return nanoBinaryWriter.CreateLittleEndianBinaryWriter(writer);
         }
 
         #endregion
+
     }
 }
