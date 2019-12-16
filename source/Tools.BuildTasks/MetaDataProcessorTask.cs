@@ -139,7 +139,12 @@ namespace nanoFramework.Tools
 
                     foreach (var hint in LoadHints)
                     {
-                        _loadHints[Path.GetFileNameWithoutExtension(hint.GetMetadata("FullPath"))] = hint.GetMetadata("FullPath");
+                        var assemblyName = Path.GetFileNameWithoutExtension(hint.GetMetadata("FullPath"));
+                        var assemblyPath = hint.GetMetadata("FullPath");
+
+                        _loadHints[assemblyName] = assemblyPath;
+
+                        if (Verbose) Log.LogMessage(MessageImportance.Normal, $"Adding load hint: {assemblyName} @ '{assemblyPath}'");
                     }
                 }
 
@@ -152,6 +157,8 @@ namespace nanoFramework.Tools
                     foreach (var className in ExcludeClassByName)
                     {
                         _classNamesToExclude.Add(className.ToString());
+
+                        if (Verbose) Log.LogMessage(MessageImportance.Normal, $"Adding '{className.ToString()}' to collection of classes to exclude");
                     }
                 }
 
@@ -193,7 +200,7 @@ namespace nanoFramework.Tools
                     }
                     else
                     {
-                        if (Verbose) Log.LogMessage(MessageImportance.Normal, $"Generating skeleton...");
+                        if (Verbose) Log.LogMessage(MessageImportance.Normal, $"Generating skeleton '{GenerateSkeletonName}' for {GenerateSkeletonProject} \r\nPlacing files @ '{GenerateSkeletonFile}'");
 
                         ExecuteGenerateSkeleton(
                             GenerateSkeletonFile,

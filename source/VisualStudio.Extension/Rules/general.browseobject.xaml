@@ -70,9 +70,9 @@
             <DataSource PersistedName="NFMDP_XML_FILES" HasConfigurationCondition="False" Label="nanoFramework" SourceOfDefaultValue="AfterContext"/>
         </BoolProperty.DataSource>
     </BoolProperty>
-    <BoolProperty Category="nFAdvanced" Name="NFMDP_CMD_LINE_OUTPUT" DisplayName="Output MDP command line" Visible="True" Description="Enable this to output a verbose output of the command lines sent to MetaDataProcessor. (Only usefull for debugging the command execution)">
+    <BoolProperty Category="nFAdvanced" Name="NFMDP_PE_Verbose" DisplayName="Output MDP command line" Visible="True" Description="Enable verbose output of Metadata Processor. (Only usefull when debugging Metadata Processor execution)">
         <BoolProperty.DataSource>
-            <DataSource Persistence="UserFile" PersistedName="NFMDP_CMD_LINE_OUTPUT" HasConfigurationCondition="True" Label="nanoFramework" SourceOfDefaultValue="AfterContext"/>
+            <DataSource Persistence="UserFile" PersistedName="NFMDP_PE_Verbose" HasConfigurationCondition="True" Label="nanoFramework" SourceOfDefaultValue="AfterContext"/>
         </BoolProperty.DataSource>
     </BoolProperty>
 
