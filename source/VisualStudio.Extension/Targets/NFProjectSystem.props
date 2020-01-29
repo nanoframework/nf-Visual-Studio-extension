@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
   <PropertyGroup>
@@ -15,7 +15,8 @@
     <!-- This prevents the default MsBuild targets from referencing System.Core.dll -->
     <AddAdditionalExplicitAssemblyReferences>false</AddAdditionalExplicitAssemblyReferences>
 
-    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <!-- This prevents VS from adding app.config with binding redirects -->
+    <AutoGenerateBindingRedirects>false</AutoGenerateBindingRedirects>
 
     <!-- TODO add documentation about this
     See https://msdn.microsoft.com/en-us/library/ms242202.aspx
