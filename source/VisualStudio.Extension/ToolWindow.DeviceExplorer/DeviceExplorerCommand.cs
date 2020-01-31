@@ -667,7 +667,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                             NanoDeviceCommService.Device.DebugEngine.RebootDevice(RebootOptions.NormalReboot);
 
-                            MessageCentre.OutputMessage($"Sent reboot command to {ViewModelLocator.DeviceExplorer.PreviousSelectedDeviceDescription}.");
+                            MessageCentre.OutputMessage($"Sent reboot command to {ViewModelLocator.DeviceExplorer.SelectedDevice.Description}.");
 
                             // yield to give the UI thread a chance to respond to user input
                             await Task.Yield();
