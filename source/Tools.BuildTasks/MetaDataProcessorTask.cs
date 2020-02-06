@@ -219,6 +219,16 @@ namespace nanoFramework.Tools
             {
                 Log.LogErrorFromException(ex, true);
             }
+            finally
+            {
+                // need to dispose the AssemblyDefinition before leaving because Mono.Cecil assembly loading and resolution
+                // operations leave the assembly file locked in the AppDomain preventing it from being open on subsequent Tasks
+                // see https://github.com/nanoframework/Home/issues/553
+                if (_assemblyDefinition != null)
+                {
+                    _assemblyDefinition.Dispose();
+                }
+            }
 
             // if we've logged any errors that's because there were errors (WOW!)
             return !Log.HasLoggedErrors;
