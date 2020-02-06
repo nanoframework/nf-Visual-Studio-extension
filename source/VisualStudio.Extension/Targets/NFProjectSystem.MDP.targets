@@ -205,8 +205,7 @@
         LoadHints="@(ReferencePath);@(ReferenceDependencyPaths);@(ReferenceSatellitePaths)"
         Parse="$(NanoFramework_Assembly)$(TargetExt)"
         Compile="$(NanoFramework_IntermediateAssembly).pe"
-        ImportResources="@(NanoFramework_Resources)"
-        Minimize="true">
+        ImportResources="@(NanoFramework_Resources)">
       <Output TaskParameter="FilesWritten" ItemName="FileWrites" />
     </MetaDataProcessorTask>
 
@@ -265,7 +264,7 @@
   <!-- Overriding common targets.  Application and Deployment manifests are not supported -->
   <Target Name="_CopyManifestFiles" Condition="'$(NF_IsCoreLibrary)' != 'True' "/>
   <Target Name="_CopyApplicationConfigFiles" Condition="'$(NF_IsCoreLibrary)' != 'True' "/>
-
+ 
   <!-- 
     ######################################################################
     The following groups are to be used when building A CORE ASSEMBLY
@@ -275,7 +274,6 @@
   <PropertyGroup Condition="'$(NF_IsCoreLibrary)' == 'True' ">
     <!-- nanoFramework MetaDataProcessor options -->
     <NFMDP_PE_Parse>$(ProjectDir)$(IntermediateOutputPath)$(TargetFileName)</NFMDP_PE_Parse>
-    <NFMDP_PE_Minimize>true</NFMDP_PE_Minimize>
     <NFMDP_PE_Compile_NoExt>$(ProjectDir)$(IntermediateOutputPath)$(TargetName)</NFMDP_PE_Compile_NoExt>
     <NFMDP_PE_Compile>$(ProjectDir)$(IntermediateOutputPath)$(TargetName).pe</NFMDP_PE_Compile>
     <NFMDP_PE_SaveStrings>$(ProjectDir)$(IntermediateOutputPath)$(TargetName).strings</NFMDP_PE_SaveStrings>
@@ -390,7 +388,6 @@
     <Message Text="Distilling assemblies to nanoCLR PE files (no stubs)..." Condition="'$(NFMDP_GENERATE_STUBS)' == 'false'" />
     <!-- Compile to PE -->
     <MetaDataProcessorTask
-        Minimize="$(NFMDP_PE_Minimize)"
         Verbose="$(NFMDP_PE_Verbose)"
         Parse="$(NFMDP_PE_Parse)"
         VerboseMinimize="$(NFMDP_PE_VerboseMinimize)"
@@ -422,9 +419,9 @@
     <Message Text="Distilling assemblies to nanoCLR PE files along with stubs and skeleton files..." Condition="'$(NFMDP_GENERATE_STUBS)' == 'true'"/>
     <!-- Create STUB file -->
     <MetaDataProcessorTask
-        Minimize="$(NFMDP_PE_Minimize)"
         Verbose="$(NFMDP_PE_Verbose)"
         Parse="$(NFMDP_PE_Parse)"
+        IsCoreLibrary="$(NF_IsCoreLibrary)"
         VerboseMinimize="$(NFMDP_PE_VerboseMinimize)"
         NoByteCode="$(NFMDP_STUB_NoByteCode)"
         NoAttributes="$(NFMDP_STUB_NoAttributes)"
@@ -497,7 +494,6 @@
     <MakeDir Directories="@(NFMDP_DAT_CreatedFiles->'%(RootDir)%(Directory)')" />
 
     <MetaDataProcessorTask
-        Minimize="$(NFMDP_DAT_Minimize)"
         Verbose="$(NFMDP_DAT_Verbose)"
         Parse="$(NFMDP_DAT_Parse)"
         VerboseMinimize="$(NFMDP_DAT_VerboseMinimize)"
