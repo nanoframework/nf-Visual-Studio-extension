@@ -436,8 +436,8 @@
     <Reference Include="Mono.Cecil.Rocks, Version=0.11.1.0, Culture=neutral, PublicKeyToken=50cebf1cceb9d05e, processorArchitecture=MSIL">
       <HintPath>..\packages\Mono.Cecil.0.11.1\lib\net40\Mono.Cecil.Rocks.dll</HintPath>
     </Reference>
-    <Reference Include="nanoFramework.Tools.Debugger, Version=1.5.0.14, Culture=neutral, PublicKeyToken=e520bb6b53f04733, processorArchitecture=MSIL">
-      <HintPath>..\packages\nanoFramework.Tools.Debugger.Net.1.5.0-preview.14\lib\net461\nanoFramework.Tools.Debugger.dll</HintPath>
+    <Reference Include="nanoFramework.Tools.Debugger, Version=1.6.0.11, Culture=neutral, PublicKeyToken=e520bb6b53f04733, processorArchitecture=MSIL">
+      <HintPath>..\packages\nanoFramework.Tools.Debugger.Net.1.6.0-preview.11\lib\net461\nanoFramework.Tools.Debugger.dll</HintPath>
     </Reference>
     <Reference Include="nanoFramework.Tools.MetadataProcessor.Core, Version=2.10.9.64987, Culture=neutral, PublicKeyToken=562e3cb1ad703850, processorArchitecture=MSIL">
       <HintPath>..\packages\nanoFramework.Tools.MetadataProcessor.Core.2.10.9\lib\net461\nanoFramework.Tools.MetadataProcessor.Core.dll</HintPath>
