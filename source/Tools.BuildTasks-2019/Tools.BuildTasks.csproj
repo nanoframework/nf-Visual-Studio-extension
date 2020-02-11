@@ -53,8 +53,8 @@
     <Reference Include="Mono.Cecil.Rocks, Version=0.11.1.0, Culture=neutral, PublicKeyToken=50cebf1cceb9d05e, processorArchitecture=MSIL">
       <HintPath>..\packages\Mono.Cecil.0.11.1\lib\net40\Mono.Cecil.Rocks.dll</HintPath>
     </Reference>
-    <Reference Include="nanoFramework.Tools.MetadataProcessor.Core, Version=2.4.15.15844, Culture=neutral, PublicKeyToken=562e3cb1ad703850, processorArchitecture=MSIL">
-      <HintPath>..\packages\nanoFramework.Tools.MetadataProcessor.Core.2.4.15\lib\net461\nanoFramework.Tools.MetadataProcessor.Core.dll</HintPath>
+    <Reference Include="nanoFramework.Tools.MetadataProcessor.Core, Version=2.10.11.19262, Culture=neutral, PublicKeyToken=562e3cb1ad703850, processorArchitecture=MSIL">
+      <HintPath>..\packages\nanoFramework.Tools.MetadataProcessor.Core.2.10.11\lib\net461\nanoFramework.Tools.MetadataProcessor.Core.dll</HintPath>
     </Reference>
     <Reference Include="Stubble.Core, Version=1.7.0.0, Culture=neutral, PublicKeyToken=3291e04f27be773d, processorArchitecture=MSIL">
       <HintPath>..\packages\Stubble.Core.1.7.2\lib\net45\Stubble.Core.dll</HintPath>
@@ -122,10 +122,10 @@
     </PropertyGroup>
     <Error Condition="!Exists('..\packages\Microsoft.VisualStudio.Threading.Analyzers.15.8.209\build\Microsoft.VisualStudio.Threading.Analyzers.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.VisualStudio.Threading.Analyzers.15.8.209\build\Microsoft.VisualStudio.Threading.Analyzers.targets'))" />
     <Error Condition="!Exists('..\packages\Microsoft.VisualStudio.SDK.Analyzers.15.8.36\build\Microsoft.VisualStudio.SDK.Analyzers.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.VisualStudio.SDK.Analyzers.15.8.36\build\Microsoft.VisualStudio.SDK.Analyzers.targets'))" />
-    <Error Condition="!Exists('..\packages\nanoFramework.Tools.MetadataProcessor.Core.2.4.15\build\nanoFramework.Tools.MetaDataProcessor.Core.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\nanoFramework.Tools.MetadataProcessor.Core.2.4.15\build\nanoFramework.Tools.MetaDataProcessor.Core.targets'))" />
+    <Error Condition="!Exists('..\packages\nanoFramework.Tools.MetadataProcessor.Core.2.10.11\build\nanoFramework.Tools.MetaDataProcessor.Core.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\nanoFramework.Tools.MetadataProcessor.Core.2.10.11\build\nanoFramework.Tools.MetaDataProcessor.Core.targets'))" />
   </Target>
   <Import Project="..\packages\Microsoft.VisualStudio.SDK.Analyzers.15.8.36\build\Microsoft.VisualStudio.SDK.Analyzers.targets" Condition="Exists('..\packages\Microsoft.VisualStudio.SDK.Analyzers.15.8.36\build\Microsoft.VisualStudio.SDK.Analyzers.targets')" />
-  <Import Project="..\packages\nanoFramework.Tools.MetadataProcessor.Core.2.4.15\build\nanoFramework.Tools.MetaDataProcessor.Core.targets" Condition="Exists('..\packages\nanoFramework.Tools.MetadataProcessor.Core.2.4.15\build\nanoFramework.Tools.MetaDataProcessor.Core.targets')" />
+  <Import Project="..\packages\nanoFramework.Tools.MetadataProcessor.Core.2.10.11\build\nanoFramework.Tools.MetaDataProcessor.Core.targets" Condition="Exists('..\packages\nanoFramework.Tools.MetadataProcessor.Core.2.10.11\build\nanoFramework.Tools.MetaDataProcessor.Core.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
