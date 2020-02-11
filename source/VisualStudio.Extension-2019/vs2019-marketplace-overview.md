@@ -25,6 +25,8 @@ We currently have support for ARM Cortex-M cores and ESP32 providing reference t
 
 You can find out more in the project GitHub [here](https://github.com/nanoframework).
 
+To report issues go to our issue tracker on GitHub [here](https://github.com/nanoframework/Home/issues).
+
 For conversations, sharing ideas and support please join our Discord community [here](https://discord.gg/gCyBu8T).
 
 Please note that we also offer a VS extension compatible with [VS2017](https://marketplace.visualstudio.com/manage/publishers/vs-publisher-1470366/extensions/nanoframeworkvs2017extension).
