@@ -27,8 +27,6 @@
 
   <!-- set default NF properties for all projects -->
   <PropertyGroup>
-    <!-- set output of nF MetaDataProcessor command lines to disable -->
-    <NFMDP_CMD_LINE_OUTPUT Condition="'$(NFMDP_CMD_LINE_OUTPUT)'==''">false</NFMDP_CMD_LINE_OUTPUT>
   </PropertyGroup>
   
 </Project>

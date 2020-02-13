@@ -83,7 +83,9 @@ namespace nanoFramework.Tools
 
         public string SaveStrings { get; set; }
 
-        public string DumpAll { get; set; }
+        public bool DumpMetadata { get; set; }
+
+        public string DumpFile { get; set; }
 
         public string DumpExports { get; set; }
 
@@ -91,12 +93,6 @@ namespace nanoFramework.Tools
         /// Flag to set when compiling a Core Library.
         /// </summary>
         public bool IsCoreLibrary { get; set; } = false;
-
-        /// <summary>
-        /// Sets whether the command line output is sent to the Log to help debugging command execution.
-        /// Default is false.
-        /// </summary>
-        public bool OutputCommandLine { private get; set; } = false;
 
         private readonly List<ITaskItem> _filesWritten = new List<ITaskItem>();
 
@@ -250,7 +246,7 @@ namespace nanoFramework.Tools
         {
             RecordFileWritten(SaveStrings);
             RecordFileWritten(GenerateStringsTable);
-            RecordFileWritten(DumpAll);
+            RecordFileWritten(DumpFile);
             RecordFileWritten(DumpExports);
             RecordFileWritten(Compile);
             RecordFileWritten(Path.ChangeExtension(Compile, "pdbx"));
@@ -318,6 +314,19 @@ namespace nanoFramework.Tools
                 using (var writer = XmlWriter.Create(Path.ChangeExtension(fileName, "pdbx")))
                 {
                     _assemblyBuilder.Write(writer);
+                }
+
+                // output assembly metadata
+                if (DumpMetadata)
+                {
+                    if (Verbose) Log.LogCommandLine(MessageImportance.Normal, "Dumping assembly metadata...");
+
+                    DumpFile = Path.ChangeExtension(fileName, "dump.txt");
+
+                    nanoDumperGenerator dumper = new nanoDumperGenerator(
+                        _assemblyBuilder.TablesContext,
+                        DumpFile);
+                    dumper.DumpAll();
                 }
             }
             catch (Exception)

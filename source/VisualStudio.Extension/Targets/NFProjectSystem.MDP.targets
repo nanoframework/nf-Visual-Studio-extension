@@ -278,10 +278,8 @@
     <NFMDP_PE_Compile>$(ProjectDir)$(IntermediateOutputPath)$(TargetName).pe</NFMDP_PE_Compile>
     <NFMDP_PE_SaveStrings>$(ProjectDir)$(IntermediateOutputPath)$(TargetName).strings</NFMDP_PE_SaveStrings>
     <NFMDP_PE_DumpExports>$(ProjectDir)$(IntermediateOutputPath)$(TargetName)_exports.txt</NFMDP_PE_DumpExports>
-    <NFMDP_PE_DumpAll>$(ProjectDir)$(IntermediateOutputPath)$(TargetName)_all.txt</NFMDP_PE_DumpAll>
 
     <!-- nanoFramework MetaDataProcessor STUB options -->
-    <NFMDP_STUBS_DumpAll>$(ProjectDir)$(IntermediateOutputPath)$(TargetName)_exports2.txt</NFMDP_STUBS_DumpAll>
     <NFMDP_STUB_GenerateSkeletonName>$(AssemblyName)</NFMDP_STUB_GenerateSkeletonName>
     <NFMDP_STUB_Resolve>true</NFMDP_STUB_Resolve>
 
@@ -398,7 +396,7 @@
         ImportResources="@(NFMDP_PE_Resource)"
         GenerateStringsTable="$(NFMDP_PE_GenerateStringsTable)"
         Compile="$(NFMDP_PE_Compile)"
-        DumpAll="$(NFMDP_PE_DumpAll)"
+        DumpMetadata="$(NFMDP_DUMP_METADATA)"
         DumpExports="$(NFMDP_PE_DumpExports)"
         GenerateSkeletonFile="$(NFMDP_PE_GenerateSkeletonFile)"
         GenerateSkeletonName="$(NFMDP_PE_GenerateSkeletonName)"
@@ -411,7 +409,6 @@
         LoadHints="@(NFMDP_PE_LoadHints)"
         IgnoreAssembly="@(NFMDP_PE_IgnoreAssembly)"
         ExcludeClassByName="@(NFMDP_PE_ExcludeClassByName)"
-        OutputCommandLine="$(NFMDP_CMD_LINE_OUTPUT)"
         Condition="'$(NFMDP_GENERATE_STUBS)' == 'false'">
       <Output TaskParameter="FilesWritten" ItemName="FileWrites"/>
     </MetaDataProcessorTask>
@@ -429,7 +426,7 @@
         LoadStrings="$(NFMDP_STUB_LoadStrings)"
         GenerateStringsTable="$(NFMDP_STUB_GenerateStringsTable)"
         Compile="$(NFMDP_PE_Compile)"
-        DumpAll="$(NFMDP_STUBS_DumpAll)"
+        DumpMetadata="$(NFMDP_DUMP_METADATA)"
         DumpExports="$(NFMDP_STUB_DumpExports)"
         GenerateSkeletonFile="$(NFMDP_STUB_GenerateSkeletonFile)"
         GenerateSkeletonName="$(NFMDP_STUB_GenerateSkeletonName)"
@@ -443,7 +440,6 @@
         LoadHints="@(NFMDP_PE_LoadHints)"
         IgnoreAssembly="@(NFMDP_STUB_IgnoreAssembly)"
         ExcludeClassByName="@(NFMDP_PE_ExcludeClassByName)"
-        OutputCommandLine="$(NFMDP_CMD_LINE_OUTPUT)"
         Condition="'$(NFMDP_GENERATE_STUBS)' == 'true'">
       <Output TaskParameter="FilesWritten" ItemName="FileWrites"/>
     </MetaDataProcessorTask>
@@ -503,7 +499,7 @@
         LoadStrings="$(NFMDP_DAT_LoadStrings)"
         GenerateStringsTable="$(NFMDP_DAT_GenerateStringsTable)"
         Compile="$(NFMDP_DAT_Compile)"
-        DumpAll="$(NFMDP_DAT_DumpAll)"
+        DumpMetadata="$(NFMDP_DUMP_METADATA)"
         DumpExports="$(NFMDP_DAT_DumpExports)"
         GenerateSkeletonFile="$(NFMDP_DAT_GenerateSkeletonFile)"
         GenerateSkeletonName="$(NFMDP_DAT_GenerateSkeletonName)"
@@ -518,8 +514,7 @@
         IgnoreAssembly="@(NFMDP_DAT_IgnoreAssembly)"
         Load="@(NFMDP_DAT_Load)"
         LoadDatabase="@(NFMDP_DAT_LoadDatabase)"
-        ExcludeClassByName="@(NFMDP_DAT_ExcludeClassByName)"
-        OutputCommandLine="$(NFMDP_CMD_LINE_OUTPUT)">
+        ExcludeClassByName="@(NFMDP_DAT_ExcludeClassByName)">
       <Output TaskParameter="FilesWritten" ItemName="FileWrites"/>
     </MetaDataProcessorTask>
 
@@ -615,7 +610,6 @@
             $(NFMDP_PE_GenerateDependency);
             $(NFMDP_STUBS_SaveStrings);
             $(NFMDP_STUBS_GenerateStringsTable);
-            $(NFMDP_STUBS_DumpAll);
             $(NFMDP_STUBS_Compile);
             $(NFMDP_STUBS_DumpExports);
             $(NFMDP_STUBS_RefreshAssemblyOutput);
