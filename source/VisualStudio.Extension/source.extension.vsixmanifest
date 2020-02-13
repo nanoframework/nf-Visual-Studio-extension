@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
   <Metadata>
-    <Identity Id="47973986-ed3c-4b64-ba40-a9da73b44ef7" Version="|%CurrentProject%;GetBuildVersion|" Language="en-US" Publisher="nanoFramework" />
+    <Identity Id="47973986-ed3c-4b64-ba40-a9da73b44ef7" Version="2.0.0.0" Language="en-US" Publisher="nanoFramework" />
     <DisplayName>nanoFramework VS2017 Extension</DisplayName>
     <Description xml:space="preserve">Visual Studio 2017 extension for nanoFramework. Enables creating C# applications for micro-controllers and provides debugging tools.</Description>
     <MoreInfo>http://www.nanoframework.net</MoreInfo>
