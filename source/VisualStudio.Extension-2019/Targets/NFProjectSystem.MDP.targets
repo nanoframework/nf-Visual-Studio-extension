@@ -202,6 +202,13 @@
           DependsOnTargets="$(MetaDataProcessorDependsOn)">
 
     <MetaDataProcessorTask
+        Verbose="$(NFMDP_PE_Verbose)"
+        IsCoreLibrary="$(NF_IsCoreLibrary)"
+        VerboseMinimize="$(NFMDP_PE_VerboseMinimize)"
+        DumpMetadata="$(NFMDP_DUMP_METADATA)"
+        DumpExports="$(NFMDP_STUB_DumpExports)"
+        GenerateDependency="$(NFMDP_STUB_GenerateDependency)"
+        ExcludeClassByName="@(NFMDP_PE_ExcludeClassByName)"
         LoadHints="@(ReferencePath);@(ReferenceDependencyPaths);@(ReferenceSatellitePaths)"
         Parse="$(NanoFramework_Assembly)$(TargetExt)"
         Compile="$(NanoFramework_IntermediateAssembly).pe"
@@ -230,13 +237,13 @@
         InstalledAssemblyTables="@(InstalledAssemblyTables)"
         CandidateAssemblyFiles="@(Content);@(None)"
         SearchPaths="{CandidateAssemblyFiles};
-                      $(ReferencePath);
-                      {HintPathFromItem};
-                      $(TargetFrameworkDirectory);
-                      {Registry:$(FrameworkRegistryBase),$(TargetFrameworkVersion),$(AssemblyFoldersSuffix)$(AssemblyFoldersExConditions)};
-                      {RawFileName};
-                      $(OutputPath);
-                      @(NanoFramework_StartProgramItem->'%(RootDir)%(Directory)')"
+                         $(ReferencePath);
+                         {HintPathFromItem};
+                         $(TargetFrameworkDirectory);
+                         {Registry:$(FrameworkRegistryBase),$(TargetFrameworkVersion),$(AssemblyFoldersSuffix)$(AssemblyFoldersExConditions)};
+                         {RawFileName};
+                         $(OutputPath);
+                         @(NanoFramework_StartProgramItem->'%(RootDir)%(Directory)')"
         AppConfigFile="@(_ResolveAssemblyReferencesApplicationConfigFileForExes)"
         AutoUnify="$(AutoUnifyAssemblyReferences)"
         FindDependencies="true"
@@ -347,7 +354,6 @@
             $(NFMDP_PE_DumpAll);
             $(NFMDP_PE_DumpExports);
             $(NFMDP_PE_Compile);
-            $(NFMDP_PE_RefreshAssemblyOutput);
             $(NFMDP_PE_CreateDatabaseFile);
             $(NFMDP_PE_GenerateDependency)"
           DependsOnTargets="ResolveRuntimeDependencies"
@@ -389,7 +395,6 @@
         Verbose="$(NFMDP_PE_Verbose)"
         Parse="$(NFMDP_PE_Parse)"
         VerboseMinimize="$(NFMDP_PE_VerboseMinimize)"
-        NoByteCode="$(NFMDP_PE_NoByteCode)"
         NoAttributes="$(NFMDP_PE_NoAttributes)"
         SaveStrings="$(NFMDP_PE_SaveStrings)"
         LoadStrings="$(NFMDP_PE_LoadStrings)"
@@ -403,8 +408,6 @@
         GenerateSkeletonProject="$(NFMDP_PE_GenerateSkeletonProject)"
         GenerateDependency="$(NFMDP_PE_GenerateDependency)"
         CreateDatabase="@(NFMDP_PE_CreateDatabase)"
-        RefreshAssemblyName="$(NFMDP_PE_RefreshAssemblyName)"
-        RefreshAssemblyOutput="$(NFMDP_PE_RefreshAssemblyOutput)"
         CreateDatabaseFile="$(NFMDP_PE_CreateDatabaseFile)"
         LoadHints="@(NFMDP_PE_LoadHints)"
         IgnoreAssembly="@(NFMDP_PE_IgnoreAssembly)"
@@ -420,7 +423,6 @@
         Parse="$(NFMDP_PE_Parse)"
         IsCoreLibrary="$(NF_IsCoreLibrary)"
         VerboseMinimize="$(NFMDP_PE_VerboseMinimize)"
-        NoByteCode="$(NFMDP_STUB_NoByteCode)"
         NoAttributes="$(NFMDP_STUB_NoAttributes)"
         SaveStrings="$(NFMDP_STUB_SaveStrings)"
         LoadStrings="$(NFMDP_STUB_LoadStrings)"
@@ -434,8 +436,6 @@
         SkeletonWithoutInterop="$(NFMDP_STUB_SkeletonWithoutInterop)"
         GenerateDependency="$(NFMDP_STUB_GenerateDependency)"
         CreateDatabase="@(NFMDP_STUB_CreateDatabase)"
-        RefreshAssemblyName="$(NFMDP_STUB_RefreshAssemblyName)"
-        RefreshAssemblyOutput="$(NFMDP_STUB_RefreshAssemblyOutput)"
         CreateDatabaseFile="$(NFMDP_STUB_CreateDatabaseFile)"
         LoadHints="@(NFMDP_PE_LoadHints)"
         IgnoreAssembly="@(NFMDP_STUB_IgnoreAssembly)"
@@ -474,7 +474,6 @@
             $(NFMDP_DAT_DumpAll);
             $(NFMDP_DAT_DumpExports);
             $(NFMDP_DAT_Compile);
-            $(NFMDP_DAT_RefreshAssemblyOutput);
             $(NFMDP_DAT_CreateDatabaseFile);
             $(NFMDP_DAT_GenerateDependency)"
           Condition="'$(NFMDP_DAT_FILES)' == 'true'">
@@ -493,7 +492,6 @@
         Verbose="$(NFMDP_DAT_Verbose)"
         Parse="$(NFMDP_DAT_Parse)"
         VerboseMinimize="$(NFMDP_DAT_VerboseMinimize)"
-        NoByteCode="$(NFMDP_DAT_NoByteCode)"
         NoAttributes="$(NFMDP_DAT_NoAttributes)"
         SaveStrings="$(NFMDP_DAT_SaveStrings)"
         LoadStrings="$(NFMDP_DAT_LoadStrings)"
@@ -506,8 +504,6 @@
         GenerateSkeletonProject="$(NFMDP_DAT_GenerateSkeletonProject)"
         GenerateDependency="$(NFMDP_DAT_GenerateDependency)"
         CreateDatabase="@(NFMDP_DAT_CreateDatabase)"
-        RefreshAssemblyName="$(NFMDP_DAT_RefreshAssemblyName)"
-        RefreshAssemblyOutput="$(NFMDP_DAT_RefreshAssemblyOutput)"
         CreateDatabaseFile="$(NFMDP_DAT_CreateDatabaseFile)"
         Resolve="$(NFMDP_DAT_Resolve)"
         LoadHints="@(NFMDP_DAT_LoadHints)"
@@ -589,7 +585,6 @@
             $(NFMDP_PE_DumpAll);
             $(NFMDP_PE_Compile);$(NFMDP_PE_Compile_NoExt).pdbx;
             $(NFMDP_PE_DumpExports);
-            $(NFMDP_PE_RefreshAssemblyOutput);
             $(NFMDP_PE_CreateDatabaseFile);
             $(NFMDP_PE_GenerateDependency);
             $(NFMDP_PE_SaveStrings);
@@ -597,7 +592,6 @@
             $(NFMDP_PE_DumpAll);
             $(NFMDP_PE_Compile);
             $(NFMDP_PE_DumpExports);
-            $(NFMDP_PE_RefreshAssemblyOutput);
             $(NFMDP_PE_CreateDatabaseFile);
             $(NFMDP_PE_GenerateDependency);
             $(NFMDP_PE_SaveStrings);
@@ -605,14 +599,12 @@
             $(NFMDP_PE_DumpAll);
             $(NFMDP_PE_Compile);
             $(NFMDP_PE_DumpExports);
-            $(NFMDP_PE_RefreshAssemblyOutput);
             $(NFMDP_PE_CreateDatabaseFile);
             $(NFMDP_PE_GenerateDependency);
             $(NFMDP_STUBS_SaveStrings);
             $(NFMDP_STUBS_GenerateStringsTable);
             $(NFMDP_STUBS_Compile);
             $(NFMDP_STUBS_DumpExports);
-            $(NFMDP_STUBS_RefreshAssemblyOutput);
             $(NFMDP_STUBS_CreateDatabaseFile);
             $(NFMDP_STUBS_GenerateDependency);
             $(NFMDP_DAT_SaveStrings);
@@ -620,7 +612,6 @@
             $(NFMDP_DAT_DumpAll);
             $(NFMDP_DAT_Compile);
             $(NFMDP_DAT_DumpExports);
-            $(NFMDP_DAT_RefreshAssemblyOutput);
             $(NFMDP_DAT_CreateDatabaseFile);
             $(NFMDP_DAT_GenerateDependency);
             $(ProjectDir)$(IntermediateOutputPath)DesignTimeResolveAssemblyReferencesInput.cache"
@@ -634,12 +625,12 @@
           DependsOnTargets="$(NanoResourceGeneratorDependsOn)">
 
     <GenerateNanoResourceTask
-      Sources="@(EmbeddedResource)"
-      Condition=" '%(EmbeddedResource.Type)' == 'Resx' and '%(EmbeddedResource.GenerateResource)' != 'false'"
-      References="@(ReferencePath)"
-      UseSourcePath="$(UseSourcePath)"
-      StateFile="$(IntermediateOutputPath)$(MSBuildProjectFile).NanoResourceGenerator.Cache"
-      OutputResources="@(EmbeddedResource->'$(ProjectDir)$(IntermediateOutputPath)%(ManifestResourceName).nanoresources')">
+        Sources="@(EmbeddedResource)"
+        Condition=" '%(EmbeddedResource.Type)' == 'Resx' and '%(EmbeddedResource.GenerateResource)' != 'false'"
+        References="@(ReferencePath)"
+        UseSourcePath="$(UseSourcePath)"
+        StateFile="$(IntermediateOutputPath)$(MSBuildProjectFile).NanoResourceGenerator.Cache"
+        OutputResources="@(EmbeddedResource->'$(ProjectDir)$(IntermediateOutputPath)%(ManifestResourceName).nanoresources')">
       <Output TaskParameter="OutputResources" ItemName="NFMDP_PE_Resource"/>
       <Output TaskParameter="OutputResources" ItemName="FileWrites"/>
     </GenerateNanoResourceTask>
