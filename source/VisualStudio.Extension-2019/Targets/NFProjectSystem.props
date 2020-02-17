@@ -45,4 +45,10 @@
     <NFMDP_XML_FILES Condition="'$(NFMDP_XML_FILES)'==''">false</NFMDP_XML_FILES>
   </PropertyGroup>
 
+  <!-- set default NF properties for all projects -->
+  <PropertyGroup Condition="'$(NF_IsCoreLibrary)' != 'True' Or '$(NF_IsCoreLibrary)' == '' ">
+    <NFMDP_PE_Verbose Condition="'$(NFMDP_PE_Verbose)'==''">false</NFMDP_PE_Verbose>
+    <NFMDP_PE_VerboseMinimize Condition="'$(NFMDP_PE_VerboseMinimize)'==''">false</NFMDP_PE_VerboseMinimize>
+  </PropertyGroup>
+
 </Project>

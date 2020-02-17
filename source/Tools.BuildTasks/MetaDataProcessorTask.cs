@@ -77,10 +77,6 @@ namespace nanoFramework.Tools
 
         public bool Resolve { get; set; }
 
-        public string RefreshAssemblyName { get; set; }
-
-        public string RefreshAssemblyOutput { get; set; }
-
         public string SaveStrings { get; set; }
 
         public bool DumpMetadata { get; set; }
@@ -250,7 +246,6 @@ namespace nanoFramework.Tools
             RecordFileWritten(DumpExports);
             RecordFileWritten(Compile);
             RecordFileWritten(Path.ChangeExtension(Compile, "pdbx"));
-            RecordFileWritten(RefreshAssemblyOutput);
             RecordFileWritten(CreateDatabaseFile);
             RecordFileWritten(GenerateDependency);
         }
