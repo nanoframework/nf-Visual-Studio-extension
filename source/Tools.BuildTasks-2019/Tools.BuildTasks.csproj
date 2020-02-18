@@ -53,23 +53,17 @@
     <Reference Include="Mono.Cecil.Rocks, Version=0.11.1.0, Culture=neutral, PublicKeyToken=50cebf1cceb9d05e, processorArchitecture=MSIL">
       <HintPath>..\packages\Mono.Cecil.0.11.1\lib\net40\Mono.Cecil.Rocks.dll</HintPath>
     </Reference>
-    <Reference Include="nanoFramework.Tools.MetadataProcessor.Core, Version=2.11.0.0, Culture=neutral, PublicKeyToken=562e3cb1ad703850, processorArchitecture=MSIL">
-      <HintPath>..\packages\nanoFramework.Tools.MetadataProcessor.Core.2.11.1\lib\net461\nanoFramework.Tools.MetadataProcessor.Core.dll</HintPath>
+    <Reference Include="mustache-sharp, Version=1.0.0.0, Culture=neutral, PublicKeyToken=5885df51f4df0041, processorArchitecture=MSIL">
+      <HintPath>..\packages\mustache-sharp.1.0.0\lib\net45\mustache-sharp.dll</HintPath>
     </Reference>
-    <Reference Include="Stubble.Core, Version=1.7.0.0, Culture=neutral, PublicKeyToken=3291e04f27be773d, processorArchitecture=MSIL">
-      <HintPath>..\packages\Stubble.Core.1.7.2\lib\net45\Stubble.Core.dll</HintPath>
+    <Reference Include="nanoFramework.Tools.MetadataProcessor.Core, Version=2.19.0.2, Culture=neutral, PublicKeyToken=562e3cb1ad703850, processorArchitecture=MSIL">
+      <HintPath>..\packages\nanoFramework.Tools.MetadataProcessor.Core.2.19.0\lib\net461\nanoFramework.Tools.MetadataProcessor.Core.dll</HintPath>
     </Reference>
     <Reference Include="System" />
-    <Reference Include="System.Collections.Immutable, Version=1.2.3.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Collections.Immutable.1.5.0\lib\netstandard2.0\System.Collections.Immutable.dll</HintPath>
-    </Reference>
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=4.0.4.1, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.4.5.2\lib\netstandard2.0\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Threading.Tasks.Extensions, Version=4.2.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Threading.Tasks.Extensions.4.5.2\lib\netstandard2.0\System.Threading.Tasks.Extensions.dll</HintPath>
     </Reference>
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq" />
@@ -123,11 +117,11 @@
     </PropertyGroup>
     <Error Condition="!Exists('..\packages\Microsoft.VisualStudio.Threading.Analyzers.15.8.209\build\Microsoft.VisualStudio.Threading.Analyzers.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.VisualStudio.Threading.Analyzers.15.8.209\build\Microsoft.VisualStudio.Threading.Analyzers.targets'))" />
     <Error Condition="!Exists('..\packages\Microsoft.VisualStudio.SDK.Analyzers.15.8.36\build\Microsoft.VisualStudio.SDK.Analyzers.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.VisualStudio.SDK.Analyzers.15.8.36\build\Microsoft.VisualStudio.SDK.Analyzers.targets'))" />
-    <Error Condition="!Exists('..\packages\nanoFramework.Tools.MetadataProcessor.Core.2.11.1\build\nanoFramework.Tools.MetaDataProcessor.Core.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\nanoFramework.Tools.MetadataProcessor.Core.2.11.1\build\nanoFramework.Tools.MetaDataProcessor.Core.targets'))" />
+    <Error Condition="!Exists('..\packages\nanoFramework.Tools.MetadataProcessor.Core.2.19.0\build\nanoFramework.Tools.MetaDataProcessor.Core.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\nanoFramework.Tools.MetadataProcessor.Core.2.19.0\build\nanoFramework.Tools.MetaDataProcessor.Core.targets'))" />
     <Error Condition="!Exists('..\packages\Nerdbank.GitVersioning.3.0.50\build\Nerdbank.GitVersioning.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Nerdbank.GitVersioning.3.0.50\build\Nerdbank.GitVersioning.targets'))" />
   </Target>
   <Import Project="..\packages\Microsoft.VisualStudio.SDK.Analyzers.15.8.36\build\Microsoft.VisualStudio.SDK.Analyzers.targets" Condition="Exists('..\packages\Microsoft.VisualStudio.SDK.Analyzers.15.8.36\build\Microsoft.VisualStudio.SDK.Analyzers.targets')" />
-  <Import Project="..\packages\nanoFramework.Tools.MetadataProcessor.Core.2.11.1\build\nanoFramework.Tools.MetaDataProcessor.Core.targets" Condition="Exists('..\packages\nanoFramework.Tools.MetadataProcessor.Core.2.11.1\build\nanoFramework.Tools.MetaDataProcessor.Core.targets')" />
+  <Import Project="..\packages\nanoFramework.Tools.MetadataProcessor.Core.2.19.0\build\nanoFramework.Tools.MetaDataProcessor.Core.targets" Condition="Exists('..\packages\nanoFramework.Tools.MetadataProcessor.Core.2.19.0\build\nanoFramework.Tools.MetaDataProcessor.Core.targets')" />
   <Import Project="..\packages\Nerdbank.GitVersioning.3.0.50\build\Nerdbank.GitVersioning.targets" Condition="Exists('..\packages\Nerdbank.GitVersioning.3.0.50\build\Nerdbank.GitVersioning.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
