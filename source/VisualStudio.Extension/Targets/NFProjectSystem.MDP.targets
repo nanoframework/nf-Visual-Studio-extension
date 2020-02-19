@@ -201,8 +201,28 @@
           Outputs="$(NanoFramework_IntermediateAssembly).pe"
           DependsOnTargets="$(MetaDataProcessorDependsOn)">
 
+    <ItemGroup>
+      <NFMDP_PE_CreatedFiles Include="$(NFMDP_PE_GenerateSkeletonFile)"  Condition="'$(NFMDP_PE_GenerateSkeletonFile)'!=''"/>
+    </ItemGroup>
+  
+    <ItemGroup>
+      <NFMDP_STUB_CreatedFiles Include="$(NFMDP_STUB_GenerateSkeletonFile)"  Condition="'$(NFMDP_STUB_GenerateSkeletonFile)'!=''"/>
+    </ItemGroup>
+    <MakeDir Directories="@(NFMDP_STUB_CreatedFiles->'%(RootDir)%(Directory)')" Condition="'$(NFMDP_GENERATE_STUBS)' == 'true'"/>
+
+    <PropertyGroup>
+      <NFMDP_STUB_GenerateSkeletonProject>$(NF_GenerateSkeletonProjectName)</NFMDP_STUB_GenerateSkeletonProject>
+      <NFMDP_STUB_GenerateSkeletonName>$(NF_GenerateStubsRootName)</NFMDP_STUB_GenerateSkeletonName>
+      <NFMDP_STUB_GenerateSkeletonFile>$(NF_GenerateStubsDirectory)</NFMDP_STUB_GenerateSkeletonFile>
+    
+      <!-- force this to false for the moment (need to evaluate how safe it is to allow user stubs with Interop -->
+      <NFMDP_STUB_SkeletonWithoutInterop>false</NFMDP_STUB_SkeletonWithoutInterop>
+
+    </PropertyGroup>
+
     <MetaDataProcessorTask
         Verbose="$(NFMDP_PE_Verbose)"
+        Parse="$(NanoFramework_Assembly)$(TargetExt)"
         IsCoreLibrary="$(NF_IsCoreLibrary)"
         VerboseMinimize="$(NFMDP_PE_VerboseMinimize)"
         DumpMetadata="$(NFMDP_DUMP_METADATA)"
@@ -210,8 +230,12 @@
         GenerateDependency="$(NFMDP_STUB_GenerateDependency)"
         ExcludeClassByName="@(NFMDP_PE_ExcludeClassByName)"
         LoadHints="@(ReferencePath);@(ReferenceDependencyPaths);@(ReferenceSatellitePaths)"
-        Parse="$(NanoFramework_Assembly)$(TargetExt)"
         Compile="$(NanoFramework_IntermediateAssembly).pe"
+        GenerateStubs="$(NFMDP_GENERATE_STUBS)"
+        GenerateSkeletonFile="$(NFMDP_STUB_GenerateSkeletonFile)"
+        GenerateSkeletonName="$(NFMDP_STUB_GenerateSkeletonName)"
+        GenerateSkeletonProject="$(NFMDP_STUB_GenerateSkeletonProject)"
+        SkeletonWithoutInterop="$(NFMDP_STUB_SkeletonWithoutInterop)"
         ImportResources="@(NanoFramework_Resources)">
       <Output TaskParameter="FilesWritten" ItemName="FileWrites" />
     </MetaDataProcessorTask>
@@ -316,17 +340,6 @@
     <CoreBuildDependsOn>$(CoreBuildDependsOn);NFMDP_CreateDatabaseAndDependencyMap</CoreBuildDependsOn>
   </PropertyGroup>
 
-  <!-- TODO this will probably is not required or can be moved to the targets of mscorlib  -->
-  <!--<ItemGroup Condition=" '$(IsMscorlib)' != 'true' AND '$(NF_IsCoreLibrary)' != 'True'">
-    <NFMDP_PE_LoadHints Include="$(ProjectDir)$(IntermediateOutputPath)\mscorlib.dll">
-      <InProject>false</InProject>
-    </NFMDP_PE_LoadHints>
-  
-    <NFMDP_STUB_Load Include="$(ProjectDir)$(IntermediateOutputPath)\mscorlib.pe">
-      <InProject>false</InProject>
-    </NFMDP_STUB_Load>
-  </ItemGroup>-->
-
   <ItemGroup Condition="'$(TargetName)' != ''" >
     <NFMDP_DUMP_Load Include="$(NFMDP_PE_Compile)" >
       <InProject>false</InProject>
@@ -387,6 +400,10 @@
 
     <PropertyGroup>
       <NFMDP_STUB_GenerateSkeletonProject Condition="'$(NFMDP_STUB_GenerateSkeletonProject)'==''" >$(AssemblyName)</NFMDP_STUB_GenerateSkeletonProject>
+
+      <!-- force this to true as this is a core library -->
+      <NFMDP_STUB_SkeletonWithoutInterop>true</NFMDP_STUB_SkeletonWithoutInterop>
+
     </PropertyGroup>
 
     <Message Text="Distilling assemblies to nanoCLR PE files (no stubs)..." Condition="'$(NFMDP_GENERATE_STUBS)' == 'false'" />
@@ -403,9 +420,7 @@
         Compile="$(NFMDP_PE_Compile)"
         DumpMetadata="$(NFMDP_DUMP_METADATA)"
         DumpExports="$(NFMDP_PE_DumpExports)"
-        GenerateSkeletonFile="$(NFMDP_PE_GenerateSkeletonFile)"
-        GenerateSkeletonName="$(NFMDP_PE_GenerateSkeletonName)"
-        GenerateSkeletonProject="$(NFMDP_PE_GenerateSkeletonProject)"
+        GenerateStubs="$(NFMDP_GENERATE_STUBS)"
         GenerateDependency="$(NFMDP_PE_GenerateDependency)"
         CreateDatabase="@(NFMDP_PE_CreateDatabase)"
         CreateDatabaseFile="$(NFMDP_PE_CreateDatabaseFile)"
@@ -430,6 +445,7 @@
         Compile="$(NFMDP_PE_Compile)"
         DumpMetadata="$(NFMDP_DUMP_METADATA)"
         DumpExports="$(NFMDP_STUB_DumpExports)"
+        GenerateStubs="$(NFMDP_GENERATE_STUBS)"
         GenerateSkeletonFile="$(NFMDP_STUB_GenerateSkeletonFile)"
         GenerateSkeletonName="$(NFMDP_STUB_GenerateSkeletonName)"
         GenerateSkeletonProject="$(NFMDP_STUB_GenerateSkeletonProject)"

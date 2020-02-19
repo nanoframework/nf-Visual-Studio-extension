@@ -58,6 +58,11 @@ namespace nanoFramework.Tools
 
         public ITaskItem[] CreateDatabase { get; set; }
 
+        /// <summary>
+        /// Parameter to enable stubs generation step.
+        /// </summary>
+        public bool GenerateStubs { get; set; } = false;
+
         public string GenerateSkeletonFile { get; set; }
 
         public string GenerateSkeletonName { get; set; }
@@ -172,7 +177,7 @@ namespace nanoFramework.Tools
                     if (string.IsNullOrEmpty(Parse))
                     {
                         // can't compile without analysing first
-                        throw new ArgumentException("Can't compile without first analysing a .NET Assembly. Check the targets file for a missing option invoking MedataProcessor Task.");
+                        throw new ArgumentException("Can't compile without first analysing a .NET Assembly. Check the targets file for a missing option invoking MetadataProcessor Task.");
                     }
                     else
                     {
@@ -183,15 +188,31 @@ namespace nanoFramework.Tools
                 }
 
                 // generate skeleton files with stubs to add native code for an assembly
-                if ( !string.IsNullOrEmpty(GenerateSkeletonFile) &&
-                    !string.IsNullOrEmpty(GenerateSkeletonProject) &&
-                    !string.IsNullOrEmpty(GenerateSkeletonName))
+                if (GenerateStubs)
                 {
+                    if(string.IsNullOrEmpty(GenerateSkeletonFile))
+                    {
+                        // can't generate skeleton without GenerateSkeletonFile parameter
+                        throw new ArgumentException("Can't generate skeleton project without 'GenerateSkeletonFile'. Check the targets file for a missing parameter when invoking MetadataProcessor Task.");
+                    }
+
+                    if (string.IsNullOrEmpty(GenerateSkeletonProject))
+                    {
+                        // can't generate skeleton without GenerateSkeletonProject parameter
+                        throw new ArgumentException("Can't generate skeleton project without 'GenerateSkeletonProject'. Check the targets file for a missing parameter when invoking MetadataProcessor Task.");
+                    }
+
+                    if (string.IsNullOrEmpty(GenerateSkeletonName))
+                    {
+                        // can't generate skeleton without GenerateSkeletonName parameter
+                        throw new ArgumentException("Can't generate skeleton project without 'GenerateSkeletonName'. Check the targets file for a missing parameter when invoking MetadataProcessor Task.");
+                    }
+
                     // sanity check for missing compile (therefore parse too)
                     if (string.IsNullOrEmpty(Compile))
                     {
                         // can't generate skeleton without compiling first
-                        throw new ArgumentException("Can't generate skeleton project without first compiling the .NET Assembly. Check the targets file for a missing option invoking MedataProcessor Task.");
+                        throw new ArgumentException("Can't generate skeleton project without first compiling the .NET Assembly. Check the targets file for a missing option invoking MetadataProcessor Task.");
                     }
                     else
                     {
