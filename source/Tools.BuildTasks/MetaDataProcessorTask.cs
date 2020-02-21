@@ -367,11 +367,6 @@ namespace nanoFramework.Tools
         {
             try
             {
-                if (!withoutInteropCode)
-                {
-                    throw new ArgumentException("Generator for Interop stubs is not supported yet.");
-                }
-
                 if (Verbose) Log.LogCommandLine(MessageImportance.Normal, "Generating skeleton files...");
 
                 var skeletonGenerator = new nanoSkeletonGenerator(
@@ -379,7 +374,8 @@ namespace nanoFramework.Tools
                     file,
                     name,
                     project,
-                    withoutInteropCode);
+                    withoutInteropCode,
+                    IsCoreLibrary);
 
                 skeletonGenerator.GenerateSkeleton();
             }
