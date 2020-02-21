@@ -16,10 +16,10 @@
   -->
 
   <PropertyGroup>
-    <NF_GenerateStubsDirectory Condition="'$(NF_GenerateStubsDirectory)'==''">$(ProjectDir)Stubs\</NF_GenerateStubsDirectory>
+    <NF_GenerateStubsDirectory Condition="'$(NF_GenerateStubsDirectory)'==''">$(ProjectDir)Stubs</NF_GenerateStubsDirectory>
     <NF_GenerateStubsRootName Condition="'$(NF_GenerateStubsRootName)'==''">$(TargetName)</NF_GenerateStubsRootName>
     <NF_GenerateSkeletonProjectName Condition="'$(NF_GenerateSkeletonProjectName)'==''">$(TargetName)</NF_GenerateSkeletonProjectName>
-    <NF_GenerateSkeletonFile>$(NF_GenerateStubsDirectory)$(NF_GenerateStubsRootName)</NF_GenerateSkeletonFile>
+    <NF_GenerateSkeletonFile>$(NF_GenerateStubsDirectory)\$(NF_GenerateStubsRootName)</NF_GenerateSkeletonFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -399,7 +399,9 @@
     <MakeDir Directories="@(NFMDP_STUB_CreatedFiles->'%(RootDir)%(Directory)')" Condition="'$(NFMDP_GENERATE_STUBS)' == 'true'"/>
 
     <PropertyGroup>
-      <NFMDP_STUB_GenerateSkeletonProject Condition="'$(NFMDP_STUB_GenerateSkeletonProject)'==''" >$(AssemblyName)</NFMDP_STUB_GenerateSkeletonProject>
+      <NFMDP_STUB_GenerateSkeletonProject>$(NF_GenerateSkeletonProjectName)</NFMDP_STUB_GenerateSkeletonProject>
+      <NFMDP_STUB_GenerateSkeletonName>$(NF_GenerateStubsRootName)</NFMDP_STUB_GenerateSkeletonName>
+      <NFMDP_STUB_GenerateSkeletonFile>$(NF_GenerateSkeletonFile)</NFMDP_STUB_GenerateSkeletonFile>
 
       <!-- force this to true as this is a core library -->
       <NFMDP_STUB_SkeletonWithoutInterop>true</NFMDP_STUB_SkeletonWithoutInterop>
