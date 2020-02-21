@@ -213,7 +213,7 @@
     <PropertyGroup>
       <NFMDP_STUB_GenerateSkeletonProject>$(NF_GenerateSkeletonProjectName)</NFMDP_STUB_GenerateSkeletonProject>
       <NFMDP_STUB_GenerateSkeletonName>$(NF_GenerateStubsRootName)</NFMDP_STUB_GenerateSkeletonName>
-      <NFMDP_STUB_GenerateSkeletonFile>$(NF_GenerateStubsDirectory)</NFMDP_STUB_GenerateSkeletonFile>
+      <NFMDP_STUB_GenerateSkeletonFile>$(NF_GenerateSkeletonFile)</NFMDP_STUB_GenerateSkeletonFile>
     
       <!-- force this to false for the moment (need to evaluate how safe it is to allow user stubs with Interop -->
       <NFMDP_STUB_SkeletonWithoutInterop>false</NFMDP_STUB_SkeletonWithoutInterop>
