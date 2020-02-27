@@ -312,9 +312,13 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                             // build a list with the PE files corresponding to each DLL and EXE
                             List<DeploymentAssembly> peCollection = distinctAssemblyList.Select(a => new DeploymentAssembly(a.Path.Replace(".dll", ".pe").Replace(".exe", ".pe"), a.Version, a.NativeVersion)).ToList();
 
+                            // build a list with the PE files corresponding to a DLL for native support checking
+                            // only need to check libraries because EXEs don't have native counterpart
+                            List<DeploymentAssembly> peCollectionToCheck = distinctAssemblyList.Where(i => i.Path.EndsWith(".dll")).Select(a => new DeploymentAssembly(a.Path.Replace(".dll", ".pe"), a.Version, a.NativeVersion)).ToList();
+
                             await Task.Yield();
 
-                            var checkAssembliesResult = await CheckNativeAssembliesAvailabilityAsync(device.DeviceInfo.NativeAssemblies, peCollection);
+                            var checkAssembliesResult = await CheckNativeAssembliesAvailabilityAsync(device.DeviceInfo.NativeAssemblies, peCollectionToCheck);
                             if (checkAssembliesResult != "")
                             {
                                 MessageCentre.InternalErrorMessage("Found assemblies mismatches when checking for deployment pre-check.");
