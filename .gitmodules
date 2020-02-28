@@ -1,3 +1,6 @@
 [submodule "nf-debugger"]
 	path = nf-debugger
 	url = https://github.com/nanoframework/nf-debugger
+[submodule "metadata-processor"]
+	path = metadata-processor
+	url = https://github.com/nanoframework/metadata-processor
