@@ -280,6 +280,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
 
         public StringBuilder DeviceSystemInfo { get; set; }
 
+        public StringBuilder OemInfo { get; internal set; }
+
         /// <summary>
         /// used to prevent repeated retrieval of device capabilities after connection
         /// </summary>
