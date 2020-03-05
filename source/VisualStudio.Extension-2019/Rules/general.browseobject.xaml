@@ -39,9 +39,9 @@
 
 
     <!-- nanoFramework category properties -->
-    <BoolProperty Category="nanoFramework" Name="NF_GenerateStubs" DisplayName="Generate stub files" Visible="True" Default="False" Description="Enable this to generate stub files during build.">
+    <BoolProperty Category="nanoFramework" Name="NFMDP_GENERATE_STUBS" DisplayName="Generate stub files" Visible="True" Default="False" Description="Enable this to generate stub files during build.">
         <BoolProperty.DataSource>
-            <DataSource PersistedName="NF_GenerateStubs" HasConfigurationCondition="False" Label="nanoFramework" SourceOfDefaultValue="AfterContext" />
+            <DataSource PersistedName="NFMDP_GENERATE_STUBS" HasConfigurationCondition="False" Label="nanoFramework" SourceOfDefaultValue="AfterContext" />
         </BoolProperty.DataSource>
     </BoolProperty>
     <StringProperty Category="nanoFramework" Name="NF_GenerateStubsRootName" DisplayName="Root name for stub files" Visible="True" Default="$(TargetName)" Description="Root name for stub files.">
@@ -55,24 +55,24 @@
         </StringProperty.DataSource>
     </StringProperty>
 
-    <BoolProperty Category="nFAdvanced" Name="NFMDP_DUMP_FILES" DisplayName="Generate dump files" Visible="True" Description="Enable this to generate dump files during build.">
+    <BoolProperty Category="nFAdvanced" Name="NFMDP_DUMP_METADATA" DisplayName="Generate metadata dump files" Visible="True" Description="Enable this to generate dump files with metadata during build.">
         <BoolProperty.DataSource>
-            <DataSource PersistedName="NFMDP_DUMP_FILES" HasConfigurationCondition="False" Label="nanoFramework" SourceOfDefaultValue="AfterContext"/>
+            <DataSource PersistedName="NFMDP_DUMP_METADATA" Persistence="UserFile" HasConfigurationCondition="False" Label="nanoFramework" SourceOfDefaultValue="AfterContext"/>
         </BoolProperty.DataSource>
     </BoolProperty>
     <BoolProperty Category="nFAdvanced" Name="NFMDP_DAT_FILES" DisplayName="Generate .dat files" Visible="True" Description="Enable this to generate .dat files during build.">
         <BoolProperty.DataSource>
-            <DataSource PersistedName="NFMDP_DAT_FILES" HasConfigurationCondition="False" Label="nanoFramework" SourceOfDefaultValue="AfterContext"/>
+            <DataSource PersistedName="NFMDP_DAT_FILES" Persistence="UserFile" HasConfigurationCondition="False" Label="nanoFramework" SourceOfDefaultValue="AfterContext"/>
         </BoolProperty.DataSource>
     </BoolProperty>
     <BoolProperty Category="nFAdvanced" Name="NFMDP_XML_FILES" DisplayName="Generate XML files" Visible="True" Description="Enable this to generate XML files during build.">
         <BoolProperty.DataSource>
-            <DataSource PersistedName="NFMDP_XML_FILES" HasConfigurationCondition="False" Label="nanoFramework" SourceOfDefaultValue="AfterContext"/>
+            <DataSource PersistedName="NFMDP_XML_FILES" Persistence="UserFile" HasConfigurationCondition="False" Label="nanoFramework" SourceOfDefaultValue="AfterContext"/>
         </BoolProperty.DataSource>
     </BoolProperty>
-    <BoolProperty Category="nFAdvanced" Name="NFMDP_PE_Verbose" DisplayName="Output MDP command line" Visible="True" Description="Enable verbose output of Metadata Processor. (Only usefull when debugging Metadata Processor execution)">
+    <BoolProperty Category="nFAdvanced" Name="NFMDP_PE_Verbose" DisplayName="Enable output of MDP" Visible="True" Description="Enable verbose output of Metadata Processor.">
         <BoolProperty.DataSource>
-            <DataSource Persistence="UserFile" PersistedName="NFMDP_PE_Verbose" HasConfigurationCondition="True" Label="nanoFramework" SourceOfDefaultValue="AfterContext"/>
+            <DataSource PersistedName="NFMDP_PE_Verbose" Persistence="UserFile" HasConfigurationCondition="True" Label="nanoFramework" SourceOfDefaultValue="AfterContext"/>
         </BoolProperty.DataSource>
     </BoolProperty>
 

@@ -27,22 +27,4 @@
     <DebuggerFlavor>NanoDebugger</DebuggerFlavor>
   </PropertyGroup>
 
-  <!-- set default NF properties for CoreLibrary project -->
-  <PropertyGroup Condition="'$(NF_IsCoreLibrary)' == 'True' ">
-    <NFMDP_GENERATE_PE Condition="'$(NFMDP_GENERATE_PE)'==''">true</NFMDP_GENERATE_PE>
-    <NFMDP_DUMP_FILES Condition="'$(NFMDP_DUMP_FILES)'==''">true</NFMDP_DUMP_FILES>
-    <NFMDP_GENERATE_STUBS Condition="'$(NFMDP_GENERATE_STUBS)'==''">true</NFMDP_GENERATE_STUBS>
-    <NFMDP_DAT_FILES Condition="'$(NFMDP_DAT_FILES)'==''">true</NFMDP_DAT_FILES>
-    <NFMDP_XML_FILES Condition="'$(NFMDP_XML_FILES)'==''">true</NFMDP_XML_FILES>
-  </PropertyGroup>
-
-  <!-- set default NF properties for regular project (not CoreLibrary) -->
-  <PropertyGroup Condition="'$(NF_IsCoreLibrary)' != 'True' Or '$(NF_IsCoreLibrary)' == '' ">
-    <NFMDP_GENERATE_PE Condition="'$(NFMDP_GENERATE_PE)'==''">false</NFMDP_GENERATE_PE>
-    <NFMDP_DUMP_FILES Condition="'$(NFMDP_DUMP_FILES)'==''">false</NFMDP_DUMP_FILES>
-    <NFMDP_GENERATE_STUBS Condition="'$(NFMDP_GENERATE_STUBS)'==''">false</NFMDP_GENERATE_STUBS>
-    <NFMDP_DAT_FILES Condition="'$(NFMDP_DAT_FILES)'==''">false</NFMDP_DAT_FILES>
-    <NFMDP_XML_FILES Condition="'$(NFMDP_XML_FILES)'==''">false</NFMDP_XML_FILES>
-  </PropertyGroup>
-
 </Project>

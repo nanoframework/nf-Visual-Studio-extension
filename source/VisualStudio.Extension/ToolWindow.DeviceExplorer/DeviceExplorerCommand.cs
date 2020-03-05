@@ -353,27 +353,41 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         // connect to the device
                         if (await NanoDeviceCommService.Device.DebugEngine.ConnectAsync(5000))
                         {
-                            try
+                            // check that we are in CLR
+                            if (NanoDeviceCommService.Device.DebugEngine.ConnectionSource == ConnectionSource.nanoCLR)
                             {
-                                // get device info
-                                var deviceInfo = NanoDeviceCommService.Device.GetDeviceInfo(true);
-                                var memoryMap = NanoDeviceCommService.Device.DebugEngine.GetMemoryMap();
-                                var flashMap = NanoDeviceCommService.Device.DebugEngine.GetFlashSectorMap();
-                                var deploymentMap = NanoDeviceCommService.Device.DebugEngine.GetDeploymentMap();
-
-                                // we have to have a valid device info
-                                if (deviceInfo.Valid)
+                                try
                                 {
+                                    // get device info
+                                    var deviceInfo = NanoDeviceCommService.Device.GetDeviceInfo(true);
+                                    var memoryMap = NanoDeviceCommService.Device.DebugEngine.GetMemoryMap();
+                                    var flashMap = NanoDeviceCommService.Device.DebugEngine.GetFlashSectorMap();
+                                    var deploymentMap = NanoDeviceCommService.Device.DebugEngine.GetDeploymentMap();
 
-                                    // load view model properties for maps
-                                    ViewModelLocator.DeviceExplorer.DeviceMemoryMap = new StringBuilder(memoryMap?.ToStringForOutput() ?? "Empty");
-                                    ViewModelLocator.DeviceExplorer.DeviceFlashSectorMap = new StringBuilder(flashMap?.ToStringForOutput() ?? "Empty");
-                                    ViewModelLocator.DeviceExplorer.DeviceDeploymentMap = new StringBuilder(deploymentMap?.ToStringForOutput() ?? "Empty");
+                                    // we have to have a valid device info
+                                    if (deviceInfo.Valid)
+                                    {
 
-                                    // load view model property for system
-                                    ViewModelLocator.DeviceExplorer.DeviceSystemInfo = new StringBuilder(deviceInfo?.ToString() ?? "Empty");
+                                        // load view model properties for maps
+                                        ViewModelLocator.DeviceExplorer.DeviceMemoryMap = new StringBuilder(memoryMap?.ToStringForOutput() ?? "Empty");
+                                        ViewModelLocator.DeviceExplorer.DeviceFlashSectorMap = new StringBuilder(flashMap?.ToStringForOutput() ?? "Empty");
+                                        ViewModelLocator.DeviceExplorer.DeviceDeploymentMap = new StringBuilder(deploymentMap?.ToStringForOutput() ?? "Empty");
+
+                                        // load view model property for system
+                                        ViewModelLocator.DeviceExplorer.DeviceSystemInfo = new StringBuilder(deviceInfo?.ToString() ?? "Empty");
+                                    }
+                                    else
+                                    {
+                                        // reset property to force that device capabilities are retrieved on next connection
+                                        ViewModelLocator.DeviceExplorer.LastDeviceConnectedHash = 0;
+
+                                        // report issue to user
+                                        MessageCentre.OutputMessage($"Error retrieving device information from { ViewModelLocator.DeviceExplorer.SelectedDevice.Description}. Please reconnect device.");
+
+                                        return;
+                                    }
                                 }
-                                else
+                                catch
                                 {
                                     // reset property to force that device capabilities are retrieved on next connection
                                     ViewModelLocator.DeviceExplorer.LastDeviceConnectedHash = 0;
@@ -384,15 +398,42 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                                     return;
                                 }
                             }
-                            catch
+                            else
                             {
-                                // reset property to force that device capabilities are retrieved on next connection
-                                ViewModelLocator.DeviceExplorer.LastDeviceConnectedHash = 0;
+                                // we are in booter, can only get OEMInfo
+                                try
+                                {
+                                    // get device info
+                                    var deviceInfo = NanoDeviceCommService.Device.DebugEngine.GetMonitorOemInfo();
 
-                                // report issue to user
-                                MessageCentre.OutputMessage($"Error retrieving device information from { ViewModelLocator.DeviceExplorer.SelectedDevice.Description}. Please reconnect device.");
+                                    // we have to have a valid device info
+                                    if (deviceInfo != null)
+                                    {
 
-                                return;
+                                        // load view model properties for maps
+                                        ViewModelLocator.DeviceExplorer.OemInfo = new StringBuilder(deviceInfo.ToString() ?? "Empty");
+                                    }
+                                    else
+                                    {
+                                        // reset property to force that device capabilities are retrieved on next connection
+                                        ViewModelLocator.DeviceExplorer.LastDeviceConnectedHash = 0;
+
+                                        // report issue to user
+                                        MessageCentre.OutputMessage($"Error retrieving device information from { ViewModelLocator.DeviceExplorer.SelectedDevice.Description}. Please reconnect device.");
+
+                                        return;
+                                    }
+                                }
+                                catch
+                                {
+                                    // reset property to force that device capabilities are retrieved on next connection
+                                    ViewModelLocator.DeviceExplorer.LastDeviceConnectedHash = 0;
+
+                                    // report issue to user
+                                    MessageCentre.OutputMessage($"Error retrieving device information from { ViewModelLocator.DeviceExplorer.SelectedDevice.Description}. Please reconnect device.");
+
+                                    return;
+                                }
                             }
                         }
                         else
@@ -406,25 +447,37 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         }
                     }
 
-                    MessageCentre.OutputMessage(string.Empty);
-                    MessageCentre.OutputMessage(string.Empty);
-                    MessageCentre.OutputMessage("System Information");
-                    MessageCentre.OutputMessage(ViewModelLocator.DeviceExplorer.DeviceSystemInfo.ToString());
+                    if (NanoDeviceCommService.Device.DebugEngine.ConnectionSource == ConnectionSource.nanoCLR)
+                    {
+                        // CLR, output full details
+                        MessageCentre.OutputMessage(string.Empty);
+                        MessageCentre.OutputMessage(string.Empty);
+                        MessageCentre.OutputMessage("System Information");
+                        MessageCentre.OutputMessage(ViewModelLocator.DeviceExplorer.DeviceSystemInfo.ToString());
 
-                    MessageCentre.OutputMessage(string.Empty);
-                    MessageCentre.OutputMessage(string.Empty);
-                    MessageCentre.OutputMessage(ViewModelLocator.DeviceExplorer.DeviceMemoryMap.ToString());
+                        MessageCentre.OutputMessage(string.Empty);
+                        MessageCentre.OutputMessage(string.Empty);
+                        MessageCentre.OutputMessage(ViewModelLocator.DeviceExplorer.DeviceMemoryMap.ToString());
 
-                    MessageCentre.OutputMessage(string.Empty);
-                    MessageCentre.OutputMessage(string.Empty);
-                    MessageCentre.OutputMessage(ViewModelLocator.DeviceExplorer.DeviceFlashSectorMap.ToString());
+                        MessageCentre.OutputMessage(string.Empty);
+                        MessageCentre.OutputMessage(string.Empty);
+                        MessageCentre.OutputMessage(ViewModelLocator.DeviceExplorer.DeviceFlashSectorMap.ToString());
 
-                    MessageCentre.OutputMessage(string.Empty);
-                    MessageCentre.OutputMessage(string.Empty);
-                    MessageCentre.OutputMessage("Deployment Map");
-                    MessageCentre.OutputMessage(ViewModelLocator.DeviceExplorer.DeviceDeploymentMap.ToString());
-                    MessageCentre.OutputMessage(string.Empty);
+                        MessageCentre.OutputMessage(string.Empty);
+                        MessageCentre.OutputMessage(string.Empty);
+                        MessageCentre.OutputMessage("Deployment Map");
+                        MessageCentre.OutputMessage(ViewModelLocator.DeviceExplorer.DeviceDeploymentMap.ToString());
+                        MessageCentre.OutputMessage(string.Empty);
+                    }
+                    else
+                    {
+                        // booter, can only output minimal details
 
+                        MessageCentre.OutputMessage(string.Empty);
+                        MessageCentre.OutputMessage(string.Empty);
+                        MessageCentre.OutputMessage("Target Information");
+                        MessageCentre.OutputMessage(ViewModelLocator.DeviceExplorer.OemInfo.ToString());
+                    }
                 }
                 catch (Exception ex)
                 {

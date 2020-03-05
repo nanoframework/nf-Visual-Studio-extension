@@ -312,9 +312,13 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                             // build a list with the PE files corresponding to each DLL and EXE
                             List<DeploymentAssembly> peCollection = distinctAssemblyList.Select(a => new DeploymentAssembly(a.Path.Replace(".dll", ".pe").Replace(".exe", ".pe"), a.Version, a.NativeVersion)).ToList();
 
+                            // build a list with the PE files corresponding to a DLL for native support checking
+                            // only need to check libraries because EXEs don't have native counterpart
+                            List<DeploymentAssembly> peCollectionToCheck = distinctAssemblyList.Where(i => i.Path.EndsWith(".dll")).Select(a => new DeploymentAssembly(a.Path.Replace(".dll", ".pe"), a.Version, a.NativeVersion)).ToList();
+
                             await Task.Yield();
 
-                            var checkAssembliesResult = await CheckNativeAssembliesAvailabilityAsync(device.DeviceInfo.NativeAssemblies, peCollection);
+                            var checkAssembliesResult = await CheckNativeAssembliesAvailabilityAsync(device.DeviceInfo.NativeAssemblies, peCollectionToCheck);
                             if (checkAssembliesResult != "")
                             {
                                 MessageCentre.InternalErrorMessage("Found assemblies mismatches when checking for deployment pre-check.");
@@ -467,18 +471,19 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     byte[] buffer = new byte[4];
                     fs.Position = 0x14;
                     await fs.ReadAsync(buffer, 0, 4);
-                    var peChecksum = BitConverter.ToUInt32(buffer, 0);
+                    var nativeMethodsChecksum = BitConverter.ToUInt32(buffer, 0);
 
-                    if (peChecksum == 0)
+                    if (nativeMethodsChecksum == 0)
                     {
-                        // only PEs with checksum are class libraries so we can move to the next one
+                        // PEs with native methods checksum equal to 0 DO NOT require native support 
+                        // OK to move to the next one
                         continue;
                     }
 
                     // try to find a native assembly matching the checksum for this PE
-                    if (nativeAssemblies.Exists(a => a.Checksum == peChecksum))
+                    if (nativeAssemblies.Exists(a => a.Checksum == nativeMethodsChecksum))
                     {
-                        nativeAssembly = nativeAssemblies.Find(a => a.Checksum == peChecksum);
+                        nativeAssembly = nativeAssemblies.Find(a => a.Checksum == nativeMethodsChecksum);
 
                         // now check the native version against the requested version on the PE
                         if (nativeAssembly.Version.ToString(4) == peItem.NativeVersion)
@@ -488,31 +493,14 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         }
 
                         // no suitable native assembly found build a (hopefully) helpful message to the developer
-                        wrongAssemblies += $"Couldn't find a valid native assembly required by {Path.GetFileNameWithoutExtension(peItem.Path)} v{peItem.Version}, checksum 0x{peChecksum.ToString("X8")}." + Environment.NewLine +
+                        wrongAssemblies += $"Couldn't find a valid native assembly required by {Path.GetFileNameWithoutExtension(peItem.Path)} v{peItem.Version}, checksum 0x{nativeMethodsChecksum.ToString("X8")}." + Environment.NewLine +
                                         $"This project is referencing {Path.GetFileNameWithoutExtension(peItem.Path)} NuGet package requiring native v{peItem.NativeVersion}." + Environment.NewLine +
                                         $"The connected target has v{nativeAssembly.Version.ToString(4)}." + Environment.NewLine;
                     }
                     else
                     {
-                        // there are assemblies that don't have any native counterpart
-                        // list those bellow so they aren't considered as not existing
-
-                        List<CLRCapabilities.NativeAssemblyProperties> exceptionAssemblies = new List<CLRCapabilities.NativeAssemblyProperties>();
-
-                        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-                        // assemblies not having native implementation 
-                        exceptionAssemblies.Add(new CLRCapabilities.NativeAssemblyProperties("Windows.Storage.Streams", 0, new Version()));
-                        exceptionAssemblies.Add(new CLRCapabilities.NativeAssemblyProperties("System.Net.Http", 0, new Version()));
-                        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-                        if (exceptionAssemblies.Exists(a => a.Name == Path.GetFileNameWithoutExtension(peItem.Path)))
-                        {
-                            // we are good with this one
-                            continue;
-                        }
-
                         // no suitable native assembly found build a (hopefully) helpful message to the developer
-                        missingAssemblies = $"Couldn't find a valid native assembly required by {Path.GetFileNameWithoutExtension(peItem.Path)} v{peItem.Version}, checksum 0x{peChecksum.ToString("X8")}." + Environment.NewLine +
+                        missingAssemblies = $"Couldn't find a valid native assembly required by {Path.GetFileNameWithoutExtension(peItem.Path)} v{peItem.Version}, checksum 0x{nativeMethodsChecksum.ToString("X8")}." + Environment.NewLine +
                                         $"This project is referencing {Path.GetFileNameWithoutExtension(peItem.Path)} NuGet package requiring native v{peItem.NativeVersion}." + Environment.NewLine +
                                         $"The connected target does not have support for {Path.GetFileNameWithoutExtension(peItem.Path)}." + Environment.NewLine;
                     }

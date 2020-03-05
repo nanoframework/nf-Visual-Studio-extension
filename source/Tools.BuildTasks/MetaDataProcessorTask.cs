@@ -44,8 +44,6 @@ namespace nanoFramework.Tools
 
         public string Parse { get; set; }
 
-        public bool Minimize { get; set; }
-
         public string GenerateStringsTable { get; set; }
 
         public string Compile { get; set; }
@@ -59,6 +57,11 @@ namespace nanoFramework.Tools
         public bool NoAttributes { get; set; }
 
         public ITaskItem[] CreateDatabase { get; set; }
+
+        /// <summary>
+        /// Parameter to enable stubs generation step.
+        /// </summary>
+        public bool GenerateStubs { get; set; } = false;
 
         public string GenerateSkeletonFile { get; set; }
 
@@ -79,21 +82,18 @@ namespace nanoFramework.Tools
 
         public bool Resolve { get; set; }
 
-        public string RefreshAssemblyName { get; set; }
-
-        public string RefreshAssemblyOutput { get; set; }
-
         public string SaveStrings { get; set; }
 
-        public string DumpAll { get; set; }
+        public bool DumpMetadata { get; set; }
+
+        public string DumpFile { get; set; }
 
         public string DumpExports { get; set; }
 
         /// <summary>
-        /// Sets whether the command line output is sent to the Log to help debugging command execution.
-        /// Default is false.
+        /// Flag to set when compiling a Core Library.
         /// </summary>
-        public bool OutputCommandLine { private get; set; } = false;
+        public bool IsCoreLibrary { get; set; } = false;
 
         private readonly List<ITaskItem> _filesWritten = new List<ITaskItem>();
 
@@ -135,7 +135,7 @@ namespace nanoFramework.Tools
                 if(LoadHints != null && 
                     LoadHints.Any())
                 {
-                    if(Verbose) Log.LogMessage(MessageImportance.Normal, "Processing load hints...");
+                    if(Verbose) Log.LogCommandLine(MessageImportance.Normal, "Processing load hints...");
 
                     foreach (var hint in LoadHints)
                     {
@@ -144,7 +144,7 @@ namespace nanoFramework.Tools
 
                         _loadHints[assemblyName] = assemblyPath;
 
-                        if (Verbose) Log.LogMessage(MessageImportance.Normal, $"Adding load hint: {assemblyName} @ '{assemblyPath}'");
+                        if (Verbose) Log.LogCommandLine(MessageImportance.Normal, $"Adding load hint: {assemblyName} @ '{assemblyPath}'");
                     }
                 }
 
@@ -152,20 +152,20 @@ namespace nanoFramework.Tools
                 if (ExcludeClassByName != null && 
                     ExcludeClassByName.Any())
                 {
-                    if (Verbose) Log.LogMessage(MessageImportance.Normal, "Processing class exclusion list...");
+                    if (Verbose) Log.LogCommandLine(MessageImportance.Normal, "Processing class exclusion list...");
 
                     foreach (var className in ExcludeClassByName)
                     {
                         _classNamesToExclude.Add(className.ToString());
 
-                        if (Verbose) Log.LogMessage(MessageImportance.Normal, $"Adding '{className.ToString()}' to collection of classes to exclude");
+                        if (Verbose) Log.LogCommandLine(MessageImportance.Normal, $"Adding '{className.ToString()}' to collection of classes to exclude");
                     }
                 }
 
                 // Analyses a .NET assembly
                 if (!string.IsNullOrEmpty(Parse))
                 {
-                    if (Verbose) Log.LogMessage(MessageImportance.Normal, $"Analysing .NET assembly {Path.GetFileNameWithoutExtension(Parse)}...");
+                    if (Verbose) Log.LogCommandLine(MessageImportance.Normal, $"Analysing .NET assembly {Path.GetFileNameWithoutExtension(Parse)}...");
 
                     ExecuteParse(Parse);
                 }
@@ -177,7 +177,7 @@ namespace nanoFramework.Tools
                     if (string.IsNullOrEmpty(Parse))
                     {
                         // can't compile without analysing first
-                        throw new ArgumentException("Can't compile without first analysing a .NET Assembly. Check the targets file for a missing option invoking MedataProcessor Task.");
+                        throw new ArgumentException("Can't compile without first analysing a .NET Assembly. Check the targets file for a missing option invoking MetadataProcessor Task.");
                     }
                     else
                     {
@@ -188,19 +188,35 @@ namespace nanoFramework.Tools
                 }
 
                 // generate skeleton files with stubs to add native code for an assembly
-                if( !string.IsNullOrEmpty(GenerateSkeletonFile) &&
-                    !string.IsNullOrEmpty(GenerateSkeletonProject) &&
-                    !string.IsNullOrEmpty(GenerateSkeletonName))
+                if (GenerateStubs)
                 {
+                    if(string.IsNullOrEmpty(GenerateSkeletonFile))
+                    {
+                        // can't generate skeleton without GenerateSkeletonFile parameter
+                        throw new ArgumentException("Can't generate skeleton project without 'GenerateSkeletonFile'. Check the targets file for a missing parameter when invoking MetadataProcessor Task.");
+                    }
+
+                    if (string.IsNullOrEmpty(GenerateSkeletonProject))
+                    {
+                        // can't generate skeleton without GenerateSkeletonProject parameter
+                        throw new ArgumentException("Can't generate skeleton project without 'GenerateSkeletonProject'. Check the targets file for a missing parameter when invoking MetadataProcessor Task.");
+                    }
+
+                    if (string.IsNullOrEmpty(GenerateSkeletonName))
+                    {
+                        // can't generate skeleton without GenerateSkeletonName parameter
+                        throw new ArgumentException("Can't generate skeleton project without 'GenerateSkeletonName'. Check the targets file for a missing parameter when invoking MetadataProcessor Task.");
+                    }
+
                     // sanity check for missing compile (therefore parse too)
                     if (string.IsNullOrEmpty(Compile))
                     {
                         // can't generate skeleton without compiling first
-                        throw new ArgumentException("Can't generate skeleton project without first compiling the .NET Assembly. Check the targets file for a missing option invoking MedataProcessor Task.");
+                        throw new ArgumentException("Can't generate skeleton project without first compiling the .NET Assembly. Check the targets file for a missing option invoking MetadataProcessor Task.");
                     }
                     else
                     {
-                        if (Verbose) Log.LogMessage(MessageImportance.Normal, $"Generating skeleton '{GenerateSkeletonName}' for {GenerateSkeletonProject} \r\nPlacing files @ '{GenerateSkeletonFile}'");
+                        if (Verbose) Log.LogCommandLine(MessageImportance.Normal, $"Generating skeleton '{GenerateSkeletonName}' for {GenerateSkeletonProject} \r\nPlacing files @ '{GenerateSkeletonFile}'");
 
                         ExecuteGenerateSkeleton(
                             GenerateSkeletonFile,
@@ -215,6 +231,16 @@ namespace nanoFramework.Tools
             catch (Exception ex)
             {
                 Log.LogErrorFromException(ex, true);
+            }
+            finally
+            {
+                // need to dispose the AssemblyDefinition before leaving because Mono.Cecil assembly loading and resolution
+                // operations leave the assembly file locked in the AppDomain preventing it from being open on subsequent Tasks
+                // see https://github.com/nanoframework/Home/issues/553
+                if (_assemblyDefinition != null)
+                {
+                    _assemblyDefinition.Dispose();
+                }
             }
 
             // if we've logged any errors that's because there were errors (WOW!)
@@ -237,11 +263,10 @@ namespace nanoFramework.Tools
         {
             RecordFileWritten(SaveStrings);
             RecordFileWritten(GenerateStringsTable);
-            RecordFileWritten(DumpAll);
+            RecordFileWritten(DumpFile);
             RecordFileWritten(DumpExports);
             RecordFileWritten(Compile);
             RecordFileWritten(Path.ChangeExtension(Compile, "pdbx"));
-            RecordFileWritten(RefreshAssemblyOutput);
             RecordFileWritten(CreateDatabaseFile);
             RecordFileWritten(GenerateDependency);
         }
@@ -253,7 +278,7 @@ namespace nanoFramework.Tools
         {
             try
             {
-                if (Verbose) System.Console.WriteLine("Parsing assembly...");
+                if (Verbose) Log.LogCommandLine(MessageImportance.Normal, "Parsing assembly...");
 
                 _assemblyDefinition = AssemblyDefinition.ReadAssembly(fileName,
                     new ReaderParameters { AssemblyResolver = new LoadHintsAssemblyResolver(_loadHints) });
@@ -269,9 +294,31 @@ namespace nanoFramework.Tools
         {
             try
             {
-                if (Verbose) System.Console.WriteLine("Compiling assembly...");
+                // compile assembly (1st pass)
+                if (Verbose) Log.LogCommandLine(MessageImportance.Normal, "Compiling assembly...");
 
-                _assemblyBuilder = new nanoAssemblyBuilder(_assemblyDefinition, _classNamesToExclude, Minimize, Verbose);
+                _assemblyBuilder = new nanoAssemblyBuilder(
+                    _assemblyDefinition,
+                    _classNamesToExclude,
+                    Verbose,
+                    IsCoreLibrary);
+
+                using (var stream = File.Open(Path.ChangeExtension(fileName, "tmp"), FileMode.Create, FileAccess.ReadWrite))
+                using (var writer = new BinaryWriter(stream))
+                {
+                    _assemblyBuilder.Write(GetBinaryWriter(writer));
+                }
+
+                // OK to delete tmp PE file
+                File.Delete(Path.ChangeExtension(fileName, "tmp"));
+
+                // minimize (has to be called after the 1st compile pass)
+                if (Verbose) Log.LogCommandLine(MessageImportance.Normal, "Minimizing assembly...");
+
+                _assemblyBuilder.Minimize();
+
+                // compile assembly (2nd pass after minimize)
+                if (Verbose) Log.LogCommandLine(MessageImportance.Normal, "Recompiling assembly...");
 
                 using (var stream = File.Open(fileName, FileMode.Create, FileAccess.ReadWrite))
                 using (var writer = new BinaryWriter(stream))
@@ -279,9 +326,23 @@ namespace nanoFramework.Tools
                     _assemblyBuilder.Write(GetBinaryWriter(writer));
                 }
 
+                // output PDBX
                 using (var writer = XmlWriter.Create(Path.ChangeExtension(fileName, "pdbx")))
                 {
                     _assemblyBuilder.Write(writer);
+                }
+
+                // output assembly metadata
+                if (DumpMetadata)
+                {
+                    if (Verbose) Log.LogCommandLine(MessageImportance.Normal, "Dumping assembly metadata...");
+
+                    DumpFile = Path.ChangeExtension(fileName, "dump.txt");
+
+                    nanoDumperGenerator dumper = new nanoDumperGenerator(
+                        _assemblyBuilder.TablesContext,
+                        DumpFile);
+                    dumper.DumpAll();
                 }
             }
             catch (Exception)
@@ -306,19 +367,15 @@ namespace nanoFramework.Tools
         {
             try
             {
-                if (!withoutInteropCode)
-                {
-                    throw new ArgumentException("Generator for Interop stubs is not supported yet.");
-                }
-
-                if (Verbose) Log.LogMessage(MessageImportance.Normal, "Generating skeleton files...");
+                if (Verbose) Log.LogCommandLine(MessageImportance.Normal, "Generating skeleton files...");
 
                 var skeletonGenerator = new nanoSkeletonGenerator(
                     _assemblyBuilder.TablesContext,
                     file,
                     name,
                     project,
-                    withoutInteropCode);
+                    withoutInteropCode,
+                    IsCoreLibrary);
 
                 skeletonGenerator.GenerateSkeleton();
             }

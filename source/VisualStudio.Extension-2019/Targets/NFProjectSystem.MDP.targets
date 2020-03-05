@@ -16,10 +16,10 @@
   -->
 
   <PropertyGroup>
-    <NF_GenerateStubsDirectory Condition="'$(NF_GenerateStubsDirectory)'==''">$(ProjectDir)Stubs\</NF_GenerateStubsDirectory>
+    <NF_GenerateStubsDirectory Condition="'$(NF_GenerateStubsDirectory)'==''">$(ProjectDir)Stubs</NF_GenerateStubsDirectory>
     <NF_GenerateStubsRootName Condition="'$(NF_GenerateStubsRootName)'==''">$(TargetName)</NF_GenerateStubsRootName>
     <NF_GenerateSkeletonProjectName Condition="'$(NF_GenerateSkeletonProjectName)'==''">$(TargetName)</NF_GenerateSkeletonProjectName>
-    <NF_GenerateSkeletonFile>$(NF_GenerateStubsDirectory)$(NF_GenerateStubsRootName)</NF_GenerateSkeletonFile>
+    <NF_GenerateSkeletonFile>$(NF_GenerateStubsDirectory)\$(NF_GenerateStubsRootName)</NF_GenerateSkeletonFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -201,12 +201,42 @@
           Outputs="$(NanoFramework_IntermediateAssembly).pe"
           DependsOnTargets="$(MetaDataProcessorDependsOn)">
 
+    <ItemGroup>
+      <NFMDP_PE_CreatedFiles Include="$(NFMDP_PE_GenerateSkeletonFile)"  Condition="'$(NFMDP_PE_GenerateSkeletonFile)'!=''"/>
+    </ItemGroup>
+  
+    <ItemGroup>
+      <NFMDP_STUB_CreatedFiles Include="$(NFMDP_STUB_GenerateSkeletonFile)"  Condition="'$(NFMDP_STUB_GenerateSkeletonFile)'!=''"/>
+    </ItemGroup>
+    <MakeDir Directories="@(NFMDP_STUB_CreatedFiles->'%(RootDir)%(Directory)')" Condition="'$(NFMDP_GENERATE_STUBS)' == 'true'"/>
+
+    <PropertyGroup>
+      <NFMDP_STUB_GenerateSkeletonProject>$(NF_GenerateSkeletonProjectName)</NFMDP_STUB_GenerateSkeletonProject>
+      <NFMDP_STUB_GenerateSkeletonName>$(NF_GenerateStubsRootName)</NFMDP_STUB_GenerateSkeletonName>
+      <NFMDP_STUB_GenerateSkeletonFile>$(NF_GenerateSkeletonFile)</NFMDP_STUB_GenerateSkeletonFile>
+    
+      <!-- force this to false for the moment (need to evaluate how safe it is to allow user stubs with Interop -->
+      <NFMDP_STUB_SkeletonWithoutInterop>false</NFMDP_STUB_SkeletonWithoutInterop>
+
+    </PropertyGroup>
+
     <MetaDataProcessorTask
-        LoadHints="@(ReferencePath);@(ReferenceDependencyPaths);@(ReferenceSatellitePaths)"
+        Verbose="$(NFMDP_PE_Verbose)"
         Parse="$(NanoFramework_Assembly)$(TargetExt)"
+        IsCoreLibrary="$(NF_IsCoreLibrary)"
+        VerboseMinimize="$(NFMDP_PE_VerboseMinimize)"
+        DumpMetadata="$(NFMDP_DUMP_METADATA)"
+        DumpExports="$(NFMDP_STUB_DumpExports)"
+        GenerateDependency="$(NFMDP_STUB_GenerateDependency)"
+        ExcludeClassByName="@(NFMDP_PE_ExcludeClassByName)"
+        LoadHints="@(ReferencePath);@(ReferenceDependencyPaths);@(ReferenceSatellitePaths)"
         Compile="$(NanoFramework_IntermediateAssembly).pe"
-        ImportResources="@(NanoFramework_Resources)"
-        Minimize="true">
+        GenerateStubs="$(NFMDP_GENERATE_STUBS)"
+        GenerateSkeletonFile="$(NFMDP_STUB_GenerateSkeletonFile)"
+        GenerateSkeletonName="$(NFMDP_STUB_GenerateSkeletonName)"
+        GenerateSkeletonProject="$(NFMDP_STUB_GenerateSkeletonProject)"
+        SkeletonWithoutInterop="$(NFMDP_STUB_SkeletonWithoutInterop)"
+        ImportResources="@(NanoFramework_Resources)">
       <Output TaskParameter="FilesWritten" ItemName="FileWrites" />
     </MetaDataProcessorTask>
 
@@ -231,13 +261,13 @@
         InstalledAssemblyTables="@(InstalledAssemblyTables)"
         CandidateAssemblyFiles="@(Content);@(None)"
         SearchPaths="{CandidateAssemblyFiles};
-                      $(ReferencePath);
-                      {HintPathFromItem};
-                      $(TargetFrameworkDirectory);
-                      {Registry:$(FrameworkRegistryBase),$(TargetFrameworkVersion),$(AssemblyFoldersSuffix)$(AssemblyFoldersExConditions)};
-                      {RawFileName};
-                      $(OutputPath);
-                      @(NanoFramework_StartProgramItem->'%(RootDir)%(Directory)')"
+                         $(ReferencePath);
+                         {HintPathFromItem};
+                         $(TargetFrameworkDirectory);
+                         {Registry:$(FrameworkRegistryBase),$(TargetFrameworkVersion),$(AssemblyFoldersSuffix)$(AssemblyFoldersExConditions)};
+                         {RawFileName};
+                         $(OutputPath);
+                         @(NanoFramework_StartProgramItem->'%(RootDir)%(Directory)')"
         AppConfigFile="@(_ResolveAssemblyReferencesApplicationConfigFileForExes)"
         AutoUnify="$(AutoUnifyAssemblyReferences)"
         FindDependencies="true"
@@ -275,15 +305,12 @@
   <PropertyGroup Condition="'$(NF_IsCoreLibrary)' == 'True' ">
     <!-- nanoFramework MetaDataProcessor options -->
     <NFMDP_PE_Parse>$(ProjectDir)$(IntermediateOutputPath)$(TargetFileName)</NFMDP_PE_Parse>
-    <NFMDP_PE_Minimize>true</NFMDP_PE_Minimize>
     <NFMDP_PE_Compile_NoExt>$(ProjectDir)$(IntermediateOutputPath)$(TargetName)</NFMDP_PE_Compile_NoExt>
     <NFMDP_PE_Compile>$(ProjectDir)$(IntermediateOutputPath)$(TargetName).pe</NFMDP_PE_Compile>
     <NFMDP_PE_SaveStrings>$(ProjectDir)$(IntermediateOutputPath)$(TargetName).strings</NFMDP_PE_SaveStrings>
     <NFMDP_PE_DumpExports>$(ProjectDir)$(IntermediateOutputPath)$(TargetName)_exports.txt</NFMDP_PE_DumpExports>
-    <NFMDP_PE_DumpAll>$(ProjectDir)$(IntermediateOutputPath)$(TargetName)_all.txt</NFMDP_PE_DumpAll>
 
     <!-- nanoFramework MetaDataProcessor STUB options -->
-    <NFMDP_STUBS_DumpAll>$(ProjectDir)$(IntermediateOutputPath)$(TargetName)_exports2.txt</NFMDP_STUBS_DumpAll>
     <NFMDP_STUB_GenerateSkeletonName>$(AssemblyName)</NFMDP_STUB_GenerateSkeletonName>
     <NFMDP_STUB_Resolve>true</NFMDP_STUB_Resolve>
 
@@ -313,17 +340,6 @@
     <CoreBuildDependsOn>$(CoreBuildDependsOn);NFMDP_CreateDatabaseAndDependencyMap</CoreBuildDependsOn>
   </PropertyGroup>
 
-  <!-- TODO this will probably is not required or can be moved to the targets of mscorlib  -->
-  <!--<ItemGroup Condition=" '$(IsMscorlib)' != 'true' AND '$(NF_IsCoreLibrary)' != 'True'">
-    <NFMDP_PE_LoadHints Include="$(ProjectDir)$(IntermediateOutputPath)\mscorlib.dll">
-      <InProject>false</InProject>
-    </NFMDP_PE_LoadHints>
-  
-    <NFMDP_STUB_Load Include="$(ProjectDir)$(IntermediateOutputPath)\mscorlib.pe">
-      <InProject>false</InProject>
-    </NFMDP_STUB_Load>
-  </ItemGroup>-->
-
   <ItemGroup Condition="'$(TargetName)' != ''" >
     <NFMDP_DUMP_Load Include="$(NFMDP_PE_Compile)" >
       <InProject>false</InProject>
@@ -351,7 +367,6 @@
             $(NFMDP_PE_DumpAll);
             $(NFMDP_PE_DumpExports);
             $(NFMDP_PE_Compile);
-            $(NFMDP_PE_RefreshAssemblyOutput);
             $(NFMDP_PE_CreateDatabaseFile);
             $(NFMDP_PE_GenerateDependency)"
           DependsOnTargets="ResolveRuntimeDependencies"
@@ -384,37 +399,36 @@
     <MakeDir Directories="@(NFMDP_STUB_CreatedFiles->'%(RootDir)%(Directory)')" Condition="'$(NFMDP_GENERATE_STUBS)' == 'true'"/>
 
     <PropertyGroup>
-      <NFMDP_STUB_GenerateSkeletonProject Condition="'$(NFMDP_STUB_GenerateSkeletonProject)'==''" >$(AssemblyName)</NFMDP_STUB_GenerateSkeletonProject>
+      <NFMDP_STUB_GenerateSkeletonProject>$(NF_GenerateSkeletonProjectName)</NFMDP_STUB_GenerateSkeletonProject>
+      <NFMDP_STUB_GenerateSkeletonName>$(NF_GenerateStubsRootName)</NFMDP_STUB_GenerateSkeletonName>
+      <NFMDP_STUB_GenerateSkeletonFile>$(NF_GenerateSkeletonFile)</NFMDP_STUB_GenerateSkeletonFile>
+
+      <!-- force this to true as this is a core library -->
+      <NFMDP_STUB_SkeletonWithoutInterop>true</NFMDP_STUB_SkeletonWithoutInterop>
+
     </PropertyGroup>
 
     <Message Text="Distilling assemblies to nanoCLR PE files (no stubs)..." Condition="'$(NFMDP_GENERATE_STUBS)' == 'false'" />
     <!-- Compile to PE -->
     <MetaDataProcessorTask
-        Minimize="$(NFMDP_PE_Minimize)"
         Verbose="$(NFMDP_PE_Verbose)"
         Parse="$(NFMDP_PE_Parse)"
         VerboseMinimize="$(NFMDP_PE_VerboseMinimize)"
-        NoByteCode="$(NFMDP_PE_NoByteCode)"
         NoAttributes="$(NFMDP_PE_NoAttributes)"
         SaveStrings="$(NFMDP_PE_SaveStrings)"
         LoadStrings="$(NFMDP_PE_LoadStrings)"
         ImportResources="@(NFMDP_PE_Resource)"
         GenerateStringsTable="$(NFMDP_PE_GenerateStringsTable)"
         Compile="$(NFMDP_PE_Compile)"
-        DumpAll="$(NFMDP_PE_DumpAll)"
+        DumpMetadata="$(NFMDP_DUMP_METADATA)"
         DumpExports="$(NFMDP_PE_DumpExports)"
-        GenerateSkeletonFile="$(NFMDP_PE_GenerateSkeletonFile)"
-        GenerateSkeletonName="$(NFMDP_PE_GenerateSkeletonName)"
-        GenerateSkeletonProject="$(NFMDP_PE_GenerateSkeletonProject)"
+        GenerateStubs="$(NFMDP_GENERATE_STUBS)"
         GenerateDependency="$(NFMDP_PE_GenerateDependency)"
         CreateDatabase="@(NFMDP_PE_CreateDatabase)"
-        RefreshAssemblyName="$(NFMDP_PE_RefreshAssemblyName)"
-        RefreshAssemblyOutput="$(NFMDP_PE_RefreshAssemblyOutput)"
         CreateDatabaseFile="$(NFMDP_PE_CreateDatabaseFile)"
         LoadHints="@(NFMDP_PE_LoadHints)"
         IgnoreAssembly="@(NFMDP_PE_IgnoreAssembly)"
         ExcludeClassByName="@(NFMDP_PE_ExcludeClassByName)"
-        OutputCommandLine="$(NFMDP_CMD_LINE_OUTPUT)"
         Condition="'$(NFMDP_GENERATE_STUBS)' == 'false'">
       <Output TaskParameter="FilesWritten" ItemName="FileWrites"/>
     </MetaDataProcessorTask>
@@ -422,31 +436,28 @@
     <Message Text="Distilling assemblies to nanoCLR PE files along with stubs and skeleton files..." Condition="'$(NFMDP_GENERATE_STUBS)' == 'true'"/>
     <!-- Create STUB file -->
     <MetaDataProcessorTask
-        Minimize="$(NFMDP_PE_Minimize)"
         Verbose="$(NFMDP_PE_Verbose)"
         Parse="$(NFMDP_PE_Parse)"
+        IsCoreLibrary="$(NF_IsCoreLibrary)"
         VerboseMinimize="$(NFMDP_PE_VerboseMinimize)"
-        NoByteCode="$(NFMDP_STUB_NoByteCode)"
         NoAttributes="$(NFMDP_STUB_NoAttributes)"
         SaveStrings="$(NFMDP_STUB_SaveStrings)"
         LoadStrings="$(NFMDP_STUB_LoadStrings)"
         GenerateStringsTable="$(NFMDP_STUB_GenerateStringsTable)"
         Compile="$(NFMDP_PE_Compile)"
-        DumpAll="$(NFMDP_STUBS_DumpAll)"
+        DumpMetadata="$(NFMDP_DUMP_METADATA)"
         DumpExports="$(NFMDP_STUB_DumpExports)"
+        GenerateStubs="$(NFMDP_GENERATE_STUBS)"
         GenerateSkeletonFile="$(NFMDP_STUB_GenerateSkeletonFile)"
         GenerateSkeletonName="$(NFMDP_STUB_GenerateSkeletonName)"
         GenerateSkeletonProject="$(NFMDP_STUB_GenerateSkeletonProject)"
         SkeletonWithoutInterop="$(NFMDP_STUB_SkeletonWithoutInterop)"
         GenerateDependency="$(NFMDP_STUB_GenerateDependency)"
         CreateDatabase="@(NFMDP_STUB_CreateDatabase)"
-        RefreshAssemblyName="$(NFMDP_STUB_RefreshAssemblyName)"
-        RefreshAssemblyOutput="$(NFMDP_STUB_RefreshAssemblyOutput)"
         CreateDatabaseFile="$(NFMDP_STUB_CreateDatabaseFile)"
         LoadHints="@(NFMDP_PE_LoadHints)"
         IgnoreAssembly="@(NFMDP_STUB_IgnoreAssembly)"
         ExcludeClassByName="@(NFMDP_PE_ExcludeClassByName)"
-        OutputCommandLine="$(NFMDP_CMD_LINE_OUTPUT)"
         Condition="'$(NFMDP_GENERATE_STUBS)' == 'true'">
       <Output TaskParameter="FilesWritten" ItemName="FileWrites"/>
     </MetaDataProcessorTask>
@@ -481,7 +492,6 @@
             $(NFMDP_DAT_DumpAll);
             $(NFMDP_DAT_DumpExports);
             $(NFMDP_DAT_Compile);
-            $(NFMDP_DAT_RefreshAssemblyOutput);
             $(NFMDP_DAT_CreateDatabaseFile);
             $(NFMDP_DAT_GenerateDependency)"
           Condition="'$(NFMDP_DAT_FILES)' == 'true'">
@@ -497,33 +507,28 @@
     <MakeDir Directories="@(NFMDP_DAT_CreatedFiles->'%(RootDir)%(Directory)')" />
 
     <MetaDataProcessorTask
-        Minimize="$(NFMDP_DAT_Minimize)"
         Verbose="$(NFMDP_DAT_Verbose)"
         Parse="$(NFMDP_DAT_Parse)"
         VerboseMinimize="$(NFMDP_DAT_VerboseMinimize)"
-        NoByteCode="$(NFMDP_DAT_NoByteCode)"
         NoAttributes="$(NFMDP_DAT_NoAttributes)"
         SaveStrings="$(NFMDP_DAT_SaveStrings)"
         LoadStrings="$(NFMDP_DAT_LoadStrings)"
         GenerateStringsTable="$(NFMDP_DAT_GenerateStringsTable)"
         Compile="$(NFMDP_DAT_Compile)"
-        DumpAll="$(NFMDP_DAT_DumpAll)"
+        DumpMetadata="$(NFMDP_DUMP_METADATA)"
         DumpExports="$(NFMDP_DAT_DumpExports)"
         GenerateSkeletonFile="$(NFMDP_DAT_GenerateSkeletonFile)"
         GenerateSkeletonName="$(NFMDP_DAT_GenerateSkeletonName)"
         GenerateSkeletonProject="$(NFMDP_DAT_GenerateSkeletonProject)"
         GenerateDependency="$(NFMDP_DAT_GenerateDependency)"
         CreateDatabase="@(NFMDP_DAT_CreateDatabase)"
-        RefreshAssemblyName="$(NFMDP_DAT_RefreshAssemblyName)"
-        RefreshAssemblyOutput="$(NFMDP_DAT_RefreshAssemblyOutput)"
         CreateDatabaseFile="$(NFMDP_DAT_CreateDatabaseFile)"
         Resolve="$(NFMDP_DAT_Resolve)"
         LoadHints="@(NFMDP_DAT_LoadHints)"
         IgnoreAssembly="@(NFMDP_DAT_IgnoreAssembly)"
         Load="@(NFMDP_DAT_Load)"
         LoadDatabase="@(NFMDP_DAT_LoadDatabase)"
-        ExcludeClassByName="@(NFMDP_DAT_ExcludeClassByName)"
-        OutputCommandLine="$(NFMDP_CMD_LINE_OUTPUT)">
+        ExcludeClassByName="@(NFMDP_DAT_ExcludeClassByName)">
       <Output TaskParameter="FilesWritten" ItemName="FileWrites"/>
     </MetaDataProcessorTask>
 
@@ -598,7 +603,6 @@
             $(NFMDP_PE_DumpAll);
             $(NFMDP_PE_Compile);$(NFMDP_PE_Compile_NoExt).pdbx;
             $(NFMDP_PE_DumpExports);
-            $(NFMDP_PE_RefreshAssemblyOutput);
             $(NFMDP_PE_CreateDatabaseFile);
             $(NFMDP_PE_GenerateDependency);
             $(NFMDP_PE_SaveStrings);
@@ -606,7 +610,6 @@
             $(NFMDP_PE_DumpAll);
             $(NFMDP_PE_Compile);
             $(NFMDP_PE_DumpExports);
-            $(NFMDP_PE_RefreshAssemblyOutput);
             $(NFMDP_PE_CreateDatabaseFile);
             $(NFMDP_PE_GenerateDependency);
             $(NFMDP_PE_SaveStrings);
@@ -614,15 +617,12 @@
             $(NFMDP_PE_DumpAll);
             $(NFMDP_PE_Compile);
             $(NFMDP_PE_DumpExports);
-            $(NFMDP_PE_RefreshAssemblyOutput);
             $(NFMDP_PE_CreateDatabaseFile);
             $(NFMDP_PE_GenerateDependency);
             $(NFMDP_STUBS_SaveStrings);
             $(NFMDP_STUBS_GenerateStringsTable);
-            $(NFMDP_STUBS_DumpAll);
             $(NFMDP_STUBS_Compile);
             $(NFMDP_STUBS_DumpExports);
-            $(NFMDP_STUBS_RefreshAssemblyOutput);
             $(NFMDP_STUBS_CreateDatabaseFile);
             $(NFMDP_STUBS_GenerateDependency);
             $(NFMDP_DAT_SaveStrings);
@@ -630,7 +630,6 @@
             $(NFMDP_DAT_DumpAll);
             $(NFMDP_DAT_Compile);
             $(NFMDP_DAT_DumpExports);
-            $(NFMDP_DAT_RefreshAssemblyOutput);
             $(NFMDP_DAT_CreateDatabaseFile);
             $(NFMDP_DAT_GenerateDependency);
             $(ProjectDir)$(IntermediateOutputPath)DesignTimeResolveAssemblyReferencesInput.cache"
@@ -644,12 +643,12 @@
           DependsOnTargets="$(NanoResourceGeneratorDependsOn)">
 
     <GenerateNanoResourceTask
-      Sources="@(EmbeddedResource)"
-      Condition=" '%(EmbeddedResource.Type)' == 'Resx' and '%(EmbeddedResource.GenerateResource)' != 'false'"
-      References="@(ReferencePath)"
-      UseSourcePath="$(UseSourcePath)"
-      StateFile="$(IntermediateOutputPath)$(MSBuildProjectFile).NanoResourceGenerator.Cache"
-      OutputResources="@(EmbeddedResource->'$(ProjectDir)$(IntermediateOutputPath)%(ManifestResourceName).nanoresources')">
+        Sources="@(EmbeddedResource)"
+        Condition=" '%(EmbeddedResource.Type)' == 'Resx' and '%(EmbeddedResource.GenerateResource)' != 'false'"
+        References="@(ReferencePath)"
+        UseSourcePath="$(UseSourcePath)"
+        StateFile="$(IntermediateOutputPath)$(MSBuildProjectFile).NanoResourceGenerator.Cache"
+        OutputResources="@(EmbeddedResource->'$(ProjectDir)$(IntermediateOutputPath)%(ManifestResourceName).nanoresources')">
       <Output TaskParameter="OutputResources" ItemName="NFMDP_PE_Resource"/>
       <Output TaskParameter="OutputResources" ItemName="FileWrites"/>
     </GenerateNanoResourceTask>

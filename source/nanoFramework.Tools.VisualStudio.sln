@@ -44,6 +44,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		VisualStudio.Extension\vs2017-marketplace-overview.md = VisualStudio.Extension\vs2017-marketplace-overview.md
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "metadata-processor", "metadata-processor", "{BF7184F8-4E9A-4264-8C30-294798B36F0D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MetadataProcessor.Core", "..\metadata-processor\source\MetadataProcessor.Core\MetadataProcessor.Core.csproj", "{E32F7D15-2499-440C-8026-4D5EE1C5EC3A}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		..\nf-debugger\source\nanoFramework.Tools.DebugLibrary.Shared\nanoFramework.Tools.DebugLibrary.Net.projitems*{101d57ad-d22f-4905-a992-de15e723f164}*SharedItemsImports = 4
@@ -149,6 +153,16 @@ Global
 		{8252022E-62FD-4A59-BE1E-90FD52DBA0FE}.Release|x64.Build.0 = Release|Any CPU
 		{8252022E-62FD-4A59-BE1E-90FD52DBA0FE}.Release|x86.ActiveCfg = Release|Any CPU
 		{8252022E-62FD-4A59-BE1E-90FD52DBA0FE}.Release|x86.Build.0 = Release|Any CPU
+		{E32F7D15-2499-440C-8026-4D5EE1C5EC3A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E32F7D15-2499-440C-8026-4D5EE1C5EC3A}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{E32F7D15-2499-440C-8026-4D5EE1C5EC3A}.Debug|x64.Build.0 = Debug|Any CPU
+		{E32F7D15-2499-440C-8026-4D5EE1C5EC3A}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{E32F7D15-2499-440C-8026-4D5EE1C5EC3A}.Debug|x86.Build.0 = Debug|Any CPU
+		{E32F7D15-2499-440C-8026-4D5EE1C5EC3A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E32F7D15-2499-440C-8026-4D5EE1C5EC3A}.Release|x64.ActiveCfg = Release|Any CPU
+		{E32F7D15-2499-440C-8026-4D5EE1C5EC3A}.Release|x64.Build.0 = Release|Any CPU
+		{E32F7D15-2499-440C-8026-4D5EE1C5EC3A}.Release|x86.ActiveCfg = Release|Any CPU
+		{E32F7D15-2499-440C-8026-4D5EE1C5EC3A}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -162,6 +176,7 @@ Global
 		{31472CAE-4B1A-4AB9-9B2A-8F28DBE01BCF} = {8C6A2ECA-8E1A-40C2-AEBF-C08B1CA67C67}
 		{101D57AD-D22F-4905-A992-DE15E723F164} = {8C6A2ECA-8E1A-40C2-AEBF-C08B1CA67C67}
 		{8252022E-62FD-4A59-BE1E-90FD52DBA0FE} = {C9ECFA69-6CFF-4CB6-9982-9423FA96DFC4}
+		{E32F7D15-2499-440C-8026-4D5EE1C5EC3A} = {BF7184F8-4E9A-4264-8C30-294798B36F0D}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {5DF99A8C-CA3C-451A-ABC1-4D862154708B}
