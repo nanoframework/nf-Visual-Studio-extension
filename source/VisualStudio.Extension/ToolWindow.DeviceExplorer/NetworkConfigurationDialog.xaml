@@ -5,7 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:vsp="clr-namespace:Microsoft.VisualStudio.PlatformUI;assembly=Microsoft.VisualStudio.Shell.15.0"
              xmlns:extension="clr-namespace:nanoFramework.Tools.VisualStudio.Extension"
-             xmlns:debuglib="clr-namespace:nanoFramework.Tools.Debugger;assembly=nanoFramework.Tools.Debugger"
+             xmlns:debuglib="clr-namespace:nanoFramework.Tools.Debugger;assembly=nanoFramework.Tools.Debugger.Net"
              xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
              xmlns:Converters="clr-namespace:nanoFramework.Tools.VisualStudio.Extension.Converters"
              xmlns:ViewModel="clr-namespace:nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel"
