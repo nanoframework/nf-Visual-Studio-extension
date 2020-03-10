@@ -308,7 +308,16 @@ namespace nanoFramework.Tools
                 {
                     _assemblyBuilder.Write(GetBinaryWriter(writer));
                 }
+            }
+            catch (Exception)
+            {
+                Log.LogError($"Unable to compile output assembly file '{fileName}' - check parse command results.");
 
+                throw;
+            }
+
+            try
+            {
                 // OK to delete tmp PE file
                 File.Delete(Path.ChangeExtension(fileName, "tmp"));
 
@@ -345,10 +354,13 @@ namespace nanoFramework.Tools
                     dumper.DumpAll();
                 }
             }
+            catch (ArgumentException ex)
+            {
+                Log.LogError($"Exception minimizing assembly: {ex.Message}.");
+            }
             catch (Exception)
             {
-                Log.LogError($"Unable to compile output assembly file '{fileName}' - check parse command results.");
-
+                Log.LogError($"Exception minimizing assembly.");
                 throw;
             }
         }
