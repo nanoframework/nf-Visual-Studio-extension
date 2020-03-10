@@ -27,6 +27,7 @@ using nanoFramework.Tools.VisualStudio.Extension;
 using nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel;
 using Task = System.Threading.Tasks.Task;
 using System.Windows;
+using Microsoft;
 
 [assembly: ProjectTypeRegistration(projectTypeGuid: NanoFrameworkPackage.ProjectTypeGuid,
                                 displayName: "NanoCSharpProject",
@@ -88,11 +89,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         public const string PackageGuid = "046B40EB-1DE1-4D08-AF61-FDB7592B9BBD";
 
         public const string NanoCSharpProjectSystemCommandSet = "DF641D51-1E8C-48E4-B549-CC6BCA9BDE19";
-
-        /// <summary>
-        /// View model locator 
-        /// </summary>
-        static internal ViewModelLocator ViewModelLocator;
 
         /// <summary>
         /// Path for nanoFramework Extension directory
@@ -252,7 +248,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         #endregion
 
-
         /// <summary>
         /// Provides direct access to <see cref="INanoDeviceCommService"/> service.
         /// To be used by providers and other classes in the package.
@@ -317,24 +312,26 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                     NanoDeviceCommService = await GetServiceAsync(typeof(NanoDeviceCommService)) as INanoDeviceCommService;
 
+                    ViewModelLocator viewModelLocator = null;
+
                     // Need to add the View model Locator to the application resource dictionary programmatically 
                     // because at the extension level we don't have 'XAML' access to it
                     // try to find if the view model locator is already in the app resources dictionary
-                    if (System.Windows.Application.Current.TryFindResource("Locator") == null)
+                    if (Application.Current.TryFindResource("Locator") == null)
                     {
                         // instantiate the view model locator...
-                        ViewModelLocator = new ViewModelLocator();
+                        viewModelLocator = new ViewModelLocator();
 
                         // ... and add it there
-                        System.Windows.Application.Current.Resources.Add("Locator", ViewModelLocator);
+                        Application.Current.Resources.Add("Locator", viewModelLocator);
                     }
 
                     SimpleIoc.Default.GetInstance<DeviceExplorerViewModel>().Package = this;
 
                     await MessageCentre.InitializeAsync(this, "nanoFramework Extension");
 
-                    await DeviceExplorerCommand.InitializeAsync(this, ViewModelLocator);
-                    DeployProvider.Initialize(this, ViewModelLocator);
+                    await DeviceExplorerCommand.InitializeAsync(this, viewModelLocator);
+                    DeployProvider.Initialize(this, viewModelLocator);
 
                     // Enable debugger UI context
                     UIContext.FromUIContextGuid(CorDebug.EngineGuid).IsActive = true;
@@ -422,7 +419,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             //  EXPERIMENTAL to launch debug from VS command line //
             ////////////////////////////////////////////////////////
             await JoinableTaskFactory.SwitchToMainThreadAsync();
-            IVsDebugger4 debugger = await GetServiceAsync(typeof(IVsDebugger)) as IVsDebugger4;
+            var debugger = await GetServiceAsync(typeof(IVsDebugger)) as IVsDebugger4;
+            Assumes.Present(debugger);
+
             VsDebugTargetInfo4[] debugTargets = new VsDebugTargetInfo4[1];
             debugTargets[0].dlo = (uint)DEBUG_LAUNCH_OPERATION.DLO_CreateProcess;
             debugTargets[0].bstrExe = typeof(CorDebugProcess).Assembly.Location;

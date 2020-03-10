@@ -35,14 +35,13 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
     /// See http://www.galasoft.ch/mvvm
     /// </para>
     /// </summary>
-    public class DeviceExplorerViewModel : ViewModelBase, INotifyPropertyChanging, INotifyPropertyChanged
+    public class DeviceExplorerViewModel : ViewModelBase, INotifyPropertyChanging
     {
         public const int WRITE_TO_OUTPUT_TOKEN = 1;
         public const int SELECTED_NULL_TOKEN = 2;
 
         // for serial devices we wait 10 seconds for the device to be available again
         private const int SerialDeviceReconnectMaximumAttempts = 4 * 10;
-        private DeviceConfiguration.NetworkConfigurationProperties _deviceNetworkConfiguration;
 
         // keep this here otherwise Fody won't be able to properly implement INotifyPropertyChanging
 #pragma warning disable 67

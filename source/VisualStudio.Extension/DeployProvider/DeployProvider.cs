@@ -5,13 +5,11 @@
 //
 
 using EnvDTE;
-using EnvDTE80;
 using ICSharpCode.Decompiler;
 using ICSharpCode.Decompiler.CSharp;
 using Microsoft.VisualStudio.ProjectSystem;
 using Microsoft.VisualStudio.ProjectSystem.Build;
 using Microsoft.VisualStudio.Shell;
-using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.Threading;
 using nanoFramework.Tools.Debugger;
 using nanoFramework.Tools.Debugger.Extensions;
@@ -67,6 +65,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         public async Task DeployAsync(CancellationToken cancellationToken, TextWriter outputPaneWriter)
         {
+            await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync(cancellationToken);
+
             List<byte[]> assemblies = new List<byte[]>();
             string targetFlashDumpFileName = "";
             int retryCount = 0;
@@ -75,6 +75,13 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
             // need to access DTE to get StartUp project
             DTE dte = (DTE)ServiceProvider.GetService(typeof(DTE));
+
+            // check if DTE service exists
+            if(dte == null)
+            {
+                throw new InvalidOperationException("Fatal error: the deployment provider can't get an instance of the DTE.");
+            }
+
             SolutionBuild sb = dte.Solution.SolutionBuild;
             string startupProject = ((Array)sb.StartupProjects).GetValue(0) as string;
 
@@ -197,7 +204,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                             await Task.Delay(TimeSpan.FromMilliseconds(_timeoutMiliseconds * (retryCount + 1)));
 
                             await Task.Yield();
-                        };
+                        }
 
                         // check if device is still in initialized state
                         if (!deviceIsInInitializeState)
@@ -440,7 +447,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     $"{Environment.NewLine} {ex.InnerException} " +
                     $"{Environment.NewLine} {ex.StackTrace}");
 
-                throw ex;
+                throw;
             }
             catch (Exception ex)
             {
