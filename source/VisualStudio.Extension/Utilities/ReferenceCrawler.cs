@@ -42,7 +42,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                     // Skip projects that do not have target output like shared projects
                     if (string.IsNullOrEmpty(path))
+                    {
                         continue;
+                    }
 
                     configuredProjectsByOutputAssemblyPath.Add(path, configuredProject);
                     outputAssemblyPathsByConfiguredProject.Add(configuredProject, path);
