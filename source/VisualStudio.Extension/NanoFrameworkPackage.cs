@@ -24,7 +24,7 @@ using System.Windows;
 
 [assembly: ProjectTypeRegistration(projectTypeGuid: NanoFrameworkPackage.ProjectTypeGuid,
                                 displayName: "NanoCSharpProject",
-                                displayProjectFileExtensions: "#2",
+                                displayProjectFileExtensions: "nanoFramework Project Files (*.nfproj);*.nfproj",
                                 defaultProjectExtension: NanoCSharpProjectUnconfigured.ProjectExtension,
                                 language: NanoCSharpProjectUnconfigured.Language,
                                 resourcePackageGuid: NanoFrameworkPackage.PackageGuid,
