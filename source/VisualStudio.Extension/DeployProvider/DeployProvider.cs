@@ -57,6 +57,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         [Import]
         IProjectService ProjectService { get; set; }
 
+        [Import]
+        UnconfiguredProject UnconfiguredProject { get; set; }
+
+        [Import]
+        ConfiguredProject ConfiguredProject { get; set; }
+
         public static void Initialize(AsyncPackage package, ViewModelLocator vmLocator)
         {
             _package = package;
@@ -65,29 +71,15 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         public async Task DeployAsync(CancellationToken cancellationToken, TextWriter outputPaneWriter)
         {
-            await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync(cancellationToken);
-
             List<byte[]> assemblies = new List<byte[]>();
             string targetFlashDumpFileName = "";
             int retryCount = 0;
 
             await Task.Yield();
 
-            // need to access DTE to get StartUp project
-            DTE dte = (DTE)ServiceProvider.GetService(typeof(DTE));
-
-            // check if DTE service exists
-            if(dte == null)
-            {
-                throw new InvalidOperationException("Fatal error: the deployment provider can't get an instance of the DTE.");
-            }
-
-            SolutionBuild sb = dte.Solution.SolutionBuild;
-            string startupProject = ((Array)sb.StartupProjects).GetValue(0) as string;
-
             //... we need to access the project name using reflection (step by step)
             // get type for ConfiguredProject
-            var projSystemType = Properties.ConfiguredProject.GetType();
+            var projSystemType = ConfiguredProject.GetType();
 
             // get private property MSBuildProject
             var buildProject = projSystemType.GetTypeInfo().GetDeclaredProperty("MSBuildProject");
@@ -96,12 +88,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             // this result is of type Microsoft.Build.Evaluation.Project
             var projectResult = await ((System.Threading.Tasks.Task<Microsoft.Build.Evaluation.Project>)buildProject.GetValue(Properties.ConfiguredProject));
 
-            // we want the project file property
-            var projectFile = projectResult.Properties.First(p => p.Name == "MSBuildProjectFile").EvaluatedValue;
-
-            if(!startupProject.EndsWith(projectFile))
+            if (!string.Equals(projectResult.Properties.First(p => p.Name == "OutputType").EvaluatedValue, "Exe", StringComparison.InvariantCultureIgnoreCase))
             {
-                // this is not the StartUp project, don't deploy
+                // This is not an executable project, it must be a referenced assembly
+
+                MessageCentre.InternalErrorMessage($"Skipping deploy for project '{projectResult.FullPath}' because it is not an executable project.");
+
                 return;
             }
 
