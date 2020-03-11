@@ -5,18 +5,10 @@
 
 namespace nanoFramework.Tools.VisualStudio.Extension
 {
-    using GalaSoft.MvvmLight.Ioc;
     using Microsoft.VisualStudio.PlatformUI;
-    using nanoFramework.Tools.Debugger;
-    using nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel;
-    using System;
-    using System.Linq;
     using System.Net;
-    using System.Windows.Controls;
     using System.Windows.Controls.Primitives;
     using System.Windows.Forms;
-    using Windows.Storage;
-    using Xceed.Wpf.Toolkit;
 
     /// <summary>
     /// Interaction logic for DeviceExplorerControl.
