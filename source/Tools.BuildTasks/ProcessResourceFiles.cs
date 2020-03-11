@@ -29,7 +29,7 @@ namespace nanoFramework.Tools
     /// Its designed to be called from a separate AppDomain so that any files locked by ResXResourceReader
     /// can be released.
     /// </summary>
-    public sealed class ProcessResourceFiles : MarshalByRefObject
+    internal sealed class ProcessResourceFiles : MarshalByRefObject
     {
 
         #region fields
