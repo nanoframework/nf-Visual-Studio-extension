@@ -7,12 +7,10 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 {
     using GalaSoft.MvvmLight.Messaging;
     using Microsoft.VisualStudio.Shell;
-    using Microsoft.VisualStudio.Threading;
     using nanoFramework.Tools.Debugger;
     using nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel;
     using System;
     using System.Windows.Controls;
-    using System.Windows.Threading;
 
     /// <summary>
     /// Interaction logic for DeviceExplorerControl.
