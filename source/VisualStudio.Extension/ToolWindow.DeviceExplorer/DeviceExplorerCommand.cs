@@ -50,7 +50,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         private Application windowApp;
 
-        uint _statusBarCookie = 0;
+        readonly uint _statusBarCookie = 0;
 
         // command set Guids
         public const string guidDeviceExplorerCmdSet = "DF641D51-1E8C-48E4-B549-CC6BCA9BDE19";  // this GUID is coming from the .vsct file  
@@ -116,20 +116,20 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
             s_instance.ViewModelLocator = vmLocator;
 
-            //windowApp = ();
-
             // need to switch to the main thread to initialize the command handlers
             await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
-            s_instance.NanoDeviceCommService = await package.GetServiceAsync(typeof(NanoDeviceCommService)) as INanoDeviceCommService;
+            var commService = await package.GetServiceAsync(typeof(NanoDeviceCommService));
+            Assumes.Present(commService);
 
+            s_instance.NanoDeviceCommService = commService as INanoDeviceCommService;
 
             s_instance.CreateToolbarHandlers();
 
             SimpleIoc.Default.GetInstance<DeviceExplorerViewModel>().NanoDeviceCommService = s_instance.NanoDeviceCommService;
 
             // setup message listeners to be notified of events occurring in the View Model
-            Messenger.Default.Register<NotificationMessage>(s_instance, DeviceExplorerViewModel.MessagingTokens.SelectedNanoDeviceHasChanged, (message) => s_instance.SelectedNanoDeviceHasChangedHandlerAsync());
+            Messenger.Default.Register<NotificationMessage>(s_instance, DeviceExplorerViewModel.MessagingTokens.SelectedNanoDeviceHasChanged, (message) => s_instance.SelectedNanoDeviceHasChangedHandlerAsync().ConfigureAwait(false));
             Messenger.Default.Register<NotificationMessage>(s_instance, DeviceExplorerViewModel.MessagingTokens.NanoDevicesCollectionHasChanged, (message) => s_instance.NanoDevicesCollectionChangedHandlerAsync().ConfigureAwait(false));
             Messenger.Default.Register<NotificationMessage>(s_instance, DeviceExplorerViewModel.MessagingTokens.NanoDevicesDeviceEnumerationCompleted, (message) => s_instance.NanoDevicesDeviceEnumerationCompletedHandlerAsync().ConfigureAwait(false));
         }
@@ -233,13 +233,13 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             // Get the instance number 0 of this tool window. This window is single instance so this instance
             // is actually the only one.
             // The last flag is set to true so that if the tool window does not exists it will be created.
-            ToolWindowPane window = package.FindToolWindow(typeof(DeviceExplorer), 0, true);
-            if ((null == window) || (null == window.Frame))
+            ToolWindowPane toolWindow = package.FindToolWindow(typeof(DeviceExplorer), 0, true);
+            if ((null == toolWindow) || (null == toolWindow.Frame))
             {
                 throw new NotSupportedException("Cannot create nanoFramework Device Explorer tool window.");
             }
 
-            IVsWindowFrame windowFrame = (IVsWindowFrame)window.Frame;
+            IVsWindowFrame windowFrame = (IVsWindowFrame)toolWindow.Frame;
             ErrorHandler.ThrowOnFailure(windowFrame.Show());
         }
 
