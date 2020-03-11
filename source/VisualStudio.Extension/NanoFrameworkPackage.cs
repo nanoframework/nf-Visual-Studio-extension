@@ -252,9 +252,13 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
             // fill the property holding the extension install directory
             var assembly = GetType().Assembly;
+
+#pragma warning disable S112 // OK to throw exception here
             if (assembly.Location == null) throw new Exception("Could not get assembly location!");
             var info = new FileInfo(assembly.Location).Directory;
             if (info == null) throw new Exception("Could not get assembly directory!");
+#pragma warning restore S112 // General exceptions should never be thrown
+
             NanoFrameworkExtensionDirectory = info.FullName;
 
             // fill the property of the DLL version

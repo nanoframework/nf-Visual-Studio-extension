@@ -119,7 +119,6 @@
     <Compile Include="CorDebug\Utility\Utility.XmlDeserialize.cs" />
     <Compile Include="DebugLauncher\CommandLineBuilder.cs" />
     <Compile Include="DebugLauncher\NanoDebuggerLaunchProvider.cs" />
-    <Compile Include="DeployProvider\DeployState.cs" />
     <Compile Include="DeployProvider\DeployProvider.cs" />
     <Compile Include="Extensions\TaskExtensions.cs" />
     <Compile Include="NanoDeviceCommService\NanoDeviceCommService.cs" />

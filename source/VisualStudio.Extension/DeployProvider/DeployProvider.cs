@@ -4,13 +4,11 @@
 // See LICENSE file in the project root for full license information.
 //
 
-using EnvDTE;
 using ICSharpCode.Decompiler;
 using ICSharpCode.Decompiler.CSharp;
 using Microsoft.VisualStudio.ProjectSystem;
 using Microsoft.VisualStudio.ProjectSystem.Build;
 using Microsoft.VisualStudio.Shell;
-using Microsoft.VisualStudio.Threading;
 using nanoFramework.Tools.Debugger;
 using nanoFramework.Tools.Debugger.Extensions;
 using nanoFramework.Tools.VisualStudio.Extension.Resources;
@@ -448,7 +446,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     $"{Environment.NewLine} {ex.InnerException} " +
                     $"{Environment.NewLine} {ex.StackTrace}");
 
+#pragma warning disable S112 // OK to throw exception here to properly report back to the UI
                 throw new Exception("Unexpected error. Please retry the deployment. If the situation persists reboot the device.");
+#pragma warning restore S112 // General exceptions should never be thrown
             }
         }
 
@@ -555,10 +555,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         public void Commit()
         {
+            // required by the SDK
         }
 
         public void Rollback()
         {
+            // required by the SDK
         }
     }
 }

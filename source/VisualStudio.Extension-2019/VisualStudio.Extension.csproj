@@ -216,9 +216,6 @@
     <Compile Include="..\VisualStudio.Extension\DeployProvider\DeployProvider.cs">
       <Link>DeployProvider\DeployProvider.cs</Link>
     </Compile>
-    <Compile Include="..\VisualStudio.Extension\DeployProvider\DeployState.cs">
-      <Link>DeployProvider\DeployState.cs</Link>
-    </Compile>
     <Compile Include="..\VisualStudio.Extension\Extensions\TaskExtensions.cs">
       <Link>Extensions\TaskExtensions.cs</Link>
     </Compile>
