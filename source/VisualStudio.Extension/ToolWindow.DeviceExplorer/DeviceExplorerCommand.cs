@@ -17,7 +17,6 @@ using System;
 using System.ComponentModel.Design;
 using System.Text;
 using System.Threading;
-using System.Windows.Forms;
 using Task = System.Threading.Tasks.Task;
 
 namespace nanoFramework.Tools.VisualStudio.Extension
@@ -45,12 +44,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         /// VS Package that provides this command, not null.
         /// </summary>
         private readonly Package package;
-
-        private DeviceExplorer window;
-
-        private Application windowApp;
-
-        readonly uint _statusBarCookie = 0;
 
         // command set Guids
         public const string guidDeviceExplorerCmdSet = "DF641D51-1E8C-48E4-B549-CC6BCA9BDE19";  // this GUID is coming from the .vsct file  
@@ -191,7 +184,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             menuItem.Visible = true;
             // can't set the checked status here because the service provider of the preferences persistence is not available at this time
             // deferring to when the Device Explorer control is loaded
-            //menuItem.Checked = NanoFrameworkPackage.OptionShowInternalErrors;
             menuCommandService.AddCommand(menuItem);
 
             // Disable Device Watchers
@@ -202,7 +194,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             menuItem.Visible = true;
             // can't set the checked status here because the service provider of the preferences persistence is not available at this time
             // deferring to when the Device Explorer control is loaded
-            //menuItem.Checked = NanoFrameworkPackage.OptionDisableDeviceWatchers;
             menuCommandService.AddCommand(menuItem);
 
             // Rescan Devices
@@ -228,8 +219,10 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         /// </summary>
         /// <param name="sender">The event sender.</param>
         /// <param name="e">The event args.</param>
-        private void ShowToolWindow(object sender, EventArgs e)
+        private async void ShowToolWindow(object sender, EventArgs e)
         {
+            await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+
             // Get the instance number 0 of this tool window. This window is single instance so this instance
             // is actually the only one.
             // The last flag is set to true so that if the tool window does not exists it will be created.
@@ -299,9 +292,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         MessageCentre.OutputMessage($"{ViewModelLocator.DeviceExplorer.SelectedDevice.Description} is not responding, please reboot the device.");
                     }
                 }
-                catch (Exception ex)
+                catch
                 {
-
+                    // OK to catch all
                 }
                 finally
                 {
@@ -479,9 +472,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         MessageCentre.OutputMessage(ViewModelLocator.DeviceExplorer.OemInfo.ToString());
                     }
                 }
-                catch (Exception ex)
+                catch
                 {
-
+                    // OK to catch all
                 }
                 finally
                 {
@@ -564,9 +557,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         return;
                     }
                 }
-                catch (Exception ex)
+                catch
                 {
-
+                    // OK to catch all
                 }
                 finally
                 {
@@ -666,9 +659,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         return;
                     }
                 }
-                catch (Exception ex)
+                catch
                 {
-
+                    // OK to catch all
                 }
                 finally
                 {
@@ -743,9 +736,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         return;
                     }
                 }
-                catch (Exception ex)
+                catch
                 {
-
+                    // OK to catch all
                 }
                 finally
                 {
@@ -867,9 +860,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 };
                 allSettingsDialog.ShowModal();
             }
-            catch (Exception ex)
+            catch
             {
-
+                // OK to catch all
             }
             finally
             {

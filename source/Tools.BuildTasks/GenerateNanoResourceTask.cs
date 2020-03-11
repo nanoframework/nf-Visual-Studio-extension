@@ -8,22 +8,16 @@ using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
 using nanoFramework.Tools.Utilities;
 using System;
-using System.CodeDom;
-using System.CodeDom.Compiler;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Drawing;
-using System.Drawing.Imaging;
 using System.Globalization;
 using System.IO;
 using System.Reflection;
 using System.Resources;
-using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Security;
-using System.Text;
 using System.Xml;
 
 namespace nanoFramework.Tools
@@ -120,7 +114,7 @@ namespace nanoFramework.Tools
     {
 
         // Whether the file exists or not.
-        bool exists = false;
+        readonly bool exists = false;
 
         /// <summary>
         /// The name of the file.
@@ -285,12 +279,11 @@ namespace nanoFramework.Tools
         {
             try
             {
-                if (stateFile != null && stateFile.Length > 0)
+                if (stateFile != null && 
+                    stateFile.Length > 0 &&
+                    File.Exists(stateFile))
                 {
-                    if (File.Exists(stateFile))
-                    {
-                        File.Delete(stateFile);
-                    }
+                    File.Delete(stateFile);
                 }
             }
             catch (Exception e)
@@ -349,7 +342,6 @@ namespace nanoFramework.Tools
                 if (value == null && baseLinkedFileDirectory == null)
                 {
                     // No change
-                    return;
                 }
                 else if ((value == null && baseLinkedFileDirectory != null) ||
                          (value != null && baseLinkedFileDirectory == null) ||
@@ -512,11 +504,11 @@ namespace nanoFramework.Tools
                     // contains the .resx file as the path from which it should resolve
                     // relative paths. So we should base our timestamp/existence checking
                     // on the same switch & resolve in the same manner as ResGen.
-                    resxReader.BasePath = (baseLinkedFileDirectory == null) ? Path.GetDirectoryName(filename) : baseLinkedFileDirectory;
+                    resxReader.BasePath = baseLinkedFileDirectory ?? Path.GetDirectoryName(filename);
 
                     foreach (DictionaryEntry dictEntry in resxReader)
                     {
-                        if ((dictEntry.Value != null) && (dictEntry.Value is ResXDataNode))
+                        if (dictEntry.Value is ResXDataNode)
                         {
                             ResXFileRef resxFileRef = ((ResXDataNode)dictEntry.Value).FileRef;
                             if (resxFileRef != null)
@@ -548,7 +540,7 @@ namespace nanoFramework.Tools
         /// List of output files that we failed to create due to an error.
         /// See note in RemoveUnsuccessfullyCreatedResourcesFromOutputResources()
         /// </summary>
-        private List<string> UnsuccessfullyCreatedOutFiles = new List<string>();
+        private readonly List<string> _unsuccessfullyCreatedOutFiles = new List<string>();
 
         // This cache helps us track the linked resource files listed inside of a resx resource file
         private ResGenDependencies cache;
@@ -595,8 +587,8 @@ namespace nanoFramework.Tools
         /// that failed to be written due to an error.
         /// </summary>
         [Output]
-        public ITaskItem[] FilesWritten { get { return _FilesWritten.ToArray(); } private set { } }
-        private List<ITaskItem> _FilesWritten = new List<ITaskItem>();
+        public ITaskItem[] FilesWritten { get { return _filesWritten.ToArray(); } }
+        private readonly List<ITaskItem> _filesWritten = new List<ITaskItem>();
 
         /// <summary>
         /// (default = false)
@@ -658,13 +650,12 @@ namespace nanoFramework.Tools
                 for (int i = 0; i < Sources.Length; ++i)
                 {
                     // Attributes from input items are forwarded to output items.
-                    //Sources[i].CopyMetadataTo(OutputResources[i]);
 
                     if (!File.Exists(Sources[i].ItemSpec))
                     {
                         // Error but continue with the files that do exist
                         Log.LogError("GenerateResource.ResourceNotFound", Sources[i].ItemSpec);
-                        UnsuccessfullyCreatedOutFiles.Add(OutputResources[i].ItemSpec);
+                        _unsuccessfullyCreatedOutFiles.Add(OutputResources[i].ItemSpec);
                     }
                     else
                     {
@@ -719,32 +710,26 @@ namespace nanoFramework.Tools
                                 typeof(ProcessResourceFiles).FullName
                             );
 
-                        Type processType = obj.GetType();
-
                         process = (ProcessResourceFiles)obj;
-
 
                         //setup strongly typed class name??
 
-                        process.Run(Log, assemblyList, (ITaskItem[])inputsToProcess.ToArray(), (ITaskItem[])outputsToProcess.ToArray(),
+                        process.Run(Log, assemblyList, inputsToProcess.ToArray(), outputsToProcess.ToArray(),
                             UseSourcePath);
 
                         if (null != process.UnsuccessfullyCreatedOutFiles)
                         {
                             foreach (string item in process.UnsuccessfullyCreatedOutFiles)
                             {
-                                UnsuccessfullyCreatedOutFiles.Add(item);
+                                _unsuccessfullyCreatedOutFiles.Add(item);
                             }
                         }
-                        process = null;
                     }
                     finally
                     {
                         if (appDomain != null)
                         {
                             AppDomain.Unload(appDomain);
-                            process = null;
-                            appDomain = null;
                         }
                     }
                 }
@@ -821,8 +806,8 @@ namespace nanoFramework.Tools
         private void RemoveUnsuccessfullyCreatedResourcesFromOutputResources()
         {
             // Normally, there aren't any unsuccessful conversions.
-            if (UnsuccessfullyCreatedOutFiles == null ||
-                UnsuccessfullyCreatedOutFiles.Count == 0)
+            if (_unsuccessfullyCreatedOutFiles == null ||
+                _unsuccessfullyCreatedOutFiles.Count == 0)
             {
                 return;
             }
@@ -830,14 +815,14 @@ namespace nanoFramework.Tools
             Debug.Assert(OutputResources != null && OutputResources.Length != 0);
 
             // We only get here if there was at least one resource generation error.
-            ITaskItem[] temp = new ITaskItem[OutputResources.Length - UnsuccessfullyCreatedOutFiles.Count];
+            ITaskItem[] temp = new ITaskItem[OutputResources.Length - _unsuccessfullyCreatedOutFiles.Count];
             int copied = 0;
             int removed = 0;
             foreach (ITaskItem item in OutputResources)
             {
                 // Check whether this one is in the bad list.
-                if (removed < UnsuccessfullyCreatedOutFiles.Count &&
-                    UnsuccessfullyCreatedOutFiles.Contains(item.ItemSpec))
+                if (removed < _unsuccessfullyCreatedOutFiles.Count &&
+                    _unsuccessfullyCreatedOutFiles.Contains(item.ItemSpec))
                 {
                     removed++;
                 }
@@ -862,7 +847,7 @@ namespace nanoFramework.Tools
 
             // This method eats IO Exceptions
 
-            cache = ResGenDependencies.DeserializeCache((StateFile == null) ? null : StateFile.ItemSpec, UseSourcePath, Log);
+            cache = ResGenDependencies.DeserializeCache(StateFile?.ItemSpec, UseSourcePath, Log);
 
             //RWOLFF -- throw here?
             //ErrorUtilities.VerifyThrow(cache != null, "We did not create a cache!");
@@ -878,7 +863,7 @@ namespace nanoFramework.Tools
             foreach (ITaskItem item in OutputResources)
             {
                 Debug.Assert(File.Exists(item.ItemSpec), item.ItemSpec + " doesn't exist but we're adding to FilesWritten");
-                _FilesWritten.Add(new TaskItem(item));
+                _filesWritten.Add(new TaskItem(item));
             }
 
             // Add any state file
@@ -886,7 +871,7 @@ namespace nanoFramework.Tools
             {
                 // It's possible the file wasn't actually written (eg the path was invalid)
                 // We can't easily tell whether that happened here, and I think it's fine to add it anyway.
-                _FilesWritten.Add(new TaskItem(StateFile));
+                _filesWritten.Add(new TaskItem(StateFile));
             }
         }
 
@@ -900,10 +885,6 @@ namespace nanoFramework.Tools
         /// <returns></returns>
         private bool ShouldRebuildResgenOutputFile(string sourceFilePath, string outputFilePath)
         {
-            /*#if !(MSBUILD_SOURCES)
-                        return true;
-            #else
-             */
             bool sourceFileExists = File.Exists(sourceFilePath);
             bool destinationFileExists = File.Exists(outputFilePath);
 
@@ -1058,7 +1039,7 @@ namespace nanoFramework.Tools
         {
             if (References == null)
             {
-                return null;
+                return new AssemblyName[0];
             }
 
             AssemblyName[] assemblyList = new AssemblyName[References.Length];
@@ -1109,7 +1090,7 @@ namespace nanoFramework.Tools
             if (cache.IsDirty)
             {
                 // And now we serialize the cache to save our resgen linked file resolution for later use.
-                cache.SerializeCache((StateFile == null) ? null : StateFile.ItemSpec, Log);
+                cache.SerializeCache(StateFile?.ItemSpec, Log);
             }
         }
     }

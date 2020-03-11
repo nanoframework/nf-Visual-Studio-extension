@@ -80,17 +80,13 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
             // make sure the item in the treeview is selected, in case the selected device was changed in the view model
-            if (deviceTreeView.SelectedItem != null)
+            // check if it's the same so we don't switch 
+            if (deviceTreeView.SelectedItem != null &&
+                deviceTreeView.SelectedItem.GetType().Equals(typeof(NanoDeviceBase)) &&
+                ((NanoDeviceBase)deviceTreeView.SelectedItem).Description == (DataContext as DeviceExplorerViewModel).SelectedDevice.Description)
             {
-                if (deviceTreeView.SelectedItem.GetType().Equals(typeof(NanoDeviceBase)))
-                {
-                    // check if it's the same so we don't switch 
-                    if (((NanoDeviceBase)deviceTreeView.SelectedItem).Description == (DataContext as DeviceExplorerViewModel).SelectedDevice.Description)
-                    {
-                        // nothing to do here
-                        return;
-                    }
-                }
+                // nothing to do here
+                return;
             }
 
             // select the device
