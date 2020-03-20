@@ -17,6 +17,7 @@
     
     <!-- This prevents VS from adding app.config with binding redirects -->
     <AutoGenerateBindingRedirects>false</AutoGenerateBindingRedirects>
+    <DisableHandlePackageFileConflicts>true</DisableHandlePackageFileConflicts>
 
     <!-- TODO add documentation about this
     See https://msdn.microsoft.com/en-us/library/ms242202.aspx
