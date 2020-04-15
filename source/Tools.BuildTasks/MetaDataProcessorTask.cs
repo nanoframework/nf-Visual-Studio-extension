@@ -100,7 +100,6 @@ namespace nanoFramework.Tools
         [Output]
         public ITaskItem[] FilesWritten { get { return _filesWritten.ToArray(); } }
 
-
         #endregion
 
         #region internal fields for MetadataProcessor
@@ -353,6 +352,9 @@ namespace nanoFramework.Tools
                         DumpFile);
                     dumper.DumpAll();
                 }
+
+                // set environment variable with assembly native checksum
+                Environment.SetEnvironmentVariable("AssemblyNativeChecksum", _assemblyBuilder.GetNativeChecksum(), EnvironmentVariableTarget.Process);
             }
             catch (ArgumentException ex)
             {
