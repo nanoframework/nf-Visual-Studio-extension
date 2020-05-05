@@ -611,7 +611,7 @@
       <HintPath>..\packages\mustache-sharp.1.0.0\lib\net45\mustache-sharp.dll</HintPath>
     </Reference>
     <Reference Include="nanoFramework.Tools.Debugger.Net, Version=1.16.0.0, Culture=neutral, PublicKeyToken=e520bb6b53f04733">
-      <HintPath>..\packages\nanoFramework.Tools.Debugger.Net.1.16.0-preview.8\lib\net472\nanoFramework.Tools.Debugger.Net.dll</HintPath>
+      <HintPath>..\packages\nanoFramework.Tools.Debugger.Net.1.16.0-preview.15\lib\net472\nanoFramework.Tools.Debugger.Net.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="nanoFramework.Tools.MetadataProcessor.Core, Version=2.22.43.33809, Culture=neutral, PublicKeyToken=562e3cb1ad703850">
