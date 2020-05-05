@@ -703,6 +703,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         NanoDeviceCommService.Device.CreateDebugEngine();
                     }
 
+                    // store the description
+                    var previousSelectedDeviceDescription = NanoDeviceCommService.Device.Description;
+
                     // connect to the device
                     if (await NanoDeviceCommService.Device.DebugEngine.ConnectAsync(5000))
                     {
@@ -711,7 +714,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                             // reset the hash for the connected device so the deployment information can be refreshed, if and when requested
                             ViewModelLocator.DeviceExplorer.LastDeviceConnectedHash = 0;
 
-                            MessageCentre.OutputMessage($"Sending reboot command to {ViewModelLocator.DeviceExplorer.PreviousSelectedDeviceDescription}.");
+                            MessageCentre.OutputMessage($"Sending reboot command to {previousSelectedDeviceDescription}.");
 
                             NanoDeviceCommService.Device.DebugEngine.RebootDevice(RebootOptions.NormalReboot);
 
@@ -721,7 +724,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         catch
                         {
                             // report issue to user
-                            MessageCentre.OutputMessage($"Error sending reboot command to {ViewModelLocator.DeviceExplorer.PreviousSelectedDeviceDescription}.");
+                            MessageCentre.OutputMessage($"Error sending reboot command to {previousSelectedDeviceDescription}.");
 
                             return;
                         }
@@ -731,7 +734,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         // reset property to force that device capabilities are retrieved on next connection
                         ViewModelLocator.DeviceExplorer.LastDeviceConnectedHash = 0;
 
-                        MessageCentre.OutputMessage($"{ViewModelLocator.DeviceExplorer.PreviousSelectedDeviceDescription} is not responding, please reboot the device.");
+                        MessageCentre.OutputMessage($"{previousSelectedDeviceDescription} is not responding, please reboot the device.");
 
                         return;
                     }

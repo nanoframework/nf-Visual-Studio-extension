@@ -101,8 +101,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
 
         public string DeviceToReSelect { get; set; } = null;
 
-        public string PreviousSelectedDeviceDescription { get; internal set; }
-
         public void OnNanoDeviceCommServiceChanged()
         {
             if (NanoDeviceCommService != null)
@@ -237,12 +235,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
         {
             // request forced selection of device in UI
             await Task.Run(() => { MessengerInstance.Send(new NotificationMessage(""), MessagingTokens.ForceSelectionOfNanoDevice); });
-        }
-
-        public void OnSelectedDeviceChanging()
-        {
-            // save previous device
-            PreviousSelectedDeviceDescription = SelectedDevice?.Description;
         }
 
         public void OnSelectedDeviceChanged()
