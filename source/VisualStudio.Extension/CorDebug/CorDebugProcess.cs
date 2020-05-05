@@ -626,24 +626,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension
     
                     MessageCentre.DebugMessage(Resources.ResourceStrings.WaitingDeviceInitialization);
                     EnsureProcessIsInInitializedState();
-
-                    MessageCentre.DebugMessage("Updating nanoDevice debugger engine.");
-
-                    // need to update the debugger engine flags on the device after ensuring that the device is properly initialized
-                    // this is needed to make sure that all engine flags are properly set
-                    if (_engine.UpdateDebugFlags())
-                    {
-                        // forced update device info in order to get deployed assemblies
-                        Device.GetDeviceInfo(true);
-
-                        // need to update the assemblies right here or the collection won't be populated when we need it ahead
-                        UpdateAssemblies();
-                    }
-                    else
-                    {
-                        // couldn't update debug engine flags
-                        MessageCentre.DebugMessage("Error trying to update the device debugger engine.");
-                    }
                 }
                 else
                 {
@@ -1531,7 +1513,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             {
                 MessageCentre.DebugMessage(text);
             }
-
         }
 
         [MethodImpl(MethodImplOptions.Synchronized)]
