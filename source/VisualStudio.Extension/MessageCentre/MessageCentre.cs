@@ -133,6 +133,14 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             {
                 await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
+                // if the message already ends with a return & new line, strip it
+                // this is the case with some messages from the target
+                // in case the message has more than one and intends to output an empty line this will occur anyway as we are adding it bellow
+                if(message.EndsWith("\r\n"))
+                {
+                    message = message.Substring(0, message.Length - 2);
+                }
+
                 pane.Activate();
                 pane.OutputStringThreadSafe(message + "\r\n");
             });
