@@ -430,13 +430,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     throw new DeploymentException($"{_viewModelLocator.DeviceExplorer.SelectedDevice.Description} is not responding. Please retry the deployment. If the situation persists reboot the device.");
                 }
             }
-            catch (DeploymentException ex)
+            catch (DeploymentException)
             {
-                MessageCentre.InternalErrorMessage($"Exception occurred during deployment." +
-                    $"{Environment.NewLine} {ex.Message} " +
-                    $"{Environment.NewLine} {ex.InnerException} " +
-                    $"{Environment.NewLine} {ex.StackTrace}");
-
+                // this exception is used to flag a failed deployment to VS, no need to show anything about the exception here
                 throw;
             }
             catch (Exception ex)
