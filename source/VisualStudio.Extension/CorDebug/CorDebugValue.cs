@@ -995,6 +995,16 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             //cache fields?
             RuntimeValue rtv = _rtv.GetField(0, nanoCLR_TypeSystem.ClassMemberIndexFromCLRToken(fieldDef, ((CorDebugClass)pClass).Assembly));
 
+            // sanity check
+            if(rtv == null)
+            {
+                MessageCentre.InternalErrorMessage($"ERROR: Failed to get value for field [{fieldDef.ToString("X8")}] assembly {((CorDebugClass)pClass).Assembly.Name}.");
+                
+                ppValue = null;
+
+                return COM_HResults.E_FAIL;
+            }
+
             ppValue = CreateValue( rtv );
 
             return COM_HResults.S_OK;                 
