@@ -532,8 +532,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             if (!string.IsNullOrEmpty(errorMessage))
             {
                 errorMessage += "" + Environment.NewLine;
-                errorMessage += "If you are using PREVIEW versions of the NuGet packages, make sure you have our Azure Pipelines feed setup." + Environment.NewLine;
-                errorMessage += "See here for details: https://nanoframework.net/2018/05/16/setup-visual-studio-to-access-preview-versions-feed" + Environment.NewLine;
+                errorMessage += "If the target is running a PREVIEW version the projects have to reference PREVIEW NuGet packages." + Environment.NewLine;
+                errorMessage += "Check the Visual Studio FAQ here: https://docs.nanoframework.net/content/faq/working-with-vs-extension.html" + Environment.NewLine;
                 errorMessage += "" + Environment.NewLine;
                 errorMessage += "***************************************";
             }
