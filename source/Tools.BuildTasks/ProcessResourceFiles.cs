@@ -874,9 +874,9 @@ namespace nanoFramework.Tools
                 {
                     null, //RESOURCE_Invalid
                     // TODO not supported, see issue https://github.com/nanoframework/Home/issues/120
-                    new ResourceTypeDescription(NanoResourceFile.ResourceHeader.RESOURCE_Bitmap, "GetBitmap", "Microsoft.SPOT.Bitmap", "BitmapResources"),
+                    new ResourceTypeDescription(NanoResourceFile.ResourceHeader.RESOURCE_Bitmap, "GetBitmap", "nanoFramework.UI.Bitmap", "BitmapResources"),
                     // TODO not supported, see issue https://github.com/nanoframework/Home/issues/121
-                    new ResourceTypeDescription(NanoResourceFile.ResourceHeader.RESOURCE_Font, "GetFont", "Microsoft.SPOT.Font", "FontResources"),
+                    new ResourceTypeDescription(NanoResourceFile.ResourceHeader.RESOURCE_Font, "GetFont", "nanoFramework.UI.Font", "FontResources"),
                     new ResourceTypeDescription(NanoResourceFile.ResourceHeader.RESOURCE_String, "GetString", "System.String", "StringResources"),
                     new ResourceTypeDescription(NanoResourceFile.ResourceHeader.RESOURCE_Binary, "GetBytes", "System.Byte[]", "BinaryResources"),
                     };
@@ -909,10 +909,22 @@ namespace nanoFramework.Tools
                 if (rawValue != null)
                 {
                     entry = NanoResourcesEntry.TryCreateNanoResourcesEntry(name, rawValue);
-
                     if (entry == null)
                     {
-                        entry = new BinaryEntry(name, rawValue);
+                        // Try to create a bitmap from byte[]
+                        // If it doesn't contain a bmp format(exception) then create BinaryEntry
+                        using (var ms = new MemoryStream(rawValue))
+                        {
+                            try
+                            {
+                                Bitmap bmp = new Bitmap(ms);
+                                entry = new BitmapEntry(name, bmp);
+                            }
+                            catch(Exception) 
+                            {
+                                entry = new BinaryEntry(name, rawValue);
+                            }
+                        }
                     }
                 }
 
