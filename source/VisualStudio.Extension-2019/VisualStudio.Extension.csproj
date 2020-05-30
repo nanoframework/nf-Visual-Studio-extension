@@ -614,8 +614,8 @@
       <HintPath>..\packages\nanoFramework.Tools.Debugger.Net.1.16.0-preview.15\lib\net472\nanoFramework.Tools.Debugger.Net.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="nanoFramework.Tools.MetadataProcessor.Core, Version=2.23.8.43933, Culture=neutral, PublicKeyToken=562e3cb1ad703850">
-      <HintPath>..\packages\nanoFramework.Tools.MetadataProcessor.Core.2.23.8\lib\net461\nanoFramework.Tools.MetadataProcessor.Core.dll</HintPath>
+    <Reference Include="nanoFramework.Tools.MetadataProcessor.Core, Version=2.23.9.58484, Culture=neutral, PublicKeyToken=562e3cb1ad703850">
+      <HintPath>..\packages\nanoFramework.Tools.MetadataProcessor.Core.2.23.9\lib\net461\nanoFramework.Tools.MetadataProcessor.Core.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Nerdbank.Streams, Version=2.4.0.0, Culture=neutral, PublicKeyToken=cac503e1823ce71c, processorArchitecture=MSIL">
@@ -1096,7 +1096,7 @@
     <Error Condition="!Exists('..\packages\Microsoft.VisualStudio.Threading.Analyzers.16.4.45\build\Microsoft.VisualStudio.Threading.Analyzers.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.VisualStudio.Threading.Analyzers.16.4.45\build\Microsoft.VisualStudio.Threading.Analyzers.targets'))" />
     <Error Condition="!Exists('..\packages\Microsoft.CodeAnalysis.BannedApiAnalyzers.2.9.8\build\Microsoft.CodeAnalysis.BannedApiAnalyzers.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.CodeAnalysis.BannedApiAnalyzers.2.9.8\build\Microsoft.CodeAnalysis.BannedApiAnalyzers.props'))" />
     <Error Condition="!Exists('..\packages\Microsoft.VisualStudio.SDK.EmbedInteropTypes.15.0.29\build\Microsoft.VisualStudio.SDK.EmbedInteropTypes.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.VisualStudio.SDK.EmbedInteropTypes.15.0.29\build\Microsoft.VisualStudio.SDK.EmbedInteropTypes.targets'))" />
-    <Error Condition="!Exists('..\packages\nanoFramework.Tools.MetadataProcessor.Core.2.23.8\build\nanoFramework.Tools.MetaDataProcessor.Core.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\nanoFramework.Tools.MetadataProcessor.Core.2.23.8\build\nanoFramework.Tools.MetaDataProcessor.Core.targets'))" />
+    <Error Condition="!Exists('..\packages\nanoFramework.Tools.MetadataProcessor.Core.2.23.9\build\nanoFramework.Tools.MetaDataProcessor.Core.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\nanoFramework.Tools.MetadataProcessor.Core.2.23.9\build\nanoFramework.Tools.MetaDataProcessor.Core.targets'))" />
   </Target>
   <Import Project="..\packages\Microsoft.VisualStudio.ProjectSystem.16.0.374-pre\build\Microsoft.VisualStudio.ProjectSystem.targets" Condition="Exists('..\packages\Microsoft.VisualStudio.ProjectSystem.16.0.374-pre\build\Microsoft.VisualStudio.ProjectSystem.targets')" />
   <Import Project="..\packages\Microsoft.VisualStudio.ProjectSystem.Sdk.Tools.15.8.243\build\Microsoft.VisualStudio.ProjectSystem.Sdk.Tools.targets" Condition="Exists('..\packages\Microsoft.VisualStudio.ProjectSystem.Sdk.Tools.15.8.243\build\Microsoft.VisualStudio.ProjectSystem.Sdk.Tools.targets')" />
@@ -1106,7 +1106,7 @@
   <Import Project="..\packages\NuGet.VisualStudio.5.4.0\build\NuGet.VisualStudio.targets" Condition="Exists('..\packages\NuGet.VisualStudio.5.4.0\build\NuGet.VisualStudio.targets')" />
   <Import Project="..\packages\Microsoft.VisualStudio.Threading.Analyzers.16.4.45\build\Microsoft.VisualStudio.Threading.Analyzers.targets" Condition="Exists('..\packages\Microsoft.VisualStudio.Threading.Analyzers.16.4.45\build\Microsoft.VisualStudio.Threading.Analyzers.targets')" />
   <Import Project="..\packages\Microsoft.VisualStudio.SDK.EmbedInteropTypes.15.0.29\build\Microsoft.VisualStudio.SDK.EmbedInteropTypes.targets" Condition="Exists('..\packages\Microsoft.VisualStudio.SDK.EmbedInteropTypes.15.0.29\build\Microsoft.VisualStudio.SDK.EmbedInteropTypes.targets')" />
-  <Import Project="..\packages\nanoFramework.Tools.MetadataProcessor.Core.2.23.8\build\nanoFramework.Tools.MetaDataProcessor.Core.targets" Condition="Exists('..\packages\nanoFramework.Tools.MetadataProcessor.Core.2.23.8\build\nanoFramework.Tools.MetaDataProcessor.Core.targets')" />
+  <Import Project="..\packages\nanoFramework.Tools.MetadataProcessor.Core.2.23.9\build\nanoFramework.Tools.MetaDataProcessor.Core.targets" Condition="Exists('..\packages\nanoFramework.Tools.MetadataProcessor.Core.2.23.9\build\nanoFramework.Tools.MetaDataProcessor.Core.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
