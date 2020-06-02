@@ -1,5 +1,6 @@
-﻿using System;
+using System;
 using System.Threading;
+using System.Diagnostics;
 
 namespace $safeprojectname$
 {
@@ -7,7 +8,7 @@ namespace $safeprojectname$
     {
         public static void Main()
         {
-            Console.WriteLine("Hello world!");
+            Debug.WriteLine("Hello from nanoFramework!");
 
             Thread.Sleep(Timeout.Infinite);
 
