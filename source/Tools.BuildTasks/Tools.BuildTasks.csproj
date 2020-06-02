@@ -56,8 +56,8 @@
     <Reference Include="mustache-sharp, Version=1.0.0.0, Culture=neutral, PublicKeyToken=5885df51f4df0041, processorArchitecture=MSIL">
       <HintPath>..\packages\mustache-sharp.1.0.0\lib\net45\mustache-sharp.dll</HintPath>
     </Reference>
-    <Reference Include="nanoFramework.Tools.MetadataProcessor.Core, Version=2.23.4.19888, Culture=neutral, PublicKeyToken=562e3cb1ad703850">
-      <HintPath>..\packages\nanoFramework.Tools.MetadataProcessor.Core.2.23.4\lib\net461\nanoFramework.Tools.MetadataProcessor.Core.dll</HintPath>
+    <Reference Include="nanoFramework.Tools.MetadataProcessor.Core, Version=2.23.9.58484, Culture=neutral, PublicKeyToken=562e3cb1ad703850">
+      <HintPath>..\packages\nanoFramework.Tools.MetadataProcessor.Core.2.23.9\lib\net461\nanoFramework.Tools.MetadataProcessor.Core.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
@@ -105,11 +105,11 @@
     <Error Condition="!Exists('..\packages\Microsoft.VisualStudio.Threading.Analyzers.15.8.209\build\Microsoft.VisualStudio.Threading.Analyzers.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.VisualStudio.Threading.Analyzers.15.8.209\build\Microsoft.VisualStudio.Threading.Analyzers.targets'))" />
     <Error Condition="!Exists('..\packages\Microsoft.VisualStudio.SDK.Analyzers.15.8.36\build\Microsoft.VisualStudio.SDK.Analyzers.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.VisualStudio.SDK.Analyzers.15.8.36\build\Microsoft.VisualStudio.SDK.Analyzers.targets'))" />
     <Error Condition="!Exists('..\packages\Nerdbank.GitVersioning.3.1.68\build\Nerdbank.GitVersioning.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Nerdbank.GitVersioning.3.1.68\build\Nerdbank.GitVersioning.targets'))" />
-    <Error Condition="!Exists('..\packages\nanoFramework.Tools.MetadataProcessor.Core.2.23.4\build\nanoFramework.Tools.MetaDataProcessor.Core.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\nanoFramework.Tools.MetadataProcessor.Core.2.23.4\build\nanoFramework.Tools.MetaDataProcessor.Core.targets'))" />
+    <Error Condition="!Exists('..\packages\nanoFramework.Tools.MetadataProcessor.Core.2.23.9\build\nanoFramework.Tools.MetaDataProcessor.Core.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\nanoFramework.Tools.MetadataProcessor.Core.2.23.9\build\nanoFramework.Tools.MetaDataProcessor.Core.targets'))" />
   </Target>
   <Import Project="..\packages\Microsoft.VisualStudio.SDK.Analyzers.15.8.36\build\Microsoft.VisualStudio.SDK.Analyzers.targets" Condition="Exists('..\packages\Microsoft.VisualStudio.SDK.Analyzers.15.8.36\build\Microsoft.VisualStudio.SDK.Analyzers.targets')" />
   <Import Project="..\packages\Nerdbank.GitVersioning.3.1.68\build\Nerdbank.GitVersioning.targets" Condition="Exists('..\packages\Nerdbank.GitVersioning.3.1.68\build\Nerdbank.GitVersioning.targets')" />
-  <Import Project="..\packages\nanoFramework.Tools.MetadataProcessor.Core.2.23.4\build\nanoFramework.Tools.MetaDataProcessor.Core.targets" Condition="Exists('..\packages\nanoFramework.Tools.MetadataProcessor.Core.2.23.4\build\nanoFramework.Tools.MetaDataProcessor.Core.targets')" />
+  <Import Project="..\packages\nanoFramework.Tools.MetadataProcessor.Core.2.23.9\build\nanoFramework.Tools.MetaDataProcessor.Core.targets" Condition="Exists('..\packages\nanoFramework.Tools.MetadataProcessor.Core.2.23.9\build\nanoFramework.Tools.MetaDataProcessor.Core.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
