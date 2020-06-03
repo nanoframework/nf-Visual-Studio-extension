@@ -71,6 +71,8 @@
     <Compile Include="Converters\NetworkInterfaceTypeConverter.cs" />
     <Compile Include="Converters\MacAddressConverter.cs" />
     <Compile Include="Converters\InterfaceTypeToBoolConverters.cs" />
+    <Compile Include="Converters\WirelessAP_OptionsTypeConverter.cs" />
+    <Compile Include="Converters\Wireless80211_OptionsTypeConverter.cs" />
     <Compile Include="Converters\RadioTypeConverter.cs" />
     <Compile Include="CorDebug\Utility\Boolean.cs" />
     <Compile Include="CorDebug\COM_HResults.cs" />

@@ -26,18 +26,19 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         {
             return Enum.GetValues(_type)
                 .Cast<object>()
+                .Where(e => (byte)e != 0)
                 .Select(e => new
-                {
-                    Value = (byte)e,
-                    DisplayName = (new Func<string>(() =>
-                    {
-                        DisplayAttribute attribute = e.GetType()
-                            .GetField(e.ToString())
-                            .GetCustomAttributes(typeof(DisplayAttribute), false)
-                            .SingleOrDefault() as DisplayAttribute;
-                        return attribute == null ? e.ToString() : attribute.Description;
-                    })).Invoke()
-                });
+                        {
+                            Value = (byte)e,
+                            DisplayName = new Func<string>(() =>
+                            {
+                                return !(e.GetType()
+                                    .GetField(e.ToString())
+                                    .GetCustomAttributes(typeof(DisplayAttribute), false)
+                                    .SingleOrDefault() is DisplayAttribute attribute) ? e.ToString() : attribute.Description;
+                            }).Invoke()
+                        }
+                );
         }
     }
 }
