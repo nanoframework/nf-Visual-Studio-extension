@@ -84,6 +84,12 @@
     <Compile Include="..\VisualStudio.Extension\Converters\RadioTypeConverter.cs">
       <Link>Converters\RadioTypeConverter.cs</Link>
     </Compile>
+    <Compile Include="..\VisualStudio.Extension\Converters\Wireless80211_OptionsTypeConverter.cs">
+      <Link>Converters\Wireless80211_OptionsTypeConverter.cs</Link>
+    </Compile>
+    <Compile Include="..\VisualStudio.Extension\Converters\WirelessAP_OptionsTypeConverter.cs">
+      <Link>Converters\WirelessAP_OptionsTypeConverter.cs</Link>
+    </Compile>
     <Compile Include="..\VisualStudio.Extension\CorDebug\COM_HResults.cs">
       <Link>CorDebug\COM_HResults.cs</Link>
     </Compile>

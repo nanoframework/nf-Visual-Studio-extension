@@ -23,6 +23,8 @@
         <Converters:AuthenticationTypeConverter x:Key="AuthenticationTypeConverter"/>
         <Converters:EncryptionTypeConverter x:Key="EncryptionTypeConverter"/>
         <Converters:RadioTypeConverter x:Key="RadioTypeConverter"/>
+        <Converters:Wireless80211_OptionsTypeConverter x:Key="Wireless80211_OptionsTypeConverter"/>
+        <Converters:WirelessAP_OptionsTypeConverter x:Key="WirelessAP_OptionsTypeConverter"/>
     </vsp:DialogWindow.Resources>
 
     <vsp:DialogWindow.DataContext>
@@ -143,6 +145,7 @@
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="20*"/>
@@ -179,6 +182,14 @@
                               DisplayMemberPath="DisplayName"
                               ItemsSource="{extension:ByteEnumToItemsSource {x:Type debuglib:RadioType}}"
                               SelectedValue="{Binding DeviceWireless80211Configuration.Radio, Converter={StaticResource RadioTypeConverter}, Mode=TwoWay, NotifyOnTargetUpdated=True, NotifyOnSourceUpdated=True, ValidatesOnNotifyDataErrors=False}"
+                              SelectedValuePath="Value" />
+
+                    <!--Wi-Fi Options-->
+                    <Label Grid.Row="5" Grid.Column="0" HorizontalAlignment="Left" Content="Options:" Margin="-6,6,0,0" />
+                    <ComboBox Grid.Row="5" Grid.Column="1" HorizontalAlignment="Left" Height="23" Width="120" x:Name="WiFiOptions" VerticalAlignment="Center" Margin="0,6,0,0" 
+                              DisplayMemberPath="DisplayName"
+                              ItemsSource="{extension:ByteEnumToItemsSource {x:Type debuglib:Wireless80211_ConfigurationOptions}}"
+                              SelectedValue="{Binding DeviceWireless80211Configuration.Options, Converter={StaticResource Wireless80211_OptionsTypeConverter}, Mode=TwoWay, NotifyOnTargetUpdated=True, NotifyOnSourceUpdated=True, ValidatesOnNotifyDataErrors=False}"
                               SelectedValuePath="Value" />
 
                 </Grid>
