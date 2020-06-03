@@ -254,7 +254,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
             await Task.Run(async delegate
             {
-                MessageCentre.StartProgressMessage($"Pinging {ViewModelLocator.DeviceExplorer.SelectedDevice.Description}...");
+                var descriptionBackup = ViewModelLocator.DeviceExplorer.SelectedDevice.Description;
+
+                MessageCentre.StartProgressMessage($"Pinging {descriptionBackup}...");
                 try
                 {
                     // disable buttons
@@ -278,18 +280,18 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         switch (ViewModelLocator.DeviceExplorer.SelectedDevice.DebugEngine.ConnectionSource)
                         {
                             case ConnectionSource.Unknown:
-                                MessageCentre.OutputMessage($"No reply from {ViewModelLocator.DeviceExplorer.SelectedDevice.Description}");
+                                MessageCentre.OutputMessage($"No reply from {descriptionBackup}");
                                 break;
 
                             case ConnectionSource.nanoBooter:
                             case ConnectionSource.nanoCLR:
-                                MessageCentre.OutputMessage($"{ViewModelLocator.DeviceExplorer.SelectedDevice.Description} is active running {ViewModelLocator.DeviceExplorer.SelectedDevice.DebugEngine.ConnectionSource.ToString()}");
+                                MessageCentre.OutputMessage($"{descriptionBackup} is active running {ViewModelLocator.DeviceExplorer.SelectedDevice.DebugEngine.ConnectionSource.ToString()}");
                                 break;
                         }
                     }
                     else
                     {
-                        MessageCentre.OutputMessage($"{ViewModelLocator.DeviceExplorer.SelectedDevice.Description} is not responding, please reboot the device.");
+                        MessageCentre.OutputMessage($"{descriptionBackup} is not responding, please reboot the device.");
                     }
                 }
                 catch
@@ -319,7 +321,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             // yield to give the UI thread a chance to respond to user input
             await Task.Yield();
 
-            MessageCentre.StartProgressMessage($"Querying {ViewModelLocator.DeviceExplorer.SelectedDevice.Description} capabilities...");
+            var descriptionBackup = ViewModelLocator.DeviceExplorer.SelectedDevice.Description;
+
+            MessageCentre.StartProgressMessage($"Querying {descriptionBackup} capabilities...");
 
             await Task.Run(async delegate
             {
@@ -332,10 +336,10 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     await ViewModelLocator.DeviceExplorer.ForceNanoDeviceSelectionAsync();
 
                     // only query device if it's different 
-                    if (ViewModelLocator.DeviceExplorer.SelectedDevice.Description.GetHashCode() != ViewModelLocator.DeviceExplorer.LastDeviceConnectedHash)
+                    if (descriptionBackup.GetHashCode() != ViewModelLocator.DeviceExplorer.LastDeviceConnectedHash)
                     {
                         // keep device description hash code to avoid get info twice
-                        ViewModelLocator.DeviceExplorer.LastDeviceConnectedHash = ViewModelLocator.DeviceExplorer.SelectedDevice.Description.GetHashCode();
+                        ViewModelLocator.DeviceExplorer.LastDeviceConnectedHash = descriptionBackup.GetHashCode();
 
                         // check if debugger engine exists
                         if (NanoDeviceCommService.Device.DebugEngine == null)
@@ -375,7 +379,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                                         ViewModelLocator.DeviceExplorer.LastDeviceConnectedHash = 0;
 
                                         // report issue to user
-                                        MessageCentre.OutputMessage($"Error retrieving device information from { ViewModelLocator.DeviceExplorer.SelectedDevice.Description}. Please reconnect device.");
+                                        MessageCentre.OutputMessage($"Error retrieving device information from { descriptionBackup}. Please reconnect device.");
 
                                         return;
                                     }
@@ -386,7 +390,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                                     ViewModelLocator.DeviceExplorer.LastDeviceConnectedHash = 0;
 
                                     // report issue to user
-                                    MessageCentre.OutputMessage($"Error retrieving device information from { ViewModelLocator.DeviceExplorer.SelectedDevice.Description}. Please reconnect device.");
+                                    MessageCentre.OutputMessage($"Error retrieving device information from { descriptionBackup}. Please reconnect device.");
 
                                     return;
                                 }
@@ -412,7 +416,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                                         ViewModelLocator.DeviceExplorer.LastDeviceConnectedHash = 0;
 
                                         // report issue to user
-                                        MessageCentre.OutputMessage($"Error retrieving device information from { ViewModelLocator.DeviceExplorer.SelectedDevice.Description}. Please reconnect device.");
+                                        MessageCentre.OutputMessage($"Error retrieving device information from { descriptionBackup}. Please reconnect device.");
 
                                         return;
                                     }
@@ -423,7 +427,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                                     ViewModelLocator.DeviceExplorer.LastDeviceConnectedHash = 0;
 
                                     // report issue to user
-                                    MessageCentre.OutputMessage($"Error retrieving device information from { ViewModelLocator.DeviceExplorer.SelectedDevice.Description}. Please reconnect device.");
+                                    MessageCentre.OutputMessage($"Error retrieving device information from { descriptionBackup}. Please reconnect device.");
 
                                     return;
                                 }
@@ -434,7 +438,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                             // reset property to force that device capabilities are retrieved on next connection
                             ViewModelLocator.DeviceExplorer.LastDeviceConnectedHash = 0;
 
-                            MessageCentre.OutputMessage($"{ViewModelLocator.DeviceExplorer.SelectedDevice.Description} is not responding, please reboot the device.");
+                            MessageCentre.OutputMessage($"{descriptionBackup} is not responding, please reboot the device.");
 
                             return;
                         }
@@ -500,7 +504,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             // yield to give the UI thread a chance to respond to user input
             await Task.Yield();
 
-            MessageCentre.StartProgressMessage($"Erasing {ViewModelLocator.DeviceExplorer.SelectedDevice.Description} deployment area...");
+            var descriptionBackup = ViewModelLocator.DeviceExplorer.SelectedDevice.Description;
+
+            MessageCentre.StartProgressMessage($"Erasing {descriptionBackup} deployment area...");
 
             await Task.Run(async delegate
             {
@@ -525,7 +531,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         {
                             if (await NanoDeviceCommService.Device.EraseAsync(EraseOptions.Deployment, CancellationToken.None))
                             {
-                                MessageCentre.OutputMessage($"{ViewModelLocator.DeviceExplorer.SelectedDevice.Description} deployment area erased.");
+                                MessageCentre.OutputMessage($"{descriptionBackup} deployment area erased.");
 
                                 // reset the hash for the connected device so the deployment information can be refreshed, if and when requested
                                 ViewModelLocator.DeviceExplorer.LastDeviceConnectedHash = 0;
@@ -536,13 +542,13 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                             else
                             {
                                 // report issue to user
-                                MessageCentre.OutputMessage($"Error erasing {ViewModelLocator.DeviceExplorer.SelectedDevice.Description} deployment area.");
+                                MessageCentre.OutputMessage($"Error erasing {descriptionBackup} deployment area.");
                             }
                         }
                         catch
                         {
                             // report issue to user
-                            MessageCentre.OutputMessage($"Error erasing {ViewModelLocator.DeviceExplorer.SelectedDevice.Description} deployment area.");
+                            MessageCentre.OutputMessage($"Error erasing {descriptionBackup} deployment area.");
 
                             return;
                         }
@@ -552,7 +558,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         // reset property to force that device capabilities are retrieved on next connection
                         ViewModelLocator.DeviceExplorer.LastDeviceConnectedHash = 0;
 
-                        MessageCentre.OutputMessage($"{ViewModelLocator.DeviceExplorer.SelectedDevice.Description} is not responding, please reboot the device.");
+                        MessageCentre.OutputMessage($"{descriptionBackup} is not responding, please reboot the device.");
 
                         return;
                     }
@@ -584,6 +590,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         {
             // yield to give the UI thread a chance to respond to user input
             await Task.Yield();
+
+            var descriptionBackup = ViewModelLocator.DeviceExplorer.SelectedDevice.Description;
 
             await Task.Run(async delegate
             {
@@ -647,14 +655,14 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         catch
                         {
                             // report issue to user
-                            MessageCentre.OutputMessage($"Error reading {ViewModelLocator.DeviceExplorer.SelectedDevice.Description} configurations.");
+                            MessageCentre.OutputMessage($"Error reading {descriptionBackup} configurations.");
 
                             return;
                         }
                     }
                     else
                     {
-                        MessageCentre.OutputMessage($"{ViewModelLocator.DeviceExplorer.SelectedDevice.Description} is not responding, please reboot the device.");
+                        MessageCentre.OutputMessage($"{descriptionBackup} is not responding, please reboot the device.");
 
                         return;
                     }
