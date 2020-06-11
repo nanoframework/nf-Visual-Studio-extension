@@ -10,5 +10,4 @@ enhancement_labels=Type: enhancement
 bug_labels=Type: bug
 merge_prefix=**Updated dependencies and other chores:**
 unreleased_label=**Changes available only in 'Preview' version:**
-issue_line_labels=Breaking-Change,documentation,Area: Tools,Area: VS-extension
 author=false
