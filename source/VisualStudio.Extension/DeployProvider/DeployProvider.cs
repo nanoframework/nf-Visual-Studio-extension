@@ -495,7 +495,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     else
                     {
                         // no suitable native assembly found build a (hopefully) helpful message to the developer
-                        missingAssemblies = $"Couldn't find a valid native assembly required by {Path.GetFileNameWithoutExtension(peItem.Path)} v{peItem.Version}, checksum 0x{nativeMethodsChecksum.ToString("X8")}." + Environment.NewLine +
+                        missingAssemblies += $"Couldn't find a valid native assembly required by {Path.GetFileNameWithoutExtension(peItem.Path)} v{peItem.Version}, checksum 0x{nativeMethodsChecksum.ToString("X8")}." + Environment.NewLine +
                                         $"This project is referencing {Path.GetFileNameWithoutExtension(peItem.Path)} NuGet package requiring native v{peItem.NativeVersion}." + Environment.NewLine +
                                         $"The connected target does not have support for {Path.GetFileNameWithoutExtension(peItem.Path)}." + Environment.NewLine;
                     }
