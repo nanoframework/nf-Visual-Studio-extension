@@ -65,6 +65,12 @@
                     <StaticResource ResourceKey="{x:Static vsfx:VsResourceKeys.ThemedDialogTreeViewStyleKey}"/>
                 </TreeView.Style>
 
+                <TreeView.Resources>
+                    <!-- Style the inactive selection the same as active -->
+                    <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="{DynamicResource {x:Static SystemColors.HighlightColorKey}}" />
+                    <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightTextBrushKey}" Color="{DynamicResource {x:Static SystemColors.HighlightTextColorKey}}"/>
+                </TreeView.Resources>
+
                 <TreeView.ItemContainerStyle>
                     <Style x:Uid="Style_1" TargetType="{x:Type TreeViewItem}" BasedOn="{StaticResource {x:Static vsfx:VsResourceKeys.ThemedDialogTreeViewItemStyleKey}}">
                         <Setter Property="HeaderTemplate">

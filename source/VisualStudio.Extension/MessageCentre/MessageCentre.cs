@@ -157,8 +157,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
 
                 // Make sure the status bar is not frozen  
-                int frozen;
-                _statusBar.IsFrozen(out frozen);
+                _statusBar.IsFrozen(out int frozen);
 
                 if (frozen != 0)
                 {
@@ -184,8 +183,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 object icon = (short)Constants.SBAI_General;
 
                 // Make sure the status bar is not frozen  
-                int frozen;
-                _statusBar.IsFrozen(out frozen);
+                _statusBar.IsFrozen(out int frozen);
 
                 if (frozen != 0)
                 {

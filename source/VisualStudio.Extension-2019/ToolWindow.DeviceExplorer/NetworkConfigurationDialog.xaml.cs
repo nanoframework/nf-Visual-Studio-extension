@@ -18,6 +18,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
     public partial class NetworkConfigurationDialog : DialogWindow
     {
         private static IPAddress _InvalidIPv4 = new IPAddress(0x0);
+        private DeviceExplorerViewModel DeviceExplorerViewModel => DataContext as DeviceExplorerViewModel;
 
         public NetworkConfigurationDialog(string helpTopic) : base(helpTopic)
         {
@@ -37,7 +38,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         // init controls
         private void InitControls()
         {
-            var networkConfiguration = (DataContext as DeviceExplorerViewModel).DeviceNetworkConfiguration;
+            var networkConfiguration = DeviceExplorerViewModel.DeviceNetworkConfiguration;
 
             // developer note
             // because our IPMaskedTextBox is missing the required properties and events to support
@@ -82,13 +83,13 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
             // wireless configuration/properties
             // get view model property
-            var wifiProfile = (DataContext as DeviceExplorerViewModel).DeviceWireless80211Configuration;
+            var wifiProfile = DeviceExplorerViewModel.DeviceWireless80211Configuration;
 
             // set pass field if it's available from the model
             WiFiPassword.Password = wifiProfile?.Password;
 
             // if there is no valid network interface in the device: enable control for interface type selection
-            if ((DataContext as DeviceExplorerViewModel).DeviceNetworkConfiguration.IsUnknown)
+            if (DeviceExplorerViewModel.DeviceNetworkConfiguration.IsUnknown)
             {
                 InterfaceType.IsEnabled = true;
             }
@@ -105,7 +106,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         private void SaveButton_Click(object sender, System.Windows.RoutedEventArgs e)
         {
             // setup device network configuration block to save
-            var networkConfigurationToSave = (DataContext as DeviceExplorerViewModel).DeviceNetworkConfiguration;
+            var networkConfigurationToSave = DeviceExplorerViewModel.DeviceNetworkConfiguration;
 
             // IPv4 address options
             if(IPv4Automatic.IsChecked.GetValueOrDefault())
@@ -170,25 +171,25 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             }
 
             // Wi-Fi config
-            (DataContext as DeviceExplorerViewModel).DeviceWireless80211Configuration.Password = WiFiPassword.Password;
+            DeviceExplorerViewModel.DeviceWireless80211Configuration.Password = WiFiPassword.Password;
 
-            MessageCentre.StartProgressMessage($"Uploading network configuration to {(DataContext as DeviceExplorerViewModel).SelectedDevice.Description}...");
+            MessageCentre.StartProgressMessage($"Uploading network configuration to {DeviceExplorerViewModel.SelectedDevice.Description}...");
 
             // check if debugger engine exists
-            if ((DataContext as DeviceExplorerViewModel).SelectedDevice.DebugEngine == null)
+            if (DeviceExplorerViewModel.SelectedDevice.DebugEngine == null)
             {
-                (DataContext as DeviceExplorerViewModel).SelectedDevice.CreateDebugEngine();
+                DeviceExplorerViewModel.SelectedDevice.CreateDebugEngine();
             }
 
             // save network configuration to target
-            if ((DataContext as DeviceExplorerViewModel).SelectedDevice.DebugEngine.UpdateDeviceConfiguration(networkConfigurationToSave, 0))
+            if (DeviceExplorerViewModel.SelectedDevice.DebugEngine.UpdateDeviceConfiguration(networkConfigurationToSave, 0))
             {
-                if ((DataContext as DeviceExplorerViewModel).DeviceNetworkConfiguration.InterfaceType == NetworkInterfaceType.Wireless80211)
+                if (DeviceExplorerViewModel.DeviceNetworkConfiguration.InterfaceType == NetworkInterfaceType.Wireless80211)
                 {
                     // save Wi-Fi profile to target
-                    if ((DataContext as DeviceExplorerViewModel).SelectedDevice.DebugEngine.UpdateDeviceConfiguration((DataContext as DeviceExplorerViewModel).DeviceWireless80211Configuration, 0))
+                    if (DeviceExplorerViewModel.SelectedDevice.DebugEngine.UpdateDeviceConfiguration(DeviceExplorerViewModel.DeviceWireless80211Configuration, 0))
                     {
-                        MessageCentre.OutputMessage($"{(DataContext as DeviceExplorerViewModel).SelectedDevice.Description} network configuration updated.");
+                        MessageCentre.OutputMessage($"{DeviceExplorerViewModel.SelectedDevice.Description} network configuration updated.");
                         MessageCentre.StopProgressMessage();
 
                         // close on success
@@ -203,7 +204,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             }
             else
             {
-                MessageCentre.OutputMessage($"Error updating {(DataContext as DeviceExplorerViewModel).SelectedDevice.Description} network configuration.");
+                MessageCentre.OutputMessage($"Error updating {DeviceExplorerViewModel.SelectedDevice.Description} network configuration.");
                 MessageCentre.StopProgressMessage();
             }
         }
