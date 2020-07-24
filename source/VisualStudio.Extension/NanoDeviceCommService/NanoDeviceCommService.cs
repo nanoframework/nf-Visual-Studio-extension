@@ -5,6 +5,7 @@
 
 using nanoFramework.Tools.Debugger;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
@@ -25,9 +26,26 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             {
                 if (_debugClient == null)
                 {
+                    // grab and parse COM port list
+                    List<string> PortList = new List<string>();
+                    
+                    // need to wrap the processing in a try/catch to deal with bad user input/format
+                    try
+                    {
+                        // grab and parse COM port list
+                        if (!string.IsNullOrEmpty(NanoFrameworkPackage.SettingPortBlackList))
+                        {
+                            PortList.AddRange(NanoFrameworkPackage.SettingPortBlackList.Split(';'));
+                        }
+                    }
+                    catch
+                    {
+                        // don't care about bad user input/format/etc 
+                    }
+
                     // create serial instance WITHOUT app associated because we don't care of app life cycle in VS extension
                     // pass the user preference about starting the device watchers, or not
-                    _debugClient = PortBase.CreateInstanceForSerial("", null, !NanoFrameworkPackage.OptionDisableDeviceWatchers, 1000);
+                    _debugClient = PortBase.CreateInstanceForSerial("", null, !NanoFrameworkPackage.OptionDisableDeviceWatchers, PortList);
                 }
 
                 return _debugClient;

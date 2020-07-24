@@ -73,8 +73,28 @@
                 </Grid>
             </TabItem>
 
-            <TabItem Header="General" IsEnabled="False">
-                <Grid/>
+            <TabItem Header="General" IsEnabled="True">
+                <Grid Margin="10,10,10,10">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <Grid Margin="8,10,10,10" Grid.Row="0">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <Label Grid.Row="0" HorizontalAlignment="Left" Content="COM port black list:" ToolTip="Semicolon separated list of COM ports to exclude when searching for nanoDevices." Margin="-7,0,0,0" />
+                        <TextBox x:Name="PortBlackList" Grid.Row="1" Margin="0,0,0,0" HorizontalAlignment="Stretch" LostFocus="PortBlackList_LostFocus" />
+                    </Grid>
+                </Grid>
             </TabItem>
 
         </TabControl>
