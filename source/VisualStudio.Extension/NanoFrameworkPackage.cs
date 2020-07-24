@@ -87,6 +87,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         private const string SETTINGS_GENERATE_DEPLOYMENT_IMAGE_KEY = "GenerateDeploymentImage";
         private const string SETTINGS_INCLUDE_CONFIG_BLOCK_IN_DEPLOYMENT_IMAGE_KEY = "IncludeConfigBlockInDeploymentImage";
         private const string SETTINGS_PATH_OF_FLASH_DUMP_CACHE_IMAGE_KEY = "PathOfFlashDumpCache";
+        private const string SETTINGS_PORT_BLACK_LIST_KEY = "PortBlackList";
 
         private static bool? s_OptionShowInternalErrors;
         /// <summary>
@@ -220,6 +221,33 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 s_instance.UserRegistryRoot.OpenSubKey(EXTENSION_SUBKEY, true).Flush();
 
                 s_SettingPathOfFlashDumpCache = value;
+            }
+        }
+
+        private static string s_SettingPortBlackList = null;
+        /// <summary>
+        /// Setting to store COM port black list.
+        /// The value is persisted per user.
+        /// Default is empty.
+        /// </summary>
+        public static string SettingPortBlackList
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(s_SettingPortBlackList))
+                {
+                    s_SettingPortBlackList = (string)s_instance.UserRegistryRoot.OpenSubKey(EXTENSION_SUBKEY).GetValue(SETTINGS_PORT_BLACK_LIST_KEY);
+                }
+
+                return s_SettingPortBlackList;
+            }
+
+            set
+            {
+                s_instance.UserRegistryRoot.OpenSubKey(EXTENSION_SUBKEY, true).SetValue(SETTINGS_PORT_BLACK_LIST_KEY, value);
+                s_instance.UserRegistryRoot.OpenSubKey(EXTENSION_SUBKEY, true).Flush();
+
+                s_SettingPortBlackList = value;
             }
         }
 

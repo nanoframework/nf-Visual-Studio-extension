@@ -6,6 +6,7 @@
 namespace nanoFramework.Tools.VisualStudio.Extension
 {
     using Microsoft.VisualStudio.PlatformUI;
+    using System.Collections.Generic;
     using System.Net;
     using System.Windows.Controls.Primitives;
     using System.Windows.Forms;
@@ -50,6 +51,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 StoreCacheToUserPath.IsChecked = true;
                 PathOfFlashDumpCache.Text = NanoFrameworkPackage.SettingPathOfFlashDumpCache;
             }
+
+            PortBlackList.Text = NanoFrameworkPackage.SettingPortBlackList;
 
             // OK to add event handlers to controls now
             StoreCacheToUserPath.Checked += StoreCacheLocationChanged_Checked;
@@ -119,6 +122,31 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             {
                 // any other outcome from folder browser dialog doesn't require processing
             }
+        }
+
+        private void PortBlackList_LostFocus(object sender, System.Windows.RoutedEventArgs e)
+        {
+            // store updated setting
+            NanoFrameworkPackage.SettingPortBlackList = PortBlackList.Text;
+
+            // update debug client
+            List<string> PortList = new List<string>();
+
+            // need to wrap the processing in a try/catch to deal with bad user input/format
+            try
+            {
+                // grab and parse COM port list
+                if (!string.IsNullOrEmpty(PortBlackList.Text))
+                {
+                    PortList.AddRange(PortBlackList.Text.Split(';'));
+                }
+            }
+            catch
+            {
+                // don't care about bad user input/format/etc 
+            }
+
+            NanoFrameworkPackage.NanoDeviceCommService.DebugClient.PortBlackList = PortList;
         }
     }
 }
