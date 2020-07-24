@@ -27,7 +27,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 {
                     // create serial instance WITHOUT app associated because we don't care of app life cycle in VS extension
                     // pass the user preference about starting the device watchers, or not
-                    _debugClient = PortBase.CreateInstanceForSerial("", null, !NanoFrameworkPackage.OptionDisableDeviceWatchers);
+                    _debugClient = PortBase.CreateInstanceForSerial("", null, !NanoFrameworkPackage.OptionDisableDeviceWatchers, 1000);
                 }
 
                 return _debugClient;
