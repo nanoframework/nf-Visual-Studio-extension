@@ -1,8 +1,12 @@
 # Changelog
 
-## [v2019.2.1.7](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v2019.2.1.7) (2020-07-24)
+## [v2019.2.2.1](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v2019.2.2.1) (2020-07-24)
 
-[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2017.2.1.1...v2019.2.1.7)
+[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2017.2.1.1...v2019.2.2.1)
+
+**Implemented enhancements:**
+
+- Add support for COM Port black list in Device Explorer [\#507](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/507)
 
 **Updated dependencies and other chores:**
 
@@ -71,6 +75,7 @@
 - Bumps nanoFramework.Tools.Debugger to 1.17.0-preview.4 [\#498](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/498)
 - Bumps nanoFramework.Tools.Debugger to 1.17.0-preview.3 [\#495](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/495)
 - Bumps nanoFramework.Tools.Debugger to 1.17.0-preview.2 [\#494](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/494)
+- Bumps MetadataProcessor.Core to 2.23.6 [\#490](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/490)
 
 ## [v2019.2.0.12](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v2019.2.0.12) (2020-06-03)
 
@@ -113,10 +118,6 @@
 
 - Add resource support for Bitmaps and correct Font namespace [\#488](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/488)
 
-**Updated dependencies and other chores:**
-
-- Bumps MetadataProcessor.Core to 2.23.6 [\#490](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/490)
-
 ## [v2019.2.0.6](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v2019.2.0.6) (2020-05-15)
 
 [Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2017.2.0.6...v2019.2.0.6)
@@ -146,7 +147,6 @@
 **Updated dependencies and other chores:**
 
 - Bumps MetadataProcessor.Core to 2.23.1 [\#485](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/485)
-- Bumps nanoFramework.Tools.Debugger to 1.16.0-preview.15 [\#480](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/480)
 
 ## [v2017.2.0.1](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v2017.2.0.1) (2020-05-05)
 
@@ -156,9 +156,17 @@
 
 [Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2017.1.8.16...v2019.2.0.1)
 
+**Implemented enhancements:**
+
+- Improve debug session start sequence [\#481](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/481)
+
 **Fixed bugs:**
 
 - Various fixes  [\#479](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/479)
+
+**Updated dependencies and other chores:**
+
+- Bumps nanoFramework.Tools.Debugger to 1.16.0-preview.15 [\#480](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/480)
 
 ## [v2017.1.8.16](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v2017.1.8.16) (2020-04-24)
 
@@ -179,10 +187,6 @@
 ## [v2017.1.8.15](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v2017.1.8.15) (2020-04-24)
 
 [Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2017.1.8.14...v2017.1.8.15)
-
-**Implemented enhancements:**
-
-- Improve debug session start sequence [\#481](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/481)
 
 **Updated dependencies and other chores:**
 
@@ -535,6 +539,7 @@
 **Implemented enhancements:**
 
 - Update target framework to 4.7.2 [\#435](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/435)
+- Add AssemblyNativeVersion attribute to class library template [\#434](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/434)
 
 **Updated dependencies and other chores:**
 
@@ -574,7 +579,6 @@
 
 **Implemented enhancements:**
 
-- Add AssemblyNativeVersion attribute to class library template [\#434](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/434)
 - Work to support Interop skeleton [\#430](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/430)
 
 **Updated dependencies and other chores:**
@@ -754,7 +758,6 @@
 **Updated dependencies and other chores:**
 
 - Update debugger library [\#407](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/407)
-- Update project templates to reference mscorlib 1.2.6-preview.16 [\#398](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/398)
 
 ## [v1.2.5.1-VS2019](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v1.2.5.1-VS2019) (2019-09-10)
 
@@ -793,6 +796,7 @@
 
 - Update several rules files [\#402](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/402)
 - Fix project icon not showing on VS project tree [\#401](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/401)
+- Fix deployment issues [\#400](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/400)
 
 ## [v1.2.0.3-VS2017](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v1.2.0.3-VS2017) (2019-07-23)
 
@@ -801,10 +805,6 @@
 ## [v1.2.0.3-VS2019](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v1.2.0.3-VS2019) (2019-07-23)
 
 [Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v1.2.0.1-VS2017...v1.2.0.3-VS2019)
-
-**Fixed bugs:**
-
-- Fix deployment issues [\#400](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/400)
 
 ## [v1.2.0.1-VS2017](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v1.2.0.1-VS2017) (2019-07-23)
 
@@ -823,6 +823,7 @@
 **Updated dependencies and other chores:**
 
 - Update debugger library to 1.3.0-preview.11 [\#399](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/399)
+- Update project templates to reference mscorlib 1.2.6-preview.16 [\#398](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/398)
 - Update debugger lib to 1.2.1-preview.13 [\#395](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/395)
 
 ## [v1.1.0.131-VS2019](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v1.1.0.131-VS2019) (2019-06-21)
