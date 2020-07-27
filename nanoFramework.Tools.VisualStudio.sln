@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27130.2027
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30320.27
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSharp.BlankApplication", "CSharp.BlankApplication\CSharp.BlankApplication.csproj", "{572121BD-E972-4BF7-ABF1-78251DDE1181}"
 EndProject
@@ -40,20 +40,16 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{60B109AE-E582-4ECB-ABB4-B24E07DB87E1}"
 	ProjectSection(SolutionItems) = preProject
 		NuGet.Config = NuGet.Config
-		readme.md = readme.md
+		readme.txt = readme.txt
 		VisualStudio.Extension\version.json = VisualStudio.Extension\version.json
 		VisualStudio.Extension\vs2017-marketplace-overview.md = VisualStudio.Extension\vs2017-marketplace-overview.md
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "metadata-processor", "metadata-processor", "{BF7184F8-4E9A-4264-8C30-294798B36F0D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MetadataProcessor.Core", "..\metadata-processor\source\MetadataProcessor.Core\MetadataProcessor.Core.csproj", "{E32F7D15-2499-440C-8026-4D5EE1C5EC3A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MetadataProcessor.Core", "metadata-processor\source\MetadataProcessor.Core\MetadataProcessor.Core.csproj", "{E32F7D15-2499-440C-8026-4D5EE1C5EC3A}"
 EndProject
 Global
-	GlobalSection(SharedMSBuildProjectFiles) = preSolution
-		..\nf-debugger\source\nanoFramework.Tools.DebugLibrary.Shared\nanoFramework.Tools.DebugLibrary.Net.projitems*{101d57ad-d22f-4905-a992-de15e723f164}*SharedItemsImports = 4
-		..\nf-debugger\source\nanoFramework.Tools.DebugLibrary.Shared\nanoFramework.Tools.DebugLibrary.Net.projitems*{31472cae-4b1a-4ab9-9b2a-8f28dbe01bcf}*SharedItemsImports = 13
-	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Debug|x64 = Debug|x64

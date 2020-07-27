@@ -53,16 +53,16 @@ jobs:
       Write-host "Files changed:"
       $commit.files | % {$_.filename}
 
-      if( ($commit.files.filename -like "*source/CSharp.AssemblyInfoTemplate*") -Or
-          ($commit.files.filename -like "*source/CSharp.BlankApplication*") -Or
-          ($commit.files.filename -like "*source/CSharp.ClassLibrary*") -Or
-          ($commit.files.filename -like "*source/CSharp.ClassTemplate*") -Or
-          ($commit.files.filename -like "*source/CSharp.ResourceTemplate*") -Or
-          ($commit.files.filename -like "*source/Tools.BuildTasks*") -Or
-          ($commit.files.filename -like "*source/Tools.BuildTasks-2019*") -Or
-          ($commit.files.filename -like "*source/Tools.CorHelper*") -Or
-          ($commit.files.filename -like "*source/Tools.MetaDataProcessor*") -Or
-          ($commit.files.filename -like "*source/Tools.Parser*")
+      if( ($commit.files.filename -like "*CSharp.AssemblyInfoTemplate*") -Or
+          ($commit.files.filename -like "*CSharp.BlankApplication*") -Or
+          ($commit.files.filename -like "*CSharp.ClassLibrary*") -Or
+          ($commit.files.filename -like "*CSharp.ClassTemplate*") -Or
+          ($commit.files.filename -like "*CSharp.ResourceTemplate*") -Or
+          ($commit.files.filename -like "*Tools.BuildTasks*") -Or
+          ($commit.files.filename -like "*Tools.BuildTasks-2019*") -Or
+          ($commit.files.filename -like "*Tools.CorHelper*") -Or
+          ($commit.files.filename -like "*Tools.MetaDataProcessor*") -Or
+          ($commit.files.filename -like "*Tools.Parser*")
         )
       {
           # global changes, build both
@@ -71,23 +71,23 @@ jobs:
       }
       else
       {
-        if( $commit.files.filename -like "*source/nanoFramework.Tools.VisualStudio.sln")
+        if( $commit.files.filename -like "*nanoFramework.Tools.VisualStudio.sln")
         {
           # changes here impact VS2017
           echo "##vso[task.setvariable variable=BUILD_VS2017;isOutput=true]true"  
         }
-        if( $commit.files.filename -like "*source/nanoFramework.Tools.VisualStudio-2019.sln")
+        if( $commit.files.filename -like "*nanoFramework.Tools.VisualStudio-2019.sln")
         {
           # changes here impact VS2019
           echo "##vso[task.setvariable variable=BUILD_VS2019;isOutput=true]true"  
         }
-        if( $commit.files.filename -like "*source/VisualStudio.Extension*" )
+        if( $commit.files.filename -like "*VisualStudio.Extension*" )
         {
           # changes here, most likely impact VS2019 too
           echo "##vso[task.setvariable variable=BUILD_VS2017;isOutput=true]true"  
           echo "##vso[task.setvariable variable=BUILD_VS2019;isOutput=true]true"  
         }
-        if( $commit.files.filename -like "*source/VisualStudio.Extension-2019*" )
+        if( $commit.files.filename -like "*VisualStudio.Extension-2019*" )
         {
           # changes here only impact VS2019
           echo "##vso[task.setvariable variable=BUILD_VS2019;isOutput=true]true"
@@ -107,7 +107,7 @@ jobs:
     vmImage: 'VS2017-Win2016'
 
   variables:
-    solution: '**/source/nanoFramework.Tools.VisualStudio.sln'
+    solution: '**/nanoFramework.Tools.VisualStudio.sln'
     buildPlatform: 'Any CPU'
     buildConfiguration: 'Release'
 
@@ -131,7 +131,7 @@ jobs:
     inputs:
       restoreSolution: '$(solution)'
       feedsToUse: config
-      nugetConfigPath: source/NuGet.config
+      nugetConfigPath: NuGet.config
       verbosityRestore: quiet
 
   - task: VSBuild@1
@@ -278,7 +278,7 @@ jobs:
     vmImage: 'windows-2019'
 
   variables:
-    solution: '**/source/nanoFramework.Tools.VisualStudio-2019.sln'
+    solution: '**/nanoFramework.Tools.VisualStudio-2019.sln'
     buildPlatform: 'Any CPU'
     buildConfiguration: 'Release'
 
@@ -302,7 +302,7 @@ jobs:
     inputs:
       restoreSolution: '$(solution)'
       feedsToUse: config
-      nugetConfigPath: source/NuGet.config
+      nugetConfigPath: NuGet.config
       verbosityRestore: quiet
 
   - task: VSBuild@1
