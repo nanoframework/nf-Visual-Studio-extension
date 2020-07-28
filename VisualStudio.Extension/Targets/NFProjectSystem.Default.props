@@ -10,7 +10,6 @@
     <Name>$(MSBuildProjectName)</Name>
   </PropertyGroup>
 
-
   <PropertyGroup Condition="'$(Configuration)'=='Debug'" Label="Configuration">
     <Platform>AnyCPU</Platform>
     <DebugSymbols>true</DebugSymbols>
@@ -21,7 +20,7 @@
   <PropertyGroup Condition="'$(Configuration)'=='Release'" Label="Configuration">
     <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
-    <DebugType>pdbonly</DebugType>
+    <DebugType>portable</DebugType>
     <Optimize>true</Optimize>
     <DefineConstants>TRACE</DefineConstants>
   </PropertyGroup>
