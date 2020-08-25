@@ -1,5 +1,13 @@
 # Changelog
 
+## [v2019.2.2.8](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v2019.2.2.8) (2020-08-25)
+
+[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2017.2.2.5...v2019.2.2.8)
+
+**Implemented enhancements:**
+
+- Expose native assembly checksum in Azure Pipelines [\#511](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/511)
+
 ## [v2017.2.2.5](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v2017.2.2.5) (2020-07-28)
 
 [Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2019.2.2.5...v2017.2.2.5)
@@ -499,6 +507,7 @@
 **Updated dependencies and other chores:**
 
 - Update MDP to v2.22.7 [\#441](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/441)
+- Update NuGet packages [\#436](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/436)
 
 ## [v1.7.0.10-VS2017](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v1.7.0.10-VS2017) (2020-02-27)
 
@@ -560,10 +569,6 @@
 
 - Update target framework to 4.7.2 [\#435](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/435)
 - Add AssemblyNativeVersion attribute to class library template [\#434](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/434)
-
-**Updated dependencies and other chores:**
-
-- Update NuGet packages [\#436](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/436)
 
 ## [v1.7.0.3-VS2019](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v1.7.0.3-VS2019) (2020-02-21)
 
@@ -629,6 +634,10 @@
 
 [Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v1.5.0.2-VS2017...v1.5.0.3-VS2019)
 
+**Updated dependencies and other chores:**
+
+- Update NuGet in task manager to match versions required in VS extension [\#427](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/427)
+
 ## [v1.5.0.2-VS2017](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v1.5.0.2-VS2017) (2020-02-17)
 
 [Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v1.5.0.2-VS2019...v1.5.0.2-VS2017)
@@ -640,10 +649,6 @@
 **Implemented enhancements:**
 
 - Work on project system files [\#426](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/426)
-
-**Updated dependencies and other chores:**
-
-- Update NuGet in task manager to match versions required in VS extension [\#427](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/427)
 
 ## [v1.5.0.1-VS2017](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v1.5.0.1-VS2017) (2020-02-14)
 
@@ -690,6 +695,7 @@
 **Updated dependencies and other chores:**
 
 - Update MDP to 2.10.11 [\#421](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/421)
+- Update debugger library to 1.6.0-preview.11 [\#419](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/419)
 
 ## [v1.4.0.2-VS2017](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v1.4.0.2-VS2017) (2020-02-10)
 
@@ -718,7 +724,6 @@
 
 **Updated dependencies and other chores:**
 
-- Update debugger library to 1.6.0-preview.11 [\#419](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/419)
 - Update MDP task [\#417](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/417)
 - Replace MDP output option with Verbose [\#414](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/414)
 
@@ -848,6 +853,7 @@
 - Update debugger library to 1.3.0-preview.11 [\#399](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/399)
 - Update project templates to reference mscorlib 1.2.6-preview.16 [\#398](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/398)
 - Update debugger lib to 1.2.1-preview.13 [\#395](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/395)
+- Update ref to mscorlib to 1.2.6-preview.1 [\#392](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/392)
 
 ## [v1.1.0.31-VS2017](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v1.1.0.31-VS2017) (2019-06-21)
 
@@ -864,7 +870,6 @@
 
 **Updated dependencies and other chores:**
 
-- Update ref to mscorlib to 1.2.6-preview.1 [\#392](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/392)
 - Update medata processor to 1.12.5 [\#390](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/390)
 - Update debugger library [\#389](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/389)
 - Update debugger library [\#388](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/388)
