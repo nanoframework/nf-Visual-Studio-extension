@@ -100,6 +100,9 @@ namespace nanoFramework.Tools
         [Output]
         public ITaskItem[] FilesWritten { get { return _filesWritten.ToArray(); } }
 
+        [Output]
+        public ITaskItem NativeChecksum { get { return new TaskItem(_nativeChecksum); } }
+
         #endregion
 
         #region internal fields for MetadataProcessor
@@ -109,6 +112,7 @@ namespace nanoFramework.Tools
         private readonly IDictionary<string, string> _loadHints =
             new Dictionary<string, string>(StringComparer.Ordinal);
         private readonly List<string> _classNamesToExclude = new List<string>();
+        private string _nativeChecksum = "";
 
         #endregion
 
@@ -355,6 +359,9 @@ namespace nanoFramework.Tools
 
                 // set environment variable with assembly native checksum
                 Environment.SetEnvironmentVariable("AssemblyNativeChecksum", _assemblyBuilder.GetNativeChecksum(), EnvironmentVariableTarget.Process);
+
+                // store assembly native checksum
+                _nativeChecksum = _assemblyBuilder.GetNativeChecksum();
             }
             catch (ArgumentException ex)
             {

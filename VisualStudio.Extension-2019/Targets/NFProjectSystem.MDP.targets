@@ -238,9 +238,13 @@
         SkeletonWithoutInterop="$(NFMDP_STUB_SkeletonWithoutInterop)"
         ImportResources="@(NanoFramework_Resources)">
       <Output TaskParameter="FilesWritten" ItemName="FileWrites" />
+      <Output TaskParameter="NativeChecksum" PropertyName="NativeChecksum" />
     </MetaDataProcessorTask>
 
     <CallTarget Targets="NanoGenerateBinaryOutput"/>
+
+    <!--Output native checksum to Azure Pipelines var (only usefull on Azure)-->
+    <Message Importance="high" Text="##vso[task.setvariable variable=NativeAssemblyChecksum]$(NativeChecksum)" Condition="'$(SYSTEM_TEAMPROJECTID)' != ''" />
 
   </Target>
 
@@ -431,7 +435,11 @@
         ExcludeClassByName="@(NFMDP_PE_ExcludeClassByName)"
         Condition="'$(NFMDP_GENERATE_STUBS)' == 'false'">
       <Output TaskParameter="FilesWritten" ItemName="FileWrites"/>
+      <Output TaskParameter="NativeChecksum" PropertyName="NativeChecksum" />
     </MetaDataProcessorTask>
+
+    <!--Output native checksum to Azure Pipelines var (only usefull on Azure)-->
+    <Message Importance="high" Text="##vso[task.setvariable variable=NativeAssemblyChecksum]$(NativeChecksum)" Condition="'$(NFMDP_GENERATE_STUBS)' == 'false' AND '$(SYSTEM_TEAMPROJECTID)' != ''" />
 
     <Message Text="Distilling assemblies to nanoCLR PE files along with stubs and skeleton files..." Condition="'$(NFMDP_GENERATE_STUBS)' == 'true'"/>
     <!-- Create STUB file -->
@@ -460,7 +468,11 @@
         ExcludeClassByName="@(NFMDP_PE_ExcludeClassByName)"
         Condition="'$(NFMDP_GENERATE_STUBS)' == 'true'">
       <Output TaskParameter="FilesWritten" ItemName="FileWrites"/>
+      <Output TaskParameter="NativeChecksum" PropertyName="NativeChecksum" />
     </MetaDataProcessorTask>
+
+    <!--Output native checksum to Azure Pipelines var (only usefull on Azure)-->
+    <Message Importance="high" Text="##vso[task.setvariable variable=NativeAssemblyChecksum]$(NativeChecksum)" Condition="'$(NFMDP_GENERATE_STUBS)' == 'true' AND '$(SYSTEM_TEAMPROJECTID)' != ''"/>
 
     <!-- Copy files (dll, pe, pdb and pdbx) to ouput directory -->
     <CallTarget Targets="CopyFilesToOutputDirectory" />
@@ -530,7 +542,11 @@
         LoadDatabase="@(NFMDP_DAT_LoadDatabase)"
         ExcludeClassByName="@(NFMDP_DAT_ExcludeClassByName)">
       <Output TaskParameter="FilesWritten" ItemName="FileWrites"/>
+      <Output TaskParameter="NativeChecksum" PropertyName="NativeChecksum" />
     </MetaDataProcessorTask>
+
+    <!--Output native checksum to Azure Pipelines var (only usefull on Azure)-->
+    <Message Importance="high" Text="##vso[task.setvariable variable=NativeAssemblyChecksum]$(NativeChecksum)" Condition="'$(SYSTEM_TEAMPROJECTID)' != ''" />
 
   </Target>
 
