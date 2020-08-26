@@ -203,7 +203,7 @@ jobs:
 
               Vsix-PublishToGallery $file
           }
-    condition: and( succeeded(), ne(variables['system.pullrequest.isfork'], true), ne(variables['Build.Reason'], 'PullRequest') )
+    condition: and( succeeded(), ne(variables['system.pullrequest.isfork'], true), eq(variables['System.PullRequest.PullRequestId'], '') )
     displayName: Upload vsix to Open VSIX Gallery
 
   - powershell: |
@@ -245,7 +245,7 @@ jobs:
       githubEditRelease: true
       githubDeleteEmptyTag: true
       githubReleaseAsset: '$(Build.ArtifactStagingDirectory)/*.vsix'
-    condition: and( succeeded(), ne(variables['Build.Reason'], 'PullRequest'), not( startsWith(variables['Build.SourceBranch'], 'refs/tags/v') ) )
+    condition: and( succeeded(), eq(variables['System.PullRequest.PullRequestId'], ''), not( startsWith(variables['Build.SourceBranch'], 'refs/tags/v') ) )
     displayName: Create/Update GitHub release
 
   # create or update GitHub release ON tags from release or master branches
@@ -374,7 +374,7 @@ jobs:
 
               Vsix-PublishToGallery $file
           }
-    condition: and( succeeded(), ne(variables['system.pullrequest.isfork'], true), ne(variables['Build.Reason'], 'PullRequest') )
+    condition: and( succeeded(), ne(variables['system.pullrequest.isfork'], true), eq(variables['System.PullRequest.PullRequestId'], '') )
     displayName: Upload vsix to Open VSIX Gallery
 
   - powershell: |
@@ -416,7 +416,7 @@ jobs:
       githubEditRelease: true
       githubDeleteEmptyTag: true
       githubReleaseAsset: '$(Build.ArtifactStagingDirectory)/*.vsix'
-    condition: and( succeeded(), ne(variables['Build.Reason'], 'PullRequest'), not( startsWith(variables['Build.SourceBranch'], 'refs/tags/v') ) )
+    condition: and( succeeded(), eq(variables['System.PullRequest.PullRequestId'], ''), not( startsWith(variables['Build.SourceBranch'], 'refs/tags/v') ) )
     displayName: Create/Update GitHub release
 
   # create or update GitHub release ON tags from release or master branches
@@ -445,7 +445,7 @@ jobs:
   - Get_Build_Options  
   - VS2017
   - VS2019
-  condition: and( succeeded('Get_Build_Options'), succeeded('VS2017'), succeeded('VS2019'), ne(variables['Build.Reason'], 'PullRequest') )
+  condition: and( succeeded('Get_Build_Options'), succeeded('VS2017'), succeeded('VS2019'), eq(variables['System.PullRequest.PullRequestId'], '') )
 
   variables:
     myBuildVS2017: $[ dependencies.Get_Build_Options.outputs['BuildOptions.BUILD_VS2017'] ]
@@ -469,7 +469,7 @@ jobs:
     inputs:
       versionSpec: '>= 2.7'
       addToPath: true
-    condition: and( succeeded(), ne(variables['Build.Reason'], 'PullRequest') )
+    condition: and( succeeded(), eq(variables['System.PullRequest.PullRequestId'], '') )
     displayName: Setup Ruby
 
   # install github_changelog_generator
@@ -482,14 +482,14 @@ jobs:
   - powershell: |
         # need to call it passing both cache options with full path otherwise it won't work
         github_changelog_generator --token $(GitHubToken) --cache-log  $env:AGENT_TEMPDIRECTORY\github-changelog-logger.log --cache-file $env:AGENT_TEMPDIRECTORY\github-changelog-http-cache --since-tag v1.1.0.101-VS2019 --output CHANGELOG-VS2019.md
-    condition: and( succeeded(), ne(variables['Build.Reason'], 'PullRequest'), not( startsWith(variables['Build.SourceBranch'], 'refs/tags/v') ), or( eq(variables['Build.SourceBranchName'], 'master'), contains(variables['Build.SourceBranchName'], 'release') ), or( eq( variables['myBuildVS2019'], true ), eq(variables['BUILD_VS2019'], 'true') ) )
+    condition: and( succeeded(), eq(variables['System.PullRequest.PullRequestId'], ''), not( startsWith(variables['Build.SourceBranch'], 'refs/tags/v') ), or( eq(variables['Build.SourceBranchName'], 'master'), contains(variables['Build.SourceBranchName'], 'release') ), or( eq( variables['myBuildVS2019'], true ), eq(variables['BUILD_VS2019'], 'true') ) )
     displayName: Generate VS2019 change log
 
   # generate VS2019 change log including future version
   - powershell: |
         # need to call it passing both cache options with full path otherwise it won't work
         github_changelog_generator --token $(GitHubToken) --cache-log  $env:AGENT_TEMPDIRECTORY\github-changelog-logger.log --cache-file $env:AGENT_TEMPDIRECTORY\github-changelog-http-cache --since-tag v1.1.0.101-VS2019 --future-release v$(MY_VS2019_VERSION) --output CHANGELOG-VS2019.md
-    condition: and( succeeded(), ne(variables['Build.Reason'], 'PullRequest'), not( startsWith(variables['Build.SourceBranch'], 'refs/tags/v') ), not( or( eq(variables['Build.SourceBranchName'], 'master'), contains(variables['Build.SourceBranchName'], 'release') ) ), or( eq( variables['myBuildVS2019'], true ), eq(variables['BUILD_VS2019'], 'true') ) )
+    condition: and( succeeded(), eq(variables['System.PullRequest.PullRequestId'], ''), not( startsWith(variables['Build.SourceBranch'], 'refs/tags/v') ), not( or( eq(variables['Build.SourceBranchName'], 'master'), contains(variables['Build.SourceBranchName'], 'release') ) ), or( eq( variables['myBuildVS2019'], true ), eq(variables['BUILD_VS2019'], 'true') ) )
     displayName: Generate VS2019 change log
 
   # copy VS2019 change log to artifacts directory
@@ -498,21 +498,21 @@ jobs:
       SourceFolder: '$(System.DefaultWorkingDirectory)'
       Contents: 'CHANGELOG-VS2019.md'
       TargetFolder: '$(Build.ArtifactStagingDirectory)'
-    condition: and( succeeded(), ne(variables['Build.Reason'], 'PullRequest'), not( startsWith(variables['Build.SourceBranch'], 'refs/tags/v') ), or( eq( variables['myBuildVS2019'], true ), eq(variables['BUILD_VS2019'], 'true') ) )
+    condition: and( succeeded(), eq(variables['System.PullRequest.PullRequestId'], ''), not( startsWith(variables['Build.SourceBranch'], 'refs/tags/v') ), or( eq( variables['myBuildVS2019'], true ), eq(variables['BUILD_VS2019'], 'true') ) )
     displayName: Copy Changelog
 
   # generate VS2017 change log
   - powershell: |
         # need to call it passing both cache options with full path otherwise it won't work
         github_changelog_generator --token $(GitHubToken) --cache-log  $env:AGENT_TEMPDIRECTORY\github-changelog-logger.log --cache-file $env:AGENT_TEMPDIRECTORY\github-changelog-http-cache --output CHANGELOG-VS2017.md
-    condition: and( succeeded(), ne(variables['Build.Reason'], 'PullRequest'), not( startsWith(variables['Build.SourceBranch'], 'refs/tags/v') ), or( eq(variables['Build.SourceBranchName'], 'master'), contains(variables['Build.SourceBranchName'], 'release') ), or( eq( variables['myBuildVS2017'], true ), eq(variables['BUILD_VS2017'], 'true') ) )
+    condition: and( succeeded(), eq(variables['System.PullRequest.PullRequestId'], ''), not( startsWith(variables['Build.SourceBranch'], 'refs/tags/v') ), or( eq(variables['Build.SourceBranchName'], 'master'), contains(variables['Build.SourceBranchName'], 'release') ), or( eq( variables['myBuildVS2017'], true ), eq(variables['BUILD_VS2017'], 'true') ) )
     displayName: Generate VS2017 change log
 
   # generate VS2017 change log including future version
   - powershell: |
         # need to call it passing both cache options with full path otherwise it won't work
         github_changelog_generator --token $(GitHubToken) --cache-log  $env:AGENT_TEMPDIRECTORY\github-changelog-logger.log --cache-file $env:AGENT_TEMPDIRECTORY\github-changelog-http-cache --future-release v$(MY_VS2017_VERSION) --output CHANGELOG-VS2017.md
-    condition: and( succeeded(), ne(variables['Build.Reason'], 'PullRequest'), not( startsWith(variables['Build.SourceBranch'], 'refs/tags/v') ), not( or( eq(variables['Build.SourceBranchName'], 'master'), contains(variables['Build.SourceBranchName'], 'release') ) ), or( eq( variables['myBuildVS2017'], true ), eq(variables['BUILD_VS2017'], 'true') ) )
+    condition: and( succeeded(), eq(variables['System.PullRequest.PullRequestId'], ''), not( startsWith(variables['Build.SourceBranch'], 'refs/tags/v') ), not( or( eq(variables['Build.SourceBranchName'], 'master'), contains(variables['Build.SourceBranchName'], 'release') ) ), or( eq( variables['myBuildVS2017'], true ), eq(variables['BUILD_VS2017'], 'true') ) )
     displayName: Generate VS2017 change log
 
   # copy VS2017 change log to artifacts directory
@@ -521,7 +521,7 @@ jobs:
       SourceFolder: '$(System.DefaultWorkingDirectory)'
       Contents: 'CHANGELOG-VS2017.md'
       TargetFolder: '$(Build.ArtifactStagingDirectory)'
-    condition: and( succeeded(), ne(variables['Build.Reason'], 'PullRequest'), not( startsWith(variables['Build.SourceBranch'], 'refs/tags/v') ), or( eq( variables['myBuildVS2017'], true ), eq(variables['BUILD_VS2017'], 'true') ) )
+    condition: and( succeeded(), eq(variables['System.PullRequest.PullRequestId'], ''), not( startsWith(variables['Build.SourceBranch'], 'refs/tags/v') ), or( eq( variables['myBuildVS2017'], true ), eq(variables['BUILD_VS2017'], 'true') ) )
     displayName: Copy VS2017 Changelog
 
   # commit VS2017 changelog
@@ -532,7 +532,7 @@ jobs:
             git add CHANGELOG-VS2017.md
             git commit -m "Update CHANGELOG for VS2017 v$env:MY_VS2017_VERSION" -m"***NO_CI***"
 
-    condition: and( succeeded(), ne(variables['Build.Reason'], 'PullRequest'), not( startsWith(variables['Build.SourceBranch'], 'refs/tags/v') ), or( eq( variables['myBuildVS2017'], true ), eq(variables['BUILD_VS2017'], 'true') ) )
+    condition: and( succeeded(), eq(variables['System.PullRequest.PullRequestId'], ''), not( startsWith(variables['Build.SourceBranch'], 'refs/tags/v') ), or( eq( variables['myBuildVS2017'], true ), eq(variables['BUILD_VS2017'], 'true') ) )
     displayName: Commit VS2017 changelog
 
   - task: CopyFiles@1
@@ -573,7 +573,7 @@ jobs:
             git add CHANGELOG-VS2019.md
             git commit -m "Update CHANGELOG for VS2019 v$env:MY_VS2019_VERSION" -m"***NO_CI***"
 
-    condition: and( succeeded(), ne(variables['Build.Reason'], 'PullRequest'), not( startsWith(variables['Build.SourceBranch'], 'refs/tags/v') ), or( eq( variables['myBuildVS2019'], true ), eq(variables['BUILD_VS2019'], 'true') ) )
+    condition: and( succeeded(), eq(variables['System.PullRequest.PullRequestId'], ''), not( startsWith(variables['Build.SourceBranch'], 'refs/tags/v') ), or( eq( variables['myBuildVS2019'], true ), eq(variables['BUILD_VS2019'], 'true') ) )
     displayName: Commit VS2019 changelog
 
   # push changelogs to GitHub repo
@@ -590,5 +590,5 @@ jobs:
 
             git -c http.extraheader="AUTHORIZATION: $auth" push origin "HEAD:$(Build.SourceBranchName)"
 
-    condition: and( succeeded(), ne(variables['Build.Reason'], 'PullRequest'), not( startsWith(variables['Build.SourceBranch'], 'refs/tags/v') ) )
+    condition: and( succeeded(), eq(variables['System.PullRequest.PullRequestId'], ''), not( startsWith(variables['Build.SourceBranch'], 'refs/tags/v') ) )
     displayName: Push changelogs to GitHub
