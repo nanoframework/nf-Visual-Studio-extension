@@ -1,4 +1,4 @@
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/nanoframework/Home/blob/master/LICENSE) [![#yourfirstpr](https://img.shields.io/badge/first--timers--only-friendly-blue.svg)](https://github.com/nanoframework/Home/blob/master/CONTRIBUTING.md) [![Discord](https://img.shields.io/discord/478725473862549535.svg)](https://discord.gg/gCyBu8T)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE) [![#yourfirstpr](https://img.shields.io/badge/first--timers--only-friendly-blue.svg)](https://github.com/nanoframework/Home/blob/master/CONTRIBUTING.md) [![Discord](https://img.shields.io/discord/478725473862549535.svg)](https://discord.gg/gCyBu8T)
 
 ![nanoFramework logo](https://github.com/nanoframework/Home/blob/master/resources/logo/nanoFramework-repo-logo.png)
 
@@ -42,7 +42,7 @@ The icons used in the extension are courtesy of [Icons8](https://icons8.com). Th
 
 ## License
 
-The **nanoFramework** Visual Studio extension and associated tools are licensed under the [Apache 2.0 license](http://www.apache.org/licenses/LICENSE-2.0).
+The **nanoFramework** Visual Studio extension and associated tools are licensed under the [MIT license](LICENSE.md).
 
 ## Code of Conduct
 
