@@ -9,8 +9,10 @@ namespace nanoFramework.Tools.VisualStudio.Extension
     using nanoFramework.Tools.Debugger;
     using nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel;
     using System;
+    using System.IO;
     using System.Linq;
     using System.Net;
+    using System.Windows.Forms;
 
     /// <summary>
     /// Interaction logic for DeviceExplorerControl.
@@ -93,6 +95,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             {
                 InterfaceType.IsEnabled = true;
             }
+
+            // clear CA root certificate
+            DeviceExplorerViewModel.CaCertificateBundle = null;
 
             // set focus on cancel button
             CancelButton.Focus();
@@ -190,22 +195,90 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     if (DeviceExplorerViewModel.SelectedDevice.DebugEngine.UpdateDeviceConfiguration(DeviceExplorerViewModel.DeviceWireless80211Configuration, 0))
                     {
                         MessageCentre.OutputMessage($"{DeviceExplorerViewModel.SelectedDevice.Description} network configuration updated.");
+                    }
+                    else
+                    {
+                        MessageCentre.OutputMessage($"Error updating {DeviceExplorerViewModel.SelectedDevice.Description} network configuration.");
                         MessageCentre.StopProgressMessage();
 
-                        // close on success
-                        Close();
+                        return;
                     }
-                }
-                else
-                {
-                    // close on success
-                    Close();
                 }
             }
             else
             {
                 MessageCentre.OutputMessage($"Error updating {DeviceExplorerViewModel.SelectedDevice.Description} network configuration.");
                 MessageCentre.StopProgressMessage();
+
+                return;
+            }
+
+            // is there a CA certificate bundle to upload?
+            if(DeviceExplorerViewModel.CaCertificateBundle != null)
+            {
+                MessageCentre.StartProgressMessage($"Uploading Root CA file to {(DataContext as DeviceExplorerViewModel).SelectedDevice.Description}...");
+
+                // save Root CA file to target
+                // at position 0
+                if (!DeviceExplorerViewModel.SelectedDevice.DebugEngine.UpdateDeviceConfiguration(DeviceExplorerViewModel.CaCertificateBundle, 0))
+                {
+                    MessageCentre.OutputMessage($"Error uploading Root CA file to {(DataContext as DeviceExplorerViewModel).SelectedDevice.Description}.");
+                    MessageCentre.StopProgressMessage();
+
+                    return;
+                }
+            }
+
+            // stop progress message
+            MessageCentre.StopProgressMessage();
+
+            // close on success
+            Close();
+        }
+
+        private void ShowShowRootCAFilePicker_Click(object sender, System.Windows.RoutedEventArgs e)
+        {
+            var openFileDialog = new OpenFileDialog
+            {
+                Filter = "Certificate Files (*.crt;*.pem;*.der)|*.crt;*.pem;*.der|All files (*.*)|*.*",
+                FilterIndex = 1,
+                RestoreDirectory = true
+            };
+
+            // show dialog
+            DialogResult result = openFileDialog.ShowDialog();
+
+            if (result == System.Windows.Forms.DialogResult.OK && !string.IsNullOrWhiteSpace(openFileDialog.FileName))
+            {
+                // looks like we have a valid path
+
+                DeviceConfiguration.X509CaRootBundleProperties rootCaFile = new DeviceConfiguration.X509CaRootBundleProperties();
+
+                // read file
+                try
+                {
+                    MessageCentre.InternalErrorMessage($"Opening certificate file: {openFileDialog.FileName}");
+
+                    using (FileStream binFile = new FileStream(openFileDialog.FileName, FileMode.Open))
+                    {
+                        rootCaFile.Certificate = new byte[binFile.Length];
+                        binFile.Read(rootCaFile.Certificate, 0, (int)binFile.Length);
+                        rootCaFile.CertificateSize = (uint)binFile.Length;
+                    }
+
+                    // store CA certificate
+                    DeviceExplorerViewModel.CaCertificateBundle = rootCaFile;
+                }
+                catch(Exception ex)
+                {
+                    MessageCentre.OutputMessage($"Error reading Root CA file: {ex.Message}");
+
+                    MessageCentre.InternalErrorMessage($"Error reading Root CA file: {ex.Message} \r\n { ex.StackTrace }");
+                }
+            }
+            else
+            {
+                // any other outcome from folder browser dialog doesn't require processing
             }
         }
     }
