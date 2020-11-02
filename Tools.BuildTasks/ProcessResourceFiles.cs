@@ -873,9 +873,7 @@ namespace nanoFramework.Tools
             private static ResourceTypeDescription[] typeDescriptions = new ResourceTypeDescription[]
                 {
                     null, //RESOURCE_Invalid
-                    // TODO not supported, see issue https://github.com/nanoframework/Home/issues/120
                     new ResourceTypeDescription(NanoResourceFile.ResourceHeader.RESOURCE_Bitmap, "GetBitmap", "nanoFramework.UI.Bitmap", "BitmapResources"),
-                    // TODO not supported, see issue https://github.com/nanoframework/Home/issues/121
                     new ResourceTypeDescription(NanoResourceFile.ResourceHeader.RESOURCE_Font, "GetFont", "nanoFramework.UI.Font", "FontResources"),
                     new ResourceTypeDescription(NanoResourceFile.ResourceHeader.RESOURCE_String, "GetString", "System.String", "StringResources"),
                     new ResourceTypeDescription(NanoResourceFile.ResourceHeader.RESOURCE_Binary, "GetBytes", "System.Byte[]", "BinaryResources"),
@@ -894,8 +892,10 @@ namespace nanoFramework.Tools
             public static Entry CreateEntry(string name, object value, string defaultNamespace, string defaultDeclaringClass)
             {
                 string stringValue = value as string;
-                System.Drawing.Bitmap bitmapValue = value as System.Drawing.Bitmap;
+                Bitmap bitmapValue = value as Bitmap;
+                Icon iconValue = value as Icon;
                 byte[] rawValue = value as byte[];
+
                 Entry entry = null;
 
                 if (stringValue != null)
@@ -904,21 +904,67 @@ namespace nanoFramework.Tools
                 }
                 else if (bitmapValue != null)
                 {
-                    entry = new BitmapEntry(name, bitmapValue);
+                    // validate supported BMP formats
+                    if (
+                        bitmapValue.RawFormat.Equals(ImageFormat.Jpeg) ||
+                        bitmapValue.RawFormat.Equals(ImageFormat.Gif) ||
+                        bitmapValue.RawFormat.Equals(ImageFormat.Bmp))
+                    {
+                        entry = new BitmapEntry(name, bitmapValue);
+                    }
+                    else
+                    {
+                        // BMP format not supported 
+                        // read raw content so it can be saved as a binary entry resource (byte[])
+                        using (MemoryStream stream = new MemoryStream())
+                        {
+                            bitmapValue.Save(stream, bitmapValue.RawFormat);
+                            stream.Capacity = (int)stream.Length;
+
+                            entry = new BinaryEntry(name, stream.GetBuffer());
+                        }
+                    }
                 }
+                else if (iconValue != null)
+                {
+                    // this is an ICO, treat as a binary resource (byte[])
+                    using (MemoryStream stream = new MemoryStream())
+                    {
+                        // save to rawValue as byte[]
+                        iconValue.Save(stream);
+                        stream.Capacity = (int)stream.Length;
+
+                        entry = new BinaryEntry(name, stream.GetBuffer());
+                    }
+                }
+
                 if (rawValue != null)
                 {
                     entry = NanoResourcesEntry.TryCreateNanoResourcesEntry(name, rawValue);
+
                     if (entry == null)
                     {
                         // Try to create a bitmap from byte[]
-                        // If it doesn't contain a bmp format(exception) then create BinaryEntry
+                        // If it doesn't contain a BMP format (will throw an exception) then create BinaryEntry
                         using (var ms = new MemoryStream(rawValue))
                         {
                             try
                             {
                                 Bitmap bmp = new Bitmap(ms);
-                                entry = new BitmapEntry(name, bmp);
+
+                                // validate supported formats
+                                if (
+                                    bmp.RawFormat.Equals(ImageFormat.Jpeg) ||
+                                    bmp.RawFormat.Equals(ImageFormat.Gif) ||
+                                    bmp.RawFormat.Equals(ImageFormat.Bmp))
+                                {
+                                    entry = new BitmapEntry(name, bmp);
+                                }
+                                else
+                                {
+                                    // bitmap image format not supported 
+                                    throw new NotSupportedException();
+                                }
                             }
                             catch(Exception) 
                             {
@@ -945,7 +991,7 @@ namespace nanoFramework.Tools
 
                     if (!string.IsNullOrEmpty(defaultDeclaringClass))
                     {
-                        entry.ClassName = string.Format("{0}+{1}", defaultDeclaringClass, entry.ClassName);
+                        entry.ClassName = $"{defaultDeclaringClass}+{entry.ClassName}";
                     }
                 }
 
@@ -1318,7 +1364,7 @@ namespace nanoFramework.Tools
                         formatDst = PixelFormat.Format16bppRgb565;
                         break;
                     default:
-                        throw new NotSupportedException(string.Format("PixelFormat of '{0}' resource not supported", Name));
+                        throw new NotSupportedException($"PixelFormat ({bitmap.PixelFormat.ToString()}) of '{Name}' resource not supported. Only 1bpp and 16bpp.");
                 }
 
                 //turn bitmap data into a form we can use.
