@@ -14,9 +14,14 @@ namespace nanoFramework.Tools.Utilities
     {
         public static void WaitForDebuggerIfEnabled(string varName, int timeoutSeconds = 30)
         {
+
+            // this wait should be only available on debug build
+            // to prevent unwanted wait on VS in machines where the variable is present
+#if DEBUG
             TimeSpan waitForDebugToAttach = TimeSpan.FromSeconds(timeoutSeconds);
 
-            var debugEnabled = Environment.GetEnvironmentVariable(varName);
+            var debugEnabled = Environment.GetEnvironmentVariable(varName, EnvironmentVariableTarget.User);
+
             if (!string.IsNullOrEmpty(debugEnabled) && debugEnabled.Equals("1", StringComparison.Ordinal))
             {
                 Console.WriteLine($"nanoFramework Metadata Processor msbuild instrumentation task debugging is enabled. Waiting {timeoutSeconds} seconds for debugger attachment...");
@@ -36,6 +41,7 @@ namespace nanoFramework.Tools.Utilities
 
                 Debugger.Break();
             }
+#endif
         }
     }
 }
