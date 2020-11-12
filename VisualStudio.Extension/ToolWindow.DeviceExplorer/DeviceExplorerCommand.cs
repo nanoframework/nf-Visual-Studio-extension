@@ -56,7 +56,10 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         public const int PingDeviceCommandID = 0x0210;
         public const int DeviceCapabilitiesID = 0x0220;
         public const int DeviceEraseID = 0x0230;
-        public const int RebootID = 0x0240;
+        public const int RebooMenuGroupID = 0x0240;
+        public const int RebootClrID = 0x0242;
+        public const int RebootNanoBooterID = 0x0244;
+        public const int RebootBootloaderID = 0x0246;
         public const int NetworkConfigID = 0x0250;
 
         // 2nd group
@@ -160,12 +163,30 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             menuItem.Visible = true;
             menuCommandService.AddCommand(menuItem);
 
-            // Reboot
-            toolbarButtonCommandId = GenerateCommandID(RebootID);
+            // Reboot Menu Group
+            toolbarButtonCommandId = GenerateCommandID(RebooMenuGroupID);
             menuItem = new MenuCommand(new EventHandler(
                 RebootCommandHandler), toolbarButtonCommandId);
             menuItem.Enabled = false;
             menuItem.Visible = true;
+            menuCommandService.AddCommand(menuItem);
+
+            // Reboot CLR
+            toolbarButtonCommandId = GenerateCommandID(RebootClrID);
+            menuItem = new MenuCommand(new EventHandler(
+                RebootCommandHandler), toolbarButtonCommandId);
+            menuCommandService.AddCommand(menuItem);
+
+            // Reboot nanoBooter
+            toolbarButtonCommandId = GenerateCommandID(RebootNanoBooterID);
+            menuItem = new MenuCommand(new EventHandler(
+                RebootCommandHandler), toolbarButtonCommandId);
+            menuCommandService.AddCommand(menuItem);
+
+            // Reboot bootloader
+            toolbarButtonCommandId = GenerateCommandID(RebootBootloaderID);
+            menuItem = new MenuCommand(new EventHandler(
+                RebootCommandHandler), toolbarButtonCommandId);
             menuCommandService.AddCommand(menuItem);
 
             // NetworkConfig
@@ -711,6 +732,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         NanoDeviceCommService.Device.CreateDebugEngine();
                     }
 
+                    var idCommand = (sender as MenuCommand).CommandID.ID;
+
                     // store the description
                     var previousSelectedDeviceDescription = NanoDeviceCommService.Device.Description;
 
@@ -722,12 +745,45 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                             // reset the hash for the connected device so the deployment information can be refreshed, if and when requested
                             ViewModelLocator.DeviceExplorer.LastDeviceConnectedHash = 0;
 
-                            MessageCentre.OutputMessage($"Sending reboot command to {previousSelectedDeviceDescription}.");
+                            // set reboot option according to the button that was clicked
+                            RebootOptions rebootOption = RebootOptions.NormalReboot;
 
-                            NanoDeviceCommService.Device.DebugEngine.RebootDevice(RebootOptions.NormalReboot);
+                            if (idCommand == GenerateCommandID(RebooMenuGroupID).ID)
+                            {
+                                // user clicked the "reboot group", let's choose the default (same as expected) reboot option
+                                if (NanoDeviceCommService.Device.DebugEngine.IsConnectedTonanoCLR)
+                                {
+                                    // reboot CLR
+                                    rebootOption = RebootOptions.ClrOnly;
+                                }
+                                else
+                                {
+                                    // reboot normally
+                                    rebootOption = RebootOptions.NormalReboot;
+                                }
+                            }
+                            else if (idCommand == GenerateCommandID(RebootClrID).ID)
+                            {
+                                rebootOption = RebootOptions.ClrOnly;
+                            }
+                            else if (idCommand == GenerateCommandID(RebootNanoBooterID).ID)
+                            {
+                                rebootOption = RebootOptions.EnterNanoBooter;
+                            }
+                            else if (idCommand == GenerateCommandID(RebootBootloaderID).ID)
+                            {
+                                rebootOption = RebootOptions.EnterProprietaryBooter;
+                            }
+
+                            MessageCentre.OutputMessage($"Sending reboot command to {previousSelectedDeviceDescription}.");
+ 
+                            NanoDeviceCommService.Device.DebugEngine.RebootDevice(rebootOption);
 
                             // yield to give the UI thread a chance to respond to user input
                             await Task.Yield();
+
+                            // reset property to force that device capabilities are retrieved on next connection
+                            ViewModelLocator.DeviceExplorer.LastDeviceConnectedHash = 0;
                         }
                         catch
                         {
@@ -986,8 +1042,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         menuCommandService.FindCommand(GenerateCommandID(DeviceEraseID)).Enabled = true;
                         // enable network config button
                         menuCommandService.FindCommand(GenerateCommandID(NetworkConfigID)).Enabled = true;
-                        // enable reboot button
-                        menuCommandService.FindCommand(GenerateCommandID(RebootID)).Enabled = true;
+                        // enable reboot menu group
+                        menuCommandService.FindCommand(GenerateCommandID(RebooMenuGroupID)).Enabled = true;
                     }
                     else
                     {
@@ -1000,9 +1056,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         menuCommandService.FindCommand(GenerateCommandID(DeviceEraseID)).Enabled = false;
                         // disable network config button
                         menuCommandService.FindCommand(GenerateCommandID(NetworkConfigID)).Enabled = false;
-                        // disable reboot button
-                        menuCommandService.FindCommand(GenerateCommandID(RebootID)).Enabled = false;
+                        // disable reboot menu group
+                        menuCommandService.FindCommand(GenerateCommandID(RebooMenuGroupID)).Enabled = false;
                     }
+
+                    // update reboot options
+                    UpdateRebootMenuGroup(menuCommandService);
                 }
                 else
                 {
@@ -1014,10 +1073,29 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     menuCommandService.FindCommand(GenerateCommandID(DeviceEraseID)).Enabled = false;
                     // disable network config button
                     menuCommandService.FindCommand(GenerateCommandID(NetworkConfigID)).Enabled = false;
-                    // disable reboot button
-                    menuCommandService.FindCommand(GenerateCommandID(RebootID)).Enabled = false;
+                    // disable reboot menu group
+                    menuCommandService.FindCommand(GenerateCommandID(RebooMenuGroupID)).Enabled = false;
                 }
             });
+        }
+
+        private void UpdateRebootMenuGroup(OleMenuCommandService menuCommandService)
+        {
+            if (ViewModelLocator.DeviceExplorer.SelectedDevice.DebugEngine != null)
+            {
+                // enable boot to bootloader, if available on target
+                menuCommandService.FindCommand(GenerateCommandID(RebootBootloaderID)).Enabled = ViewModelLocator.DeviceExplorer.SelectedDevice.DebugEngine.HasProprietaryBooter;
+
+                // enable boot CLR if we are on CLR
+                menuCommandService.FindCommand(GenerateCommandID(RebootClrID)).Enabled = ViewModelLocator.DeviceExplorer.SelectedDevice.DebugEngine.IsConnectedTonanoCLR;
+            }
+            else
+            {
+                // enable everything, as default
+                menuCommandService.FindCommand(GenerateCommandID(RebootBootloaderID)).Enabled = true;
+                // enable boot CLR if we are on CLR
+                menuCommandService.FindCommand(GenerateCommandID(RebootClrID)).Enabled = true;
+            }
         }
 
         private async Task UpdateDeviceDependentToolbarButtonsAsync(bool isEnable)
@@ -1062,8 +1140,11 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 menuCommandService.FindCommand(GenerateCommandID(DeviceEraseID)).Enabled = isEnable;
                 // network config button
                 menuCommandService.FindCommand(GenerateCommandID(NetworkConfigID)).Enabled = isEnable;
-                // reboot button
-                menuCommandService.FindCommand(GenerateCommandID(RebootID)).Enabled = isEnable;
+                // reboot menu group
+                menuCommandService.FindCommand(GenerateCommandID(RebooMenuGroupID)).Enabled = isEnable;
+
+                // update reboot options
+                UpdateRebootMenuGroup(menuCommandService);
             });
         }
 

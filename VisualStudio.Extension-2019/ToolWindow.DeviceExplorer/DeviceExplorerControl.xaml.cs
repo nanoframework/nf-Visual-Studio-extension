@@ -105,6 +105,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 deviceTreeView.SelectedItemChanged += DevicesTreeView_SelectedItemChanged;
             }
 
+            Messenger.Default.Send(new NotificationMessage(""), DeviceExplorerViewModel.MessagingTokens.SelectedNanoDeviceHasChanged);
+
             // force redrawing to show selection
             deviceTreeView.InvalidateVisual();
             deviceTreeView.UpdateLayout();
