@@ -47,6 +47,17 @@
           <CommandName>Tool Window Toolbar</CommandName>
         </Strings>
       </Menu>
+
+      <!-- this is the menu controller for the reboot command menu -->
+      <Menu guid="guidDeviceExplorerCmdSet" id="RebootMenuControllerID" type="MenuController" priority="0x0101" toolbarPriorityInBand="0x0001">
+        <Parent guid="guidDeviceExplorerCmdSet" id="DeviceExplorerToolbarGroupID" />
+        <CommandFlag>NotInTBList</CommandFlag>
+        <Strings>
+          <ButtonText></ButtonText>
+          <CommandName>RebootMenuController</CommandName>
+        </Strings>
+      </Menu>
+      
     </Menus>
 
     <Groups>
@@ -63,6 +74,11 @@
       <!-- this is the 3rd group for the Device Explorer Toolbar -->
       <Group guid="guidDeviceExplorerCmdSet" id="DeviceExplorerToolbarGroup3ID" priority="0x0002">
         <Parent guid="guidDeviceExplorerCmdSet" id="DeviceExplorerToolbarID" />
+      </Group>
+
+      <!-- this is the menu group for the reboot command button -->
+      <Group guid="guidDeviceExplorerCmdSet" id="RebootMenuGroupID" priority="0x0000">
+        <Parent guid="guidDeviceExplorerCmdSet" id="RebootMenuControllerID" />
       </Group>
 
     </Groups>
@@ -93,7 +109,6 @@
       <Button guid="guidNanoFrameworkPackageCmdSet" id="DeviceExplorerCommandId" priority="0x0100" type="Button">
         <Parent guid="guidSHLMainMenu" id="IDG_VS_WNDO_OTRWNDWS1"/>
         <Icon guid="NanoFrameworkCatalog" id="NanoFramework" />
-        <!--<Icon guid="ImageCatalogGuid" id="OneX" />-->
         <CommandFlag>IconIsMoniker</CommandFlag>
         <Strings>
           <ButtonText>Device Explorer</ButtonText>
@@ -138,16 +153,48 @@
 
       <!-- Reboot for Device Explorer toolbar -->
       <Button guid="guidDeviceExplorerCmdSet" id="idRebootCommand" priority="0x0101" type="Button">
-        <Parent guid="guidDeviceExplorerCmdSet" id="DeviceExplorerToolbarGroupID"/>
+        <Parent guid="guidDeviceExplorerCmdSet" id="RebootMenuGroupID"/>
         <Icon guid="NanoFrameworkCatalog" id="Reboot" />
         <CommandFlag>IconIsMoniker</CommandFlag>
         <CommandFlag>DefaultDisabled</CommandFlag>
+        <CommandFlag>NoShowOnMenuController</CommandFlag>
+        <CommandFlag>FixMenuController</CommandFlag>
         <Strings>
           <CommandName>RebootCommand</CommandName>
           <ButtonText>Reboot target device</ButtonText>
         </Strings>
       </Button>
 
+      <Button guid="guidDeviceExplorerCmdSet" id="idRebootClrCommand" priority="0x0101" type="Button">
+        <Parent guid="guidDeviceExplorerCmdSet" id="RebootMenuGroupID"/>
+        <CommandFlag>TextOnly</CommandFlag>
+        <Strings>
+          <CommandName>RebootClrCommand</CommandName>
+          <ButtonText>Reboot CLR</ButtonText>
+        </Strings>
+      </Button>
+      
+      <Button guid="guidDeviceExplorerCmdSet" id="idRebootNanoBooterCommand" priority="0x0101" type="Button">
+        <Parent guid="guidDeviceExplorerCmdSet" id="RebootMenuGroupID"/>
+        <CommandFlag>TextOnly</CommandFlag>
+        <CommandFlag>DynamicVisibility</CommandFlag>
+        <Strings>
+          <CommandName>RebootNanoBooterCommand</CommandName>
+          <ButtonText>Reboot to nanoBooter</ButtonText>
+        </Strings>
+      </Button>
+      
+      <Button guid="guidDeviceExplorerCmdSet" id="idRebootBootloaderCommand" priority="0x0101" type="Button">
+        <Parent guid="guidDeviceExplorerCmdSet" id="RebootMenuGroupID"/>
+        <CommandFlag>TextOnly</CommandFlag>
+        <CommandFlag>TextChanges</CommandFlag>
+        <CommandFlag>DynamicVisibility</CommandFlag>
+        <Strings>
+          <CommandName>RebootToBootloaderCommand</CommandName>
+          <ButtonText>Reboot to bootloader</ButtonText>
+        </Strings>
+      </Button>
+      
       <!-- NetworkConfig for Device Explorer toolbar -->
       <Button guid="guidDeviceExplorerCmdSet" id="idNetworkConfigCommand" priority="0x0101" type="Button">
         <Parent guid="guidDeviceExplorerCmdSet" id="DeviceExplorerToolbarGroupID"/>
@@ -232,10 +279,15 @@
       <IDSymbol name="DeviceExplorerToolbarGroupID" value="0x1001" />
       <IDSymbol name="DeviceExplorerToolbarGroup2ID" value="0x1002" />
       <IDSymbol name="DeviceExplorerToolbarGroup3ID" value="0x1003" />
+      <IDSymbol name="RebootMenuGroupID" value="0x1004" />
+      <IDSymbol name="RebootMenuControllerID" value="0x1005" />
       <IDSymbol name="idPingDeviceCommand" value="0x0210" />
       <IDSymbol name="idDeviceCapabilitiesCommand" value="0x0220" />
       <IDSymbol name="idDeviceEraseCommand" value="0x0230" />
       <IDSymbol name="idRebootCommand" value="0x0240" />
+      <IDSymbol name="idRebootClrCommand" value="0x0242" />
+      <IDSymbol name="idRebootNanoBooterCommand" value="0x0244" />
+      <IDSymbol name="idRebootBootloaderCommand" value="0x0246" />
       <IDSymbol name="idNetworkConfigCommand" value="0x0250" />
       <IDSymbol name="idDisableDeviceWatchersCommand" value="0x0400" />
       <IDSymbol name="idRescanDevicesCommand" value="0x0410" />
