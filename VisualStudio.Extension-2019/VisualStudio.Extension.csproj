@@ -328,6 +328,12 @@
     <Compile Include="ToolWindow.DeviceExplorer\SettingsDialog.xaml.cs">
       <DependentUpon>SettingsDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="FirmwareUpdate\BintrayPackageInfo.cs" />
+    <Compile Include="FirmwareUpdate\CC13x26x2Firmware.cs" />
+    <Compile Include="FirmwareUpdate\Esp32Firmware.cs" />
+    <Compile Include="FirmwareUpdate\FirmwarePackage.cs" />
+    <Compile Include="FirmwareUpdate\Stm32Firmware.cs" />
+    <Compile Include="FirmwareUpdate\UpdateManager.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="..\packages\nanoFramework.CoreLibrary.1.7.3\nanoFramework.CoreLibrary.1.7.3.nupkg">

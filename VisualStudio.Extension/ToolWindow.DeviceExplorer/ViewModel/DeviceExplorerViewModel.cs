@@ -134,6 +134,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
             {
                 case Debugger.WireProtocol.TransportType.Serial:
                     AvailableDevices = new ObservableCollection<NanoDeviceBase>(NanoDeviceCommService.DebugClient.NanoFrameworkDevices);
+
+                    // add handler, but make sure we aren't adding another one so remove it first
+                    NanoDeviceCommService.DebugClient.NanoFrameworkDevices.CollectionChanged -= NanoFrameworkDevices_CollectionChanged;
                     NanoDeviceCommService.DebugClient.NanoFrameworkDevices.CollectionChanged += NanoFrameworkDevices_CollectionChanged;
                     break;
 
@@ -162,6 +165,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
                         ForceNanoDeviceSelectionAsync(AvailableDevices[0]).ConfigureAwait(true);
                     }
                 }
+
+                // launch firmware update task
+                foreach (var d in AvailableDevices)
+                {
+                    MessengerInstance.Send(new NotificationMessage(d.DeviceId.ToString()), MessagingTokens.LaunchFirmwareUpdateForNanoDevice);
+                }
             }
         }
 
@@ -184,6 +193,24 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
             }
 
             MessengerInstance.Send(new NotificationMessage(""), MessagingTokens.NanoDevicesCollectionHasChanged);
+
+            // launch update for arriving devices, if any
+            if (e.NewItems != null)
+            {
+                foreach (var d in e.NewItems)
+                {
+                    MessengerInstance.Send(new NotificationMessage((d as NanoDeviceBase).DeviceId.ToString()), MessagingTokens.LaunchFirmwareUpdateForNanoDevice);
+                }
+            }
+
+            // signal departure of devices removed, if any
+            if (e.OldItems != null)
+            {
+                foreach (var d in e.OldItems)
+                {
+                    MessengerInstance.Send(new NotificationMessage((d as NanoDeviceBase).DeviceId.ToString()), MessagingTokens.NanoDeviceHasDeparted);
+                }
+            }
 
             // handle auto-select option
             if (_deviceEnumerationCompleted || NanoDeviceCommService.DebugClient.IsDevicesEnumerationComplete)
@@ -271,7 +298,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
 
         public StringBuilder DeviceSystemInfo { get; set; }
 
-        public StringBuilder OemInfo { get; internal set; }
+        public StringBuilder TargetInfo { get; internal set; }
 
         /// <summary>
         /// used to prevent repeated retrieval of device capabilities after connection
@@ -298,6 +325,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
             public static readonly string NanoDevicesCollectionHasChanged = new Guid("{3E8906F9-F68A-45B7-A0CE-6D42BDB22455}").ToString();
             public static readonly string NanoDevicesDeviceEnumerationCompleted = new Guid("{347E2874-212C-4BC8-BB38-16E91FFCAB32}").ToString();
             public static readonly string ForceSelectionOfNanoDevice = new Guid("{8F012794-BC66-429D-9F9D-A9B0F546D6B5}").ToString();
+            public static readonly string LaunchFirmwareUpdateForNanoDevice = new Guid("{93822E8C-4A94-4573-AC4F-DEB7FA703933}").ToString();
+            public static readonly string NanoDeviceHasDeparted = new Guid("{38429FA1-3C16-44C2-937E-227C20AC0342}").ToString();
         }
 
         #endregion

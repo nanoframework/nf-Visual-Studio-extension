@@ -11,6 +11,7 @@ using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.TextTemplating.VSHost;
 using Microsoft.VisualStudio.Threading;
 using nanoFramework.Tools.VisualStudio.Extension;
+using nanoFramework.Tools.VisualStudio.Extension.FirmwareUpdate;
 using nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel;
 using System;
 using System.ComponentModel;
@@ -88,6 +89,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         private const string SETTINGS_INCLUDE_CONFIG_BLOCK_IN_DEPLOYMENT_IMAGE_KEY = "IncludeConfigBlockInDeploymentImage";
         private const string SETTINGS_PATH_OF_FLASH_DUMP_CACHE_IMAGE_KEY = "PathOfFlashDumpCache";
         private const string SETTINGS_PORT_BLACK_LIST_KEY = "PortBlackList";
+        private const string SETTINGS_AUTO_UPDATE_ENABLE_KEY = "AutoUpdateEnable";
+        private const string SETTINGS_ALLOW_PREVIEW_IMAGES_KEY = "AllowPreviewUpdates";
 
         private static bool? s_OptionShowInternalErrors;
         /// <summary>
@@ -99,12 +102,20 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         {
             get
             {
-                if (!s_OptionShowInternalErrors.HasValue)
+                try
                 {
-                    s_OptionShowInternalErrors = bool.Parse((string)s_instance.UserRegistryRoot.OpenSubKey(EXTENSION_SUBKEY).GetValue(SHOW_INTERNAL_ERRORS_KEY, "False"));
-                }
+                    if (!s_OptionShowInternalErrors.HasValue)
+                    {
+                        s_OptionShowInternalErrors = bool.Parse((string)s_instance.UserRegistryRoot.OpenSubKey(EXTENSION_SUBKEY).GetValue(SHOW_INTERNAL_ERRORS_KEY, "False"));
+                    }
 
-                return s_OptionShowInternalErrors.Value;
+                    return s_OptionShowInternalErrors.Value;
+                }
+                catch
+                {
+                    // default to false
+                    return false;
+                }
             }
 
             set
@@ -251,6 +262,62 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             }
         }
 
+        private static bool? s_SettingAutoUpdateEnable = null;
+
+        /// <summary>
+        /// Setting to enable automatic update of target images.
+        /// The value is persisted per user.
+        /// Default is <see langword="true"/>.
+        /// </summary>
+        public static bool SettingAutoUpdateEnable
+        {
+            get
+            {
+                if (!s_SettingAutoUpdateEnable.HasValue)
+                {
+                    s_SettingAutoUpdateEnable = bool.Parse((string)s_instance.UserRegistryRoot.OpenSubKey(EXTENSION_SUBKEY).GetValue(SETTINGS_AUTO_UPDATE_ENABLE_KEY, "True"));
+                }
+
+                return s_SettingAutoUpdateEnable.Value;
+            }
+
+            set
+            {
+                s_instance.UserRegistryRoot.OpenSubKey(EXTENSION_SUBKEY, true).SetValue(SETTINGS_AUTO_UPDATE_ENABLE_KEY, value);
+                s_instance.UserRegistryRoot.OpenSubKey(EXTENSION_SUBKEY, true).Flush();
+
+                s_SettingAutoUpdateEnable = value;
+            }
+        }
+
+        private static bool? s_SettingAllowPreviewUpdates = null;
+
+        /// <summary>
+        /// Setting to enable updates with preview images.
+        /// The value is persisted per user.
+        /// Default is <see langword="true"/>.
+        /// </summary>
+        public static bool SettingAllowPreviewUpdates
+        {
+            get
+            {
+                if (!s_SettingAllowPreviewUpdates.HasValue)
+                {
+                    s_SettingAllowPreviewUpdates = bool.Parse((string)s_instance.UserRegistryRoot.OpenSubKey(EXTENSION_SUBKEY).GetValue(SETTINGS_ALLOW_PREVIEW_IMAGES_KEY, "True"));
+                }
+
+                return s_SettingAllowPreviewUpdates.Value;
+            }
+
+            set
+            {
+                s_instance.UserRegistryRoot.OpenSubKey(EXTENSION_SUBKEY, true).SetValue(SETTINGS_ALLOW_PREVIEW_IMAGES_KEY, value);
+                s_instance.UserRegistryRoot.OpenSubKey(EXTENSION_SUBKEY, true).Flush();
+
+                s_SettingAllowPreviewUpdates = value;
+            }
+        }
+
         #endregion
 
         /// <summary>
@@ -340,6 +407,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                     await DeviceExplorerCommand.InitializeAsync(this, viewModelLocator);
                     DeployProvider.Initialize(this, viewModelLocator);
+                    UpdateManager.Initialize(this, viewModelLocator);
 
                     // Enable debugger UI context
                     UIContext.FromUIContextGuid(CorDebug.EngineGuid).IsActive = true;

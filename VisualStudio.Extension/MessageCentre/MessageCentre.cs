@@ -17,10 +17,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension
     {
         protected static readonly Guid s_InternalErrorsPaneGuid = Guid.NewGuid();
         protected static readonly Guid s_DeploymentMessagesPaneGuid = Guid.NewGuid();
+        protected static readonly Guid s_FirmwareUpdatManagerPane = Guid.NewGuid();
 
         private static IVsOutputWindow _outputWindow;
         private static IVsOutputWindowPane _debugPane;
         private static IVsOutputWindowPane _nanoFrameworkMessagesPane;
+        private static IVsOutputWindowPane _firmwareUpdatManager;
         private static IVsStatusbar _statusBar;
         private static string _paneName;
 
@@ -47,8 +49,13 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                 // create nanoFramework pane
                 tempId = s_DeploymentMessagesPaneGuid;
-                _outputWindow.CreatePane(ref tempId, _paneName, 0, 1);
+                _outputWindow.CreatePane(ref tempId, _paneName, 1, 0);
                 _outputWindow.GetPane(ref tempId, out _nanoFrameworkMessagesPane);
+
+                // create firmware update manager pane
+                tempId = s_FirmwareUpdatManagerPane;
+                _outputWindow.CreatePane(ref tempId, "nanoFramework Firmware Update Manager", 1, 0);
+                _outputWindow.GetPane(ref tempId, out _firmwareUpdatManager);
             });
         }
 
@@ -117,12 +124,27 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             Message(_nanoFrameworkMessagesPane, message);
         }
 
+        /// <summary>
+        /// Write a message to the firmware update output pane.
+        /// </summary>
+        /// <param name="message">Message to be outputted.</param>
+        public static void OutputFirmwareUpdateMessage(string message)
+        {
+            Message(
+                _firmwareUpdatManager, 
+                message,
+                false);
+        }
+
         public static void ErrorMessageHandler(object sendingProcess, DataReceivedEventArgs outLine)
         {
             DebugMessage(outLine.Data);
         }
 
-        private static void Message(IVsOutputWindowPane pane, String message)
+        private static void Message(
+            IVsOutputWindowPane pane, 
+            string message,
+            bool activatePane = true)
         {
             if (message == null)
             {
@@ -141,7 +163,11 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     message = message.Substring(0, message.Length - 2);
                 }
 
-                pane.Activate();
+                if (activatePane)
+                {
+                    pane.Activate();
+                }
+
                 pane.OutputStringThreadSafe(message + "\r\n");
             });
         }
