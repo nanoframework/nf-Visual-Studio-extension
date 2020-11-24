@@ -66,6 +66,24 @@
     <Compile Include="..\Tools.BuildTasks\ProcessResourceFiles.cs">
       <Link>ResXFileCodeGenerator\ProcessResourceFiles.cs</Link>
     </Compile>
+    <Compile Include="..\VisualStudio.Extension-2019\FirmwareUpdate\BintrayPackageInfo.cs">
+      <Link>FirmwareUpdate\BintrayPackageInfo.cs</Link>
+    </Compile>
+    <Compile Include="..\VisualStudio.Extension-2019\FirmwareUpdate\CC13x26x2Firmware.cs">
+      <Link>FirmwareUpdate\CC13x26x2Firmware.cs</Link>
+    </Compile>
+    <Compile Include="..\VisualStudio.Extension-2019\FirmwareUpdate\Esp32Firmware.cs">
+      <Link>FirmwareUpdate\Esp32Firmware.cs</Link>
+    </Compile>
+    <Compile Include="..\VisualStudio.Extension-2019\FirmwareUpdate\FirmwarePackage.cs">
+      <Link>FirmwareUpdate\FirmwarePackage.cs</Link>
+    </Compile>
+    <Compile Include="..\VisualStudio.Extension-2019\FirmwareUpdate\Stm32Firmware.cs">
+      <Link>FirmwareUpdate\Stm32Firmware.cs</Link>
+    </Compile>
+    <Compile Include="..\VisualStudio.Extension-2019\FirmwareUpdate\UpdateManager.cs">
+      <Link>FirmwareUpdate\UpdateManager.cs</Link>
+    </Compile>
     <Compile Include="Converters\AuthenticationTypeConverter.cs" />
     <Compile Include="Converters\EncryptionTypeConverter.cs" />
     <Compile Include="Converters\NetworkInterfaceTypeConverter.cs" />

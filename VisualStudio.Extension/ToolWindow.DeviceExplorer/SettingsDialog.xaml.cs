@@ -39,8 +39,10 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             // set controls according to stored preferences
             GenerateDeploymentImage.IsChecked = NanoFrameworkPackage.SettingGenerateDeploymentImage;
             IncludeConfigBlock.IsChecked = NanoFrameworkPackage.SettingIncludeConfigBlockInDeploymentImage;
+            AutoUpdateEnable.IsChecked = NanoFrameworkPackage.SettingAutoUpdateEnable;
+            AllowPreviewUpdates.IsChecked = NanoFrameworkPackage.SettingAllowPreviewUpdates;
 
-            if(string.IsNullOrEmpty(NanoFrameworkPackage.SettingPathOfFlashDumpCache))
+            if (string.IsNullOrEmpty(NanoFrameworkPackage.SettingPathOfFlashDumpCache))
             {
                 // no cache location specified
                 StoreCacheToProjectOutputPath.IsChecked = true;
@@ -147,6 +149,18 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             }
 
             NanoFrameworkPackage.NanoDeviceCommService.DebugClient.PortBlackList = comPortList;
+        }
+
+        private void AutoUpdateEnable_Checked(object sender, System.Windows.RoutedEventArgs e)
+        {
+            // save new state
+            NanoFrameworkPackage.SettingAutoUpdateEnable = (sender as ToggleButton).IsChecked ?? false;
+        }
+
+        private void AllowPreviewUpdates_Checked(object sender, System.Windows.RoutedEventArgs e)
+        {
+            // save new state
+            NanoFrameworkPackage.SettingAllowPreviewUpdates = (sender as ToggleButton).IsChecked ?? false;
         }
     }
 }

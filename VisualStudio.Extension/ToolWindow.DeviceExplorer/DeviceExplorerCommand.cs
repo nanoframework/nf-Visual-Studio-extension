@@ -418,18 +418,17 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                             }
                             else
                             {
-                                // we are in booter, can only get OEMInfo
+                                // we are in booter, can only get TargetInfo
                                 try
                                 {
                                     // get device info
-                                    var deviceInfo = NanoDeviceCommService.Device.DebugEngine.GetMonitorOemInfo();
+                                    var deviceInfo = NanoDeviceCommService.Device.DebugEngine?.TargetInfo;
 
                                     // we have to have a valid device info
                                     if (deviceInfo != null)
                                     {
-
                                         // load view model properties for maps
-                                        ViewModelLocator.DeviceExplorer.OemInfo = new StringBuilder(deviceInfo.ToString() ?? "Empty");
+                                        ViewModelLocator.DeviceExplorer.TargetInfo = new StringBuilder(deviceInfo.ToString() ?? "Empty");
                                     }
                                     else
                                     {
@@ -494,7 +493,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         MessageCentre.OutputMessage(string.Empty);
                         MessageCentre.OutputMessage(string.Empty);
                         MessageCentre.OutputMessage("Target Information");
-                        MessageCentre.OutputMessage(ViewModelLocator.DeviceExplorer.OemInfo.ToString());
+                        MessageCentre.OutputMessage(ViewModelLocator.DeviceExplorer.TargetInfo.ToString());
                     }
                 }
                 catch
@@ -1081,19 +1080,22 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         private void UpdateRebootMenuGroup(OleMenuCommandService menuCommandService)
         {
-            if (ViewModelLocator.DeviceExplorer.SelectedDevice.DebugEngine != null)
+            if (ViewModelLocator.DeviceExplorer.SelectedDevice != null)
             {
+                // enable boot to nanoBooter, if available on target
+                menuCommandService.FindCommand(GenerateCommandID(RebootNanoBooterID)).Enabled = ViewModelLocator.DeviceExplorer.SelectedDevice.HasNanoBooter;
+
                 // enable boot to bootloader, if available on target
-                menuCommandService.FindCommand(GenerateCommandID(RebootBootloaderID)).Enabled = ViewModelLocator.DeviceExplorer.SelectedDevice.DebugEngine.HasProprietaryBooter;
+                menuCommandService.FindCommand(GenerateCommandID(RebootBootloaderID)).Enabled = ViewModelLocator.DeviceExplorer.SelectedDevice.HasProprietaryBooter;
 
                 // enable boot CLR if we are on CLR
-                menuCommandService.FindCommand(GenerateCommandID(RebootClrID)).Enabled = ViewModelLocator.DeviceExplorer.SelectedDevice.DebugEngine.IsConnectedTonanoCLR;
+                menuCommandService.FindCommand(GenerateCommandID(RebootClrID)).Enabled = ViewModelLocator.DeviceExplorer.SelectedDevice.DebugEngine != null ? ViewModelLocator.DeviceExplorer.SelectedDevice.DebugEngine.IsConnectedTonanoCLR : false;
             }
             else
             {
                 // enable everything, as default
+                menuCommandService.FindCommand(GenerateCommandID(RebootNanoBooterID)).Enabled = true;
                 menuCommandService.FindCommand(GenerateCommandID(RebootBootloaderID)).Enabled = true;
-                // enable boot CLR if we are on CLR
                 menuCommandService.FindCommand(GenerateCommandID(RebootClrID)).Enabled = true;
             }
         }
