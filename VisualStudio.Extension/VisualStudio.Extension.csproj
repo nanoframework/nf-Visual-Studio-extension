@@ -470,8 +470,8 @@
     <Reference Include="mustache-sharp, Version=1.0.0.0, Culture=neutral, PublicKeyToken=5885df51f4df0041, processorArchitecture=MSIL">
       <HintPath>..\packages\mustache-sharp.1.0.0\lib\net45\mustache-sharp.dll</HintPath>
     </Reference>
-    <Reference Include="nanoFramework.Tools.Debugger.Net, Version=1.23.0.0, Culture=neutral, PublicKeyToken=e520bb6b53f04733">
-      <HintPath>..\packages\nanoFramework.Tools.Debugger.Net.1.23.0-preview.15\lib\net472\nanoFramework.Tools.Debugger.Net.dll</HintPath>
+    <Reference Include="nanoFramework.Tools.Debugger.Net, Version=1.24.0.0, Culture=neutral, PublicKeyToken=e520bb6b53f04733">
+      <HintPath>..\packages\nanoFramework.Tools.Debugger.Net.1.24.0-preview.1\lib\net472\nanoFramework.Tools.Debugger.Net.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="nanoFramework.Tools.MetadataProcessor.Core, Version=2.29.0.0, Culture=neutral, PublicKeyToken=562e3cb1ad703850">
