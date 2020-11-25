@@ -4,14 +4,13 @@
 //
 using GalaSoft.MvvmLight.Ioc;
 using Microsoft;
-using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.ProjectSystem.VS;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.TextTemplating.VSHost;
 using Microsoft.VisualStudio.Threading;
 using nanoFramework.Tools.VisualStudio.Extension;
-using nanoFramework.Tools.VisualStudio.Extension.FirmwareUpdate;
+using nanoFramework.Tools.VisualStudio.Extension.AutomaticUpdates;
 using nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel;
 using System;
 using System.ComponentModel;
