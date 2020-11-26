@@ -776,7 +776,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="nanoFramework.Tools.Debugger.Net">
-      <Version>1.24.0-preview.3</Version>
+      <Version>1.25.0-preview.2</Version>
     </PackageReference>
     <PackageReference Include="nanoFramework.Tools.MetadataProcessor.Core">
       <Version>2.29.1</Version>
