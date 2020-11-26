@@ -6,7 +6,6 @@
 using GalaSoft.MvvmLight.Ioc;
 using Microsoft.VisualStudio.ProjectSystem;
 using Microsoft.VisualStudio.ProjectSystem.Debug;
-using Microsoft.VisualStudio.ProjectSystem.References;
 using Microsoft.VisualStudio.ProjectSystem.VS.Debug;
 using Microsoft.VisualStudio.Threading;
 using nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel;
@@ -14,12 +13,11 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
 
 namespace nanoFramework.Tools.VisualStudio.Extension
 {
-    [ExportDebugger(NanoDebugger.SchemaName)]
+    [ExportDebugger("NanoDebugger")]
     [AppliesTo(NanoCSharpProjectUnconfigured.UniqueCapability)]
     internal partial class NanoDebuggerLaunchProvider : DebugLaunchProviderBase
     {
@@ -29,12 +27,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         {
         }
 
-        /// <summary>
-        /// Provides access to the project's properties.
-        /// </summary>
-        [Import]
-        private ProjectProperties Properties { get; set; }
-
         [Import]
         IProjectService ProjectService { get; set; }
 
@@ -43,7 +35,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             try
             {
                 var deployDeviceName = SimpleIoc.Default.GetInstance<DeviceExplorerViewModel>().SelectedDevice.Description;
-                var portName = SimpleIoc.Default.GetInstance<DeviceExplorerViewModel>().SelectedTransportType.ToString();
 
                 // make sure that the device is connected
                 if (await SimpleIoc.Default.GetInstance<DeviceExplorerViewModel>().SelectedDevice.DebugEngine.ConnectAsync(5000))
@@ -51,12 +42,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     string commandLine = await GetCommandLineForLaunchAsync();
                     commandLine = string.Format("{0} \"{1}{2}\"", commandLine, CorDebugProcess.DeployDeviceName, deployDeviceName);
 
-                    // The properties that are available via DebuggerProperties are determined by the property XAML files in your project.
-                    var debuggerProperties = await Properties.GetNanoDebuggerPropertiesAsync();
-
                     var settings = new DebugLaunchSettings(launchOptions)
                     {
-                        CurrentDirectory = await debuggerProperties.NanoDebuggerWorkingDirectory.GetEvaluatedValueAtEndAsync(),
                         Executable = typeof(CorDebugProcess).Assembly.Location,
                         Arguments = commandLine,
                         LaunchOperation = DebugLaunchOperation.CreateProcess,
@@ -126,7 +113,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 configuredProjectsByOutputAssemblyPath,
                 outputAssemblyPathsByConfiguredProject,
                 assemblyPathsToDeploy,
-                Properties.ConfiguredProject);
+                ConfiguredProject);
 
 
             // build a list with the full path for each DLL, referenced DLL and EXE
