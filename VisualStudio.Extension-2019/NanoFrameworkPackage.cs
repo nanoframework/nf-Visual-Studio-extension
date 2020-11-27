@@ -3,32 +3,27 @@
 // See LICENSE file in the project root for full license information.
 //
 
-using System;
-using System.ComponentModel;
-using System.ComponentModel.Design;
-using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
-using System.Globalization;
-using System.IO;
-using System.Reflection;
-using System.Runtime.InteropServices;
-using System.Threading;
-using System.Threading.Tasks;
 using GalaSoft.MvvmLight.Ioc;
-using Microsoft.VisualStudio;
-using Microsoft.VisualStudio.OLE.Interop;
+using Microsoft;
 using Microsoft.VisualStudio.ProjectSystem.VS;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.TextTemplating.VSHost;
 using Microsoft.VisualStudio.Threading;
-using Microsoft.Win32;
 using nanoFramework.Tools.VisualStudio.Extension;
+using nanoFramework.Tools.VisualStudio.Extension.AutomaticUpdates;
 using nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel;
-using Task = System.Threading.Tasks.Task;
+using System;
+using System.ComponentModel;
+using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
+using System.IO;
+using System.Reflection;
+using System.Runtime.InteropServices;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
-using Microsoft;
-using nanoFramework.Tools.VisualStudio.Extension.FirmwareUpdate;
+using Task = System.Threading.Tasks.Task;
 
 [assembly: ProjectTypeRegistration(projectTypeGuid: NanoFrameworkPackage.ProjectTypeGuid,
                                 displayName: "NanoCSharpProject",

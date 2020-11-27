@@ -70,23 +70,23 @@
     <Compile Include="..\Tools.BuildTasks\ProcessResourceFiles.cs">
       <Link>ResXFileCodeGenerator\ProcessResourceFiles.cs</Link>
     </Compile>
-    <Compile Include="..\VisualStudio.Extension-2019\FirmwareUpdate\BintrayPackageInfo.cs">
-      <Link>FirmwareUpdate\BintrayPackageInfo.cs</Link>
+    <Compile Include="..\VisualStudio.Extension-2019\AutomaticUpdates\BintrayPackageInfo.cs">
+      <Link>AutomaticUpdates\BintrayPackageInfo.cs</Link>
     </Compile>
-    <Compile Include="..\VisualStudio.Extension-2019\FirmwareUpdate\CC13x26x2Firmware.cs">
-      <Link>FirmwareUpdate\CC13x26x2Firmware.cs</Link>
+    <Compile Include="..\VisualStudio.Extension-2019\AutomaticUpdates\CC13x26x2Firmware.cs">
+      <Link>AutomaticUpdates\CC13x26x2Firmware.cs</Link>
     </Compile>
-    <Compile Include="..\VisualStudio.Extension-2019\FirmwareUpdate\Esp32Firmware.cs">
-      <Link>FirmwareUpdate\Esp32Firmware.cs</Link>
+    <Compile Include="..\VisualStudio.Extension-2019\AutomaticUpdates\Esp32Firmware.cs">
+      <Link>AutomaticUpdates\Esp32Firmware.cs</Link>
     </Compile>
-    <Compile Include="..\VisualStudio.Extension-2019\FirmwareUpdate\FirmwarePackage.cs">
-      <Link>FirmwareUpdate\FirmwarePackage.cs</Link>
+    <Compile Include="..\VisualStudio.Extension-2019\AutomaticUpdates\FirmwarePackage.cs">
+      <Link>AutomaticUpdates\FirmwarePackage.cs</Link>
     </Compile>
-    <Compile Include="..\VisualStudio.Extension-2019\FirmwareUpdate\Stm32Firmware.cs">
-      <Link>FirmwareUpdate\Stm32Firmware.cs</Link>
+    <Compile Include="..\VisualStudio.Extension-2019\AutomaticUpdates\Stm32Firmware.cs">
+      <Link>AutomaticUpdates\Stm32Firmware.cs</Link>
     </Compile>
-    <Compile Include="..\VisualStudio.Extension-2019\FirmwareUpdate\UpdateManager.cs">
-      <Link>FirmwareUpdate\UpdateManager.cs</Link>
+    <Compile Include="..\VisualStudio.Extension-2019\AutomaticUpdates\UpdateManager.cs">
+      <Link>AutomaticUpdates\UpdateManager.cs</Link>
     </Compile>
     <Compile Include="Converters\AuthenticationTypeConverter.cs" />
     <Compile Include="Converters\EncryptionTypeConverter.cs" />
@@ -209,6 +209,7 @@
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
     <Resource Include="Resources\Reboot.16.16.png" />
+    <None Include="packages.lock.json" />
     <None Include="source.extension.vsixmanifest">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
