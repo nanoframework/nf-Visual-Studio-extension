@@ -658,6 +658,7 @@
     <PackageReference Include="nanoFramework.Tools.Debugger.Net">
       <Version>1.25.0-preview.2</Version>
     </PackageReference>
+    <PackageReference Include="nanoFramework.Tools.Debugger.Net" Version="1.25.0-preview.9" />
     <PackageReference Include="nanoFramework.Tools.MetadataProcessor.Core">
       <Version>2.29.1</Version>
     </PackageReference>
