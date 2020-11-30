@@ -306,13 +306,14 @@
       },
       "nanoFramework.Tools.Debugger.Net": {
         "type": "Direct",
-        "requested": "[1.26.0-preview.1, )",
-        "resolved": "1.26.0-preview.1",
-        "contentHash": "8o2VvV6T5l8gaa97FYYer4EBNrw10+te5zzH3FfqslJjSAKfxSkF0WESiqd55zKZ41XZ4u9y7vusNVuQhEJbIg==",
+        "requested": "[1.26.0-preview.6, )",
+        "resolved": "1.26.0-preview.6",
+        "contentHash": "g0pDz5L6Oc9KQ1ms9xTmDvqIWQS744n8vlrnsVMmIQZAV3iMk4OoOaUo/pwoIKaPIdG7BL8/Clx12DVuOX4glw==",
         "dependencies": {
           "Fody": "4.2.1",
           "Microsoft.Windows.SDK.Contracts": "10.0.19041.1",
           "Polly": "7.2.1",
+          "Polly.Contrib.WaitAndRetry": "1.1.1",
           "PropertyChanged.Fody": "2.6.1",
           "System.Threading.Tasks.Extensions": "4.5.4",
           "System.ValueTuple": "4.5.0"
@@ -1563,6 +1564,11 @@
         "type": "Transitive",
         "resolved": "7.2.1",
         "contentHash": "Od8SnPlpQr+PuAS0YzY3jgtzaDNknlIuAaldN2VEIyTvm/wCg22C5nUkUV1BEG8rIsub5RFMoV/NEQ0tM/+7Uw=="
+      },
+      "Polly.Contrib.WaitAndRetry": {
+        "type": "Transitive",
+        "resolved": "1.1.1",
+        "contentHash": "1MUQLiSo4KDkQe6nzQRhIU05lm9jlexX5BVsbuw0SL82ynZ+GzAHQxJVDPVBboxV37Po3SG077aX8DuSy8TkaA=="
       },
       "PropertyChanged.Fody": {
         "type": "Transitive",
