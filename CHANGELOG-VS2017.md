@@ -1,8 +1,8 @@
 # Changelog
 
-## [v2017.4.0.14](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v2017.4.0.14) (2020-11-27)
+## [v2017.4.0.18](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v2017.4.0.18) (2020-11-30)
 
-[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2019.2.3.5...v2017.4.0.14)
+[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2019.2.3.5...v2017.4.0.18)
 
 **Implemented enhancements:**
 
@@ -12,6 +12,8 @@
 
 **Updated dependencies and other chores:**
 
+- Bumps nanoFramework.Tools.Debugger to 1.26.0-preview.1 [\#547](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/547)
+- Bumps nanoFramework.Tools.Debugger to 1.25.0-preview.16 [\#546](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/546)
 - Bumps nanoFramework.Tools.Debugger to  [\#544](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/544)
 - Bumps nanoFramework.Tools.Debugger to 1.25.0-preview.9 [\#543](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/543)
 - Bumps nanoFramework.Tools.Debugger to 1.24.0-preview.3 [\#541](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/541)
@@ -438,6 +440,10 @@
 - Fix deploy project from context menu [\#462](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/462)
 - Fix project files not showing in dialog window when adding existing projects [\#461](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/461)
 
+**Fixed bugs:**
+
+- Fix deployment for solutions with with more than one shared project [\#460](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/460)
+
 **Updated dependencies and other chores:**
 
 - Update NuGets in VS2019 [\#465](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/465)
@@ -482,6 +488,7 @@
 **Updated dependencies and other chores:**
 
 - Bumps MetadataProcessor.Core to 2.22.24 [\#456](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/456)
+- Bumps MetadataProcessor.Core to 2.22.22 [\#455](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/455)
 
 ## [v1.8.0.9-VS2019](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v1.8.0.9-VS2019) (2020-03-09)
 
@@ -490,10 +497,6 @@
 ## [v1.8.0.9-VS2017](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v1.8.0.9-VS2017) (2020-03-09)
 
 [Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v1.8.0.8-VS2017...v1.8.0.9-VS2017)
-
-**Updated dependencies and other chores:**
-
-- Bumps MetadataProcessor.Core to 2.22.22 [\#455](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/455)
 
 ## [v1.8.0.8-VS2017](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v1.8.0.8-VS2017) (2020-03-09)
 
@@ -538,10 +541,6 @@
 ## [v1.8.0.5-VS2017](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v1.8.0.5-VS2017) (2020-03-06)
 
 [Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v1.8.0.4-VS2017...v1.8.0.5-VS2017)
-
-**Fixed bugs:**
-
-- Fix deployment for solutions with with more than one shared project [\#460](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/460)
 
 **Updated dependencies and other chores:**
 
@@ -897,6 +896,7 @@
 **Updated dependencies and other chores:**
 
 - Update debugger library [\#407](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/407)
+- Update debugger library to 1.3.0-preview.11 [\#399](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/399)
 
 ## [v1.2.5.1-VS2019](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v1.2.5.1-VS2019) (2019-09-10)
 
@@ -923,6 +923,10 @@
 - Add detailed instruction for NuGet issues [\#405](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/405)
 - Deploy provider now only deploys startup project [\#404](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/404)
 
+**Fixed bugs:**
+
+- Update several rules files [\#402](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/402)
+
 ## [v1.2.1.1-VS2019](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v1.2.1.1-VS2019) (2019-08-20)
 
 [Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v1.2.1.10-VS2017...v1.2.1.1-VS2019)
@@ -933,7 +937,6 @@
 
 **Fixed bugs:**
 
-- Update several rules files [\#402](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/402)
 - Fix project icon not showing on VS project tree [\#401](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/401)
 
 ## [v1.2.0.3-VS2017](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v1.2.0.3-VS2017) (2019-07-23)
@@ -964,7 +967,6 @@
 
 **Updated dependencies and other chores:**
 
-- Update debugger library to 1.3.0-preview.11 [\#399](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/399)
 - Update project templates to reference mscorlib 1.2.6-preview.16 [\#398](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/398)
 - Update debugger lib to 1.2.1-preview.13 [\#395](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/395)
 
@@ -1370,7 +1372,6 @@
 
 - Extract MDP strings to make it easy to maintain [\#303](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/303)
 - Improvements in CorDebugType and CorDebugClass [\#300](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/300)
-- Revert TextTemplate packages [\#291](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/291)
 
 **Fixed bugs:**
 
@@ -1398,6 +1399,10 @@
 ## [v0.5.0.47](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v0.5.0.47) (2018-09-12)
 
 [Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v0.5.0.46...v0.5.0.47)
+
+**Implemented enhancements:**
+
+- Revert TextTemplate packages [\#291](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/291)
 
 ## [v0.5.0.46](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v0.5.0.46) (2018-09-11)
 
