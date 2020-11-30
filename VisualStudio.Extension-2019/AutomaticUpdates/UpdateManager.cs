@@ -91,7 +91,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.AutomaticUpdates
                     if (devicesUpdatED.TryGetValue(deviceId, out var updateTimeStamp))
                     {
                         // it's on the list, check if we had it updated in the last hour
-                        if ((DateTime.UtcNow - ((DateTime)updateTimeStamp)).TotalHours < 1)
+                        if ((DateTime.UtcNow - ((DateTime)updateTimeStamp)).TotalHours > 1)
                         {
                             // no need to update
                             return;
@@ -257,7 +257,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.AutomaticUpdates
                                             }
 
                                             // if this is the selected device...
-                                            if (ViewModelLocator.DeviceExplorer.SelectedDevice.DeviceId == deviceUniqueId)
+                                            if (ViewModelLocator.DeviceExplorer.SelectedDevice?.DeviceId == deviceUniqueId)
                                             {
                                                 // ...reset property to force that device capabilities to be retrieved on next connection
                                                 ViewModelLocator.DeviceExplorer.LastDeviceConnectedHash = 0;
