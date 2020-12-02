@@ -86,12 +86,15 @@ namespace nanoFramework.Tools.VisualStudio.Extension.AutomaticUpdates
                         return;
                     }
 
+                    // store for later use
+                    var deviceDescription = nanoDevice.Description;
+
 #if !DEBUG
                     // check if this device has been updated ever or in the last hour
-                    if (devicesUpdatED.TryGetValue(deviceId, out var updateTimeStamp))
+                    if (devicesUpdatED.TryGetValue(deviceDescription, out var updateTimeStamp))
                     {
                         // it's on the list, check if we had it updated in the last hour
-                        if ((DateTime.UtcNow - ((DateTime)updateTimeStamp)).TotalHours > 1)
+                        if ((DateTime.UtcNow - ((DateTime)updateTimeStamp)).TotalMinutes < 60)
                         {
                             // no need to update
                             return;
@@ -122,9 +125,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension.AutomaticUpdates
                         // quit, never mind, this is not critical whatsoever
                         return;
                     }
-
-                    // store for later use
-                    var deviceDescription = nanoDevice.Description;
 
                     // better wrap this on a try-finally because a lot of things can go wrong in the process
                     try
@@ -253,7 +253,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.AutomaticUpdates
                                                 MessageCentre.OutputFirmwareUpdateMessage($"[{deviceDescription}] Update successful.");
 
                                                 // add it to the list of devices updatED with the update time stamp
-                                                devicesUpdatED.TryAdd(deviceId, DateTime.UtcNow);
+                                                devicesUpdatED.TryAdd(deviceDescription, DateTime.UtcNow);
                                             }
 
                                             // if this is the selected device...
@@ -302,7 +302,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.AutomaticUpdates
                                         (fwPackage.Version == nanoDevice.DeviceInfo.ClrBuildVersion))
                                     {
                                         // add it to the list of devices updatED with the update time stamp
-                                        devicesUpdatED.TryAdd(deviceId, DateTime.UtcNow);
+                                        devicesUpdatED.TryAdd(deviceDescription, DateTime.UtcNow);
                                     }
                                 }
                             }
@@ -321,7 +321,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.AutomaticUpdates
                             MessageCentre.OutputFirmwareUpdateMessage("The ability to update ESP32 targets is not currently available. Yet...");
 
                             // add it to the list of devices updatED with the update time stamp
-                            devicesUpdatED.TryAdd(deviceId, DateTime.UtcNow);
+                            devicesUpdatED.TryAdd(deviceDescription, DateTime.UtcNow);
                         }
                         ///////////////////////////////////////
                         // TI CC13x26x2
@@ -333,7 +333,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.AutomaticUpdates
                             MessageCentre.OutputFirmwareUpdateMessage("The ability to update CC13x26x2 targets is not currently available. Yet...");
 
                             // add it to the list of devices updatED with the update time stamp
-                            devicesUpdatED.TryAdd(deviceId, DateTime.UtcNow);
+                            devicesUpdatED.TryAdd(deviceDescription, DateTime.UtcNow);
                         }
                         else
                         {
