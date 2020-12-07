@@ -85,7 +85,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="nanoFramework.Tools.MetadataProcessor.Core">
-      <Version>2.29.1</Version>
+      <Version>2.29.4</Version>
     </PackageReference>
     <PackageReference Include="Nerdbank.GitVersioning">
       <Version>3.3.37</Version>

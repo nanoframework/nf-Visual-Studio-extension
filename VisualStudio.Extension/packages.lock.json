@@ -289,9 +289,9 @@
       },
       "nanoFramework.Tools.MetadataProcessor.Core": {
         "type": "Direct",
-        "requested": "[2.29.1, )",
-        "resolved": "2.29.1",
-        "contentHash": "tljkMd9TxYPsIh2LLtxt6EY4cPe1G4L0RDo99A1pnogRWL11h2UzWu0KhJAfc19dJ0BmiVFxgrVSKg6llK6rcg==",
+        "requested": "[2.29.4, )",
+        "resolved": "2.29.4",
+        "contentHash": "2+oTT/tn3v97DKZil+YP0JH9oz3way5nzVHFz/KE8XagbtGPt0xNheWGAJSxBjK3Dg9i0y+uQn11Aw91DMQerA==",
         "dependencies": {
           "Mono.Cecil": "0.11.1",
           "mustache-sharp": "1.0.0"
@@ -1147,7 +1147,7 @@
           "Microsoft.VisualStudio.SDK.Analyzers": "15.8.36",
           "Microsoft.VisualStudio.Threading.Analyzers": "15.8.209",
           "System.Runtime.CompilerServices.Unsafe": "4.7.0",
-          "nanoFramework.Tools.MetadataProcessor.Core": "2.29.1"
+          "nanoFramework.Tools.MetadataProcessor.Core": "2.29.5"
         }
       }
     }
