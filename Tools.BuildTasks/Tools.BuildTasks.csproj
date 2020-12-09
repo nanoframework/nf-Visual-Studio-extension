@@ -75,8 +75,7 @@
     <PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers">
       <Version>15.8.209</Version>
     </PackageReference>
-    <PackageReference Include="nanoFramework.Tools.MetadataProcessor.Core" Version="2.29.7" />
-    <PackageReference Include="nanoFramework.Tools.MetadataProcessor.Core" Version="2.29.7" />
+    <PackageReference Include="nanoFramework.Tools.MetadataProcessor.Core" Version="2.30.1" />
     <PackageReference Include="Nerdbank.GitVersioning">
       <Version>3.3.37</Version>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
