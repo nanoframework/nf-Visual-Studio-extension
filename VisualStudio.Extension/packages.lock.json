@@ -289,9 +289,9 @@
       },
       "nanoFramework.Tools.MetadataProcessor.Core": {
         "type": "Direct",
-        "requested": "[2.30.1, )",
-        "resolved": "2.30.1",
-        "contentHash": "y74WUfD9OeiRoM+oM/jLN4FPihZCG29TCNkrsDObzZeRMa9yYEdNWjowHyvDzlTR+8GuuGGdCOjMaGFi26IPSQ==",
+        "requested": "[2.30.3, )",
+        "resolved": "2.30.3",
+        "contentHash": "/0KjbVlPbCTgfSV6k8TBBhRA3Fy9xB9xJ26I/8MEiTCGKJmfaBSqbtzTsrXDUxx0E+YZQsm5WWZaiHAu7meLDQ==",
         "dependencies": {
           "Mono.Cecil": "0.11.3",
           "mustache-sharp": "1.0.0"
@@ -951,8 +951,8 @@
       },
       "Mono.Cecil": {
         "type": "Transitive",
-        "resolved": "0.11.1",
-        "contentHash": "RWBcccuMn8gxAasJxBBAb848qkt3S2t/7bEaEXtxQU6ROv1v0p7kk3+Xga4G+k+bKbLBla1bsrUt+8pAccaDwQ=="
+        "resolved": "0.11.3",
+        "contentHash": "DNYE+io5XfEE8+E+5padThTPHJARJHbz1mhbhMPNrrWGKVKKqj/KEeLvbawAmbIcT73NuxLV7itHZaYCZcVWGg=="
       },
       "mustache-sharp": {
         "type": "Transitive",
@@ -1147,7 +1147,7 @@
           "Microsoft.VisualStudio.SDK.Analyzers": "15.8.36",
           "Microsoft.VisualStudio.Threading.Analyzers": "15.8.209",
           "System.Runtime.CompilerServices.Unsafe": "4.7.0",
-          "nanoFramework.Tools.MetadataProcessor.Core": "2.30.1"
+          "nanoFramework.Tools.MetadataProcessor.Core": "2.30.3"
         }
       }
     }
