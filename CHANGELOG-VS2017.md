@@ -1,11 +1,12 @@
 # Changelog
 
-## [v2017.4.0.41](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v2017.4.0.41) (2020-12-09)
+## [v2017.4.0.44](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v2017.4.0.44) (2020-12-10)
 
-[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2019.4.0.31...v2017.4.0.41)
+[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2019.4.0.31...v2017.4.0.44)
 
 **Updated dependencies and other chores:**
 
+- Bumps MetadataProcessor.Core to 2.31.1 [\#561](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/561)
 - Bumps MetadataProcessor.Core to 2.30.4 [\#560](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/560)
 - Bumps MetadataProcessor.Core to 2.30.2 [\#559](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/559)
 - Bumps MetadataProcessor.Core to 2.29.8 [\#555](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/555)
@@ -485,6 +486,7 @@
 **Updated dependencies and other chores:**
 
 - Bumps MetadataProcessor.Core to 2.22.27 [\#458](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/458)
+- Bumps MetadataProcessor.Core to 2.22.18 [\#451](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/451)
 
 ## [v1.8.0.11-VS2017](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v1.8.0.11-VS2017) (2020-03-10)
 
@@ -554,10 +556,6 @@
 
 [Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v1.8.0.5-VS2017...v1.8.0.6-VS2017)
 
-**Updated dependencies and other chores:**
-
-- Bumps MetadataProcessor.Core to 2.22.18 [\#451](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/451)
-
 ## [v1.8.0.5-VS2017](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v1.8.0.5-VS2017) (2020-03-06)
 
 [Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v1.8.0.5-VS2019...v1.8.0.5-VS2017)
@@ -617,7 +615,6 @@
 **Updated dependencies and other chores:**
 
 - Update debugger library [\#444](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/444)
-- Update NuGet packages [\#436](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/436)
 
 ## [v1.7.0.13-VS2017](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v1.7.0.13-VS2017) (2020-02-28)
 
@@ -663,6 +660,10 @@
 
 [Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v1.7.0.8-VS2017...v1.7.0.9-VS2019)
 
+**Updated dependencies and other chores:**
+
+- Update debugger library [\#439](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/439)
+
 ## [v1.7.0.8-VS2017](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v1.7.0.8-VS2017) (2020-02-26)
 
 [Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v1.7.0.8-VS2019...v1.7.0.8-VS2017)
@@ -673,7 +674,6 @@
 
 **Updated dependencies and other chores:**
 
-- Update debugger library [\#439](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/439)
 - Update debugger library [\#438](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/438)
 
 ## [v1.7.0.7-VS2019](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v1.7.0.7-VS2019) (2020-02-26)
@@ -701,6 +701,10 @@
 - Update target framework to 4.7.2 [\#435](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/435)
 - Add AssemblyNativeVersion attribute to class library template [\#434](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/434)
 
+**Updated dependencies and other chores:**
+
+- Update NuGet packages [\#436](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/436)
+
 ## [v1.7.0.3-VS2017](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v1.7.0.3-VS2017) (2020-02-21)
 
 [Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v1.7.0.3-VS2019...v1.7.0.3-VS2017)
@@ -721,6 +725,10 @@
 
 [Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v1.7.0.1-VS2019...v1.7.0.2-VS2019)
 
+**Updated dependencies and other chores:**
+
+- Update MDP to 2.21.1 [\#432](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/432)
+
 ## [v1.7.0.1-VS2019](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v1.7.0.1-VS2019) (2020-02-21)
 
 [Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v1.7.0.1-VS2017...v1.7.0.1-VS2019)
@@ -735,7 +743,6 @@
 
 **Updated dependencies and other chores:**
 
-- Update MDP to 2.21.1 [\#432](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/432)
 - Update MDP to 2.20.0 [\#431](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/431)
 
 ## [v1.6.0.1-VS2017](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v1.6.0.1-VS2017) (2020-02-19)
@@ -799,7 +806,6 @@
 - Update MDP to 2.11.1 [\#425](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/425)
 - Work MDP task [\#424](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/424)
 - Update debugger lib to 1.7.0-preview.12 [\#423](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/423)
-- Update MDP task [\#417](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/417)
 
 ## [v1.4.0.6-VS2017](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v1.4.0.6-VS2017) (2020-02-12)
 
@@ -853,6 +859,7 @@
 **Updated dependencies and other chores:**
 
 - Update debugger library to 1.6.0-preview.11 [\#419](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/419)
+- Update MDP task [\#417](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/417)
 - Replace MDP output option with Verbose [\#414](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/414)
 
 ## [v1.3.0.1-VS2017](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v1.3.0.1-VS2017) (2019-12-13)
@@ -935,6 +942,7 @@
 **Implemented enhancements:**
 
 - Add detailed instruction for NuGet issues [\#405](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/405)
+- Deploy provider now only deploys startup project [\#404](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/404)
 
 ## [v1.2.1.1-VS2019](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v1.2.1.1-VS2019) (2019-08-20)
 
@@ -968,10 +976,6 @@
 ## [v1.2.0.1-VS2019](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v1.2.0.1-VS2019) (2019-07-23)
 
 [Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v1.1.0.31-VS2017...v1.2.0.1-VS2019)
-
-**Implemented enhancements:**
-
-- Deploy provider now only deploys startup project [\#404](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/404)
 
 **Fixed bugs:**
 
@@ -1051,15 +1055,15 @@
 
 [Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v1.1.0.7-VS2017...v1.1.0.11-VS2017)
 
+**Implemented enhancements:**
+
+- General improvements in UI responsiveness [\#380](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/380)
+
 **Fixed bugs:**
 
 - Fix wrong image ID for settings icon [\#381](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/381)
 - Replace all images in xaml format as project resources [\#379](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/379)
 - Fix inconsistencies on image ids in catalogs and resources [\#378](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/378)
-
-**Updated dependencies and other chores:**
-
-- Fix debugger lib update for VS2019 [\#373](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/373)
 
 ## [v1.1.0.7-VS2017](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v1.1.0.7-VS2017) (2019-06-06)
 
@@ -1085,10 +1089,6 @@
 
 [Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v1.1.0.1-VS2017...v1.1.0.103-VS2019)
 
-**Implemented enhancements:**
-
-- General improvements in UI responsiveness [\#380](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/380)
-
 **Fixed bugs:**
 
 - Fix deployment image generator [\#375](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/375)
@@ -1107,6 +1107,7 @@
 
 **Updated dependencies and other chores:**
 
+- Fix debugger lib update for VS2019 [\#373](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/373)
 - Update debugger library [\#372](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/372)
 
 ## [v1.0.3.144-VS2017](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v1.0.3.144-VS2017) (2019-05-27)
@@ -1389,7 +1390,6 @@
 **Implemented enhancements:**
 
 - Extract MDP strings to make it easy to maintain [\#303](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/303)
-- Improvements in CorDebugType and CorDebugClass [\#300](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/300)
 
 **Fixed bugs:**
 
@@ -1420,6 +1420,7 @@
 
 **Implemented enhancements:**
 
+- Improvements in CorDebugType and CorDebugClass [\#300](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/300)
 - Revert TextTemplate packages [\#291](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/291)
 
 ## [v0.5.0.46](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v0.5.0.46) (2018-09-11)
@@ -1589,10 +1590,6 @@
 
 - Change assembly loading method [\#261](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/261)
 
-**Updated dependencies and other chores:**
-
-- Update Nugets for VS extension [\#263](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/263)
-
 ## [v0.5.0.12](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v0.5.0.12) (2018-07-16)
 
 [Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v0.5.0.11...v0.5.0.12)
@@ -1612,6 +1609,10 @@
 **Fixed bugs:**
 
 - Add missing parameters to MDP Task [\#258](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/258)
+
+**Updated dependencies and other chores:**
+
+- Update Nugets for VS extension [\#263](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/263)
 
 ## [v0.5.0.9](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v0.5.0.9) (2018-06-18)
 
@@ -1747,6 +1748,7 @@
 - Update Nuget VS packages [\#198](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/198)
 - Update debugger library [\#196](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/196)
 - Update debugger library [\#195](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/195)
+- Update nf-interpreter submodule @ 9a5d17ea [\#186](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/186)
 
 ## [v0.3.7](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v0.3.7) (2017-12-12)
 
@@ -1754,7 +1756,6 @@
 
 **Updated dependencies and other chores:**
 
-- Update nf-interpreter submodule @ 9a5d17ea [\#186](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/186)
 - Update debugger library \(improvements\) [\#181](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/181)
 
 ## [v0.3.1-preview](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v0.3.1-preview) (2017-12-11)
@@ -1871,7 +1872,6 @@
 
 - Correct token name in pdbx file [\#131](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/131)
 - Add missing targets to copy files to output directory [\#130](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/130)
-- Correct output path for skeleton project [\#127](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/127)
 - Display assembly sizes on deployment [\#125](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/125)
 
 ## [v0.1.49](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v0.1.49) (2017-07-24)
@@ -1882,6 +1882,10 @@
 
 - Device is now reboot after deployment [\#121](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/121)
 - Improve feedback and output on wrong or bad class field declaration [\#120](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/120)
+
+**Fixed bugs:**
+
+- Correct output path for skeleton project [\#127](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/127)
 
 ## [v0.1.48](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v0.1.48) (2017-07-20)
 
@@ -2028,7 +2032,6 @@
 - Rename output of MetaDataProcessor [\#14](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/14)
 - Improve error output for MetaDataProcessor [\#11](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/11)
 - Overal improvements in repo/project documentation [\#7](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/7)
-- Initial work on MetaDataProcessor [\#6](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/6)
 - Initial testing with props and targets from Nuget package [\#3](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/3)
 
 **Fixed bugs:**
