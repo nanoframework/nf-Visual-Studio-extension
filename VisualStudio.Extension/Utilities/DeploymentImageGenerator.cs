@@ -95,9 +95,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         // Considering that (so far in all the targets currently active) the block storage configuration have the blocks ordered from bootloader to deploy,
                         // it's OK (and much efficient) to read the flash up the last CLR block. The deployment region will be filled in latter.
 
-                        var lastClrBlock = flashSectorMap.Last(item => (item.m_flags & Commands.Monitor_FlashSectorMap.c_MEMORY_USAGE_MASK) == Commands.Monitor_FlashSectorMap.c_MEMORY_USAGE_CODE);
-                        var lastClrBlockStartAddress = lastClrBlock.m_StartAddress;
-                        var lastClrBlockSize = lastClrBlock.m_NumBlocks * lastClrBlock.m_BytesPerBlock;
+                        var lastClrBlock = flashSectorMap.Last(item => (item.Flags & Commands.Monitor_FlashSectorMap.c_MEMORY_USAGE_MASK) == Commands.Monitor_FlashSectorMap.c_MEMORY_USAGE_CODE);
+                        var lastClrBlockStartAddress = lastClrBlock.StartAddress;
+                        var lastClrBlockSize = lastClrBlock.NumBlocks * lastClrBlock.BytesPerBlock;
                         var flashClrEndAddress = lastClrBlockStartAddress + lastClrBlockSize;
 
                         // setup array to receive binary output
@@ -199,18 +199,18 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 var flashStartAddress = memoryMap.First(m => (m.m_flags & Commands.Monitor_MemoryMap.c_FLASH) == Commands.Monitor_MemoryMap.c_FLASH).m_address;
 
                 // get config block addresses
-                var configBlock = flashSectorMap.Last(item => (item.m_flags & Commands.Monitor_FlashSectorMap.c_MEMORY_USAGE_MASK) == Commands.Monitor_FlashSectorMap.c_MEMORY_USAGE_CONFIG);
-                var configBlockStartAddress = configBlock.m_StartAddress;
-                var configBlockSize = configBlock.m_NumBlocks * configBlock.m_BytesPerBlock;
+                var configBlock = flashSectorMap.Last(item => (item.Flags & Commands.Monitor_FlashSectorMap.c_MEMORY_USAGE_MASK) == Commands.Monitor_FlashSectorMap.c_MEMORY_USAGE_CONFIG);
+                var configBlockStartAddress = configBlock.StartAddress;
+                var configBlockSize = configBlock.NumBlocks * configBlock.BytesPerBlock;
 
                 // get end address of CLR region
-                var lastClrBlock = flashSectorMap.Last(item => (item.m_flags & Commands.Monitor_FlashSectorMap.c_MEMORY_USAGE_MASK) == Commands.Monitor_FlashSectorMap.c_MEMORY_USAGE_CODE);
-                var lastClrBlockStartAddress = lastClrBlock.m_StartAddress;
-                var lastClrBlockSize = lastClrBlock.m_NumBlocks * lastClrBlock.m_BytesPerBlock;
+                var lastClrBlock = flashSectorMap.Last(item => (item.Flags & Commands.Monitor_FlashSectorMap.c_MEMORY_USAGE_MASK) == Commands.Monitor_FlashSectorMap.c_MEMORY_USAGE_CODE);
+                var lastClrBlockStartAddress = lastClrBlock.StartAddress;
+                var lastClrBlockSize = lastClrBlock.NumBlocks * lastClrBlock.BytesPerBlock;
                 var flashClrEndAddress = lastClrBlockStartAddress + lastClrBlockSize;
 
                 // get deployment start address
-                var deploymentStartAddress = flashSectorMap.First(item => (item.m_flags & Commands.Monitor_FlashSectorMap.c_MEMORY_USAGE_MASK) == Commands.Monitor_FlashSectorMap.c_MEMORY_USAGE_DEPLOYMENT).m_StartAddress;
+                var deploymentStartAddress = flashSectorMap.First(item => (item.Flags & Commands.Monitor_FlashSectorMap.c_MEMORY_USAGE_MASK) == Commands.Monitor_FlashSectorMap.c_MEMORY_USAGE_DEPLOYMENT).StartAddress;
 
                 // read flash dump file
                 byte[] flashDumpBuffer;
