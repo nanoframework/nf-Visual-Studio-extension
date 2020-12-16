@@ -1,11 +1,12 @@
 # Changelog
 
-## [v2019.4.0.44](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v2019.4.0.44) (2020-12-10)
+## [v2019.4.0.47](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v2019.4.0.47) (2020-12-16)
 
-[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2019.4.0.31...v2019.4.0.44)
+[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2019.4.0.31...v2019.4.0.47)
 
 **Updated dependencies and other chores:**
 
+- Bumps nanoFramework.Tools.Debugger to 1.27.0-preview.1 [\#563](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/563)
 - Bumps MetadataProcessor.Core to 2.31.1 [\#561](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/561)
 - Bumps MetadataProcessor.Core to 2.30.4 [\#560](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/560)
 - Bumps MetadataProcessor.Core to 2.30.2 [\#559](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/559)
