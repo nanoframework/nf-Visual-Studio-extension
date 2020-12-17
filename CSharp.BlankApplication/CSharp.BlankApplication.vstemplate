@@ -2,7 +2,7 @@
 <VSTemplate Version="3.0.0" Type="Project" xmlns="http://schemas.microsoft.com/developer/vstemplate/2005" xmlns:sdk="http://schemas.microsoft.com/developer/vstemplate-sdkextension/2010">
   <TemplateData>
     <Name>Blank Application (nanoFramework)</Name>
-    <Description>A project for a nanoFramework application to be deployed into a target board.</Description>
+    <Description>A project for a .NET nanoFramework application to be deployed into a target board.</Description>
     <Icon>CSApplication.ico</Icon>
     <ProjectType>CSharp</ProjectType>
     <SortOrder>1000</SortOrder>

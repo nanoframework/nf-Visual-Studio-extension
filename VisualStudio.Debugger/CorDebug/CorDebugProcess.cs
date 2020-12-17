@@ -2397,7 +2397,7 @@ namespace nanoFramework.Tools.VisualStudio.Debugger
         int Microsoft.VisualStudio.Debugger.Interop.IDebugProcess2.GetName(enum_GETNAME_TYPE gnType, out string pbstrName)
         {
             // DebugProcess.GetName is not implemented
-            pbstrName = "nanoFramework application";
+            pbstrName = ".NET nanoFramework application";
             return COM_HResults.S_OK;
         }
 

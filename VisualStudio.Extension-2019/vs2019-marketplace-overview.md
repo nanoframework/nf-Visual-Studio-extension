@@ -1,10 +1,10 @@
-# nanoFramework Visual Studio Extension
+# .NET nanoFramework Visual Studio Extension
 
-The nanoFramework Visual Studio extension provides the required tools to allow C# developers to code, deploy to nanoFramework target boards and debug applications running on the target.
+The .NET nanoFramework Visual Studio extension provides the required tools to allow C# developers to code, deploy to .NET nanoFramework target boards and debug applications running on the target.
 
 ## What is nanoFramework?
 
-nanoFramework is an open-source platform that enables the writing of managed code applications for constrained embedded devices like IoT sensors, wearables, academic proof of concept, robotics, hobbyist/makers creations or even complex industrial equipment. 
+.NET nanoFramework is an open-source platform that enables the writing of managed code applications for constrained embedded devices like IoT sensors, wearables, academic proof of concept, robotics, hobbyist/makers creations or even complex industrial equipment. 
 
 Developers can harness a powerful and familiar Microsoft Visual Studio IDE and their .NET C# knowledge to quickly write code without having to worry about the low-level hardware intricacies of a microcontroller. Desktop .NET developers will feel at home and are able to use their skills in embedded systems, enlarging the pool of qualified embedded developers.
 

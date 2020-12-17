@@ -134,9 +134,9 @@
                             </TextBlock>
 
                             <TextBlock Margin="10,0,0,0" VerticalAlignment="Center">
-                                Take advantage of nanoFramework    
+                                Take advantage of .NET nanoFramework    
                                 <Hyperlink Style="{StaticResource {x:Static vsfx:VsResourceKeys.ThemedDialogHyperlinkStyleKey}}"
-                                           NavigateUri="http://docs.nanoframework.net/articles/intro.html" 
+                                           NavigateUri="https://docs.nanoframework.net/index.html" 
                                            RequestNavigate="Hyperlink_RequestNavigate" >
                                     knowledge base</Hyperlink>.
                             </TextBlock>

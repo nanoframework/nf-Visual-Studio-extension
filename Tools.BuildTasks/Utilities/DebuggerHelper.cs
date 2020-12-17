@@ -24,7 +24,7 @@ namespace nanoFramework.Tools.Utilities
 
             if (!string.IsNullOrEmpty(debugEnabled) && debugEnabled.Equals("1", StringComparison.Ordinal))
             {
-                Console.WriteLine($"nanoFramework Metadata Processor msbuild instrumentation task debugging is enabled. Waiting {timeoutSeconds} seconds for debugger attachment...");
+                Console.WriteLine($".NET nanoFramework Metadata Processor msbuild instrumentation task debugging is enabled. Waiting {timeoutSeconds} seconds for debugger attachment...");
 
                 var currentProcessId = Process.GetCurrentProcess().Id;
                 var currentProcessName = Process.GetProcessById(currentProcessId).ProcessName;

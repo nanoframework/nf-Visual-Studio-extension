@@ -35,7 +35,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.FirmwareUpdate
         internal string _fwVersion;
         internal bool _stable;
 
-        internal const string _readmeContent = "This folder contains nanoFramework firmware files. Can safely be removed.";
+        internal const string _readmeContent = "This folder contains .NET nanoFramework firmware files. Can safely be removed.";
 
         private string _versionRaw;
         private Version _version;

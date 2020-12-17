@@ -27,7 +27,7 @@ using Task = System.Threading.Tasks.Task;
 
 [assembly: ProjectTypeRegistration(projectTypeGuid: NanoFrameworkPackage.ProjectTypeGuid,
                                 displayName: "NanoCSharpProject",
-                                displayProjectFileExtensions: "nanoFramework Project Files (*.nfproj);*.nfproj",
+                                displayProjectFileExtensions: ".NET nanoFramework Project Files (*.nfproj);*.nfproj",
                                 defaultProjectExtension: NanoCSharpProjectUnconfigured.ProjectExtension,
                                 language: NanoCSharpProjectUnconfigured.Language,
                                 resourcePackageGuid: NanoFrameworkPackage.PackageGuid,
@@ -66,7 +66,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
     [Guid(NanoFrameworkPackage.PackageGuid)]
     [ProvideObject(typeof(CorDebug))]
     [ProvideDebugEngine("Managed", typeof(CorDebug), CorDebug.EngineId, setNextStatement: true, hitCountBp: true)]
-    [ProvideDebugPortSupplier("nanoFramework Port Supplier", typeof(DebugPortSupplier), DebugPortSupplier.PortSupplierId)]
+    [ProvideDebugPortSupplier(".NET nanoFramework Port Supplier", typeof(DebugPortSupplier), DebugPortSupplier.PortSupplierId)]
     // register code generator for resources
     [ProvideObject(typeof(nFResXFileCodeGenerator))]
     [ProvideCodeGenerator(typeof(nFResXFileCodeGenerator), nFResXFileCodeGenerator.Name, nFResXFileCodeGenerator.Description, true, ProjectSystem = ProvideCodeGeneratorAttribute.CSharpProjectGuid)]
@@ -389,7 +389,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 if (Environment.OSVersion.Version.Major < 10)
                 {
                     // the extension won't run properly if we are not on Windows 10, warn user
-                    MessageBox.Show("nanoFramework Extension requires Windows 10!", "nanoFramework extension", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show(".NET nanoFramework Extension requires Windows 10!", ".NET nanoFramework extension", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
                 else
                 {
@@ -418,7 +418,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                     SimpleIoc.Default.GetInstance<DeviceExplorerViewModel>().Package = this;
 
-                    await MessageCentre.InitializeAsync(this, "nanoFramework Extension");
+                    await MessageCentre.InitializeAsync(this, ".NET nanoFramework Extension");
 
                     await DeviceExplorerCommand.InitializeAsync(this, viewModelLocator);
                     DeployProvider.Initialize(this, viewModelLocator);
@@ -456,7 +456,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 await System.Threading.Tasks.Task.Delay(5000);
 
                 // loaded 
-                MessageCentre.OutputMessage($"** nanoFramework extension v{NanoFrameworkExtensionVersion.ToString()} loaded **");
+                MessageCentre.OutputMessage($"** .NET nanoFramework extension v{NanoFrameworkExtensionVersion.ToString()} loaded **");
 
                 // intro messages
                 MessageCentre.OutputMessage("GitHub repo: https://github.com/nanoframework/Home");
@@ -476,7 +476,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     MessageCentre.OutputMessage(Environment.NewLine);
                     MessageCentre.OutputMessage("*************************************************************************");
                     MessageCentre.OutputMessage("** Seems that you are running this on a Window version earlier than 10 **");
-                    MessageCentre.OutputMessage("** nanoFramework debug engine component requires Windows 10            **");
+                    MessageCentre.OutputMessage("** .NET nanoFramework debug engine component requires Windows 10            **");
                     MessageCentre.OutputMessage("*************************************************************************");
                     MessageCentre.OutputMessage(Environment.NewLine);
                 }

@@ -7,7 +7,7 @@
     <GenerateManifests>true</GenerateManifests>
 
     <!-- Prevents the default MsBuild targets from referencing System.dll and mscorlib.dll
-     because we are using nanoFramework System namespace and objects.
+     because we are using .NET nanoFramework System namespace and objects.
       See https://msdn.microsoft.com/en-us/library/fa13yay7.aspx -->
     <NoStdLib>true</NoStdLib>
     <NoCompilerStandardLib>true</NoCompilerStandardLib>

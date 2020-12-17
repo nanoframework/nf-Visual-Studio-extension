@@ -54,7 +54,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                 // create firmware update manager pane
                 tempId = s_FirmwareUpdatManagerPane;
-                _outputWindow.CreatePane(ref tempId, "nanoFramework Firmware Update Manager", 1, 0);
+                _outputWindow.CreatePane(ref tempId, ".NET nanoFramework Firmware Update Manager", 1, 0);
                 _outputWindow.GetPane(ref tempId, out _firmwareUpdatManager);
             });
         }

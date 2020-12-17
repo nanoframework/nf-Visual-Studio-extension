@@ -10,7 +10,7 @@
 -->
 <Rule
 	Name="NanoDebugger"
-	DisplayName="nanoFramework Device"
+	DisplayName=".NET nanoFramework Device"
 	PageTemplate="debugger"
 	Description="NanoDebugger Debugger options"
 	xmlns="http://schemas.microsoft.com/build/2009/properties">
