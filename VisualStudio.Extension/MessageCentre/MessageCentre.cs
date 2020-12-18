@@ -8,6 +8,7 @@ using Microsoft;
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
+using nanoFramework.Tools.Debugger;
 using System;
 using System.Diagnostics;
 
@@ -25,6 +26,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         private static IVsOutputWindowPane _firmwareUpdatManager;
         private static IVsStatusbar _statusBar;
         private static string _paneName;
+        private static uint progressCookie;
 
         public static async System.Threading.Tasks.Task InitializeAsync(AsyncPackage package, string name)
         {
@@ -198,6 +200,31 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             });
         }
 
+        public static void StartMessageWithProgress(MessageWithProgress message)
+        //    string message,
+        //    uint nComplete, 
+        //    uint nTotal)
+        {
+            ThreadHelper.JoinableTaskFactory.RunAsync(async () =>
+            {
+                await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+
+                // Make sure the status bar is not frozen  
+                _statusBar.IsFrozen(out int frozen);
+
+                if (frozen != 0)
+                {
+                    _statusBar.FreezeOutput(0);
+                }
+
+                _statusBar.SetText("");
+
+                // start progress bar
+                _statusBar.Progress(ref progressCookie, 1, message.Message, message.Current, message.Total);
+
+            });
+        }
+
         public static void StopProgressMessage(string message = null)
         {
 
@@ -216,8 +243,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     _statusBar.FreezeOutput(0);
                 }
 
-
-                if (String.IsNullOrEmpty(message))
+                if (string.IsNullOrEmpty(message))
                 {
                     _statusBar.SetText(message);
                 }
@@ -228,6 +254,15 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                 // stop the animation
                 _statusBar?.Animation(0, ref icon);
+
+                // stop the progress bar
+                if (progressCookie > 0)
+                {
+                    _statusBar?.Progress(ref progressCookie, 0, "", 0, 0);
+
+                    // reset cookie
+                    progressCookie = 0;
+                }
 
             });
         }
