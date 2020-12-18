@@ -1,16 +1,18 @@
 # Changelog
 
-## [v2019.4.0.55](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v2019.4.0.55) (2020-12-18)
+## [v2019.4.0.59](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v2019.4.0.59) (2020-12-18)
 
-[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2019.4.0.31...v2019.4.0.55)
+[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2019.4.0.31...v2019.4.0.59)
 
 **Implemented enhancements:**
 
+- Improve deploy and erase output [\#570](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/570)
 - Improvements after changes in debugger library [\#568](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/568)
 - Fix project name and URLs [\#566](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/566)
 
 **Updated dependencies and other chores:**
 
+- Bumps nanoFramework.Tools.Debugger to 1.28.0-preview.1 [\#569](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/569)
 - Bumps nanoFramework.Tools.Debugger to 1.27.0-preview.11 [\#567](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/567)
 - Bumps nanoFramework.Tools.Debugger to 1.27.0-preview.4 [\#565](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/565)
 - Bumps nanoFramework.Tools.Debugger to 1.27.0-preview.1 [\#563](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/563)
@@ -724,6 +726,10 @@
 
 [Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v1.7.0.2-VS2017...v1.7.0.3-VS2019)
 
+**Implemented enhancements:**
+
+- Work on project system files [\#426](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/426)
+
 **Updated dependencies and other chores:**
 
 - Update MDP to 2.21.3 [\#433](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/433)
@@ -791,10 +797,6 @@
 ## [v1.5.0.2-VS2019](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v1.5.0.2-VS2019) (2020-02-17)
 
 [Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v1.5.0.1-VS2019...v1.5.0.2-VS2019)
-
-**Implemented enhancements:**
-
-- Work on project system files [\#426](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/426)
 
 ## [v1.5.0.1-VS2019](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v1.5.0.1-VS2019) (2020-02-14)
 
