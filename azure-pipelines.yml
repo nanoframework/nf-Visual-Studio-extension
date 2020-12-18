@@ -235,7 +235,7 @@ jobs:
       githubOwner: 'nanoframework'
       githubRepositoryName: 'nf-Visual-Studio-extension'
       githubTag: v$(NBGV_AssemblyVersion)
-      githubReleaseTitle: 'nanoFramework VS2017 Extension v$(NBGV_AssemblyVersion)'
+      githubReleaseTitle: '.NET nanoFramework VS2017 Extension v$(NBGV_AssemblyVersion)'
       githubReleaseNotes: 'Check the [changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/blob/$(Build.SourceBranchName)/CHANGELOG-VS2017.md).<br><br><h4>Install from nanoFramework Open VSIX Gallery development feed</h4><br>The following Visual Studio Extensions are available for install from this release<br><br>:package: [nanoFramework VS2017 Extension](http://vsixgallery.com/extension/47973986-ed3c-4b64-ba40-a9da73b44ef7)'
       githubTargetCommitsh: $(Build.SourceVersion)
       githubReleaseDraft: $(RELEASE_DRAFT)
@@ -255,7 +255,7 @@ jobs:
       githubOwner: 'nanoframework'
       githubRepositoryName: 'nf-Visual-Studio-extension'
       githubTag: v$(NBGV_AssemblyVersion)
-      githubReleaseTitle: 'nanoFramework VS2017 Extension v$(NBGV_AssemblyVersion)'
+      githubReleaseTitle: '.NET nanoFramework VS2017 Extension v$(NBGV_AssemblyVersion)'
       githubReleaseNotes: 'Check the [changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/blob/$(Build.SourceBranchName)/CHANGELOG-VS2017.md).<br><br><h4>Install from Visual Studio Marketplace</h4><br>The following Visual Studio Extensions are available for install from this release<br>:package: [nanoFramework VS2017 Extension](https://marketplace.visualstudio.com/items?itemName=vs-publisher-1470366.nanoFrameworkVS2017Extension)'
       githubTargetCommitsh: $(Build.SourceVersion)
       githubReleaseDraft: false
@@ -406,7 +406,7 @@ jobs:
       githubOwner: 'nanoframework'
       githubRepositoryName: 'nf-Visual-Studio-extension'
       githubTag: v$(NBGV_AssemblyVersion)
-      githubReleaseTitle: 'nanoFramework VS2019 Extension v$(NBGV_AssemblyVersion)'
+      githubReleaseTitle: '.NET nanoFramework VS2019 Extension v$(NBGV_AssemblyVersion)'
       githubReleaseNotes: 'Check the [changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/blob/$(Build.SourceBranchName)/CHANGELOG-VS2019.md).<br><br><h4>Install from nanoFramework Open VSIX Gallery development feed</h4><br>The following Visual Studio Extensions are available for install from this release<br><br>:package: [nanoFramework VS2019 Extension](http://vsixgallery.com/extension/455f2be5-bb07-451e-b351-a9faf3018dc9)'
       githubTargetCommitsh: $(Build.SourceVersion)
       githubReleaseDraft: $(RELEASE_DRAFT)
@@ -426,7 +426,7 @@ jobs:
       githubOwner: 'nanoframework'
       githubRepositoryName: 'nf-Visual-Studio-extension'
       githubTag: v$(NBGV_AssemblyVersion)
-      githubReleaseTitle: 'nanoFramework VS2019 Extension v$(NBGV_AssemblyVersion)'
+      githubReleaseTitle: '.NET nanoFramework VS2019 Extension v$(NBGV_AssemblyVersion)'
       githubReleaseNotes: 'Check the [changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/blob/$(Build.SourceBranchName)/CHANGELOG-VS2019.md).<br><br><h4>Install from Visual Studio Marketplace</h4><br>The following Visual Studio Extensions are available for install from this release<br>:package: [nanoFramework VS2019 Extension](https://marketplace.visualstudio.com/items?itemName=nanoframework.nanoFramework-VS2019-Extension)'
       githubTargetCommitsh: $(Build.SourceVersion)
       githubReleaseDraft: false

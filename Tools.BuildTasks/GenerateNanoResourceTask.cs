@@ -743,7 +743,7 @@ namespace nanoFramework.Tools
             }
             catch (Exception ex)
             {
-                Log.LogError("nanoFramework GenerateNanoResourceTask error: " + ex.Message);
+                Log.LogError(".NET nanoFramework GenerateNanoResourceTask error: " + ex.Message);
             }
 
             // if we've logged any errors that's because there were errors (WOW!)

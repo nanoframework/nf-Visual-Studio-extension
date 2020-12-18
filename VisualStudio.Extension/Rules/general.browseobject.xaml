@@ -8,8 +8,8 @@
 
     <Rule.Categories>
         <Category Name="General" DisplayName="General" Description="General" />
-        <Category Name="nanoFramework" DisplayName="nanoFramework" Description="nanoFramework properties" />
-        <Category Name="nFAdvanced" DisplayName="nanoFramework (Advanced)" Description="nanoFramework advanced properties" />
+        <Category Name="nanoFramework" DisplayName="nanoFramework" Description=".NET nanoFramework properties" />
+        <Category Name="nFAdvanced" DisplayName=".NET nanoFramework (Advanced)" Description=".NET nanoFramework advanced properties" />
     </Rule.Categories>
     
     <Rule.DataSource>

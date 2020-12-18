@@ -49,7 +49,7 @@ namespace nanoFramework.Tools
             }
             catch (Exception ex)
             {
-                Log.LogError("nanoFramework ResolveRuntimeDependenciesTask error: " + ex.Message);
+                Log.LogError(".NET nanoFramework ResolveRuntimeDependenciesTask error: " + ex.Message);
             }
 
             // if we've logged any errors that's because there were errors (WOW!)
