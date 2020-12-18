@@ -171,14 +171,14 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                                 await outputPaneWriter.WriteLineAsync(ResourceStrings.WaitingDeviceInitialization);
                             }
 
-                            if (device.DebugEngine.ConnectionSource == Tools.Debugger.WireProtocol.ConnectionSource.nanoBooter)
+                            if (device.DebugEngine.IsConnectedTonanoBooter)
                             {
                                 MessageCentre.InternalErrorMessage("Device reported running nanoBooter. Requesting to load nanoCLR.");
 
                                 // request nanoBooter to load CLR
                                 device.DebugEngine.ExecuteMemory(0);
                             }
-                            else if (device.DebugEngine.ConnectionSource == Tools.Debugger.WireProtocol.ConnectionSource.nanoCLR)
+                            else if (device.DebugEngine.IsConnectedTonanoCLR)
                             {
                                 MessageCentre.InternalErrorMessage("Device reported running nanoCLR. Requesting to reboot nanoCLR.");
 
