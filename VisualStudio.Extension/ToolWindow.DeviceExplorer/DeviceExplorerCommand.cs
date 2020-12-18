@@ -527,6 +527,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
             var descriptionBackup = ViewModelLocator.DeviceExplorer.SelectedDevice.Description;
 
+            var logProgressIndicator = new Progress<string>(MessageCentre.InternalErrorMessage);
+            var progressIndicator = new Progress<MessageWithProgress>((m) => MessageCentre.StartMessageWithProgress(m));
+
             MessageCentre.StartProgressMessage($"Erasing {descriptionBackup} deployment area...");
 
             await Task.Run(async delegate
@@ -550,7 +553,11 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     {
                         try
                         {
-                            if (await NanoDeviceCommService.Device.EraseAsync(EraseOptions.Deployment, CancellationToken.None))
+                            if (await NanoDeviceCommService.Device.EraseAsync(
+                                EraseOptions.Deployment,
+                                CancellationToken.None,
+                                progressIndicator,
+                                logProgressIndicator))
                             {
                                 MessageCentre.OutputMessage($"{descriptionBackup} deployment area erased.");
 

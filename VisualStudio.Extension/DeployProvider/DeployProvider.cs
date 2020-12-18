@@ -127,13 +127,29 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                 await Task.Yield();
 
+                var logProgressIndicator = new Progress<string>(MessageCentre.InternalErrorMessage);
+                var progressIndicator = new Progress<MessageWithProgress>((m) => MessageCentre.StartMessageWithProgress(m));
+
                 // connect to the device
                 if (await device.DebugEngine.ConnectAsync(5000, true))
                 {
                     MessageCentre.InternalErrorMessage("Connect successful.");
 
+                    var eraseResult = await Task.Run(async delegate
+                    {
+                        MessageCentre.InternalErrorMessage("Erase deployment block storage.");
+
+                        return await device.EraseAsync(
+                            EraseOptions.Deployment,
+                            CancellationToken.None,
+                            progressIndicator,
+                            logProgressIndicator);
+                    });
+
+                    MessageCentre.StopProgressMessage();
+
                     // erase the target deployment area to ensure a clean deployment and execution start
-                    if (await device.EraseAsync(EraseOptions.Deployment, CancellationToken.None))
+                    if (eraseResult)
                     {
                         MessageCentre.InternalErrorMessage("Erase deployment area successful.");
 
@@ -355,14 +371,18 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                             // need to keep a copy of the deployment blob for the second attempt (if needed)
                             var assemblyCopy = new List<byte[]>(assemblies);
 
-                            // create a progress indicator to be used by deployment operation to post debug messages
-                            var progressIndicator = new Progress<string>(MessageCentre.InternalErrorMessage);
-
                             await Task.Yield();
 
                             await Task.Run(async delegate
                             {
-                                if (!device.DebugEngine.DeploymentExecute(assemblyCopy, false, progressIndicator))
+                                // OK to skip erase as we just did that
+                                // no need to reboot device
+                                if (!device.DebugEngine.DeploymentExecute(
+                                    assemblyCopy, 
+                                    false,
+                                    true,
+                                    null,
+                                    logProgressIndicator))
                                 {
                                     // if the first attempt fails, give it another try
 
@@ -375,7 +395,15 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                                     // !! need to use the deployment blob copy
                                     assemblyCopy = new List<byte[]>(assemblies);
-                                    if (!device.DebugEngine.DeploymentExecute(assemblyCopy, false, progressIndicator))
+
+                                    // OK to skip erase as we just did that
+                                    // no need to reboot device
+                                    if (!device.DebugEngine.DeploymentExecute(
+                                        assemblyCopy, 
+                                        false,
+                                        true,
+                                        null,
+                                        logProgressIndicator))
                                     {
                                         MessageCentre.InternalErrorMessage("Deployment failed.");
 
@@ -445,6 +473,10 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 #pragma warning disable S112 // OK to throw exception here to properly report back to the UI
                 throw new Exception("Unexpected error. Please retry the deployment. If the situation persists reboot the device.");
 #pragma warning restore S112 // General exceptions should never be thrown
+            }
+            finally
+            {
+                MessageCentre.StopProgressMessage();
             }
         }
 
