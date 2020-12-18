@@ -296,18 +296,19 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     if (await NanoDeviceCommService.Device.DebugEngine.ConnectAsync(5000))
                     {
                         // ping device
-                        var connection = NanoDeviceCommService.Device.Ping();
+                        NanoDeviceCommService.Device.Ping();
 
-                        switch (ViewModelLocator.DeviceExplorer.SelectedDevice.DebugEngine.ConnectionSource)
+                        if (ViewModelLocator.DeviceExplorer.SelectedDevice.DebugEngine.IsConnectedTonanoBooter)
                         {
-                            case ConnectionSource.Unknown:
-                                MessageCentre.OutputMessage($"No reply from {descriptionBackup}");
-                                break;
-
-                            case ConnectionSource.nanoBooter:
-                            case ConnectionSource.nanoCLR:
-                                MessageCentre.OutputMessage($"{descriptionBackup} is active running {ViewModelLocator.DeviceExplorer.SelectedDevice.DebugEngine.ConnectionSource.ToString()}");
-                                break;
+                            MessageCentre.OutputMessage($"{descriptionBackup} is active running nanoBooter.");
+                        }
+                        if (ViewModelLocator.DeviceExplorer.SelectedDevice.DebugEngine.IsConnectedTonanoCLR)
+                        {
+                            MessageCentre.OutputMessage($"{descriptionBackup} is active running nanoCLR.");
+                        }
+                        else
+                        {
+                            MessageCentre.OutputMessage($"No reply from {descriptionBackup}");
                         }
                     }
                     else
@@ -372,7 +373,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         if (await NanoDeviceCommService.Device.DebugEngine.ConnectAsync(5000))
                         {
                             // check that we are in CLR
-                            if (NanoDeviceCommService.Device.DebugEngine.ConnectionSource == ConnectionSource.nanoCLR)
+                            if (NanoDeviceCommService.Device.DebugEngine.IsConnectedTonanoCLR)
                             {
                                 try
                                 {
@@ -464,7 +465,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         }
                     }
 
-                    if (NanoDeviceCommService.Device.DebugEngine.ConnectionSource == ConnectionSource.nanoCLR)
+                    if (NanoDeviceCommService.Device.DebugEngine.IsConnectedTonanoCLR)
                     {
                         // CLR, output full details
                         MessageCentre.OutputMessage(string.Empty);

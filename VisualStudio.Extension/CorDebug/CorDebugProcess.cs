@@ -313,7 +313,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                 for(int retries = 0; retries < maxOperationRetries; retries++)
                 {
-                    if(_engine.ConnectionSource == ConnectionSource.nanoCLR)
+                    if(_engine.IsConnectedTonanoCLR)
                     {
                         if (_engine.IsDeviceInInitializeState())
                         {
@@ -340,7 +340,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                             _engine.RebootDevice(RebootOptions.ClrOnly | RebootOptions.WaitForDebugger);
                         }
                     }
-                    else if(_engine.ConnectionSource == ConnectionSource.nanoBooter)
+                    else if(_engine.IsConnectedTonanoBooter)
                     {
                         MessageCentre.InternalErrorMessage($"Device is running nanoBooter, requesting to launch CLR ({retries + 1}/{ maxOperationRetries }).");
 
