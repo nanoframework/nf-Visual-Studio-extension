@@ -1,11 +1,12 @@
 # Changelog
 
-## [v2019.4.0.52](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v2019.4.0.52) (2020-12-18)
+## [v2019.4.0.55](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v2019.4.0.55) (2020-12-18)
 
-[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2019.4.0.31...v2019.4.0.52)
+[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2019.4.0.31...v2019.4.0.55)
 
 **Implemented enhancements:**
 
+- Improvements after changes in debugger library [\#568](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/568)
 - Fix project name and URLs [\#566](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/566)
 
 **Updated dependencies and other chores:**
