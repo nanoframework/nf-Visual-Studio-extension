@@ -318,7 +318,7 @@ jobs:
       versionSpec: '5.4.0'
     displayName: 'Install specifc version of NuGet'
 
-  - task: #Command@2
+  - task: #NuGetCommand@2
     inputs:
       restoreSolution: '$(solution)'
       feedsToUse: config
