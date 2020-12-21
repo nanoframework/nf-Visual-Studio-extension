@@ -185,26 +185,28 @@ jobs:
       ArtifactType: Container
     condition: and( succeeded(), ne(variables['system.pullrequest.isfork'], true) )
     displayName: Publish deployables artifacts
-    
-- task: DotNetCoreCLI@2
-  displayName: Install SignTool tool
-  inputs:
-    command: custom
-    custom: tool
-    arguments: install --tool-path . SignClient
 
-- pwsh: |
-    .\SignClient "Sign" `
-    --baseDirectory "$(Build.ArtifactStagingDirectory)" `
-    --input "**/*.visx" `
-    --config "$(Build.Repository.LocalPath)\config\SignClient.json" `
-    --filelist "$(Build.Repository.LocalPath)\config\filelist.txt" `
-    --user "$(SignClientUser)" `
-    --secret '$(SignClientSecret)' `
-    --name "$(visxPackageName)" `
-    --description "$(visxPackageName)" `
-    --descriptionUrl "https://github.com/$env:Build_Repository_Name"
-  displayName: Sign packages
+  - task: DotNetCoreCLI@2
+    displayName: Install SignTool tool
+    condition: and( succeeded(), ne(variables['system.pullrequest.isfork'], true) )
+    inputs:
+      command: custom
+      custom: tool
+      arguments: install --tool-path . SignClient
+
+  - pwsh: |
+      .\SignClient "Sign" `
+      --baseDirectory "$(Build.ArtifactStagingDirectory)" `
+      --input "**/*.visx" `
+      --config "$(Build.Repository.LocalPath)\config\SignClient.json" `
+      --filelist "$(Build.Repository.LocalPath)\config\filelist.txt" `
+      --user "$(SignClientUser)" `
+      --secret '$(SignClientSecret)' `
+      --name "$(visxPackageName)" `
+      --description "$(visxPackageName)" `
+      --descriptionUrl "https://github.com/$env:Build_Repository_Name"
+    displayName: Sign packages
+    condition: and( succeeded(), ne(variables['system.pullrequest.isfork'], true) )
 
   # upload extension to Open VSIX Gallery (only possible if this is not a PR from a fork)
   - task: PowerShell@2
@@ -318,7 +320,7 @@ jobs:
       versionSpec: '5.4.0'
     displayName: 'Install specifc version of NuGet'
 
-  - task: #Command@2
+  - task: NuGetCommand@2
     inputs:
       restoreSolution: '$(solution)'
       feedsToUse: config
@@ -367,26 +369,6 @@ jobs:
       flattenFolders: true
     condition: succeeded()
     displayName: Collecting deployable artifacts
-    
-- task: DotNetCoreCLI@2
-  displayName: Install SignTool tool
-  inputs:
-    command: custom
-    custom: tool
-    arguments: install --tool-path . SignClient
-
-- pwsh: |
-    .\SignClient "Sign" `
-    --baseDirectory "$(Build.ArtifactStagingDirectory)" `
-    --input "**/*.visx" `
-    --config "$(Build.Repository.LocalPath)\config\SignClient.json" `
-    --filelist "$(Build.Repository.LocalPath)\config\filelist.txt" `
-    --user "$(SignClientUser)" `
-    --secret '$(SignClientSecret)' `
-    --name "$(visxPackageName)" `
-    --description "$(visxPackageName)" `
-    --descriptionUrl "https://github.com/$env:Build_Repository_Name"
-  displayName: Sign packages
 
   # publish artifacts (only possible if this is not a PR originated on a fork)
   - task: PublishBuildArtifacts@1
@@ -396,6 +378,28 @@ jobs:
       ArtifactType: Container
     condition: and( succeeded(), ne(variables['system.pullrequest.isfork'], true) )
     displayName: Publish deployables artifacts
+    
+  - task: DotNetCoreCLI@2
+    displayName: Install SignTool tool
+    condition: and( succeeded(), ne(variables['system.pullrequest.isfork'], true) )
+    inputs:
+      command: custom
+      custom: tool
+      arguments: install --tool-path . SignClient
+  
+  - pwsh: |
+      .\SignClient "Sign" `
+      --baseDirectory "$(Build.ArtifactStagingDirectory)" `
+      --input "**/*.visx" `
+      --config "$(Build.Repository.LocalPath)\config\SignClient.json" `
+      --filelist "$(Build.Repository.LocalPath)\config\filelist.txt" `
+      --user "$(SignClientUser)" `
+      --secret '$(SignClientSecret)' `
+      --name "$(visxPackageName)" `
+      --description "$(visxPackageName)" `
+      --descriptionUrl "https://github.com/$env:Build_Repository_Name"
+    displayName: Sign packages
+    condition: and( succeeded(), ne(variables['system.pullrequest.isfork'], true) )
 
   # upload extension to Open VSIX Gallery (only possible if this is not a PR from a fork)
   - task: PowerShell@2
