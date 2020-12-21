@@ -177,15 +177,6 @@ jobs:
     condition: succeeded()
     displayName: Collecting deployable artifacts
 
-  # publish artifacts (only possible if this is not a PR originated on a fork)
-  - task: PublishBuildArtifacts@1
-    inputs:
-      PathtoPublish: '$(Build.ArtifactStagingDirectory)'
-      ArtifactName: deployables
-      ArtifactType: Container
-    condition: and( succeeded(), ne(variables['system.pullrequest.isfork'], true) )
-    displayName: Publish deployables artifacts
-
   - task: DotNetCoreCLI@2
     displayName: Install SignTool tool
     condition: and( succeeded(), eq(variables['System.PullRequest.PullRequestId'], '') )
@@ -197,7 +188,7 @@ jobs:
   - pwsh: |
       .\SignClient "Sign" `
       --baseDirectory "$(Build.ArtifactStagingDirectory)" `
-      --input "**/*.vsix" `
+      --input "**\*.vsix" `
       --config "$(Build.Repository.LocalPath)\config\SignClient.json" `
       --filelist "$(Build.Repository.LocalPath)\config\filelist.txt" `
       --user "$(SignClientUser)" `
@@ -207,6 +198,15 @@ jobs:
       --descriptionUrl "https://github.com/$env:Build_Repository_Name"
     displayName: Sign packages
     condition: and( succeeded(), eq(variables['System.PullRequest.PullRequestId'], '') )
+
+  # publish artifacts (only possible if this is not a PR originated on a fork)
+  - task: PublishBuildArtifacts@1
+    inputs:
+      PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+      ArtifactName: deployables
+      ArtifactType: Container
+    condition: and( succeeded(), ne(variables['system.pullrequest.isfork'], true) )
+    displayName: Publish deployables artifacts
 
   # upload extension to Open VSIX Gallery (only possible if this is not a PR from a fork)
   - task: PowerShell@2
@@ -369,15 +369,6 @@ jobs:
       flattenFolders: true
     condition: succeeded()
     displayName: Collecting deployable artifacts
-
-  # publish artifacts (only possible if this is not a PR originated on a fork)
-  - task: PublishBuildArtifacts@1
-    inputs:
-      PathtoPublish: '$(Build.ArtifactStagingDirectory)'
-      ArtifactName: deployables
-      ArtifactType: Container
-    condition: and( succeeded(), ne(variables['system.pullrequest.isfork'], true) )
-    displayName: Publish deployables artifacts
     
   - task: DotNetCoreCLI@2
     displayName: Install SignTool tool
@@ -390,7 +381,7 @@ jobs:
   - pwsh: |
       .\SignClient "Sign" `
       --baseDirectory "$(Build.ArtifactStagingDirectory)" `
-      --input "**/*.vsix" `
+      --input "**\*.vsix" `
       --config "$(Build.Repository.LocalPath)\config\SignClient.json" `
       --filelist "$(Build.Repository.LocalPath)\config\filelist.txt" `
       --user "$(SignClientUser)" `
@@ -400,6 +391,15 @@ jobs:
       --descriptionUrl "https://github.com/$env:Build_Repository_Name"
     displayName: Sign packages
     condition: and( succeeded(), eq(variables['System.PullRequest.PullRequestId'], '') )
+
+  # publish artifacts (only possible if this is not a PR originated on a fork)
+  - task: PublishBuildArtifacts@1
+    inputs:
+      PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+      ArtifactName: deployables
+      ArtifactType: Container
+    condition: and( succeeded(), ne(variables['system.pullrequest.isfork'], true) )
+    displayName: Publish deployables artifacts
 
   # upload extension to Open VSIX Gallery (only possible if this is not a PR from a fork)
   - task: PowerShell@2
