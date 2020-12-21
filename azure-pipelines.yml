@@ -188,7 +188,7 @@ jobs:
 
   - task: DotNetCoreCLI@2
     displayName: Install SignTool tool
-    condition: and( succeeded(), ne(variables['system.pullrequest.isfork'], true) )
+    condition: and( succeeded(), eq(variables['System.PullRequest.PullRequestId'], '') )
     inputs:
       command: custom
       custom: tool
@@ -206,7 +206,7 @@ jobs:
       --description ".NET nanoFramework VS2017 Extension" `
       --descriptionUrl "https://github.com/$env:Build_Repository_Name"
     displayName: Sign packages
-    condition: and( succeeded(), ne(variables['system.pullrequest.isfork'], true) )
+    condition: and( succeeded(), eq(variables['System.PullRequest.PullRequestId'], '') )
 
   # upload extension to Open VSIX Gallery (only possible if this is not a PR from a fork)
   - task: PowerShell@2
@@ -381,7 +381,7 @@ jobs:
     
   - task: DotNetCoreCLI@2
     displayName: Install SignTool tool
-    condition: and( succeeded(), ne(variables['system.pullrequest.isfork'], true) )
+    condition: and( succeeded(), eq(variables['System.PullRequest.PullRequestId'], '') )
     inputs:
       command: custom
       custom: tool
@@ -399,7 +399,7 @@ jobs:
       --description ".NET nanoFramework VS2019 Extension" `
       --descriptionUrl "https://github.com/$env:Build_Repository_Name"
     displayName: Sign packages
-    condition: and( succeeded(), ne(variables['system.pullrequest.isfork'], true) )
+    condition: and( succeeded(), eq(variables['System.PullRequest.PullRequestId'], '') )
 
   # upload extension to Open VSIX Gallery (only possible if this is not a PR from a fork)
   - task: PowerShell@2
