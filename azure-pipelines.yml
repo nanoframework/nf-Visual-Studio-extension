@@ -202,8 +202,8 @@ jobs:
       --filelist "$(Build.Repository.LocalPath)\config\filelist.txt" `
       --user "$(SignClientUser)" `
       --secret '$(SignClientSecret)' `
-      --name "$(visxPackageName)" `
-      --description "$(visxPackageName)" `
+      --name ".NET nanoFramework VS2017 Extension" `
+      --description ".NET nanoFramework VS2017 Extension" `
       --descriptionUrl "https://github.com/$env:Build_Repository_Name"
     displayName: Sign packages
     condition: and( succeeded(), ne(variables['system.pullrequest.isfork'], true) )
@@ -395,8 +395,8 @@ jobs:
       --filelist "$(Build.Repository.LocalPath)\config\filelist.txt" `
       --user "$(SignClientUser)" `
       --secret '$(SignClientSecret)' `
-      --name "$(visxPackageName)" `
-      --description "$(visxPackageName)" `
+      --name ".NET nanoFramework VS2019 Extension" `
+      --description ".NET nanoFramework VS2019 Extension" `
       --descriptionUrl "https://github.com/$env:Build_Repository_Name"
     displayName: Sign packages
     condition: and( succeeded(), ne(variables['system.pullrequest.isfork'], true) )
