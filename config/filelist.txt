@@ -1,1 +1,2 @@
 **/Visual-Studio-extension*
+**/Visual-Studio-extension-2019*
