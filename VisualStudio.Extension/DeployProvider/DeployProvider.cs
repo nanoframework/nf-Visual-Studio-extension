@@ -135,6 +135,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 {
                     MessageCentre.InternalErrorMessage("Connect successful.");
 
+                    await Task.Yield();
+
                     var eraseResult = await Task.Run(async delegate
                     {
                         MessageCentre.InternalErrorMessage("Erase deployment block storage.");
@@ -381,7 +383,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                                     assemblyCopy, 
                                     false,
                                     true,
-                                    null,
+                                    progressIndicator,
                                     logProgressIndicator))
                                 {
                                     // if the first attempt fails, give it another try
@@ -396,13 +398,13 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                                     // !! need to use the deployment blob copy
                                     assemblyCopy = new List<byte[]>(assemblies);
 
-                                    // OK to skip erase as we just did that
+                                    // can't skip erase as we just did that
                                     // no need to reboot device
                                     if (!device.DebugEngine.DeploymentExecute(
                                         assemblyCopy, 
                                         false,
-                                        true,
-                                        null,
+                                        false,
+                                        progressIndicator,
                                         logProgressIndicator))
                                     {
                                         MessageCentre.InternalErrorMessage("Deployment failed.");
