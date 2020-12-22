@@ -6,7 +6,7 @@
         <Description xml:space="preserve">Visual Studio 2019 extension for nanoFramework. Enables creating C# applications for micro-controllers and provides debugging tools.</Description>
         <MoreInfo>http://www.nanoframework.net</MoreInfo>
         <License>license.txt</License>
-        <GettingStartedGuide>http://docs.nanoframework.net/articles/getting-started-intro.html</GettingStartedGuide>
+        <GettingStartedGuide>https://docs.nanoframework.net/content/getting-started-guides/getting-started-managed.html</GettingStartedGuide>
         <ReleaseNotes>https://github.com/nanoframework/nf-Visual-Studio-extension/blob/develop/CHANGELOG-VS2019.md</ReleaseNotes>
         <Icon>Resources\nF-logo-128.png</Icon>
         <Tags>nanoFramework;netnf;netmf;MicroFramework;C#;productivity;microcontroller;I2C;PWM;Serial;SPI;IoT;STM32;ESP32;Cortex-M</Tags>
