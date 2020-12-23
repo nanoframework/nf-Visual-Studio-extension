@@ -1,11 +1,12 @@
 # Changelog
 
-## [v2019.4.0.73](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v2019.4.0.73) (2020-12-23)
+## [v2019.4.0.76](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v2019.4.0.76) (2020-12-23)
 
-[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2019.4.0.31...v2019.4.0.73)
+[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2019.4.0.31...v2019.4.0.76)
 
 **Implemented enhancements:**
 
+- Work debug start [\#575](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/575)
 - Fix deploy provider [\#572](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/572)
 - Improve deploy and erase output [\#570](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/570)
 - Improvements after changes in debugger library [\#568](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/568)
@@ -492,6 +493,10 @@
 
 [Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v1.8.0.11-VS2017...v1.8.0.13-VS2019)
 
+**Fixed bugs:**
+
+- Fix assembly reference on network config dialog [\#459](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/459)
+
 **Updated dependencies and other chores:**
 
 - Bumps MetadataProcessor.Core to 2.22.27 [\#458](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/458)
@@ -551,10 +556,6 @@
 ## [v1.8.0.7-VS2019](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v1.8.0.7-VS2019) (2020-03-09)
 
 [Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v1.8.0.6-VS2019...v1.8.0.7-VS2019)
-
-**Fixed bugs:**
-
-- Fix assembly reference on network config dialog [\#459](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/459)
 
 **Updated dependencies and other chores:**
 
@@ -644,10 +645,6 @@
 
 - Update MDP to 2.22.10 [\#443](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/443)
 
-**Updated dependencies and other chores:**
-
-- Update debugger library [\#438](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/438)
-
 ## [v1.7.0.11-VS2017](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v1.7.0.11-VS2017) (2020-02-27)
 
 [Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v1.7.0.11-VS2019...v1.7.0.11-VS2017)
@@ -691,6 +688,10 @@
 ## [v1.7.0.8-VS2019](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v1.7.0.8-VS2019) (2020-02-26)
 
 [Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v1.7.0.7-VS2019...v1.7.0.8-VS2019)
+
+**Updated dependencies and other chores:**
+
+- Update debugger library [\#438](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/438)
 
 ## [v1.7.0.7-VS2019](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v1.7.0.7-VS2019) (2020-02-26)
 
@@ -785,6 +786,10 @@
 
 [Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v1.5.0.2-VS2017...v1.5.0.3-VS2019)
 
+**Fixed bugs:**
+
+- Fix file locking on MDP task [\#418](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/418)
+
 **Updated dependencies and other chores:**
 
 - Update NuGet in task manager to match versions required in VS extension [\#427](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/427)
@@ -869,7 +874,6 @@
 
 **Fixed bugs:**
 
-- Fix file locking on MDP task [\#418](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/418)
 - nF project system targets don't generate  binding redirects anymore [\#415](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/415)
 
 **Updated dependencies and other chores:**
