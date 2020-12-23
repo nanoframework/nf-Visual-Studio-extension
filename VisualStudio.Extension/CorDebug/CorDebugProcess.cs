@@ -404,7 +404,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                             MessageCentre.InternalErrorMessage("Assigning debug engine of target device.");
 
-                            _engine = Device.DebugEngine;// new Engine(Device.Parent, Device as INanoDevice);
+                            _engine = Device.DebugEngine;
                         }
 
                         _engine.ThrowOnCommunicationFailure = false;
@@ -426,7 +426,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     if (_engine.UpdateDebugFlags())
                     {
                         _engine.ThrowOnCommunicationFailure = true;
-                        _engine.SetExecutionMode(Commands.DebuggingExecutionChangeConditions.State.SourceLevelDebugging, 0);
 
                         break;
                     }
@@ -1472,8 +1471,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         private void StopDebugging()
         {
-            DebugAssert(ShuttingDown, "Error stopping debug. Shutdown flag is set.");
-
             /*
              * this is called when debugging stops, either via terminate or detach.
              */
