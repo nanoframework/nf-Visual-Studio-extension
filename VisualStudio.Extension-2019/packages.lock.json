@@ -328,6 +328,16 @@
           "mustache-sharp": "1.0.0"
         }
       },
+      "nanoFramework.Tools.MetadataProcessor.MsBuildTask": {
+        "type": "Direct",
+        "requested": "[2.32.1, )",
+        "resolved": "2.32.1",
+        "contentHash": "K0OZI7CWNBqz4MS883DVHDACAnT642Put5HlyKFDlPzqXQ7kkWlEwXz7AsAWefz0L7osNftPFdyLYUU+DxfEHg==",
+        "dependencies": {
+          "Mono.Cecil": "0.11.3",
+          "mustache-sharp": "1.0.0"
+        }
+      },
       "Nerdbank.GitVersioning": {
         "type": "Direct",
         "requested": "[3.3.37, )",
@@ -1866,8 +1876,7 @@
       "nanoFramework.Tools.BuildTasks": {
         "type": "Project",
         "dependencies": {
-          "System.Runtime.CompilerServices.Unsafe": "4.7.0",
-          "nanoFramework.Tools.MetadataProcessor.Core": "2.31.3"
+          "System.Runtime.CompilerServices.Unsafe": "4.7.0"
         }
       }
     }
