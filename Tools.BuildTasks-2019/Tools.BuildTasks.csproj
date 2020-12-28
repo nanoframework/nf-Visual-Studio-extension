@@ -62,9 +62,6 @@
     <Compile Include="..\Tools.BuildTasks\GenerateNanoResourceTask.cs">
       <Link>GenerateNanoResourceTask.cs</Link>
     </Compile>
-    <Compile Include="..\Tools.BuildTasks\MetaDataProcessorTask.cs">
-      <Link>MetaDataProcessorTask.cs</Link>
-    </Compile>
     <Compile Include="..\Tools.BuildTasks\ProcessResourceFiles.cs">
       <Link>ProcessResourceFiles.cs</Link>
     </Compile>
@@ -84,7 +81,6 @@
     <None Include="version.json" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="nanoFramework.Tools.MetadataProcessor.Core" Version="2.31.3" />
     <PackageReference Include="Nerdbank.GitVersioning">
       <Version>3.3.37</Version>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

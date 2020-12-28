@@ -4,10 +4,13 @@
   <!-- Declares the MSBuild tasks that are provided by nanoFramework tools.
     The path is the current directory because we are using the Nuget package build directory to place all these.
   -->
-  <UsingTask TaskName="MetaDataProcessorTask"             AssemblyFile="$(MSBuildThisFileDirectory)nanoFramework.Tools.BuildTasks.dll" />
   <UsingTask TaskName="ResolveRuntimeDependenciesTask"    AssemblyFile="$(MSBuildThisFileDirectory)nanoFramework.Tools.BuildTasks.dll" />
   <UsingTask TaskName="GenerateNanoResourceTask"          AssemblyFile="$(MSBuildThisFileDirectory)nanoFramework.Tools.BuildTasks.dll" />
   <UsingTask TaskName="GenerateBinaryOutputTask"          AssemblyFile="$(MSBuildThisFileDirectory)nanoFramework.Tools.BuildTasks.dll" />
+
+  <!--MSBuild task for MDP-->
+  <UsingTask TaskName="MetaDataProcessorTask" Condition="$(NF_MDP_MSBUILDTASK_PATH) == ''" AssemblyFile="$(MSBuildThisFileDirectory)nanoFramework.Tools.MetadataProcessor.MsBuildTask.dll" />
+  <UsingTask TaskName="MetaDataProcessorTask" Condition="$(NF_MDP_MSBUILDTASK_PATH) != ''" AssemblyFile="$(NF_MDP_MSBUILDTASK_PATH)nanoFramework.Tools.MetadataProcessor.MsBuildTask.dll" />
 
   <!-- 
     ###########################################################
