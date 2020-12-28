@@ -1,8 +1,8 @@
 # Changelog
 
-## [v2019.4.0.79](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v2019.4.0.79) (2020-12-28)
+## [v2019.4.0.82](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v2019.4.0.82) (2020-12-28)
 
-[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2019.4.0.31...v2019.4.0.79)
+[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2019.4.0.31...v2019.4.0.82)
 
 **Implemented enhancements:**
 
@@ -418,10 +418,6 @@
 
 [Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2019.1.8.7...v2019.1.8.9)
 
-**Implemented enhancements:**
-
-- Improvements in project system props [\#471](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/471)
-
 **Updated dependencies and other chores:**
 
 - Bumps MetadataProcessor.Core to 2.22.29 [\#472](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/472)
@@ -433,6 +429,10 @@
 ## [v2017.1.8.8](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v2017.1.8.8) (2020-03-19)
 
 [Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2019.1.8.6...v2017.1.8.8)
+
+**Implemented enhancements:**
+
+- Improvements in project system props [\#471](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/471)
 
 **Updated dependencies and other chores:**
 
@@ -475,6 +475,7 @@
 - Code cleanup [\#466](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/466)
 - General improvements [\#463](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/463)
 - Fix deploy project from context menu [\#462](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/462)
+- Fix project files not showing in dialog window when adding existing projects [\#461](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/461)
 
 **Fixed bugs:**
 
@@ -492,10 +493,6 @@
 ## [v1.8.0.13-VS2019](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v1.8.0.13-VS2019) (2020-03-10)
 
 [Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v1.8.0.11-VS2017...v1.8.0.13-VS2019)
-
-**Implemented enhancements:**
-
-- Fix project files not showing in dialog window when adding existing projects [\#461](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/461)
 
 **Fixed bugs:**
 
@@ -880,6 +877,7 @@
 **Updated dependencies and other chores:**
 
 - Update debugger library to 1.6.0-preview.11 [\#419](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/419)
+- Update MDP task [\#417](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/417)
 - Replace MDP output option with Verbose [\#414](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/414)
 
 ## [v1.3.0.1-VS2017](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v1.3.0.1-VS2017) (2019-12-13)
@@ -895,9 +893,12 @@
 - Replace metadata processor with managed version [\#413](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/413)
 - Stability improvements on debugger launcher [\#412](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/412)
 
+**Fixed bugs:**
+
+- Fix intellisense in VS2019 [\#410](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/410)
+
 **Updated dependencies and other chores:**
 
-- Update MDP task [\#417](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/417)
 - Update debugger and MDP dependencies [\#411](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/411)
 
 ## [v1.2.5.8-VS2019](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v1.2.5.8-VS2019) (2019-10-17)
@@ -907,10 +908,6 @@
 ## [v1.2.5.38-VS2017](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v1.2.5.38-VS2017) (2019-10-17)
 
 [Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v1.2.5.4-VS2019...v1.2.5.38-VS2017)
-
-**Fixed bugs:**
-
-- Fix intellisense in VS2019 [\#410](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/410)
 
 **Updated dependencies and other chores:**
 
@@ -998,10 +995,6 @@
 
 [Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v1.1.0.31-VS2017...v1.2.0.1-VS2019)
 
-**Implemented enhancements:**
-
-- Improve DeploymentImageGenerator [\#391](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/391)
-
 **Fixed bugs:**
 
 - Update documentation URL in application template [\#397](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/397)
@@ -1025,6 +1018,7 @@
 **Implemented enhancements:**
 
 - Update project templates [\#393](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/393)
+- Improve DeploymentImageGenerator [\#391](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/391)
 
 **Updated dependencies and other chores:**
 
