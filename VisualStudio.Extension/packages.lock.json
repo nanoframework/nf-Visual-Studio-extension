@@ -298,9 +298,9 @@
       },
       "nanoFramework.Tools.MetadataProcessor.MsBuildTask": {
         "type": "Direct",
-        "requested": "[2.32.1, )",
-        "resolved": "2.32.1",
-        "contentHash": "K0OZI7CWNBqz4MS883DVHDACAnT642Put5HlyKFDlPzqXQ7kkWlEwXz7AsAWefz0L7osNftPFdyLYUU+DxfEHg==",
+        "requested": "[2.32.3, )",
+        "resolved": "2.32.3",
+        "contentHash": "/u4jLzUZvlUJUXV4tZyuG0xDbg+zixhM+strImB/1ia9jTTd1xWuLGFShyPKRX8ik94d2Y4ugIKPl+QeP8qZPg==",
         "dependencies": {
           "Mono.Cecil": "0.11.3",
           "mustache-sharp": "1.0.0"
