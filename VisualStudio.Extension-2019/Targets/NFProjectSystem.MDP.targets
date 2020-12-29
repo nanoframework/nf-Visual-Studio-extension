@@ -9,8 +9,8 @@
   <UsingTask TaskName="GenerateBinaryOutputTask"          AssemblyFile="$(MSBuildThisFileDirectory)nanoFramework.Tools.BuildTasks.dll" />
 
   <!--MSBuild task for MDP-->
-  <UsingTask TaskName="MetaDataProcessorTask" Condition="$(NF_MDP_MSBUILDTASK_PATH) == ''" AssemblyFile="$(MSBuildThisFileDirectory)nanoFramework.Tools.MetadataProcessor.MsBuildTask.dll" />
-  <UsingTask TaskName="MetaDataProcessorTask" Condition="$(NF_MDP_MSBUILDTASK_PATH) != ''" AssemblyFile="$(NF_MDP_MSBUILDTASK_PATH)nanoFramework.Tools.MetadataProcessor.MsBuildTask.dll" />
+  <UsingTask TaskName="MetaDataProcessorTask" Condition="'$(NF_MDP_MSBUILDTASK_PATH)' == ''" AssemblyFile="$(MSBuildThisFileDirectory)nanoFramework.Tools.MetadataProcessor.MsBuildTask.dll" />
+  <UsingTask TaskName="MetaDataProcessorTask" Condition="'$(NF_MDP_MSBUILDTASK_PATH)' != ''" AssemblyFile="$(NF_MDP_MSBUILDTASK_PATH)\nanoFramework.Tools.MetadataProcessor.MsBuildTask.dll" />
 
   <!-- 
     ###########################################################
