@@ -108,7 +108,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         private const string SETTINGS_PATH_OF_FLASH_DUMP_CACHE_IMAGE_KEY = "PathOfFlashDumpCache";
         private const string SETTINGS_PORT_BLACK_LIST_KEY = "PortBlackList";
         private const string SETTINGS_AUTO_UPDATE_ENABLE_KEY = "AutoUpdateEnable";
-        private const string SETTINGS_ALLOW_PREVIEW_IMAGES_KEY = "AllowPreviewUpdates";
+        private const string SETTINGS_ALLOW_PREVIEW_IMAGES_KEY = "IncludePrereleaseUpdates";
 
         private static bool? s_OptionShowInternalErrors;
         /// <summary>
@@ -308,23 +308,23 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             }
         }
 
-        private static bool? s_SettingAllowPreviewUpdates = null;
+        private static bool? s_SettingIncludePrereleaseUpdates = null;
 
         /// <summary>
         /// Setting to enable updates with preview images.
         /// The value is persisted per user.
         /// Default is <see langword="true"/>.
         /// </summary>
-        public static bool SettingAllowPreviewUpdates
+        public static bool SettingIncludePrereleaseUpdates
         {
             get
             {
-                if (!s_SettingAllowPreviewUpdates.HasValue)
+                if (!s_SettingIncludePrereleaseUpdates.HasValue)
                 {
-                    s_SettingAllowPreviewUpdates = bool.Parse((string)s_instance.UserRegistryRoot.OpenSubKey(EXTENSION_SUBKEY).GetValue(SETTINGS_ALLOW_PREVIEW_IMAGES_KEY, "True"));
+                    s_SettingIncludePrereleaseUpdates = bool.Parse((string)s_instance.UserRegistryRoot.OpenSubKey(EXTENSION_SUBKEY).GetValue(SETTINGS_ALLOW_PREVIEW_IMAGES_KEY, "True"));
                 }
 
-                return s_SettingAllowPreviewUpdates.Value;
+                return s_SettingIncludePrereleaseUpdates.Value;
             }
 
             set
@@ -332,7 +332,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 s_instance.UserRegistryRoot.OpenSubKey(EXTENSION_SUBKEY, true).SetValue(SETTINGS_ALLOW_PREVIEW_IMAGES_KEY, value);
                 s_instance.UserRegistryRoot.OpenSubKey(EXTENSION_SUBKEY, true).Flush();
 
-                s_SettingAllowPreviewUpdates = value;
+                s_SettingIncludePrereleaseUpdates = value;
             }
         }
 

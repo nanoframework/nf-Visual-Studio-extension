@@ -98,7 +98,7 @@
                     </Grid>
                     
                     <!-- update options -->
-                    <GroupBox Grid.Row="1" Margin="0,8,0,10" Header="Automatic Target Updates">
+                    <GroupBox Grid.Row="1" Margin="0,8,0,10" Header="Automatic Firmware Updates">
                         <Grid Margin="8,10,10,10">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
@@ -111,7 +111,7 @@
 
                             <!-- setting to enable auto-update -->
                             <CheckBox x:Name="AutoUpdateEnable" Grid.Row="0" Grid.Column="0" HorizontalAlignment="Left"  Margin="-4,0,0,0" Content="Download and install updates" Grid.ColumnSpan="2" Checked="AutoUpdateEnable_Checked" Unchecked="AutoUpdateEnable_Checked" />
-                            <CheckBox x:Name="AllowPreviewUpdates" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Left"  Margin="-4,10,0,0" Content="Allow preview images" Grid.ColumnSpan="2" Checked="AllowPreviewUpdates_Checked" Unchecked="AllowPreviewUpdates_Checked" />
+                            <CheckBox x:Name="IncludePrereleaseUpdates" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Left"  Margin="-4,10,0,0" Content="Include prerelease" Grid.ColumnSpan="2" Checked="IncludePrereleaseUpdates_Checked" Unchecked="IncludePrereleaseUpdates_Checked" />
 
                         </Grid>
                     </GroupBox>

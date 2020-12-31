@@ -362,7 +362,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.AutomaticUpdates
                 var fwPackage = new Stm32Firmware(
                     targetName,
                     "",
-                    !NanoFrameworkPackage.SettingAllowPreviewUpdates);
+                    !NanoFrameworkPackage.SettingIncludePrereleaseUpdates);
                 if (await fwPackage.DownloadAndExtractAsync())
                 {
                     return fwPackage;
@@ -373,7 +373,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.AutomaticUpdates
                 var fwPackage = new Esp32Firmware(
                     targetName,
                     "",
-                    !NanoFrameworkPackage.SettingAllowPreviewUpdates);
+                    !NanoFrameworkPackage.SettingIncludePrereleaseUpdates);
 
                 // TODO using this flash size for the moment, will have to figure a way to have this declared in the device caps
                 if (await fwPackage.DownloadAndExtractAsync(0x400000))

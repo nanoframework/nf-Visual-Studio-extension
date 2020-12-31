@@ -40,7 +40,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             GenerateDeploymentImage.IsChecked = NanoFrameworkPackage.SettingGenerateDeploymentImage;
             IncludeConfigBlock.IsChecked = NanoFrameworkPackage.SettingIncludeConfigBlockInDeploymentImage;
             AutoUpdateEnable.IsChecked = NanoFrameworkPackage.SettingAutoUpdateEnable;
-            AllowPreviewUpdates.IsChecked = NanoFrameworkPackage.SettingAllowPreviewUpdates;
+            IncludePrereleaseUpdates.IsChecked = NanoFrameworkPackage.SettingIncludePrereleaseUpdates;
 
             if (string.IsNullOrEmpty(NanoFrameworkPackage.SettingPathOfFlashDumpCache))
             {
@@ -157,10 +157,10 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             NanoFrameworkPackage.SettingAutoUpdateEnable = (sender as ToggleButton).IsChecked ?? false;
         }
 
-        private void AllowPreviewUpdates_Checked(object sender, System.Windows.RoutedEventArgs e)
+        private void IncludePrereleaseUpdates_Checked(object sender, System.Windows.RoutedEventArgs e)
         {
             // save new state
-            NanoFrameworkPackage.SettingAllowPreviewUpdates = (sender as ToggleButton).IsChecked ?? false;
+            NanoFrameworkPackage.SettingIncludePrereleaseUpdates = (sender as ToggleButton).IsChecked ?? false;
         }
     }
 }
