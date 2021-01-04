@@ -248,6 +248,7 @@
 
     <!--Output native checksum to Azure Pipelines var (only usefull on Azure)-->
     <Message Importance="high" Text="##vso[task.setvariable variable=NativeAssemblyChecksum]$(NativeChecksum)" />
+    <Message Importance="high" Text="Metadata processor location overriden with: $(NF_MDP_MSBUILDTASK_PATH)" Condition="'$(NF_MDP_MSBUILDTASK_PATH)' != ''" />
 
   </Target>
 
@@ -416,6 +417,8 @@
     </PropertyGroup>
 
     <Message Text="Distilling assemblies to nanoCLR PE files (no stubs)..." Condition="'$(NFMDP_GENERATE_STUBS)' == 'false'" />
+    <Message Importance="high" Text="Metadata processor location overriden with: $(NF_MDP_MSBUILDTASK_PATH)" Condition="'$(NF_MDP_MSBUILDTASK_PATH)' != ''" />
+
     <!-- Compile to PE -->
     <MetaDataProcessorTask
         Verbose="$(NFMDP_PE_Verbose)"
@@ -550,6 +553,7 @@
 
     <!--Output native checksum to Azure Pipelines var (only usefull on Azure)-->
     <Message Importance="high" Text="##vso[task.setvariable variable=NativeAssemblyChecksum]$(NativeChecksum)"/>
+    <Message Importance="high" Text="Metadata processor location overriden with: $(NF_MDP_MSBUILDTASK_PATH)" Condition="'$(NF_MDP_MSBUILDTASK_PATH)' != ''" />
 
   </Target>
 
