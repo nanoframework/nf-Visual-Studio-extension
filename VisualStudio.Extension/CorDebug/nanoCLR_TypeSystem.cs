@@ -11,24 +11,33 @@ namespace nanoFramework.Tools.VisualStudio.Extension
     //Lots of redefinitions from nanoCLR_Types.h
     public class nanoCLR_TypeSystem
     {
-        public enum CLR_TABLESENUM : uint
+        //////////////////////////////////////////////////////////////////////////////////
+        // !!! KEEP IN SYNC WITH enum ClrTable (in nanoCLR_TypeSystem VS extension) !!! //
+        // !!! KEEP IN SYNC WITH enum ClrTable (in nanoCLRT_Types.h in CLR)         !!! //
+        //////////////////////////////////////////////////////////////////////////////////
+
+        public enum ClrTable : uint
         {
-            TBL_AssemblyRef   = 0x00000000,
-            TBL_TypeRef       = 0x00000001,
-            TBL_FieldRef      = 0x00000002,
-            TBL_MethodRef     = 0x00000003,
-            TBL_TypeDef       = 0x00000004,
-            TBL_FieldDef      = 0x00000005,
-            TBL_MethodDef     = 0x00000006,
-            TBL_Attributes    = 0x00000007,
-            TBL_TypeSpec      = 0x00000008,
-            TBL_Resources     = 0x00000009,
-            TBL_ResourcesData = 0x0000000A,
-            TBL_Strings       = 0x0000000B,
-            TBL_Signatures    = 0x0000000C,
-            TBL_ByteCode      = 0x0000000D,
-            TBL_EndOfAssembly = 0x0000000E,
-            TBL_Max           = 0x0000000F,
+            TBL_AssemblyRef = 0x00000000,
+            TBL_TypeRef = 0x00000001,
+            TBL_FieldRef = 0x00000002,
+            TBL_MethodRef = 0x00000003,
+            TBL_TypeDef = 0x00000004,
+            TBL_FieldDef = 0x00000005,
+            TBL_MethodDef = 0x00000006,
+            TBL_MemberRef = 0x00000007,
+            TBL_GenericParam = 0x00000008,
+            TBL_MethodSpec = 0x00000009,
+            TBL_TypeSpec = 0x0000000A,
+            TBL_Attributes = 0x0000000B,
+            TBL_Resources = 0x0000000C,
+            TBL_ResourcesData = 0x0000000D,
+            TBL_Strings = 0x0000000E,
+            TBL_Signatures = 0x0000000F,
+            TBL_ByteCode = 0x00000010,
+            TBL_ResourcesFiles = 0x00000011,
+            TBL_EndOfAssembly = 0x000000012,
+            TBL_Max = 0x00000013,
         };
 
         public enum CorTokenType : uint
@@ -78,9 +87,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             return idxAssm << 16;            
         }
 
-        public static CLR_TABLESENUM CLR_TypeFromTk(uint tk)
+        public static ClrTable CLR_TypeFromTk(uint tk)
         {
-            return (CLR_TABLESENUM)(tk >> 24);
+            return (ClrTable)(tk >> 24);
         }
 
         public static uint CLR_DataFromTk(uint tk)
@@ -88,7 +97,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             return  tk & 0x00FFFFFF;
         }
 
-        public static uint CLR_TkFromType( CLR_TABLESENUM tbl, uint data)
+        public static uint CLR_TkFromType( ClrTable tbl, uint data)
         {
             return ((((uint)tbl) << 24) & 0xFF000000) | (data & 0x00FFFFFF);
         }
@@ -105,7 +114,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             CorDebugAssembly assembly = appDomain.AssemblyFromIdx(nanoCLR_TypeSystem.IdxAssemblyFromIndex(typeIndex));
             if (assembly != null)
             {
-                uint typedef = nanoCLR_TypeSystem.CLR_TkFromType(nanoCLR_TypeSystem.CLR_TABLESENUM.TBL_TypeDef, nanoCLR_TypeSystem.IdxFromIndex(typeIndex));
+                uint typedef = nanoCLR_TypeSystem.CLR_TkFromType(nanoCLR_TypeSystem.ClrTable.TBL_TypeDef, nanoCLR_TypeSystem.IdxFromIndex(typeIndex));
                 cls = assembly.GetClassFromTokennanoCLR(typedef);
             }
 
@@ -139,7 +148,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             return nanoCLR_TypeSystem.IndexFromIdxAssemblyIdx(assembly.Idx, idx);
         }
 
-        private static uint nanoCLRTokenFromIndex (nanoCLR_TypeSystem.CLR_TABLESENUM tbl, uint index)
+        private static uint nanoCLRTokenFromIndex (nanoCLR_TypeSystem.ClrTable tbl, uint index)
         {
             uint idxAssembly = nanoCLR_TypeSystem.IdxAssemblyFromIndex (index);
             uint idxMethod = nanoCLR_TypeSystem.IdxFromIndex (index);
@@ -149,38 +158,38 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         public static uint nanoCLRTokenFromMethodIndex (uint index)
         {
-            return nanoCLRTokenFromIndex (nanoCLR_TypeSystem.CLR_TABLESENUM.TBL_MethodDef, index);
+            return nanoCLRTokenFromIndex (nanoCLR_TypeSystem.ClrTable.TBL_MethodDef, index);
         }
 
         public static uint nanoCLRTokenFromTypeIndex (uint index)
         {
-            return nanoCLRTokenFromIndex (nanoCLR_TypeSystem.CLR_TABLESENUM.TBL_TypeDef, index);
+            return nanoCLRTokenFromIndex (nanoCLR_TypeSystem.ClrTable.TBL_TypeDef, index);
         }
 
         public class SymbollessSupport
         {
             public static uint MethodDefTokenFromnanoCLRToken (uint token)
             {
-                Debug.Assert (CLR_TypeFromTk (token) == CLR_TABLESENUM.TBL_MethodDef);
+                Debug.Assert (CLR_TypeFromTk (token) == ClrTable.TBL_MethodDef);
                 return (uint)CorTokenType.mdtMethodDef | CLR_DataFromTk (token);
             }
 
             public static uint nanoCLRTokenFromMethodDefToken (uint token)
             {
                 Debug.Assert ((token & (uint)CorTokenType.mdtMethodDef) != 0);
-                return nanoCLR_TypeSystem.CLR_TkFromType (CLR_TABLESENUM.TBL_MethodDef, token & 0x00ffffff);
+                return nanoCLR_TypeSystem.CLR_TkFromType (ClrTable.TBL_MethodDef, token & 0x00ffffff);
             }
 
             public static uint TypeDefTokenFromnanoCLRToken (uint token)
             {
-                Debug.Assert (CLR_TypeFromTk (token) == CLR_TABLESENUM.TBL_TypeDef);
+                Debug.Assert (CLR_TypeFromTk (token) == ClrTable.TBL_TypeDef);
                 return (uint)CorTokenType.mdtTypeDef | CLR_DataFromTk (token);
             }
 
             public static uint nanoCLRTokenFromTypeDefToken (uint token)
             {
                 Debug.Assert ((token & (uint)CorTokenType.mdtTypeDef) != 0);
-                return nanoCLR_TypeSystem.CLR_TkFromType (CLR_TABLESENUM.TBL_TypeDef, token & 0x00ffffff);
+                return nanoCLR_TypeSystem.CLR_TkFromType (ClrTable.TBL_TypeDef, token & 0x00ffffff);
             }
         }
     }
