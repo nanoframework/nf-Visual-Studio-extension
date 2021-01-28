@@ -61,7 +61,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             mdtAssemblyRef = 0x23000000,       
             mdtFile = 0x26000000,       
             mdtExportedType = 0x27000000,       
-            mdtManifestResource = 0x28000000,       
+            mdtManifestResource = 0x28000000,
+            mdtGenericParam = 0x2A000000,
             mdtString = 0x70000000,       
             mdtName = 0x71000000,       
             mdtBaseType = 0x72000000,       // Leave this on the high end value. This does not correspond to metadata table
