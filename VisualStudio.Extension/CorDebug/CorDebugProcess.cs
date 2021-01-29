@@ -1665,7 +1665,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         public BuiltinType ResolveBuiltInType(object o)
         {
-            DebugAssert(o is CorElementType || o is ReflectionDefinition.Kind || o is Debugger.RuntimeDataType, "Error resolving built-in type.");
+            DebugAssert(o is CorElementType || o is ReflectionDefinition.Kind || o is Debugger.nanoClrDataType, "Error resolving built-in type.");
 
             CorDebugAssembly assmCorLib = null;
 
@@ -1708,7 +1708,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 AddBuiltInType(ReflectionDefinition.Kind.REFLECTION_METHOD, assmCorLib, "System.Reflection.RuntimeMethodInfo");
                 AddBuiltInType(ReflectionDefinition.Kind.REFLECTION_CONSTRUCTOR, assmCorLib, "System.Reflection.RuntimeConstructorInfo");
 
-                AddBuiltInType(RuntimeDataType.DATATYPE_TRANSPARENT_PROXY, assmCorLib, "System.Runtime.Remoting.Proxies.__TransparentProxy" );
+                AddBuiltInType(nanoClrDataType.DATATYPE_TRANSPARENT_PROXY, assmCorLib, "System.Runtime.Remoting.Proxies.__TransparentProxy" );
             }
 
             return (BuiltinType)_tdBuiltin[o];
