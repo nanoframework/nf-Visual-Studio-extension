@@ -1731,20 +1731,40 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
             return (MethodGetAttributes(mdi, tk) & (int)CorMethodAttr.mdVirtual) != 0;
         }
 
-        //need to parse methodsig
         public static uint MethodGetNumArg(IMetaDataImport mdi, uint tk)
         {
+            return MethodGetArgumentsGenericParamsCount(mdi, tk).Item1;
+        }
+
+        public static uint MethodGetGenericParamCount(IMetaDataImport mdi, uint tk)
+        {
+            return MethodGetArgumentsGenericParamsCount(mdi, tk).Item2;
+        }
+        //need to parse methodsig
+        private static Tuple<uint, uint> MethodGetArgumentsGenericParamsCount(IMetaDataImport mdi, uint tk)
+        {
+            uint genericParamCount = 0;
+
             uint cbSig;
             byte* pSig;
             mdi.GetMethodProps(tk, IntPtr.Zero, IntPtr.Zero, 0, IntPtr.Zero, IntPtr.Zero, (IntPtr)(&pSig), (IntPtr)(&cbSig), IntPtr.Zero, IntPtr.Zero);
 
             byte flags = *pSig++;
+
+            if ((flags & (byte)CorCallingConvention.IMAGE_CEE_CS_CALLCONV_GENERIC) != 0)
+            {
+                // it's a generic instance, has generic parameters count
+                genericParamCount = *pSig++;
+            }
+
             uint cArgs = CorSigUncompressData(ref pSig);
 
             if ((flags & (byte)CorCallingConvention.IMAGE_CEE_CS_CALLCONV_HASTHIS) != 0)
+            {
                 cArgs++;
+            }
 
-            return cArgs;
+            return new Tuple<uint, uint>(cArgs, genericParamCount);
         }
 
         //need to parse localsig -- need to parse IL to get locals sig??!

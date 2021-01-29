@@ -120,6 +120,11 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             get {return MetaData.Helper.MethodGetNumArg (Class.Assembly.MetaDataImport, m_pdbxMethod.Token.CLR);  }
         }
 
+        public uint NumGenericParams
+        {
+            get { return MetaData.Helper.MethodGetGenericParamCount(Class.Assembly.MetaDataImport, m_pdbxMethod.Token.CLR); }
+        }
+
         public uint GetILCLRFromILnanoCLR(uint ilnanoCLR)
         {
             uint ilCLR;
