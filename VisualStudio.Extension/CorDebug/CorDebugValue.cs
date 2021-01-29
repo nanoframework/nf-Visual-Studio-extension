@@ -93,9 +93,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             {
                 objBuiltInKey = rtvf.ReflectionType;
             }
-            else if(rtv.DataType == RuntimeDataType.DATATYPE_TRANSPARENT_PROXY)
+            else if(rtv.DataType == nanoClrDataType.DATATYPE_TRANSPARENT_PROXY)
             {
-                objBuiltInKey = RuntimeDataType.DATATYPE_TRANSPARENT_PROXY;
+                objBuiltInKey = nanoClrDataType.DATATYPE_TRANSPARENT_PROXY;
             }
             else
             {
