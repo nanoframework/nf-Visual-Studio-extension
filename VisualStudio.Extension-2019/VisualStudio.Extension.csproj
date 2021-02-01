@@ -180,9 +180,6 @@
     <Compile Include="..\VisualStudio.Extension\CorDebug\Pdbx.cs">
       <Link>CorDebug\Pdbx.cs</Link>
     </Compile>
-    <Compile Include="..\VisualStudio.Extension\CorDebug\PdbxFile.cs">
-      <Link>CorDebug\PdbxFile.cs</Link>
-    </Compile>
     <Compile Include="..\VisualStudio.Extension\CorDebug\ProcessExitException.cs">
       <Link>CorDebug\ProcessExitException.cs</Link>
     </Compile>

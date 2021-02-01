@@ -126,7 +126,6 @@
     <Compile Include="CorDebug\MetaDataImportInterface.cs" />
     <Compile Include="CorDebug\nanoCLR_TypeSystem.cs" />
     <Compile Include="CorDebug\Pdbx.cs" />
-    <Compile Include="CorDebug\PdbxFile.cs" />
     <Compile Include="CorDebug\ProcessExitException.cs" />
     <Compile Include="DeployProvider\DeploymentAssembly.cs" />
     <Compile Include="DeployProvider\DeploymentAssemblyDistinctEquality.cs" />

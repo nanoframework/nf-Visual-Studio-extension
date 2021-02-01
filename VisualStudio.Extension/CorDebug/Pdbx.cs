@@ -4,6 +4,7 @@
 // See LICENSE file in the project root for full license information.
 //
 
+using System;
 using System.Diagnostics;
 using System.IO;
 using System.Xml;
@@ -11,6 +12,7 @@ using System.Xml.Serialization;
 
 namespace nanoFramework.Tools.VisualStudio.Extension
 {
+    [XmlRoot("PdbxFile")]
     public class Pdbx
     {
         public class TokenMap
@@ -63,6 +65,17 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         public class Method : ClassMember
         {
+            [XmlAttribute]
+            public string Name;
+            [XmlAttribute]
+            public int NumArgs;
+            [XmlAttribute]
+            public int NumLocals;
+            [XmlAttribute]
+            public int NumGenericParams;
+            [XmlAttribute]
+            public bool IsGenericInstance;
+
             public bool HasByteCode = true;
 
             public IL[] ILMap;
@@ -88,6 +101,15 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         public class Class
         {
+            [XmlAttribute]
+            public string Name;
+            [XmlAttribute]
+            public int NumGenericParams;
+            [XmlAttribute]
+            public bool IsGenericInstance;
+
+            [XmlAttribute]
+            public string IsEnum;
             public Token Token;
             public Field[] Fields;
             public Method[] Methods;
@@ -149,21 +171,26 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     path += ".pdbx";
                     if (File.Exists(path))
                     {
-                        XmlSerializer xmls = new Serialization.PdbxFile.PdbxFileSerializer();
+                        XmlSerializer serializer = new XmlSerializer(typeof(PdbxFile));
 
-                        PdbxFile file = (PdbxFile)Utility.XmlDeserialize(path, xmls);
+                        PdbxFile newFile;
+                        using (FileStream fs = new FileStream(path, FileMode.Open))
+                        {
+
+                            newFile = (PdbxFile)serializer.Deserialize(fs);
+                        }
 
                         //Check version
-                        Assembly.VersionStruct version2 = file.Assembly.Version;
+                        Assembly.VersionStruct version2 = newFile.Assembly.Version;
 
                         if (version2.Major == version.MajorVersion && version2.Minor == version.MinorVersion)
                         {
-                            file.Initialize(path);
-                            return file;
+                            newFile.Initialize(path);
+                            return newFile;
                         }
                     }
                 }
-                catch
+                catch(Exception ex)
                 {
                 }
 
