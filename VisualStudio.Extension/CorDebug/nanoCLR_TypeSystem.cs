@@ -138,9 +138,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         public static uint ClassMemberIndexFromCLRToken(uint token, CorDebugAssembly assembly)
         {
-            Pdbx.ClassMember cm = assembly.GetPdbxClassMemberFromTokenCLR(token);
+            ClassMember cm = assembly.GetPdbxClassMemberFromTokenCLR(token);
 
-            return ClassMemberIndexFromnanoCLRToken(cm.Token.nanoCLR, assembly);            
+            return ClassMemberIndexFromnanoCLRToken(cm.NanoClrToken, assembly);            
         }
 
         public static uint ClassMemberIndexFromnanoCLRToken(uint token, CorDebugAssembly assembly)

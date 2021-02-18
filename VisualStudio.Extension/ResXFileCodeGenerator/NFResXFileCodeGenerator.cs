@@ -349,7 +349,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             string inputFileNameWithoutExtension = Path.GetFileNameWithoutExtension(inputFileName);
 
             // get VS extension assembly to reach ProcessResourceFiles type
-            Assembly buildTasks = GetType().Assembly;
+            System.Reflection.Assembly buildTasks = GetType().Assembly;
 
             Type typ = buildTasks.GetType("nanoFramework.Tools.ProcessResourceFiles");
 

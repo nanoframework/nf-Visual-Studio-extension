@@ -22,8 +22,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         CorDebugProcess _process;
         Hashtable _htTokenCLRToPdbx;
         Hashtable _htTokennanoCLRToPdbx;
-        Pdbx.PdbxFile _pdbxFile;
-        Pdbx.Assembly _pdbxAssembly;
+        PdbxFile _pdbxFile;
+        Assembly _pdbxAssembly;
         IMetaDataImport _iMetaDataImport;
         uint _idx;
         string _name;
@@ -53,7 +53,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
 
 
-        public CorDebugAssembly( CorDebugProcess process, string name, Pdbx.PdbxFile pdbxFile, uint idx )
+        public CorDebugAssembly( CorDebugProcess process, string name, PdbxFile pdbxFile, uint idx )
         {
             _process = process;
             _appDomain = null;
@@ -82,15 +82,15 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                 _pdbxAssembly.CorDebugAssembly = this;
 
-                foreach(Pdbx.Class c in _pdbxAssembly.Classes)
+                foreach(Class c in _pdbxAssembly.Classes)
                 {
                     AddTokenToHashtables( c.Token, c );
-                    foreach(Pdbx.Field field in c.Fields)
+                    foreach(Field field in c.Fields)
                     {
                         AddTokenToHashtables( field.Token, field );
                     }
 
-                    foreach(Pdbx.Method method in c.Methods)
+                    foreach(Method method in c.Methods)
                     {
                         AddTokenToHashtables( method.Token, method );
                     }
@@ -193,10 +193,10 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             get { return _pdbxAssembly != null; }
         }
 
-        private void AddTokenToHashtables( Pdbx.Token token, object o )
+        private void AddTokenToHashtables(Token token, object o)
         {
-            _htTokenCLRToPdbx[token.CLR] = o;
-            _htTokennanoCLRToPdbx[token.nanoCLR] = o;
+            _htTokenCLRToPdbx[token.ClrToken] = o;
+            _htTokennanoCLRToPdbx[token.NanoClrToken] = o;
         }
 
         private string FindAssemblyOnDisk()
@@ -297,7 +297,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         private CorDebugFunction GetFunctionFromToken( uint tk, Hashtable ht )
         {
             CorDebugFunction function = null;
-            Pdbx.Method method = ht[tk] as Pdbx.Method;
+            Method method = ht[tk] as Method;
             if(method != null)
             {
                 CorDebugClass c = new CorDebugClass( this, method.Class );
@@ -335,15 +335,15 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             }
         }
 
-        public Pdbx.ClassMember GetPdbxClassMemberFromTokenCLR( uint tk )
+        public ClassMember GetPdbxClassMemberFromTokenCLR( uint tk )
         {
-            return _htTokenCLRToPdbx[tk] as Pdbx.ClassMember;
+            return _htTokenCLRToPdbx[tk] as ClassMember;
         }
 
         private CorDebugClass GetClassFromToken( uint tk, Hashtable ht )
         {
             CorDebugClass cls = null;
-            Pdbx.Class c = ht[tk] as Pdbx.Class;
+            Class c = ht[tk] as Class;
             if(c != null)
             {
                 cls = new CorDebugClass( this, c );
@@ -531,7 +531,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         int ICorDebugModule.GetToken( out uint pToken )
         {
-            pToken = _pdbxAssembly.Token.CLR;
+            pToken = _pdbxAssembly.Token.ClrToken;
 
             return COM_HResults.S_OK;
         }
@@ -592,9 +592,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     if(!_isFrameworkAssembly)
                     {
                         //now update the debugger JMC state...
-                        foreach (Pdbx.Class c in _pdbxAssembly.Classes)
+                        foreach (Class c in _pdbxAssembly.Classes)
                         {
-                            foreach (Pdbx.Method m in c.Methods)
+                            foreach (Method m in c.Methods)
                             {
                                 m.IsJMC = fJMC;
                             }

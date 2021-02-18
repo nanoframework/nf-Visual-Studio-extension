@@ -8,6 +8,7 @@ using CorDebugInterop;
 using nanoFramework.Tools.Debugger;
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Diagnostics;
 
 namespace nanoFramework.Tools.VisualStudio.Extension
@@ -15,12 +16,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension
     public class CorDebugFunction : ICorDebugFunction , ICorDebugFunction2
     {
         CorDebugClass    m_class;
-        Pdbx.Method      m_pdbxMethod;
+        Method      m_pdbxMethod;
         CorDebugCode     m_codeNative;
         CorDebugCode     m_codeIL;
         uint             m_tkSymbolless;
 
-        public CorDebugFunction(CorDebugClass cls, Pdbx.Method method)
+        public CorDebugFunction(CorDebugClass cls, Method method)
         {
             m_class = cls;
             m_pdbxMethod = method;            
@@ -88,13 +89,13 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         {
             get 
             {
-                uint tk = HasSymbols ? m_pdbxMethod.Token.nanoCLR : m_tkSymbolless;
+                uint tk = HasSymbols ? m_pdbxMethod.Token.NanoClrToken : m_tkSymbolless;
 
                 return nanoCLR_TypeSystem.ClassMemberIndexFromnanoCLRToken (tk, m_class.Assembly);
             }
         }
 
-        public Pdbx.Method PdbxMethod
+        public Method PdbxMethod
         {
             [DebuggerHidden]
             get {return m_pdbxMethod;}
@@ -102,27 +103,27 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         public bool IsInternal
         {
-            get {return MetaData.Helper.MethodIsInternal (Class.Assembly.MetaDataImport, m_pdbxMethod.Token.CLR); }
+            get {return MetaData.Helper.MethodIsInternal (Class.Assembly.MetaDataImport, m_pdbxMethod.Token.ClrToken); }
         }
 
         public bool IsInstance
         {
-            get { return MetaData.Helper.MethodIsInstance(Class.Assembly.MetaDataImport, m_pdbxMethod.Token.CLR); }
+            get { return MetaData.Helper.MethodIsInstance(Class.Assembly.MetaDataImport, m_pdbxMethod.Token.ClrToken); }
         }
 
         public bool IsVirtual
         {
-            get { return MetaData.Helper.MethodIsVirtual(Class.Assembly.MetaDataImport, m_pdbxMethod.Token.CLR); }
+            get { return MetaData.Helper.MethodIsVirtual(Class.Assembly.MetaDataImport, m_pdbxMethod.Token.ClrToken); }
         }
 
         public uint NumArg
         {
-            get {return MetaData.Helper.MethodGetNumArg (Class.Assembly.MetaDataImport, m_pdbxMethod.Token.CLR);  }
+            get {return MetaData.Helper.MethodGetNumArg (Class.Assembly.MetaDataImport, m_pdbxMethod.Token.ClrToken);  }
         }
 
         public uint NumGenericParams
         {
-            get { return MetaData.Helper.MethodGetGenericParamCount(Class.Assembly.MetaDataImport, m_pdbxMethod.Token.CLR); }
+            get { return MetaData.Helper.MethodGetGenericParamCount(Class.Assembly.MetaDataImport, m_pdbxMethod.Token.ClrToken); }
         }
 
         public uint GetILCLRFromILnanoCLR(uint ilnanoCLR)
@@ -159,40 +160,46 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 m_fCLR = fCLR;
             }
 
-            private static uint GetIL(bool fCLR, Pdbx.IL il)
+            private static uint GetIL(bool fCLR, IL il)
             {
-                return fCLR ? il.CLR : il.nanoCLR;
+                return fCLR ? il.ClrToken : il.NanoClrToken;
             }
 
-            private uint GetIL(Pdbx.IL il)
+            private uint GetIL(IL il)
             {
                 return GetIL(m_fCLR, il);
             }
 
-            private static void SetIL(bool fCLR, Pdbx.IL il, uint offset)
+            private static void SetIL(bool fCLR, IL il, uint offset)
             {
                 if (fCLR)
-                    il.CLR = offset;
+                {
+                    il.ClrToken = offset;
+                }
                 else
-                    il.nanoCLR = offset;
+                {
+                    il.NanoClrToken = offset;
+                }
             }
 
-            private void SetIL(Pdbx.IL il, uint offset)
+            private void SetIL(IL il, uint offset)
             {
                 SetIL(m_fCLR, il, offset);
             }
 
             public int Compare(object o1, object o2)
             {
-                return GetIL(o1 as Pdbx.IL).CompareTo(GetIL(o2 as Pdbx.IL));
+                return GetIL(o1 as IL).CompareTo(GetIL(o2 as IL));
             }
 
-            public static uint Map(bool fCLR, Pdbx.IL [] ilMap, uint offset)
+            public static uint Map(bool fCLR, List<IL> ilMap, uint offset)
             {
+                var ilMapCopy = ilMap.ToArray();
+
                 ILComparer ilComparer = new ILComparer(fCLR);
-                Pdbx.IL il = new Pdbx.IL();
+                IL il = new IL();
                 ilComparer.SetIL(il, offset);
-                int i = Array.BinarySearch(ilMap, il, ilComparer);
+                int i =  Array.BinarySearch(ilMapCopy, il, ilComparer);
                 uint ret = 0;
 
                 if (i >= 0)
@@ -264,7 +271,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         int ICorDebugFunction.GetToken( out uint pMethodDef )
         {
-            pMethodDef = HasSymbols ? m_pdbxMethod.Token.CLR : m_tkSymbolless;
+            pMethodDef = HasSymbols ? m_pdbxMethod.Token.ClrToken : m_tkSymbolless;
 
             return COM_HResults.S_OK;
         }

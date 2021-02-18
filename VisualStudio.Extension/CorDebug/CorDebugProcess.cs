@@ -1334,7 +1334,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
             List<Commands.DebuggingResolveAssembly> assemblies = Engine.ResolveAllAssemblies();
             string[] assemblyPathsT = new string[1];
-            Pdbx.PdbxFile.Resolver resolver = new Pdbx.PdbxFile.Resolver();
+            PdbxFile.Resolver resolver = new PdbxFile.Resolver();
 
             DebugAssert(assemblies.Count > 0, "Error loading assemblies. Assemblies count is 0.");
 
@@ -1389,7 +1389,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         resolver.AssemblyPaths = _assemblyPaths;
                     }
 
-                    Pdbx.PdbxFile pdbxFile = resolver.Resolve(reply.Name, reply.Version, Engine.IsTargetBigEndian); //Pdbx.PdbxFile.Open(reply.Name, reply.m_version, assemblyPaths);
+                    PdbxFile pdbxFile = resolver.Resolve(reply.Name, reply.Version, Engine.IsTargetBigEndian); //Pdbx.PdbxFile.Open(reply.Name, reply.m_version, assemblyPaths);
 
                     assembly = new CorDebugAssembly(this, reply.Name, pdbxFile, nanoCLR_TypeSystem.IdxAssemblyFromIndex(a.Idx));
 

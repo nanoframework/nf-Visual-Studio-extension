@@ -1642,18 +1642,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
             return nameParent == "System.Enum";
         }
 
-        //This we should keep in the pdbx?  Kind of annoying to get from here
-        //Don't think this is needed?
-        public static bool ClassIsValueClass(IMetaDataImport mdi, uint tk)
-        {
-            if ((ClassGetProps(mdi, tk) & (uint)MetaData.CorTypeAttr.tdSealed) == 0)
-                return false;
-
-            string nameParent = ClassDerivesFrom(mdi, tk);
-
-            return nameParent == "System.ValueType" || nameParent == "System.Enum";
-        }
-
         public static string ClassGetName(IMetaDataImport mdi, uint tk)
         {
             uint chName;

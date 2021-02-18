@@ -177,8 +177,8 @@
     <Compile Include="..\VisualStudio.Extension\CorDebug\nanoCLR_TypeSystem.cs">
       <Link>CorDebug\nanoCLR_TypeSystem.cs</Link>
     </Compile>
-    <Compile Include="..\VisualStudio.Extension\CorDebug\Pdbx.cs">
-      <Link>CorDebug\Pdbx.cs</Link>
+    <Compile Include="..\VisualStudio.Extension\CorDebug\PdbxFile.cs">
+      <Link>CorDebug\PdbxFile.cs</Link>
     </Compile>
     <Compile Include="..\VisualStudio.Extension\CorDebug\ProcessExitException.cs">
       <Link>CorDebug\ProcessExitException.cs</Link>
@@ -309,6 +309,7 @@
     <Compile Include="..\VisualStudio.Extension\Utilities\ReferenceCrawler.cs">
       <Link>Utilities\ReferenceCrawler.cs</Link>
     </Compile>
+    <Compile Include="CorDebug\Pdbx.cs" />
     <Compile Include="NanoFrameworkPackage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Resources\ResourceStrings.Designer.cs">
@@ -849,6 +850,9 @@
     </PackageReference>
     <PackageReference Include="System.Security.Cryptography.Algorithms">
       <Version>4.3.1</Version>
+    </PackageReference>
+    <PackageReference Include="System.Text.Json">
+      <Version>5.0.1</Version>
     </PackageReference>
     <PackageReference Include="System.Threading">
       <Version>4.3.0</Version>

@@ -52,16 +52,16 @@ namespace nanoFramework.Tools.VisualStudio.Extension
     public class CorDebugFunctionBreakpoint : CorDebugBreakpoint, ICorDebugFunctionBreakpoint
     {
         private CorDebugFunction m_function;
-        private Pdbx.IL m_il;
+        private IL m_il;
 
         public CorDebugFunctionBreakpoint (CorDebugFunction function, uint ilCLR) : base(function.AppDomain)
         {
-            m_function   = function;
-            m_il         = new Pdbx.IL();
-            m_il.CLR     = ilCLR;
-            m_il.nanoCLR = function.GetILnanoCLRFromILCLR(ilCLR);
+            m_function        = function;
+            m_il              = new IL();
+            m_il.ClrToken     = ilCLR;
+            m_il.NanoClrToken = function.GetILnanoCLRFromILCLR(ilCLR);
 
-            m_breakpointDef.m_IP  = m_il.nanoCLR;            
+            m_breakpointDef.m_IP  = m_il.NanoClrToken;            
             m_breakpointDef.m_md  = m_function.MethodDef_Index;
 
             Active = true;   
@@ -147,7 +147,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         int ICorDebugFunctionBreakpoint.GetOffset( out uint pnOffset )
         {
-            pnOffset = m_il.CLR;
+            pnOffset = m_il.ClrToken;
 
             return COM_HResults.S_OK;         
         }
