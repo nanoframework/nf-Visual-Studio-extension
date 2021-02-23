@@ -300,8 +300,8 @@
       },
       "nanoFramework.CoreLibrary": {
         "type": "Direct",
-        "requested": "[1.7.3, )",
-        "resolved": "1.7.3",
+        "requested": "[1.10.1-preview.9, )",
+        "resolved": "1.10.1-preview.9",
         "contentHash": "RRt1rjuhtX8RAu+1jO93bWZOnUaHrvLYiIURsMEgpLMsp5/rt7WKlO/jNeAaAowz/BocmZvTq0cJ/wAqXsvbSQ=="
       },
       "nanoFramework.Tools.Debugger.Net": {
