@@ -302,7 +302,13 @@
         "type": "Direct",
         "requested": "[1.10.1-preview.9, )",
         "resolved": "1.10.1-preview.9",
-        "contentHash": "RRt1rjuhtX8RAu+1jO93bWZOnUaHrvLYiIURsMEgpLMsp5/rt7WKlO/jNeAaAowz/BocmZvTq0cJ/wAqXsvbSQ=="
+        "contentHash": "7mKtSQoVPNMmG32GUUMT+kMrYJYVlm8dZk4yYyPGzgcZm65Sd/LR7WuPCIC4AwaGGdjetrmCochF/NBYcfRPhA=="
+      },
+      "nanoFramework.TestFramework": {
+        "type": "Direct",
+        "requested": "[1.0.25, )",
+        "resolved": "1.0.25",
+        "contentHash": "UcJLow2SdrdmJkPyIld+Qo2PpDX9eiPMPTUdeLtZArGMi2YJmQu1zorFFHDhjFaJ0odUAfrAp7RSlvAruiAu4Q=="
       },
       "nanoFramework.Tools.Debugger.Net": {
         "type": "Direct",
@@ -1569,8 +1575,8 @@
       },
       "Microsoft.VisualStudio.Utilities.Internal": {
         "type": "Transitive",
-        "resolved": "16.3.23",
-        "contentHash": "AxbS8vXJj0IjTv67JbmOqwJERYUDE7BHbXYkXGiyqYblizMjhVdohNIethnJX9lVN2RmotN5GQbwLWDoMKatvw=="
+        "resolved": "16.3.5",
+        "contentHash": "uxeYUOe3QLcTVfbxwHFlE5QtR6eMXdny/XWxdV9f5lXwbdu7deiAI5lL7J7zM7V564LcXAvPvI6Tfzd+l9NIDg=="
       },
       "Microsoft.VisualStudio.Validation": {
         "type": "Transitive",

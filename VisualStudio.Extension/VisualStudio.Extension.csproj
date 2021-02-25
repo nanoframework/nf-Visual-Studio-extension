@@ -196,6 +196,11 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
+    <Content Include="$(NuGetPackageRoot)\nanoFramework.TestFramework\1.0.25\nanoFramework.TestFramework.1.0.25.nupkg">
+      <Link>Packages\nanoFramework.TestFramework.1.0.25.nupkg</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
     <Resource Include="Resources\DeviceErase.16.16.png" />
     <Resource Include="Resources\NetworkConfig.16.16.png" />
     <Resource Include="Resources\DisableDeviceWatchers.16.16.png" />
@@ -339,6 +344,13 @@
       <IncludeOutputGroupsInVSIX>TemplateProjectOutputGroup%3b</IncludeOutputGroupsInVSIX>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
       <VSIXSubPath>ItemTemplates</VSIXSubPath>
+    </ProjectReference>
+    <ProjectReference Include="..\CSharp.TestApplication\CSharp.TestApplication.csproj">
+      <Project>{3040ba82-56cc-4189-a26c-cabb4b6b7b87}</Project>
+      <Name>CSharp.TestApplication</Name>
+      <IncludeOutputGroupsInVSIX>TemplateProjectOutputGroup%3b</IncludeOutputGroupsInVSIX>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <VSIXSubPath>ProjectTemplates</VSIXSubPath>
     </ProjectReference>
     <ProjectReference Include="..\Tools.BuildTasks\Tools.BuildTasks.csproj">
       <Project>{ce0631f2-731d-4a48-b927-f13f6b2fb055}</Project>
@@ -650,6 +662,9 @@
     </PackageReference>
     <PackageReference Include="nanoFramework.CoreLibrary">
       <Version>1.10.1-preview.9</Version>
+    </PackageReference>
+    <PackageReference Include="nanoFramework.TestFramework">
+      <Version>1.0.25</Version>
     </PackageReference>
     <PackageReference Include="nanoFramework.Tools.Debugger.Net" Version="1.29.0-preview.1" />
     <PackageReference Include="nanoFramework.Tools.MetadataProcessor.Core" Version="2.31.3" />
