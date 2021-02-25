@@ -1,0 +1,33 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<VSTemplate Version="3.0.0" Type="Project" xmlns="http://schemas.microsoft.com/developer/vstemplate/2005" xmlns:sdk="http://schemas.microsoft.com/developer/vstemplate-sdkextension/2019">
+  <TemplateData>
+    <Name>Unit Test Project (.NET nanoFramework)</Name>
+    <Description>A project that contains MSTest unit tests that can run on .NET nanoFramework.</Description>
+    <Icon Package="{52CBD135-1F97-2580-011F-C7CD052E44DE}" ID="531" />
+    <ProjectType>CSharp</ProjectType>
+    <SortOrder>1000</SortOrder>
+    <TemplateID>15dbe581-c906-49fa-9a29-be6fc52ffa7a</TemplateID>
+    <CreateNewFolder>true</CreateNewFolder>
+    <DefaultName>NFUnitTest</DefaultName>
+    <ProvideDefaultName>true</ProvideDefaultName>
+    <PromptForSaveOnCreation>true</PromptForSaveOnCreation>
+  </TemplateData>
+  <TemplateContent>
+    <Project File="NFUnitTest.nfproj" ReplaceParameters="true">
+      <ProjectItem ReplaceParameters="true" TargetFileName="Properties\AssemblyInfo.cs">AssemblyInfo.cs</ProjectItem>
+      <ProjectItem ReplaceParameters="true" OpenInEditor="true">UnitTest1.cs</ProjectItem>
+    </Project>
+  </TemplateContent>
+  <WizardExtension>
+    <Assembly>NuGet.VisualStudio.Interop, Version=1.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</Assembly>
+    <FullClassName>NuGet.VisualStudio.TemplateWizard</FullClassName>
+  </WizardExtension>
+  <WizardData>
+    <packages repository="extension" repositoryId="455f2be5-bb07-451e-b351-a9faf3018dc9">
+      <package id="nanoFramework.CoreLibrary" version="1.10.1-preview.9"/>
+    </packages>
+    <packages repository="extension" repositoryId="455f2be5-bb07-451e-b351-a9faf3018dc9">
+      <package id="nanoFramework.TestFramework" version="1.0.25"/>
+    </packages>
+  </WizardData>
+</VSTemplate>

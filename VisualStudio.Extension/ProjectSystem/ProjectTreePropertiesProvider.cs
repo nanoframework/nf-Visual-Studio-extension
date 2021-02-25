@@ -3,6 +3,7 @@
 // See LICENSE file in the project root for full license information.
 //
 
+using Microsoft.VisualStudio.Imaging;
 using Microsoft.VisualStudio.ProjectSystem;
 using System.ComponentModel.Composition;
 
@@ -29,6 +30,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             // set the icon for the root project node
             if (propertyValues.Flags.Contains(ProjectTreeFlags.Common.ProjectRoot))
             {
+                // skip if this is a test project
+                if(propertyValues.Icon == KnownMonikers.CSTestApplication.ToProjectSystemType())
+                {
+                    return;
+                }
+
                 propertyValues.Icon = NanoFrameworkMonikers.NanoFrameworkProject.ToProjectSystemType();
                 propertyValues.ExpandedIcon = NanoFrameworkMonikers.NanoFrameworkProject.ToProjectSystemType();
             }

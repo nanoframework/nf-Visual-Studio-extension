@@ -344,6 +344,11 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
+    <Content Include="$(PkgnanoFramework_TestFramework)\nanoFramework.TestFramework.1.0.25.nupkg">
+      <Link>Packages\nanoFramework.TestFramework.1.0.25.nupkg</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
     <Resource Include="Resources\DeviceErase.16.16.png" />
     <Resource Include="Resources\NetworkConfig.16.16.png" />
     <Resource Include="Resources\DisableDeviceWatchers.16.16.png" />
@@ -501,6 +506,13 @@
       <IncludeOutputGroupsInVSIX>TemplateProjectOutputGroup%3b</IncludeOutputGroupsInVSIX>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
       <VSIXSubPath>ItemTemplates</VSIXSubPath>
+    </ProjectReference>
+    <ProjectReference Include="..\CSharp.TestApplication\CSharp.TestApplication.csproj">
+      <Project>{3040ba82-56cc-4189-a26c-cabb4b6b7b87}</Project>
+      <Name>CSharp.TestApplication</Name>
+      <IncludeOutputGroupsInVSIX>TemplateProjectOutputGroup%3b</IncludeOutputGroupsInVSIX>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <VSIXSubPath>ProjectTemplates</VSIXSubPath>
     </ProjectReference>
     <ProjectReference Include="..\Tools.BuildTasks-2019\Tools.BuildTasks.csproj">
       <Project>{552C2500-2C53-4148-A422-0ED983EF135D}</Project>
@@ -774,6 +786,10 @@
     </PackageReference>
     <PackageReference Include="nanoFramework.CoreLibrary" GeneratePathProperty="true">
       <Version>1.10.1-preview.9</Version>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="nanoFramework.TestFramework" GeneratePathProperty="true">
+      <Version>1.0.25</Version>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="nanoFramework.Tools.Debugger.Net" Version="1.29.0-preview.1" />
