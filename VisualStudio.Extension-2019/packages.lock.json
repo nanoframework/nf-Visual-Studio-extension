@@ -336,9 +336,9 @@
       },
       "nanoFramework.Tools.MetadataProcessor.MsBuildTask": {
         "type": "Direct",
-        "requested": "[2.32.3, )",
-        "resolved": "2.32.3",
-        "contentHash": "/u4jLzUZvlUJUXV4tZyuG0xDbg+zixhM+strImB/1ia9jTTd1xWuLGFShyPKRX8ik94d2Y4ugIKPl+QeP8qZPg==",
+        "requested": "[2.32.39, )",
+        "resolved": "2.32.39",
+        "contentHash": "hJLVUQPVE0RXkDJdkamNjACqMHkXTP9/3sBadhlhJxMannc49smywC3UdId3z5GX4a3tLtan7QB0ww17v7a2lg==",
         "dependencies": {
           "Mono.Cecil": "0.11.3",
           "mustache-sharp": "1.0.0"
@@ -1575,8 +1575,8 @@
       },
       "Microsoft.VisualStudio.Utilities.Internal": {
         "type": "Transitive",
-        "resolved": "16.3.5",
-        "contentHash": "uxeYUOe3QLcTVfbxwHFlE5QtR6eMXdny/XWxdV9f5lXwbdu7deiAI5lL7J7zM7V564LcXAvPvI6Tfzd+l9NIDg=="
+        "resolved": "16.3.23",
+        "contentHash": "AxbS8vXJj0IjTv67JbmOqwJERYUDE7BHbXYkXGiyqYblizMjhVdohNIethnJX9lVN2RmotN5GQbwLWDoMKatvw=="
       },
       "Microsoft.VisualStudio.Validation": {
         "type": "Transitive",
