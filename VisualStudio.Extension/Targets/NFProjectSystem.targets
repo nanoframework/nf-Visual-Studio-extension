@@ -17,7 +17,7 @@
   <ItemGroup>
     <ProjectCapability Include="NanoCSharpProject" />
     
-    <ProjectCapability Include="AssemblyReferences;ProjectReferences;PackageReferences;SharedProjectReferences" />
+    <ProjectCapability Include="AssemblyReferences;ProjectReferences;SharedProjectReferences" />
     <ProjectCapability Include="ProjectConfigurationsDeclaredAsItems" />
     <ProjectCapability Include="DeclaredSourceItems;UserSourceItems" />
     <ProjectCapability Include="CPS" />
