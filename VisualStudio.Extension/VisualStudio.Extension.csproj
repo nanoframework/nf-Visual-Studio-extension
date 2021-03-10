@@ -196,8 +196,8 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
-    <Content Include="$(NuGetPackageRoot)\nanoFramework.TestFramework\1.0.25\nanoFramework.TestFramework.1.0.25.nupkg">
-      <Link>Packages\nanoFramework.TestFramework.1.0.25.nupkg</Link>
+    <Content Include="$(NuGetPackageRoot)\nanoFramework.TestFramework\1.0.86\nanoFramework.TestFramework.1.0.86.nupkg">
+      <Link>Packages\nanoFramework.TestFramework.1.0.86.nupkg</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
@@ -664,7 +664,9 @@
       <Version>1.10.1-preview.9</Version>
     </PackageReference>
     <PackageReference Include="nanoFramework.TestFramework">
-      <Version>1.0.25</Version>
+      <Version>1.0.86</Version>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="nanoFramework.Tools.Debugger.Net" Version="1.29.0-preview.1" />
     <PackageReference Include="nanoFramework.Tools.MetadataProcessor.Core" Version="2.31.3" />
