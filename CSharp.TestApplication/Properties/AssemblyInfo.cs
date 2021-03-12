@@ -8,7 +8,6 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("CSharp.TestApplication")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyProduct("CSharp.TestApplication")]
 [assembly: AssemblyCopyright("Copyright (c) 2021 nanoFramework contributors")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
