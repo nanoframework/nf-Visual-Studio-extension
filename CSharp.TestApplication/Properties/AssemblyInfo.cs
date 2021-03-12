@@ -5,12 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("CSharp.BlankApplication")]
+[assembly: AssemblyTitle("CSharp.TestApplication")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Jose Simoes")]
-[assembly: AssemblyProduct("CSharp.BlankApplication")]
-[assembly: AssemblyCopyright("Copyright © Jose Simoes 2017")]
+[assembly: AssemblyProduct("CSharp.TestApplication")]
+[assembly: AssemblyCopyright("Copyright (c) 2021 nanoFramework contributors")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -20,7 +19,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("572121bd-e972-4bf7-abf1-78251dde1181")]
+[assembly: Guid("673c57f0-2cb1-4847-ad2f-776d5159b588")]
 
 // Version information for an assembly consists of the following four values:
 //
