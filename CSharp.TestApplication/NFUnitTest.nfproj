@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="Current" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <ItemGroup>
-    <ProjectCapability Include="TestContainer" />
-  </ItemGroup>
   <PropertyGroup Label="Globals">
     <NanoFrameworkProjectSystemPath>$(MSBuildToolsPath)..\..\..\nanoFramework\v1.0\</NanoFrameworkProjectSystemPath>
   </PropertyGroup>
   <Import Project="$(NanoFrameworkProjectSystemPath)NFProjectSystem.Default.props" Condition="Exists('$(NanoFrameworkProjectSystemPath)NFProjectSystem.Default.props')" />
+  <ItemGroup>
+    <ProjectCapability Include="TestContainer" />
+  </ItemGroup>
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -40,8 +40,8 @@
   </ProjectExtensions>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
-      <ErrorText>Update the Import path in nfproj to the correct nanoFramework.TestFramework NuGet package folder.</ErrorText>
+      <WarningText>Update the Import path in nfproj to the correct nanoFramework.TestFramework NuGet package folder.</WarningText>
     </PropertyGroup>
-    <Error Condition="!Exists('..\packages\nanoFramework.TestFramework.1.0.86\build\nanoFramework.TestFramework.targets')" Text="'$(ErrorText)'" />
+    <Warning Condition="!Exists('..\packages\nanoFramework.TestFramework.1.0.86\build\nanoFramework.TestFramework.targets')" Text="'$(WarningText)'" />
   </Target>
 </Project>
