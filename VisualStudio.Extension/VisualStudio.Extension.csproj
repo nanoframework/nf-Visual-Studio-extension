@@ -191,8 +191,8 @@
   </ItemGroup>
   <ItemGroup>
     <!-- GeneratePathProperty doesn't work on VS2017, so need to add this workaround -->
-    <Content Include="$(NuGetPackageRoot)\nanoframework.corelibrary\1.10.1-preview.9\nanoFramework.CoreLibrary.1.10.1-preview.9.nupkg">
-      <Link>Packages\nanoFramework.CoreLibrary.1.10.1-preview.9.nupkg</Link>
+    <Content Include="$(NuGetPackageRoot)\nanoframework.corelibrary\1.10.1-preview.11\nanoFramework.CoreLibrary.1.10.1-preview.11.nupkg">
+      <Link>Packages\nanoFramework.CoreLibrary.1.10.1-preview.11.nupkg</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
@@ -661,7 +661,7 @@
       <Version>5.4.1.1</Version>
     </PackageReference>
     <PackageReference Include="nanoFramework.CoreLibrary">
-      <Version>1.10.1-preview.9</Version>
+      <Version>1.10.1-preview.11</Version>
     </PackageReference>
     <PackageReference Include="nanoFramework.TestFramework">
       <Version>1.0.86</Version>
