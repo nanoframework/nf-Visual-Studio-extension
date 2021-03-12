@@ -54,12 +54,14 @@
     </None>
     <None Include="AssemblyInfo.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <VSTemplate Include="CSharp.ClassLibrary.vstemplate" Condition=" '$(VisualStudioVersion)' == '15.0'">
+  <ItemGroup Condition=" '$(VisualStudioVersion)' == '15.0' ">
+    <VSTemplate Include="CSharp.ClassLibrary-vs2017.vstemplate" >
       <SubType>Designer</SubType>
       <OutputSubPath>nanoFramework</OutputSubPath>
     </VSTemplate>
-    <VSTemplate Include="CSharp.ClassLibrary-vs2019.vstemplate" Condition=" '$(VisualStudioVersion)' == '16.0'">
+  </ItemGroup>
+  <ItemGroup Condition=" '$(VisualStudioVersion)' == '16.0'">
+    <VSTemplate Include="CSharp.ClassLibrary.vstemplate" >
       <SubType>Designer</SubType>
       <OutputSubPath>nanoFramework</OutputSubPath>
     </VSTemplate>

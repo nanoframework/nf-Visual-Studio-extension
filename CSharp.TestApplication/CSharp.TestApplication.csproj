@@ -55,11 +55,11 @@
     <None Include="AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <VSTemplate Include="CSharp.TestApplication.vstemplate" Condition=" '$(VisualStudioVersion)' == '15.0'">
+    <VSTemplate Include="CSharp.TestApplication-vs2017.vstemplate" Condition=" '$(VisualStudioVersion)' == '15.0'">
       <SubType>Designer</SubType>
       <OutputSubPath>nanoFramework</OutputSubPath>
     </VSTemplate>
-    <VSTemplate Include="CSharp.TestApplication-vs2019.vstemplate" Condition=" '$(VisualStudioVersion)' == '16.0'">
+    <VSTemplate Include="CSharp.TestApplication.vstemplate" Condition=" '$(VisualStudioVersion)' == '16.0'">
       <SubType>Designer</SubType>
       <OutputSubPath>nanoFramework</OutputSubPath>
     </VSTemplate>
