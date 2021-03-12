@@ -1,12 +1,16 @@
 # Changelog
 
-## [v2019.5.0.19](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v2019.5.0.19) (2021-03-12)
+## [v2019.5.0.22](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v2019.5.0.22) (2021-03-12)
 
-[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2019.5.0.14...v2019.5.0.19)
+[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2019.5.0.14...v2019.5.0.22)
 
 **Implemented enhancements:**
 
 - Update template projects [\#592](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/592)
+
+**Fixed bugs:**
+
+- Fix unit test template [\#594](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/594)
 
 **Updated dependencies and other chores:**
 
@@ -887,10 +891,6 @@
 
 - Work project system [\#428](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/428)
 
-**Fixed bugs:**
-
-- Update MDP to 2.19. [\#429](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/429)
-
 ## [v1.5.0.3-VS2017](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v1.5.0.3-VS2017) (2020-02-17)
 
 [Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v1.5.0.3-VS2019...v1.5.0.3-VS2017)
@@ -898,6 +898,10 @@
 ## [v1.5.0.3-VS2019](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v1.5.0.3-VS2019) (2020-02-17)
 
 [Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v1.5.0.2-VS2017...v1.5.0.3-VS2019)
+
+**Fixed bugs:**
+
+- Update MDP to 2.19. [\#429](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/429)
 
 **Updated dependencies and other chores:**
 
@@ -1095,6 +1099,10 @@
 
 [Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v1.2.0.1-VS2017...v1.2.0.3-VS2019)
 
+**Fixed bugs:**
+
+- Fix deployment issues [\#400](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/400)
+
 ## [v1.2.0.1-VS2017](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v1.2.0.1-VS2017) (2019-07-23)
 
 [Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v1.2.0.1-VS2019...v1.2.0.1-VS2017)
@@ -1105,7 +1113,6 @@
 
 **Fixed bugs:**
 
-- Fix deployment issues [\#400](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/400)
 - Update documentation URL in application template [\#397](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/397)
 - Update documentation URL in Class template [\#396](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/396)
 - Rework buttons availability in device explorer [\#394](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/394)
