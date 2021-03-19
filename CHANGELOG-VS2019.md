@@ -1,8 +1,13 @@
 # Changelog
 
-## [v2019.5.0.30](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v2019.5.0.30) (2021-03-19)
+## [v2019.5.0.34](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v2019.5.0.34) (2021-03-19)
 
-[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2019.5.0.27...v2019.5.0.30)
+[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2019.5.0.27...v2019.5.0.34)
+
+**Implemented enhancements:**
+
+- Improvements in messages and outputs [\#597](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/597)
+- Improve device certificate management [\#596](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/596)
 
 **Updated dependencies and other chores:**
 
@@ -1102,6 +1107,10 @@
 - Add detailed instruction for NuGet issues [\#405](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/405)
 - Deploy provider now only deploys startup project [\#404](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/404)
 
+**Fixed bugs:**
+
+- Update documentation URL in Class template [\#396](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/396)
+
 ## [v1.2.1.1-VS2019](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v1.2.1.1-VS2019) (2019-08-20)
 
 [Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v1.2.1.10-VS2017...v1.2.1.1-VS2019)
@@ -1138,7 +1147,6 @@
 **Fixed bugs:**
 
 - Update documentation URL in application template [\#397](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/397)
-- Update documentation URL in Class template [\#396](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/396)
 - Rework buttons availability in device explorer [\#394](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/394)
 
 **Updated dependencies and other chores:**
