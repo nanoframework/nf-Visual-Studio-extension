@@ -1,8 +1,13 @@
 # Changelog
 
-## [v2017.5.0.30](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v2017.5.0.30) (2021-03-19)
+## [v2017.5.0.34](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v2017.5.0.34) (2021-03-19)
 
-[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2019.5.0.27...v2017.5.0.30)
+[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2019.5.0.27...v2017.5.0.34)
+
+**Implemented enhancements:**
+
+- Improvements in messages and outputs [\#597](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/597)
+- Improve device certificate management [\#596](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/596)
 
 **Updated dependencies and other chores:**
 
@@ -1114,7 +1119,6 @@
 
 - Update several rules files [\#402](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/402)
 - Fix project icon not showing on VS project tree [\#401](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/401)
-- Rework buttons availability in device explorer [\#394](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/394)
 
 ## [v1.2.0.3-VS2017](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v1.2.0.3-VS2017) (2019-07-23)
 
@@ -1140,6 +1144,7 @@
 
 - Update documentation URL in application template [\#397](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/397)
 - Update documentation URL in Class template [\#396](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/396)
+- Rework buttons availability in device explorer [\#394](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/394)
 
 **Updated dependencies and other chores:**
 
@@ -1355,6 +1360,7 @@
 **Implemented enhancements:**
 
 - Add VS template for resources file [\#360](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/360)
+- Remove deployment workaround for ESP32 [\#358](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/358)
 
 **Updated dependencies and other chores:**
 
@@ -1366,7 +1372,6 @@
 
 **Implemented enhancements:**
 
-- Remove deployment workaround for ESP32 [\#358](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/358)
 - Improve attach to engine step [\#356](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/356)
 - Work on CorDebugProcess [\#354](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/354)
 - Work on DeployProvider [\#351](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/351)
@@ -1385,6 +1390,7 @@
 - Update debugger lib [\#355](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/355)
 - Update debugger lib [\#353](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/353)
 - Update debugger [\#352](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/352)
+- Update debugger lib to 1.0.1-preview-058 [\#347](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/347)
 
 ## [v1.0.3.56](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v1.0.3.56) (2019-02-11)
 
@@ -1401,6 +1407,7 @@
 - Improvement in deploy provider [\#339](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/339)
 - Major code rework and clean-up [\#338](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/338)
 - Add strong name to Build.Tasks project [\#337](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/337)
+- Improvements and fixes related with several async and await calls [\#336](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/336)
 
 **Fixed bugs:**
 
@@ -1408,7 +1415,6 @@
 
 **Updated dependencies and other chores:**
 
-- Update debugger lib to 1.0.1-preview-058 [\#347](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/347)
 - Update NuGets [\#342](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/342)
 
 ## [v1.0.3.40](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v1.0.3.40) (2019-02-05)
@@ -1417,7 +1423,6 @@
 
 **Implemented enhancements:**
 
-- Improvements and fixes related with several async and await calls [\#336](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/336)
 - Improvements in deploy provider [\#334](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/334)
 - Improve deploy provider output [\#333](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/333)
 
@@ -1457,7 +1462,6 @@
 **Implemented enhancements:**
 
 - Improve deployment experience [\#326](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/326)
-- Remove reboot command from DeviceErase [\#325](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/325)
 
 **Fixed bugs:**
 
@@ -1470,6 +1474,10 @@
 ## [v1.0.3.15](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v1.0.3.15) (2019-01-03)
 
 [Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v1.0.1.0...v1.0.3.15)
+
+**Implemented enhancements:**
+
+- Remove reboot command from DeviceErase [\#325](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/325)
 
 **Updated dependencies and other chores:**
 
