@@ -200,13 +200,15 @@
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
 
                     <!-- root CA bundle -->
-                    <GroupBox Grid.Row="1" Margin="0,8,0,10" Header="                            " IsEnabled="True" >
-                        <Grid Margin="8,10,10,10">
+                    <GroupBox Grid.Row="1" Margin="0,8,0,0" Header="                " IsEnabled="True" >
+                        <Grid Margin="8,10,10,10" >
                             <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
@@ -217,13 +219,45 @@
 
                             <!-- open file dialog to select root ca file -->
                             <Label Grid.Row="1" Grid.Column="0" HorizontalAlignment="Left" Content="Select Root CA file to upload to the target." Margin="-3,0,0,0" />
-                            <Button x:Name="ShowRootCAFilePicker" Grid.Row="1" Grid.Column="1" HorizontalAlignment="Right" Content="  Browse... " Margin="7,0,0,0" Click="ShowShowRootCAFilePicker_Click"/>
+                            <Button x:Name="ShowRootCAFilePicker" Grid.Row="1" Grid.Column="1" Content="Browse..." Width="65" Margin="7,5,0,5" Click="ShowShowRootCAFilePicker_Click"/>
+
+                            <!-- clear root ca storage -->
+                            <Label Grid.Row="2" Grid.Column="0" HorizontalAlignment="Left" Content="Clear Root CA stored on the target." Margin="-3,0,0,0" />
+                            <Button x:Name="ClearRootCA" Grid.Row="2" Grid.Column="1" Content="Clear" Width="65" Margin="7,5,0,5" Click="ClearRootCA_Click"/>
 
                         </Grid>
                     </GroupBox>
 
                     <!--These controls HAVE TO BE HERE (after the GroupBox) so they are in a higher layer than the GroupBox  -->
-                    <Label Margin="10,5,0,254" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Left" Content="Certificate Store" />
+                    <Label Margin="10,5,0,0" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Left" Content="Root CA" VerticalAlignment="Top"/>
+
+                    <!-- device certificate -->
+                    <GroupBox Grid.Row="2" Margin="0,8,0,10" Header="                               " IsEnabled="True" >
+                        <Grid Margin="8,10,10,10">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="50*"/>
+                                <ColumnDefinition Width="auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <!-- open file dialog to select device certificate file -->
+                            <Label Grid.Row="1" Grid.Column="0" HorizontalAlignment="Left" Content="Select certificate file to upload to the target." Margin="-3,0,0,0" />
+                            <Button x:Name="ShowDeviceCertificateFilePicker" Grid.Row="1" Grid.Column="1" Content="Browse..." Width="65" Margin="7,5,0,5" Click="ShowShowDeviceCertificatePicker_Click"/>
+
+                            <!-- clear device certificate -->
+                            <Label Grid.Row="2" Grid.Column="0" HorizontalAlignment="Left" Content="Clear device certificate stored on the target." Margin="-3,0,0,0" />
+                            <Button x:Name="ClearDeviceCertificate" Grid.Row="2" Grid.Column="1" Content="Clear" Width="65" Margin="7,5,0,5" Click="ClearDeviceCertificate_Click"/>
+
+                        </Grid>
+                    </GroupBox>
+
+                    <!--These controls HAVE TO BE HERE (after the GroupBox) so they are in a higher layer than the GroupBox  -->
+                    <Label Margin="10,5,0,0" Grid.Row="2" Grid.Column="0" HorizontalAlignment="Left" Content="Device Certificate" VerticalAlignment="Top"/>
+
 
                 </Grid>
             </TabItem>

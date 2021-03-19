@@ -226,6 +226,22 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 }
             }
 
+            // is there a device certificate to upload?
+            if (DeviceExplorerViewModel.DeviceCertificate != null)
+            {
+                MessageCentre.StartProgressMessage($"Uploading device certificate file to {(DataContext as DeviceExplorerViewModel).SelectedDevice.Description}...");
+
+                // save device certificate file to target
+                // at position 0
+                if (!DeviceExplorerViewModel.SelectedDevice.DebugEngine.UpdateDeviceConfiguration(DeviceExplorerViewModel.DeviceCertificate, 0))
+                {
+                    MessageCentre.OutputMessage($"Error uploading device certificate file to {(DataContext as DeviceExplorerViewModel).SelectedDevice.Description}.");
+                    MessageCentre.StopProgressMessage();
+
+                    return;
+                }
+            }
+
             // stop progress message
             MessageCentre.StopProgressMessage();
 
@@ -266,7 +282,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     // store CA certificate
                     DeviceExplorerViewModel.CaCertificateBundle = rootCaFile;
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     MessageCentre.OutputMessage($"Error reading Root CA file: {ex.Message}");
 
@@ -277,6 +293,72 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             {
                 // any other outcome from folder browser dialog doesn't require processing
             }
+        }
+
+        private void ClearRootCA_Click(object sender, System.Windows.RoutedEventArgs e)
+        {
+            // store empty CA certificate
+            DeviceExplorerViewModel.CaCertificateBundle = new DeviceConfiguration.X509CaRootBundleProperties()
+            {
+                Certificate = new byte[0],
+                CertificateSize = 0
+            };
+        }
+
+        private void ShowShowDeviceCertificatePicker_Click(object sender, System.Windows.RoutedEventArgs e)
+        {
+            var openFileDialog = new OpenFileDialog
+            {
+                Filter = "Certificate Files (*.crt;*.pem;*.der)|*.crt;*.pem;*.der|All files (*.*)|*.*",
+                FilterIndex = 1,
+                RestoreDirectory = true
+            };
+
+            // show dialog
+            DialogResult result = openFileDialog.ShowDialog();
+
+            if (result == System.Windows.Forms.DialogResult.OK && !string.IsNullOrWhiteSpace(openFileDialog.FileName))
+            {
+                // looks like we have a valid path
+
+                DeviceConfiguration.X509DeviceCertificatesProperties deviceCertificateFile = new DeviceConfiguration.X509DeviceCertificatesProperties();
+
+                // read file
+                try
+                {
+                    MessageCentre.InternalErrorMessage($"Opening device certificate file: {openFileDialog.FileName}");
+
+                    using (FileStream binFile = new FileStream(openFileDialog.FileName, FileMode.Open))
+                    {
+                        deviceCertificateFile.Certificate = new byte[binFile.Length];
+                        binFile.Read(deviceCertificateFile.Certificate, 0, (int)binFile.Length);
+                        deviceCertificateFile.CertificateSize = (uint)binFile.Length;
+                    }
+
+                    // store device certificate
+                    DeviceExplorerViewModel.DeviceCertificate = deviceCertificateFile;
+                }
+                catch (Exception ex)
+                {
+                    MessageCentre.OutputMessage($"Error reading device certificate file: {ex.Message}");
+
+                    MessageCentre.InternalErrorMessage($"Error reading device certificate file: {ex.Message} \r\n { ex.StackTrace }");
+                }
+            }
+            else
+            {
+                // any other outcome from folder browser dialog doesn't require processing
+            }
+        }
+
+        private void ClearDeviceCertificate_Click(object sender, System.Windows.RoutedEventArgs e)
+        {
+            // store empty device certificate
+            DeviceExplorerViewModel.DeviceCertificate = new DeviceConfiguration.X509DeviceCertificatesProperties()
+            {
+                Certificate = new byte[0],
+                CertificateSize = 0
+            };
         }
     }
 }

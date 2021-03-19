@@ -314,6 +314,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
         public DeviceConfiguration.Wireless80211ConfigurationProperties DeviceWireless80211Configuration { get; set; }
 
         public DeviceConfiguration.X509CaRootBundleProperties CaCertificateBundle { get; set; }
+        public DeviceConfiguration.X509DeviceCertificatesProperties DeviceCertificate { get; internal set; }
 
         #endregion
 
