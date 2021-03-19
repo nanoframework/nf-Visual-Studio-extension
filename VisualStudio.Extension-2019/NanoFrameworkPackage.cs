@@ -461,6 +461,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 // intro messages
                 MessageCentre.OutputMessage("GitHub repo: https://github.com/nanoframework/Home");
                 MessageCentre.OutputMessage("Report issues: https://github.com/nanoframework/Home/issues");
+                MessageCentre.OutputMessage("Browse samples: https://github.com/nanoframework/samples");
                 MessageCentre.OutputMessage("Join our Discord community: https://discord.gg/gCyBu8T");
                 MessageCentre.OutputMessage("Join our Hackster.io platform: https://www.hackster.io/nanoframework");
                 MessageCentre.OutputMessage("Follow us on Twitter: https://twitter.com/nanoframework");
@@ -476,7 +477,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     MessageCentre.OutputMessage(Environment.NewLine);
                     MessageCentre.OutputMessage("*************************************************************************");
                     MessageCentre.OutputMessage("** Seems that you are running this on a Window version earlier than 10 **");
-                    MessageCentre.OutputMessage("** .NET nanoFramework debug engine component requires Windows 10            **");
+                    MessageCentre.OutputMessage("** .NET nanoFramework debug engine component requires Windows 10       **");
                     MessageCentre.OutputMessage("*************************************************************************");
                     MessageCentre.OutputMessage(Environment.NewLine);
                 }
