@@ -92,7 +92,7 @@
                         </Setter>
                     </Style>
                 </TreeView.ItemContainerStyle>
-                <TreeViewItem Header="nanoFramework" IsExpanded="True">
+                <TreeViewItem Header=".NET nanoFramework" IsExpanded="True">
 
                     <Grid Margin="-20,10,0,10">
                         <Grid.RowDefinitions>
@@ -114,9 +114,17 @@
                                     <Hyperlink Style="{StaticResource {x:Static vsfx:VsResourceKeys.ThemedDialogHyperlinkStyleKey}}"
                                                 NavigateUri="http://www.nanoframework.net"
                                                 RequestNavigate="Hyperlink_RequestNavigate">
-                                    website</Hyperlink>!
+                                    website</Hyperlink>.
                             </TextBlock>
 
+                            <TextBlock Margin="10,0,0,0" VerticalAlignment="Center" >
+                                Browse our  
+                                    <Hyperlink Style="{StaticResource {x:Static vsfx:VsResourceKeys.ThemedDialogHyperlinkStyleKey}}"
+                                                NavigateUri="https://github.com/nanoframework/samples"
+                                                RequestNavigate="Hyperlink_RequestNavigate">
+                                    samples repository</Hyperlink>!
+                            </TextBlock>
+                            
                             <TextBlock Margin="10,0,0,0" VerticalAlignment="Center">
                                 Search the  
                                 <Hyperlink Style="{StaticResource {x:Static vsfx:VsResourceKeys.ThemedDialogHyperlinkStyleKey}}"
