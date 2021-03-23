@@ -1371,7 +1371,12 @@ namespace nanoFramework.Tools
 
                 if (formatDst != bitmap.PixelFormat)
                 {
-                    bitmap = bitmap.Clone(rect, formatDst);
+                    // need to copy the Bitmap in order to access it, otherwise it will throw an exception
+                    using (Bitmap bmpCopy = new Bitmap(bitmap))
+                    using (Bitmap targetBmp = bmpCopy.Clone(rect, formatDst))
+                    {
+                        bitmap = new Bitmap(targetBmp);
+                    }
                 }
 
                 try
@@ -1423,7 +1428,12 @@ namespace nanoFramework.Tools
                 bitmapDescription = new NanoResourceFile.CLR_GFX_BitmapDescription((ushort)bitmap.Width, (ushort)bitmap.Height, 0, 1, type);
 
                 MemoryStream stream = new MemoryStream();
-                bitmap.Save(stream, bitmap.RawFormat);
+
+                // need to copy the Bitmap in order to access it, otherwise it will throw an exception
+                using (Bitmap bmpCopy = new Bitmap(bitmap))
+                {
+                    bmpCopy.Save(stream, bitmap.RawFormat);
+                }
 
                 stream.Capacity = (int)stream.Length;
                 return stream.GetBuffer();
