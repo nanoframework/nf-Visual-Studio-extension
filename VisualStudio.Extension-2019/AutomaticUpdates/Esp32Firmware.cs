@@ -11,7 +11,7 @@ using System.Linq;
 namespace nanoFramework.Tools.VisualStudio.Extension.FirmwareUpdate
 {
     /// <summary>
-    /// Class that handles the download of ESP32 firmware files from Bintray.
+    /// Class that handles the download of ESP32 firmware files from Cloudsmith.
     /// </summary>
     internal class Esp32Firmware : FirmwarePackage
     {
