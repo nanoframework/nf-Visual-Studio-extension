@@ -70,8 +70,8 @@
     <Compile Include="..\Tools.BuildTasks\ProcessResourceFiles.cs">
       <Link>ResXFileCodeGenerator\ProcessResourceFiles.cs</Link>
     </Compile>
-    <Compile Include="..\VisualStudio.Extension-2019\AutomaticUpdates\BintrayPackageInfo.cs">
-      <Link>AutomaticUpdates\BintrayPackageInfo.cs</Link>
+    <Compile Include="..\VisualStudio.Extension-2019\AutomaticUpdates\CloudsmithPackageInfo.cs">
+      <Link>AutomaticUpdates\CloudsmithPackageInfo.cs</Link>
     </Compile>
     <Compile Include="..\VisualStudio.Extension-2019\AutomaticUpdates\CC13x26x2Firmware.cs">
       <Link>AutomaticUpdates\CC13x26x2Firmware.cs</Link>

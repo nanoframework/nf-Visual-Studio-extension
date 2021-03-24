@@ -293,7 +293,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             {
                 if (!s_SettingAutoUpdateEnable.HasValue)
                 {
-                    s_SettingAutoUpdateEnable = bool.Parse((string)s_instance.UserRegistryRoot.OpenSubKey(EXTENSION_SUBKEY).GetValue(SETTINGS_AUTO_UPDATE_ENABLE_KEY, "True"));
+                    s_SettingAutoUpdateEnable = bool.Parse((string)s_instance.UserRegistryRoot.OpenSubKey(EXTENSION_SUBKEY).GetValue(SETTINGS_AUTO_UPDATE_ENABLE_KEY, "False"));
                 }
 
                 return s_SettingAutoUpdateEnable.Value;

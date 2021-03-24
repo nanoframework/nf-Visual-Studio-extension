@@ -331,7 +331,7 @@
     <Compile Include="ToolWindow.DeviceExplorer\SettingsDialog.xaml.cs">
       <DependentUpon>SettingsDialog.xaml</DependentUpon>
     </Compile>
-    <Compile Include="AutomaticUpdates\BintrayPackageInfo.cs" />
+    <Compile Include="AutomaticUpdates\CloudsmithPackageInfo.cs" />
     <Compile Include="AutomaticUpdates\CC13x26x2Firmware.cs" />
     <Compile Include="AutomaticUpdates\Esp32Firmware.cs" />
     <Compile Include="AutomaticUpdates\FirmwarePackage.cs" />
