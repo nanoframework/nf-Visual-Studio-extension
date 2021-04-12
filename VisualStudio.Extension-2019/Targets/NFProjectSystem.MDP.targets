@@ -33,7 +33,7 @@
   <PropertyGroup>
     <NanoFramework_StartProgram Condition=" '$(StartAction)'== 'Program' ">$(StartProgram)</NanoFramework_StartProgram>
     <NanoFramework_IntermediateAssembly>$(ProjectDir)$(IntermediateOutputPath)$(TargetName)</NanoFramework_IntermediateAssembly>
-    <NanoFramework_Assembly>$(ProjectDir)$(OutDir)$(TargetName)</NanoFramework_Assembly>
+    <NanoFramework_Assembly>$(OutDir)$(TargetName)</NanoFramework_Assembly>
   </PropertyGroup>
 
   <!-- 
@@ -106,8 +106,8 @@
 
   <!-- Clean pe/pdbx files -->
   <Target Name="NanoFrameworkClean">
-    <Delete Condition="EXISTS('$(ProjectDir)$(OutDir)$(TargetName).pe')"   Files="$(ProjectDir)$(OutDir)$(TargetName).pe" />
-    <Delete Condition="EXISTS('$(ProjectDir)$(OutDir)$(TargetName).pdbx')" Files="$(ProjectDir)$(OutDir)$(TargetName).pdbx" />
+    <Delete Condition="EXISTS('$(OutDir)$(TargetName).pe')"   Files="$(OutDir)$(TargetName).pe" />
+    <Delete Condition="EXISTS('$(OutDir)$(TargetName).pdbx')" Files="$(OutDir)$(TargetName).pdbx" />
   </Target>
 
   <Target Name="CopyToOutDir">
@@ -115,28 +115,28 @@
     <Copy
         Condition="Exists('$(ProjectDir)$(IntermediateOutputPath)$(TargetName).exe')"
         SourceFiles="$(ProjectDir)$(IntermediateOutputPath)$(TargetName).exe"
-        DestinationFolder="$(ProjectDir)$(OutDir)\" >
+        DestinationFolder="$(OutDir)" >
       <Output TaskParameter="DestinationFiles" ItemName="FileWrites" />
     </Copy>
 
     <Copy
         Condition="Exists('$(ProjectDir)$(IntermediateOutputPath)$(TargetName).dll')"
         SourceFiles="$(ProjectDir)$(IntermediateOutputPath)$(TargetName).dll"
-        DestinationFolder="$(ProjectDir)$(OutDir)\" >
+        DestinationFolder="$(OutDir)" >
       <Output TaskParameter="DestinationFiles" ItemName="FileWrites" />
     </Copy>
 
     <Copy
         Condition="Exists('$(ProjectDir)$(IntermediateOutputPath)$(TargetName).pdbx')"
         SourceFiles="$(ProjectDir)$(IntermediateOutputPath)$(TargetName).pdbx"
-        DestinationFolder="$(ProjectDir)$(OutDir)" >
+        DestinationFolder="$(OutDir)" >
       <Output TaskParameter="DestinationFiles" ItemName="FileWrites" />
     </Copy>
 
     <Copy
         Condition="Exists('$(ProjectDir)$(IntermediateOutputPath)$(TargetName).bin')"
         SourceFiles="$(ProjectDir)$(IntermediateOutputPath)$(TargetName).bin"
-        DestinationFolder="$(ProjectDir)$(OutDir)" >
+        DestinationFolder="$(OutDir)" >
       <Output TaskParameter="DestinationFiles" ItemName="FileWrites" />
     </Copy>
 
@@ -170,14 +170,14 @@
         -->
     <Copy
         SourceFiles="@(ReferenceCopyLocalPaths->'%(RootDir)%(Directory)%(Filename).pe')"
-        DestinationFiles="@(ReferenceCopyLocalPaths->'$(OutDir)%(DestinationSubDirectory)%(Filename).pe')"
+        DestinationFiles="@(ReferenceCopyLocalPaths->'$(OutDir)%(Filename).pe')"
         SkipUnchangedFiles="true" ContinueOnError="true" >
       <Output TaskParameter="DestinationFiles" ItemName="FileWrites" />
     </Copy>
 
     <Copy
         SourceFiles="@(ReferenceCopyLocalPaths->'%(RootDir)%(Directory)%(Filename).pdbx')"
-        DestinationFiles="@(ReferenceCopyLocalPaths->'$(OutDir)%(DestinationSubDirectory)%(Filename).pdbx')"
+        DestinationFiles="@(ReferenceCopyLocalPaths->'$(OutDir)%(Filename).pdbx')"
         SkipUnchangedFiles="true" ContinueOnError="true">
       <Output TaskParameter="DestinationFiles" ItemName="FileWrites" />
     </Copy>
@@ -396,7 +396,7 @@
 
     <PropertyGroup>
       <!-- correct path for stubs output if set -->
-      <NFMDP_STUB_GenerateSkeletonFile Condition="'$(NFMDP_GENERATE_STUBS)' == 'true' AND '$(NFMDP_STUB_GenerateSkeletonFile)'!=''">$(ProjectDir)$(OutDir)$(NFMDP_STUB_GenerateSkeletonFile)</NFMDP_STUB_GenerateSkeletonFile>
+      <NFMDP_STUB_GenerateSkeletonFile Condition="'$(NFMDP_GENERATE_STUBS)' == 'true' AND '$(NFMDP_STUB_GenerateSkeletonFile)'!=''">$(OutDir)$(NFMDP_STUB_GenerateSkeletonFile)</NFMDP_STUB_GenerateSkeletonFile>
     </PropertyGroup>
 
     <ItemGroup>
