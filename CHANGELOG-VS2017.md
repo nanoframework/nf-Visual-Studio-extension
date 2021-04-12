@@ -1,5 +1,13 @@
 # Changelog
 
+## [v2017.5.0.43](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v2017.5.0.43) (2021-04-12)
+
+[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2019.5.0.40...v2017.5.0.43)
+
+**Fixed bugs:**
+
+- Fix output dir in MDP targets file [\#605](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/605)
+
 ## [v2019.5.0.40](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v2019.5.0.40) (2021-03-25)
 
 [Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2017.5.0.40...v2019.5.0.40)
