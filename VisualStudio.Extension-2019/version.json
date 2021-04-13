@@ -11,9 +11,8 @@
   },
   "semVer1NumericIdentifierPadding": 3,
   "publicReleaseRefSpec": [
-    "^refs/heads/develop$",
     "^refs/heads/main$",
-    "^refs/heads/v\\d+(?:\\.\\d+)?$"
+    "^refs/heads/v\\d+(?:\\.\\d+)?$",
     "^refs/tags/$"
   ],
   "cloudBuild": {
