@@ -23,6 +23,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         TaskAwaiter GetAwaiter();
 
-        Task<bool> ConnectToAsync(string description = null, int timeout = 5000);
+        bool ConnectTo(string description = null, int timeout = 5000);
     }
 }

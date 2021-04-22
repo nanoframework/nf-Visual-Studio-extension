@@ -70,7 +70,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.AutomaticUpdates
 
                     var deviceUniqueId = Guid.Parse(deviceId);
 
-                    var nanoDevice = ViewModelLocator.DeviceExplorer.AvailableDevices.FirstOrDefault(d => d.DeviceId == deviceUniqueId);
+                    var nanoDevice = ViewModelLocator.DeviceExplorer.AvailableDevices.FirstOrDefault(d => d.DeviceUniqueId == deviceUniqueId);
 
                     // sanity check
                     if (
@@ -151,10 +151,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension.AutomaticUpdates
                                 return;
                             }
 
-                            if (await nanoDevice.DebugEngine.ConnectAsync(
+                            if (nanoDevice.DebugEngine.Connect(
                                 1000,
                                 true,
-                                5,
                                 Debugger.WireProtocol.ConnectionSource.Unknown,
                                 true))
                             {
@@ -172,7 +171,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.AutomaticUpdates
                                 // update conditions:
                                 // 1. Running CLR _and_ the new version is higher
                                 // 2. Running nanoBooter and there is no version information on the CLR (presumably because there is no CLR installed)
-                                if (fwPackage.Version > nanoDevice.ClrVersion)
+                                if (fwPackage.Version > nanoDevice.CLRVersion)
                                 {
                                     bool attemptToLaunchBooter = false;
 
@@ -183,7 +182,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.AutomaticUpdates
                                         {
                                             MessageCentre.OutputFirmwareUpdateMessage($"[{deviceDescription}] Launching nanoBooter...");
 
-                                            attemptToLaunchBooter = await nanoDevice.ConnectToNanoBooterAsync(CancellationToken.None);
+                                            attemptToLaunchBooter = nanoDevice.ConnectToNanoBooter();
 
                                             if (!attemptToLaunchBooter)
                                             {
@@ -208,7 +207,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.AutomaticUpdates
                                     }
 
                                     // check if the device is still there
-                                    if(ViewModelLocator.DeviceExplorer.AvailableDevices.FirstOrDefault(d => d.DeviceId == deviceUniqueId) == null)
+                                    if(ViewModelLocator.DeviceExplorer.AvailableDevices.FirstOrDefault(d => d.DeviceUniqueId == deviceUniqueId) == null)
                                     {
 #if DEBUG
                                         Console.WriteLine($"[Automatic Updates] {nanoDevice.TargetName} is not available anymore.");
@@ -220,7 +219,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.AutomaticUpdates
                                         nanoDevice.Ping() == PingConnectionType.nanoBooter)
                                     {
                                         // get address for CLR block expected by device
-                                        var clrAddress = nanoDevice.GetClrStartAddress();
+                                        var clrAddress = nanoDevice.GetCLRStartAddress();
 
                                         // compare with address on the fw packages
                                         if (clrAddress !=
@@ -242,10 +241,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension.AutomaticUpdates
                                             // create a progress indicator to be used by deployment operation to post debug messages
                                             var progressIndicator = new Progress<string>(m => MessageCentre.OutputFirmwareUpdateMessage($"[{deviceDescription}] {m}"));
 
-                                            if (await nanoDevice.DeployBinaryFileAsync(
+                                            if (nanoDevice.DeployBinaryFile(
                                                 (fwPackage as Stm32Firmware).nanoClrFileBin,
                                                 (fwPackage as Stm32Firmware).ClrStartAddress,
-                                                CancellationToken.None,
                                                 progressIndicator))
                                             {
                                                 await Task.Yield();
@@ -257,7 +255,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.AutomaticUpdates
                                             }
 
                                             // if this is the selected device...
-                                            if (ViewModelLocator.DeviceExplorer.SelectedDevice?.DeviceId == deviceUniqueId)
+                                            if (ViewModelLocator.DeviceExplorer.SelectedDevice?.DeviceUniqueId == deviceUniqueId)
                                             {
                                                 // ...reset property to force that device capabilities to be retrieved on next connection
                                                 ViewModelLocator.DeviceExplorer.LastDeviceConnectedHash = 0;
@@ -271,7 +269,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.AutomaticUpdates
                                                 devicesUpdatING.TryRemove(deviceId, out var dummy);
 
                                                 // check if the device is still there
-                                                if (ViewModelLocator.DeviceExplorer.AvailableDevices.FirstOrDefault(d => d.DeviceId == Guid.Parse(deviceId)) == null)
+                                                if (ViewModelLocator.DeviceExplorer.AvailableDevices.FirstOrDefault(d => d.DeviceUniqueId == Guid.Parse(deviceId)) == null)
                                                 {
                                                     return;
                                                 }

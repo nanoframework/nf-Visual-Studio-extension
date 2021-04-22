@@ -169,7 +169,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
                 // launch firmware update task
                 foreach (var d in AvailableDevices)
                 {
-                    MessengerInstance.Send(new NotificationMessage(d.DeviceId.ToString()), MessagingTokens.LaunchFirmwareUpdateForNanoDevice);
+                    MessengerInstance.Send(new NotificationMessage(d.ConnectionId.ToString()), MessagingTokens.LaunchFirmwareUpdateForNanoDevice);
                 }
             }
         }
@@ -199,7 +199,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
             {
                 foreach (var d in e.NewItems)
                 {
-                    MessengerInstance.Send(new NotificationMessage((d as NanoDeviceBase).DeviceId.ToString()), MessagingTokens.LaunchFirmwareUpdateForNanoDevice);
+                    MessengerInstance.Send(new NotificationMessage((d as NanoDeviceBase).ConnectionId.ToString()), MessagingTokens.LaunchFirmwareUpdateForNanoDevice);
                 }
             }
 
@@ -208,7 +208,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
             {
                 foreach (var d in e.OldItems)
                 {
-                    MessengerInstance.Send(new NotificationMessage((d as NanoDeviceBase).DeviceId.ToString()), MessagingTokens.NanoDeviceHasDeparted);
+                    MessengerInstance.Send(new NotificationMessage((d as NanoDeviceBase).ConnectionId.ToString()), MessagingTokens.NanoDeviceHasDeparted);
                 }
             }
 

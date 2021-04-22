@@ -131,19 +131,18 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 var progressIndicator = new Progress<MessageWithProgress>((m) => MessageCentre.StartMessageWithProgress(m));
 
                 // connect to the device
-                if (await device.DebugEngine.ConnectAsync(5000, true))
+                if (device.DebugEngine.Connect(5000, true))
                 {
                     MessageCentre.InternalErrorMessage("Connect successful.");
 
                     await Task.Yield();
 
-                    var eraseResult = await Task.Run(async delegate
+                    var eraseResult = await Task.Run(delegate
                     {
                         MessageCentre.InternalErrorMessage("Erase deployment block storage.");
 
-                        return await device.EraseAsync(
+                        return device.Erase(
                             EraseOptions.Deployment,
-                            CancellationToken.None,
                             progressIndicator,
                             logProgressIndicator);
                     });

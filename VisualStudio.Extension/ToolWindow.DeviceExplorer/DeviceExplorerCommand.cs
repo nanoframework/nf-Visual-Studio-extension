@@ -293,16 +293,16 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     }
 
                     // connect to the device
-                    if (await NanoDeviceCommService.Device.DebugEngine.ConnectAsync(5000))
+                    if (NanoDeviceCommService.Device.DebugEngine.Connect(5000))
                     {
                         // ping device
-                        NanoDeviceCommService.Device.Ping();
+                        var reply = NanoDeviceCommService.Device.Ping();
 
-                        if (ViewModelLocator.DeviceExplorer.SelectedDevice.DebugEngine.IsConnectedTonanoBooter)
+                        if (reply == PingConnectionType.nanoBooter)
                         {
                             MessageCentre.OutputMessage($"{descriptionBackup} is active running nanoBooter.");
                         }
-                        if (ViewModelLocator.DeviceExplorer.SelectedDevice.DebugEngine.IsConnectedTonanoCLR)
+                        if (reply ==  PingConnectionType.nanoCLR)
                         {
                             MessageCentre.OutputMessage($"{descriptionBackup} is active running nanoCLR.");
                         }
@@ -370,7 +370,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         }
 
                         // connect to the device
-                        if (await NanoDeviceCommService.Device.DebugEngine.ConnectAsync(5000))
+                        if (NanoDeviceCommService.Device.DebugEngine.Connect(5000))
                         {
                             // check that we are in CLR
                             if (NanoDeviceCommService.Device.DebugEngine.IsConnectedTonanoCLR)
@@ -549,13 +549,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     }
 
                     // connect to the device
-                    if (await NanoDeviceCommService.Device.DebugEngine.ConnectAsync(5000))
+                    if (NanoDeviceCommService.Device.DebugEngine.Connect(5000))
                     {
                         try
                         {
-                            if (await NanoDeviceCommService.Device.EraseAsync(
+                            if (NanoDeviceCommService.Device.Erase(
                                 EraseOptions.Deployment,
-                                CancellationToken.None,
                                 progressIndicator,
                                 logProgressIndicator))
                             {
@@ -638,7 +637,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     }
 
                     // connect to the device
-                    if (await NanoDeviceCommService.Device.DebugEngine.ConnectAsync(5000))
+                    if (NanoDeviceCommService.Device.DebugEngine.Connect(5000))
                     {
                         try
                         {
@@ -745,7 +744,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     var previousSelectedDeviceDescription = NanoDeviceCommService.Device.Description;
 
                     // connect to the device
-                    if (await NanoDeviceCommService.Device.DebugEngine.ConnectAsync(5000))
+                    if (NanoDeviceCommService.Device.DebugEngine.Connect(5000))
                     {
                         try
                         {

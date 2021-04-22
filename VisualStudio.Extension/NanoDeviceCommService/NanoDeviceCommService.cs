@@ -45,7 +45,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                     // create serial instance WITHOUT app associated because we don't care of app life cycle in VS extension
                     // pass the user preference about starting the device watchers, or not
-                    _debugClient = PortBase.CreateInstanceForSerial("", null, !NanoFrameworkPackage.OptionDisableDeviceWatchers, PortList);
+                    _debugClient = PortBase.CreateInstanceForSerial(!NanoFrameworkPackage.OptionDisableDeviceWatchers, PortList);
                 }
 
                 return _debugClient;
@@ -86,15 +86,15 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             return true;
         }
 
-        public async Task<bool> ConnectToAsync(string deviceId = null, int timeout = 5000)
+        public bool ConnectTo(string deviceId = null, int timeout = 5000)
         {
             if (deviceId == null)
             {
-                return await Device.DebugEngine.ConnectAsync(timeout, true);
+                return Device.DebugEngine.Connect(timeout, true);
             }
             else
             {
-                return await DebugClient.NanoFrameworkDevices.FirstOrDefault(d => d.Description == deviceId).DebugEngine.ConnectAsync(timeout, true);
+                return DebugClient.NanoFrameworkDevices.FirstOrDefault(d => d.Description == deviceId).DebugEngine.Connect(timeout, true);
             }
         }
     }

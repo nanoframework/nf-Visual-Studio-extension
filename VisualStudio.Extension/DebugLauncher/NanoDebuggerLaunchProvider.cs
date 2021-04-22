@@ -8,6 +8,7 @@ using Microsoft.VisualStudio.ProjectSystem;
 using Microsoft.VisualStudio.ProjectSystem.Debug;
 using Microsoft.VisualStudio.ProjectSystem.VS.Debug;
 using Microsoft.VisualStudio.Threading;
+using nanoFramework.Tools.Debugger;
 using nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel;
 using System;
 using System.Collections.Generic;
@@ -36,8 +37,17 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             {
                 var deployDeviceName = SimpleIoc.Default.GetInstance<DeviceExplorerViewModel>().SelectedDevice.Description;
 
+                // get device
+                var device = SimpleIoc.Default.GetInstance<DeviceExplorerViewModel>().SelectedDevice;
+
+                // check for debug engine
+                if(device.DebugEngine == null)
+                {
+                    device.CreateDebugEngine(device.Transport == Debugger.WireProtocol.TransportType.Serial ? NanoSerialDevice.SafeDefaultTimeout : 5000);
+                }
+
                 // make sure that the device is connected
-                if (await SimpleIoc.Default.GetInstance<DeviceExplorerViewModel>().SelectedDevice.DebugEngine.ConnectAsync(5000))
+                if (device.DebugEngine.Connect())
                 {
                     string commandLine = await GetCommandLineForLaunchAsync();
                     commandLine = string.Format("{0} \"{1}{2}\"", commandLine, CorDebugProcess.DeployDeviceName, deployDeviceName);
