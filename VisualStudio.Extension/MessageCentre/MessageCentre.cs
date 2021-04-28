@@ -98,16 +98,20 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         {
             if (!assertion && NanoFrameworkPackage.OptionShowInternalErrors)
             {
-                message = String.IsNullOrEmpty(message) ? "Unknown Error" : message;
+                message = string.IsNullOrEmpty(message) ? "Unknown Error" : message;
 
                 if (skipFrames >= 0)
                 {
                     StackTrace st = new StackTrace(skipFrames + 1, true);
-                    Message(_nanoFrameworkMessagesPane, $"{DateTime.Now.ToString("u")} [{message}: { st.ToString() }]");
+                    Message(
+                        _nanoFrameworkMessagesPane,
+                        $"{DateTime.Now:HH:mm:ss.fff} [{message}: { st }]");
                 }
                 else
                 {
-                    Message(_nanoFrameworkMessagesPane, $"{DateTime.Now.ToString("u")} [{ message }]");
+                    Message(
+                        _nanoFrameworkMessagesPane,
+                        $"{DateTime.Now:HH:mm:ss.fff} [{ message }]");
                 }
             }
         }
@@ -263,10 +267,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     // reset cookie
                     progressCookie = 0;
                 }
-
             });
         }
-
     }
 }
 
