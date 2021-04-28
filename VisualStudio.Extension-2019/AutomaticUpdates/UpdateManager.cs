@@ -216,7 +216,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.AutomaticUpdates
                                     }
 
                                     if (attemptToLaunchBooter &&
-                                        nanoDevice.Ping() == PingConnectionType.nanoBooter)
+                                        nanoDevice.Ping() == Debugger.WireProtocol.ConnectionSource.nanoBooter)
                                     {
                                         // get address for CLR block expected by device
                                         var clrAddress = nanoDevice.GetCLRStartAddress();

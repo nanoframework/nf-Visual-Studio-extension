@@ -298,11 +298,11 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         // ping device
                         var reply = NanoDeviceCommService.Device.Ping();
 
-                        if (reply == PingConnectionType.nanoBooter)
+                        if (reply == ConnectionSource.nanoBooter)
                         {
                             MessageCentre.OutputMessage($"{descriptionBackup} is active running nanoBooter.");
                         }
-                        if (reply ==  PingConnectionType.nanoCLR)
+                        if (reply == ConnectionSource.nanoCLR)
                         {
                             MessageCentre.OutputMessage($"{descriptionBackup} is active running nanoCLR.");
                         }
