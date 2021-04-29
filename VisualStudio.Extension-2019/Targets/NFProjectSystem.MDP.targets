@@ -247,7 +247,7 @@
     <CallTarget Targets="NanoGenerateBinaryOutput"/>
 
     <!--Output native checksum to Azure Pipelines var (only usefull on Azure)-->
-    <Message Importance="high" Text="##vso[task.setvariable variable=NativeAssemblyChecksum]$(NativeChecksum)" Condition="'$(TF_BUILD)' == 'true' And '$(TF_BUILD)' == 'true'" />
+    <Message Importance="high" Text="##vso[task.setvariable variable=NativeAssemblyChecksum]$(NativeChecksum)" Condition="'$(TF_BUILD)' == 'True'" />
     <Message Importance="high" Text="Metadata processor location overriden with: $(NF_MDP_MSBUILDTASK_PATH)" Condition="'$(NF_MDP_MSBUILDTASK_PATH)' != ''" />
 
   </Target>
@@ -445,7 +445,7 @@
     </MetaDataProcessorTask>
 
     <!--Output native checksum to Azure Pipelines var (only usefull on Azure)-->
-    <Message Importance="high" Text="##vso[task.setvariable variable=NativeAssemblyChecksum]$(NativeChecksum)" Condition="'$(NFMDP_GENERATE_STUBS)' == 'false' And '$(TF_BUILD)' == 'true'" />
+    <Message Importance="high" Text="##vso[task.setvariable variable=NativeAssemblyChecksum]$(NativeChecksum)" Condition="'$(TF_BUILD)' == 'True'" />
 
     <Message Text="Distilling assemblies to nanoCLR PE files along with stubs and skeleton files..." Condition="'$(NFMDP_GENERATE_STUBS)' == 'true'"/>
     <!-- Create STUB file -->
@@ -552,7 +552,7 @@
     </MetaDataProcessorTask>
 
     <!--Output native checksum to Azure Pipelines var (only usefull on Azure)-->
-    <Message Importance="high" Text="##vso[task.setvariable variable=NativeAssemblyChecksum]$(NativeChecksum)" Condition="'$(TF_BUILD)' == 'true'" />
+    <Message Importance="high" Text="##vso[task.setvariable variable=NativeAssemblyChecksum]$(NativeChecksum)" Condition="'$(TF_BUILD)' == 'True'" />
     <Message Importance="high" Text="Metadata processor location overriden with: $(NF_MDP_MSBUILDTASK_PATH)" Condition="'$(NF_MDP_MSBUILDTASK_PATH)' != ''" />
 
   </Target>
