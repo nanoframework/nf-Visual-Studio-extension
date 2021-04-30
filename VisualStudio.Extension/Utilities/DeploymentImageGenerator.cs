@@ -84,10 +84,10 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         await outputPaneWriter.WriteLineAsync("Couldn't find a flash dump for this nanoDevice. Setting up one now. This can take a couple of minutes...");
 
                         // get memory map
-                        var memoryMap = device.DebugEngine.GetMemoryMap();
+                        var memoryMap = device.DebugEngine.MemoryMap;
 
                         // get flash map
-                        var flashSectorMap = device.DebugEngine.GetFlashSectorMap();
+                        var flashSectorMap = device.DebugEngine.FlashSectorMap;
 
                         // get flash start address (to start reading from)
                         var flashStartAddress = memoryMap.First(m => (m.m_flags & Commands.Monitor_MemoryMap.c_FLASH) == Commands.Monitor_MemoryMap.c_FLASH).m_address;
@@ -190,10 +190,10 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 await outputPaneWriter.WriteLineAsync("Generating deployment image.");
 
                 // get memory map
-                var memoryMap = device.DebugEngine.GetMemoryMap();
+                var memoryMap = device.DebugEngine.MemoryMap;
 
                 // get flash map
-                var flashSectorMap = device.DebugEngine.GetFlashSectorMap();
+                var flashSectorMap = device.DebugEngine.FlashSectorMap;
 
                 // get flash start address
                 var flashStartAddress = memoryMap.First(m => (m.m_flags & Commands.Monitor_MemoryMap.c_FLASH) == Commands.Monitor_MemoryMap.c_FLASH).m_address;

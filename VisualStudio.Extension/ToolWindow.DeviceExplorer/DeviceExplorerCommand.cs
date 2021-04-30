@@ -382,14 +382,13 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                                 {
                                     // get device info
                                     var deviceInfo = NanoDeviceCommService.Device.GetDeviceInfo(true);
-                                    var memoryMap = NanoDeviceCommService.Device.DebugEngine.GetMemoryMap();
-                                    var flashMap = NanoDeviceCommService.Device.DebugEngine.GetFlashSectorMap();
+                                    var memoryMap = NanoDeviceCommService.Device.DebugEngine.MemoryMap;
+                                    var flashMap = NanoDeviceCommService.Device.DebugEngine.FlashSectorMap;
                                     var deploymentMap = NanoDeviceCommService.Device.DebugEngine.GetDeploymentMap();
 
                                     // we have to have a valid device info
                                     if (deviceInfo.Valid)
                                     {
-
                                         // load view model properties for maps
                                         ViewModelLocator.DeviceExplorer.DeviceMemoryMap = new StringBuilder(memoryMap?.ToStringForOutput() ?? "Empty");
                                         ViewModelLocator.DeviceExplorer.DeviceFlashSectorMap = new StringBuilder(flashMap?.ToStringForOutput() ?? "Empty");
