@@ -372,8 +372,11 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                             NanoDeviceCommService.Device.CreateDebugEngine();
                         }
 
+
                         // connect to the device
-                        if (NanoDeviceCommService.Device.DebugEngine.Connect(5000))
+                        if (NanoDeviceCommService.Device.DebugEngine.Connect(
+                            false,
+                            true))
                         {
                             // check that we are in CLR
                             if (NanoDeviceCommService.Device.DebugEngine.IsConnectedTonanoCLR)
