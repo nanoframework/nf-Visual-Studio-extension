@@ -292,28 +292,31 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         NanoDeviceCommService.Device.CreateDebugEngine();
                     }
 
-                    // connect to the device
-                    if (NanoDeviceCommService.Device.DebugEngine.Connect(5000))
+                    // connect to the device, if needed
+                    if (!NanoDeviceCommService.Device.DebugEngine.IsConnected)
                     {
-                        // ping device
-                        var reply = NanoDeviceCommService.Device.Ping();
+                        if (!NanoDeviceCommService.Device.DebugEngine.Connect(5000))
+                        {
+                            MessageCentre.OutputMessage($"{descriptionBackup} is not responding, please reboot the device.");
 
-                        if (reply == ConnectionSource.nanoBooter)
-                        {
-                            MessageCentre.OutputMessage($"{descriptionBackup} is active running nanoBooter.");
+                            return;
                         }
-                        if (reply == ConnectionSource.nanoCLR)
-                        {
-                            MessageCentre.OutputMessage($"{descriptionBackup} is active running nanoCLR.");
-                        }
-                        else
-                        {
-                            MessageCentre.OutputMessage($"No reply from {descriptionBackup}");
-                        }
+                    }
+
+                    // ping device
+                    var reply = NanoDeviceCommService.Device.Ping();
+
+                    if (reply == ConnectionSource.nanoBooter)
+                    {
+                        MessageCentre.OutputMessage($"{descriptionBackup} is active running nanoBooter.");
+                    }
+                    else if (reply == ConnectionSource.nanoCLR)
+                    {
+                        MessageCentre.OutputMessage($"{descriptionBackup} is active running nanoCLR.");
                     }
                     else
                     {
-                        MessageCentre.OutputMessage($"{descriptionBackup} is not responding, please reboot the device.");
+                        MessageCentre.OutputMessage($"No reply from {descriptionBackup}");
                     }
                 }
                 catch
