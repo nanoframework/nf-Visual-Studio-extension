@@ -154,7 +154,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension.AutomaticUpdates
                             if (nanoDevice.DebugEngine.Connect(
                                 1000,
                                 true,
-                                Debugger.WireProtocol.ConnectionSource.Unknown,
                                 true))
                             {
                                 Version currentClrVersion = null;
