@@ -295,7 +295,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     // connect to the device, if needed
                     if (!NanoDeviceCommService.Device.DebugEngine.IsConnected)
                     {
-                        if (!NanoDeviceCommService.Device.DebugEngine.Connect(5000))
+                        if (!NanoDeviceCommService.Device.DebugEngine.Connect())
                         {
                             MessageCentre.OutputMessage($"{descriptionBackup} is not responding, please reboot the device.");
 
@@ -554,7 +554,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     }
 
                     // connect to the device
-                    if (NanoDeviceCommService.Device.DebugEngine.Connect(5000))
+                    if (NanoDeviceCommService.Device.DebugEngine.Connect(false, true))
                     {
                         try
                         {
@@ -642,7 +642,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     }
 
                     // connect to the device
-                    if (NanoDeviceCommService.Device.DebugEngine.Connect(5000))
+                    if (NanoDeviceCommService.Device.DebugEngine.Connect(false, true))
                     {
                         try
                         {

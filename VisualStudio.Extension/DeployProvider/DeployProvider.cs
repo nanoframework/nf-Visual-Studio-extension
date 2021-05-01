@@ -131,7 +131,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 var progressIndicator = new Progress<MessageWithProgress>((m) => MessageCentre.StartMessageWithProgress(m));
 
                 // connect to the device
-                if (device.DebugEngine.Connect())
+                if (device.DebugEngine.Connect(false, true))
                 {
                     MessageCentre.InternalErrorMessage("Connect successful.");
 
