@@ -845,13 +845,20 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 // disable the button
                 (sender as MenuCommand).Enabled = false;
 
-                NanoDeviceCommService.DebugClient.ReScanDevices();
+                try
+                {
+                    NanoDeviceCommService.DebugClient.ReScanDevices();
 
-                // need to remove event handler
-                NanoDeviceCommService.DebugClient.NanoFrameworkDevices.CollectionChanged -= ViewModelLocator.DeviceExplorer.NanoFrameworkDevices_CollectionChanged;
+                    // don't enable the button here to prevent compulsive developers to click it when the operation is still ongoing
+                    // it will be enabled back at NanoDevicesCollectionChangedHandlerAsync
+                }
+                catch
+                {
+                    // empty on purpose, exceptions can happen during rescan
 
-                // don't enable the button here to prevent compulsive developers to click it when the operation is still ongoing
-                // it will be enabled back at NanoDevicesCollectionChangedHandlerAsync
+                    // OK to enable button here, in case an exception occurs
+                    (sender as MenuCommand).Enabled = true;
+                }
             });
         }
 
