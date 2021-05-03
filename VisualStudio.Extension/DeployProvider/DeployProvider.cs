@@ -112,6 +112,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             // user feedback
             await outputPaneWriter.WriteLineAsync($"Getting things ready to deploy assemblies to nanoFramework device: {device.Description}.");
 
+            bool needsToCloseMessageOutput = false;
+
             // device needs to be in 'initialized state' for a successful and correct deployment 
             // meaning that is not running nor stopped
             bool deviceIsInInitializeState = false;
@@ -132,15 +134,19 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 var progressIndicator = new Progress<MessageWithProgress>((m) => MessageCentre.StartMessageWithProgress(m));
 
                 MessageCentre.InternalErrorWrite("Connecting to debug engine...");
+                needsToCloseMessageOutput = true;
 
                 // connect to the device
                 if (device.DebugEngine.Connect(false, true))
                 {
+                    needsToCloseMessageOutput = false;
+
                     MessageCentre.InternalErrorWriteAndCloseMessage("OK");
 
                     await Task.Yield();
 
                     MessageCentre.InternalErrorWrite("Erasing deployment storage block...");
+                    needsToCloseMessageOutput = true;
 
                     var eraseResult = device.Erase(
                             EraseOptions.Deployment,
@@ -152,6 +158,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     // erase the target deployment area to ensure a clean deployment and execution start
                     if (eraseResult)
                     {
+                        needsToCloseMessageOutput = false;
                         MessageCentre.InternalErrorWriteAndCloseMessage("OK");
 
                         // initial check 
@@ -476,6 +483,11 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             }
             catch (Exception ex)
             {
+                if(needsToCloseMessageOutput)
+                {
+                    MessageCentre.InternalErrorWriteAndCloseMessage("");
+                }
+
                 MessageCentre.InternalErrorWriteLine($"Unhandled exception with deployment provider:"  +
                     $"{Environment.NewLine} {ex.Message} " +
                     $"{Environment.NewLine} {ex.InnerException} " +
