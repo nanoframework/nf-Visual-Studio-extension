@@ -403,12 +403,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             {
                 if (ShuttingDown)
                 {
-                    MessageCentre.InternalErrorWriteLine($"Engine has shutdown flag set. Won't try attaching to engine.");
+                    MessageCentre.InternalErrorWriteLine($"Engine has shutdown flag set. Won't try attaching to engine");
 
                     break;
                 }
 
-                MessageCentre.InternalErrorWriteLine($"Attempting to connect debugger engine ({retry + 1}/{ maxOperationRetries }).");
+                MessageCentre.InternalErrorWriteLine($"Attempting to connect debugger engine ({retry + 1}/{ maxOperationRetries })");
 
                 try
                 {
@@ -455,7 +455,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     }
                     else
                     {
-                        MessageCentre.InternalErrorWriteLine($"Error update device debugger flags.");
+                        MessageCentre.InternalErrorWriteLine($"*** ERROR: updating debugger flags of device ***");
 
                         // reset flag
                         _engine.StopDebuggerOnConnect = false;

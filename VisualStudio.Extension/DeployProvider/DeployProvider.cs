@@ -140,7 +140,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                     await Task.Yield();
 
-                    MessageCentre.InternalErrorWrite("Erasing deployment storage block");
+                    MessageCentre.InternalErrorWrite("Erasing deployment storage block...");
 
                     var eraseResult = device.Erase(
                             EraseOptions.Deployment,
@@ -360,7 +360,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                                     long length = (fs.Length + 3) / 4 * 4;
                                     
                                     await outputPaneWriter.WriteLineAsync($"Adding {Path.GetFileNameWithoutExtension(peItem.Path)} v{peItem.Version} ({length} bytes) to deployment bundle");
-                                    MessageCentre.InternalErrorWriteLine($"{Path.GetFileNameWithoutExtension(peItem.Path)} v{peItem.Version} ({length} bytes)");
+                                    MessageCentre.InternalErrorWriteLine($"Assembly: {Path.GetFileNameWithoutExtension(peItem.Path)} v{peItem.Version} ({length} bytes)");
 
                                     byte[] buffer = new byte[length];
 
@@ -376,7 +376,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                             await outputPaneWriter.WriteLineAsync($"Deploying {peCollection.Count:N0} assemblies to device... Total size in bytes is {totalSizeOfAssemblies}.");
                            
-                            MessageCentre.InternalErrorWriteLine($"Deploying {peCollection.Count:N0} assemblies to device ({totalSizeOfAssemblies} bytes)");
+                            MessageCentre.InternalErrorWriteLine($"Deploying {peCollection.Count:N0} assemblies to device");
 
                             // need to keep a copy of the deployment blob for the second attempt (if needed)
                             var assemblyCopy = new List<byte[]>(assemblies);
