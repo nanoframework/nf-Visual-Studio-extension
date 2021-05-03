@@ -113,7 +113,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
 
         private void DebugClient_LogMessageAvailable(object sender, StringEventArgs e)
         {
-            MessageCentre.InternalErrorMessage(e.EventText);
+            MessageCentre.InternalErrorWriteLine(e.EventText);
         }
 
         private void SerialDebugClient_DeviceEnumerationCompleted(object sender, EventArgs e)

@@ -532,7 +532,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
             var descriptionBackup = ViewModelLocator.DeviceExplorer.SelectedDevice.Description;
 
-            var logProgressIndicator = new Progress<string>(MessageCentre.InternalErrorMessage);
+            var logProgressIndicator = new Progress<string>(MessageCentre.InternalErrorWriteLine);
             var progressIndicator = new Progress<MessageWithProgress>((m) => MessageCentre.StartMessageWithProgress(m));
 
             MessageCentre.StartProgressMessage($"Erasing {descriptionBackup} deployment area...");
@@ -879,7 +879,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             // call device port API 
             if (currentCheckState)
             {
-                MessageCentre.InternalErrorMessage("Starting device watchers.");
+                MessageCentre.InternalErrorWriteLine("Starting device watchers");
 
                 NanoDeviceCommService.DebugClient.StartDeviceWatchers();
 
@@ -887,7 +887,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             }
             else
             {
-                MessageCentre.InternalErrorMessage("Stopping device watchers.");
+                MessageCentre.InternalErrorWriteLine("Stopping device watchers");
 
                 NanoDeviceCommService.DebugClient.StopDeviceWatchers();
 

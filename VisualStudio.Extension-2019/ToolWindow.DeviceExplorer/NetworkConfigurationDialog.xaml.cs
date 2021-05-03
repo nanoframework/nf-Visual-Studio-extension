@@ -273,7 +273,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 // read file
                 try
                 {
-                    MessageCentre.InternalErrorMessage($"Opening certificate file: {openFileDialog.FileName}");
+                    MessageCentre.InternalErrorWriteLine($"Opening certificate file: {openFileDialog.FileName}");
 
                     using (FileStream binFile = new FileStream(openFileDialog.FileName, FileMode.Open))
                     {
@@ -289,7 +289,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 {
                     MessageCentre.OutputMessage($"Error reading Root CA file: {ex.Message}");
 
-                    MessageCentre.InternalErrorMessage($"Error reading Root CA file: {ex.Message} \r\n { ex.StackTrace }");
+                    MessageCentre.InternalErrorWriteLine($"Error reading Root CA file: {ex.Message} \r\n { ex.StackTrace }");
                 }
             }
             else
@@ -329,7 +329,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 // read file
                 try
                 {
-                    MessageCentre.InternalErrorMessage($"Opening device certificate file: {openFileDialog.FileName}");
+                    MessageCentre.InternalErrorWriteLine($"Opening device certificate file: {openFileDialog.FileName}");
 
                     using (FileStream binFile = new FileStream(openFileDialog.FileName, FileMode.Open))
                     {
@@ -345,7 +345,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 {
                     MessageCentre.OutputMessage($"Error reading device certificate file: {ex.Message}");
 
-                    MessageCentre.InternalErrorMessage($"Error reading device certificate file: {ex.Message} \r\n { ex.StackTrace }");
+                    MessageCentre.InternalErrorWriteLine($"Error reading device certificate file: {ex.Message} \r\n { ex.StackTrace }");
                 }
             }
             else

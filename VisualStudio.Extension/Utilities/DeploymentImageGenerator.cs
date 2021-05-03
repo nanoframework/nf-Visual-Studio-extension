@@ -52,7 +52,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             {
                 // this is a STM32 nanoDevice
 
-                MessageCentre.InternalErrorMessage("nanoDevice is STM32, checking for flash dump on cache.");
+                MessageCentre.InternalErrorWriteLine("nanoDevice is STM32, checking for flash dump on cache");
 
                 // This can go wrong in many ways.
                 // Because it's a subsidiary operation of "deploy" and, most important, it's not part of the standard "deploy" VS concept,
@@ -80,7 +80,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     // do we have a cached image of the device flash
                     if (!File.Exists(targetFlashDumpFileName))
                     {
-                        MessageCentre.InternalErrorMessage("Couldn't find a flash dump for this nanoDevice. Setting up one now. This can take a couple of minutes...");
+                        MessageCentre.InternalErrorWriteLine("Couldn't find a flash dump for this nanoDevice. Setting up one now. This can take a couple of minutes...");
                         await outputPaneWriter.WriteLineAsync("Couldn't find a flash dump for this nanoDevice. Setting up one now. This can take a couple of minutes...");
 
                         // get memory map
@@ -114,7 +114,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         {
                             // operation failed
 
-                            MessageCentre.InternalErrorMessage($"Failed to dump flash. Error code: { dumpFlashOperation.ErrorCode}.");
+                            MessageCentre.InternalErrorWriteLine($"Failed to dump flash. Error code: { dumpFlashOperation.ErrorCode}.");
                             await outputPaneWriter.WriteLineAsync($"Failed to dump flash. Error code: { dumpFlashOperation.ErrorCode}.");
 
                             // better clean dump cache file name
@@ -128,19 +128,19 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         }
 
                         // done here
-                        MessageCentre.InternalErrorMessage($@"Flash dump stored @ ""{ targetFlashDumpFileName }"".");
+                        MessageCentre.InternalErrorWriteLine($@"Flash dump stored @ ""{ targetFlashDumpFileName }"".");
                         await outputPaneWriter.WriteLineAsync($@"Flash dump stored @ ""{ targetFlashDumpFileName }"".");
                     }
                     else
                     {
                         // we already have a dump on cache, so we are good to go
-                        MessageCentre.InternalErrorMessage($@"Found flash dump on cache @ ""{ targetFlashDumpFileName }"".");
+                        MessageCentre.InternalErrorWriteLine($@"Found flash dump on cache @ ""{ targetFlashDumpFileName }"".");
                         await outputPaneWriter.WriteLineAsync($@"Found flash dump on cache ""{ targetFlashDumpFileName }"".");
                     }
                 }
                 catch(Exception ex)
                 {
-                    MessageCentre.InternalErrorMessage($"Exception when setting up flash dump: ({ ex.Message + Environment.NewLine + ex.StackTrace })");
+                    MessageCentre.InternalErrorWriteLine($"Exception when setting up flash dump: ({ ex.Message + Environment.NewLine + ex.StackTrace })");
                     await outputPaneWriter.WriteLineAsync("Warning: exception when setting up flash dump. Skipping this step.");
 
                     // can't make any decisions on what went wrong so clear the file name so it doesn't affect the next steps
@@ -150,7 +150,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             else
             {
                 // platforms other than STM32 don't seem to benefit from this feature
-                MessageCentre.InternalErrorMessage("nanoDevice is not STM32, skipping flash dump.");
+                MessageCentre.InternalErrorWriteLine("nanoDevice is not STM32, skipping flash dump");
                 await outputPaneWriter.WriteLineAsync("Generating a deployment image for this nanoDevice is not supported.");
             }
 
@@ -176,7 +176,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             if(string.IsNullOrEmpty(flashDumpFileName))
             {
                 // no flash dump file, can't proceed
-                MessageCentre.InternalErrorMessage("No flash dump file provided, can't generate deployment image.");
+                MessageCentre.InternalErrorWriteLine("No flash dump file provided, can't generate deployment image");
                 return;
             }
 
@@ -251,7 +251,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 // build cache file name
                 var generatedImageFileName = Path.Combine(projectOutputPath, "deployment-image.bin");
 
-                MessageCentre.InternalErrorMessage("Writing generated image file now.");
+                MessageCentre.InternalErrorWriteLine("Writing generated image file now");
 
                 // write deployment image file
                 using (FileStream binFile = new FileStream(generatedImageFileName, FileMode.Create))
@@ -264,12 +264,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     }
                 }
 
-                MessageCentre.InternalErrorMessage($@"Deployment image generated saved @ ""{ generatedImageFileName }"".");
+                MessageCentre.InternalErrorWriteLine($@"Deployment image generated saved @ ""{ generatedImageFileName }"".");
                 await outputPaneWriter.WriteLineAsync($@"Deployment image generated saved @ ""{ generatedImageFileName }"".");
             }
             catch (Exception ex)
             {
-                MessageCentre.InternalErrorMessage($"Exception when generating deployment image: ({ ex.Message + Environment.NewLine + ex.StackTrace })");
+                MessageCentre.InternalErrorWriteLine($"Exception when generating deployment image: ({ ex.Message + Environment.NewLine + ex.StackTrace })");
                 await outputPaneWriter.WriteLineAsync("Warning: exception when generating deployment image. Skipping this step.");
             }
         }

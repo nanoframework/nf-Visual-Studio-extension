@@ -19,6 +19,7 @@ using System.ComponentModel.Composition;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using Task = System.Threading.Tasks.Task;
@@ -90,7 +91,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             {
                 // This is not an executable project, it must be a referenced assembly
 
-                MessageCentre.InternalErrorMessage($"Skipping deploy for project '{projectResult.FullPath}' because it is not an executable project.");
+                MessageCentre.InternalErrorWriteLine($"Skipping deploy for project '{projectResult.FullPath}' because it is not an executable project.");
 
                 return;
             }
@@ -117,7 +118,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
             try
             {
-                MessageCentre.InternalErrorMessage("Check and start debug engine on nanoDevice.");
+                MessageCentre.InternalErrorWriteLine("Starting debug engine on nanoDevice");
 
                 // check if debugger engine exists
                 if (NanoDeviceCommService.Device.DebugEngine == null)
@@ -127,37 +128,39 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                 await Task.Yield();
 
-                var logProgressIndicator = new Progress<string>(MessageCentre.InternalErrorMessage);
+                var logProgressIndicator = new Progress<string>(MessageCentre.InternalErrorWriteLine);
                 var progressIndicator = new Progress<MessageWithProgress>((m) => MessageCentre.StartMessageWithProgress(m));
+
+                MessageCentre.InternalErrorWrite("Connecting to debug engine...");
 
                 // connect to the device
                 if (device.DebugEngine.Connect(false, true))
                 {
-                    MessageCentre.InternalErrorMessage("Connect successful.");
+                    MessageCentre.InternalErrorWriteAndCloseMessage("OK");
 
                     await Task.Yield();
 
-                    var eraseResult = await Task.Run(delegate
-                    {
-                        MessageCentre.InternalErrorMessage("Erase deployment block storage.");
+                    MessageCentre.InternalErrorWrite("Erasing deployment storage block");
 
-                        return device.Erase(
+                    var eraseResult = device.Erase(
                             EraseOptions.Deployment,
                             progressIndicator,
                             logProgressIndicator);
-                    });
 
                     MessageCentre.StopProgressMessage();
 
                     // erase the target deployment area to ensure a clean deployment and execution start
                     if (eraseResult)
                     {
-                        MessageCentre.InternalErrorMessage("Erase deployment area successful.");
+                        MessageCentre.InternalErrorWriteAndCloseMessage("OK");
 
                         // initial check 
-                        if (device.DebugEngine.IsDeviceInInitializeState())
+                        var currentExecutionMode = device.DebugEngine.GetExecutionMode();
+
+                        if (currentExecutionMode.IsDeviceInInitializeState())
                         {
-                            MessageCentre.InternalErrorMessage("Device status verified as being in initialized state. Requesting to resume execution.");
+                            MessageCentre.InternalErrorWriteLine("Device status verified as being in initialized state");
+                            MessageCentre.InternalErrorWriteLine("Requesting to resume execution");
 
                             // set flag
                             deviceIsInInitializeState = true;
@@ -166,21 +169,23 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                             device.DebugEngine.ResumeExecution();
                         }
 
-                        // handle the workflow required to try resuming the execution on the device
+                        // handle the work flow required to try resuming the execution on the device
                         // only required if device is not already there
                         // retry 5 times with a 500ms interval between retries
                         while (retryCount++ < _numberOfRetries && deviceIsInInitializeState)
                         {
-                            if (!device.DebugEngine.IsDeviceInInitializeState())
+                            currentExecutionMode = device.DebugEngine.GetExecutionMode();
+
+                            if (!currentExecutionMode.IsDeviceInInitializeState())
                             {
-                                MessageCentre.InternalErrorMessage("Device has completed initialization.");
+                                MessageCentre.InternalErrorWriteLine("Device has completed initialization!");
 
                                 // done here
                                 deviceIsInInitializeState = false;
                                 break;
                             }
 
-                            MessageCentre.InternalErrorMessage($"Waiting for device to report initialization completed ({retryCount}/{_numberOfRetries}).");
+                            MessageCentre.InternalErrorWriteLine($"Waiting for device to report initialization completed ({retryCount}/{_numberOfRetries}).");
 
                             // provide feedback to user on the 1st pass
                             if (retryCount == 0)
@@ -190,14 +195,16 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                             if (device.DebugEngine.IsConnectedTonanoBooter)
                             {
-                                MessageCentre.InternalErrorMessage("Device reported running nanoBooter. Requesting to load nanoCLR.");
+                                MessageCentre.InternalErrorWriteLine("Device reported running nanoBooter");
+                                MessageCentre.InternalErrorWriteLine("Requesting to load nanoCLR");
 
                                 // request nanoBooter to load CLR
                                 device.DebugEngine.ExecuteMemory(0);
                             }
                             else if (device.DebugEngine.IsConnectedTonanoCLR)
                             {
-                                MessageCentre.InternalErrorMessage("Device reported running nanoCLR. Requesting to reboot nanoCLR.");
+                                MessageCentre.InternalErrorWriteLine("Device reported running nanoCLR");
+                                MessageCentre.InternalErrorWriteLine("Requesting to reboot nanoCLR");
 
                                 await Task.Run(delegate
                                 {
@@ -234,13 +241,11 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                             // sanity check for devices without native assemblies ?!?!
                             if (device.DeviceInfo.NativeAssemblies.Count == 0)
                             {
-                                MessageCentre.InternalErrorMessage("Device reporting no assemblies loaded. This can not happen. Sanity check failed.");
+                                MessageCentre.InternalErrorWriteLine("*** ERROR: device reporting no assemblies loaded. This can not happen. Sanity check failed ***");
 
                                 // there are no assemblies deployed?!
                                 throw new DeploymentException($"Couldn't find any native assemblies deployed in {_viewModelLocator.DeviceExplorer.SelectedDevice.Description}! If the situation persists reboot the device.");
                             }
-
-                            MessageCentre.InternalErrorMessage("Computing deployment blob.");
 
                             // For a known project output assembly path, this shall contain the corresponding
                             // ConfiguredProject:
@@ -335,8 +340,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                             var checkAssembliesResult = await CheckNativeAssembliesAvailabilityAsync(device.DeviceInfo.NativeAssemblies, peCollectionToCheck);
                             if (checkAssembliesResult != "")
                             {
-                                MessageCentre.InternalErrorMessage("Found assemblies mismatches when checking for deployment pre-check.");
-
                                 // can't deploy
                                 throw new DeploymentException(checkAssembliesResult);
                             }
@@ -346,6 +349,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                             // Keep track of total assembly size
                             long totalSizeOfAssemblies = 0;
 
+                            MessageCentre.InternalErrorWriteLine($"Assemblies to deploy:");
+
                             // now we will re-deploy all system assemblies
                             foreach (DeploymentAssembly peItem in peCollection)
                             {
@@ -353,7 +358,10 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                                 using (FileStream fs = File.Open(peItem.Path, FileMode.Open, FileAccess.Read))
                                 {
                                     long length = (fs.Length + 3) / 4 * 4;
-                                    await outputPaneWriter.WriteLineAsync($"Adding {Path.GetFileNameWithoutExtension(peItem.Path)} v{peItem.Version} ({length.ToString()} bytes) to deployment bundle");
+                                    
+                                    await outputPaneWriter.WriteLineAsync($"Adding {Path.GetFileNameWithoutExtension(peItem.Path)} v{peItem.Version} ({length} bytes) to deployment bundle");
+                                    MessageCentre.InternalErrorWriteLine($"{Path.GetFileNameWithoutExtension(peItem.Path)} v{peItem.Version} ({length} bytes)");
+
                                     byte[] buffer = new byte[length];
 
                                     await Task.Yield();
@@ -366,8 +374,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                                 }
                             }
 
-                            await outputPaneWriter.WriteLineAsync($"Deploying {peCollection.Count:N0} assemblies to device... Total size in bytes is {totalSizeOfAssemblies.ToString()}.");
-                            MessageCentre.InternalErrorMessage("Deploying assemblies.");
+                            await outputPaneWriter.WriteLineAsync($"Deploying {peCollection.Count:N0} assemblies to device... Total size in bytes is {totalSizeOfAssemblies}.");
+                           
+                            MessageCentre.InternalErrorWriteLine($"Deploying {peCollection.Count:N0} assemblies to device ({totalSizeOfAssemblies} bytes)");
 
                             // need to keep a copy of the deployment blob for the second attempt (if needed)
                             var assemblyCopy = new List<byte[]>(assemblies);
@@ -392,7 +401,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                                     await Task.Yield();
 
-                                    MessageCentre.InternalErrorMessage("Deploying assemblies. Second attempt.");
+                                    MessageCentre.InternalErrorWriteLine("Trying again to deploying assemblies");
 
                                     // !! need to use the deployment blob copy
                                     assemblyCopy = new List<byte[]>(assemblies);
@@ -406,7 +415,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                                         progressIndicator,
                                         logProgressIndicator))
                                     {
-                                        MessageCentre.InternalErrorMessage("Deployment failed.");
+                                        MessageCentre.InternalErrorWriteLine("*** ERROR: deployment failed ***");
 
                                         // throw exception to signal deployment failure
                                         throw new DeploymentException("Deploy failed.");
@@ -435,7 +444,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         {
                             // after retry policy applied seems that we couldn't resume execution on the device...
 
-                            MessageCentre.InternalErrorMessage("Failed to initialize device.");
+                            MessageCentre.InternalErrorWriteLine("*** ERROR: failed to initialize device ***");
 
                             // throw exception to signal deployment failure
                             throw new DeploymentException(ResourceStrings.DeviceInitializationTimeout);
@@ -445,7 +454,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     {
                         // failed to erase deployment area, despite not critical, better abort
 
-                        MessageCentre.InternalErrorMessage("Failing to erase deployment area.");
+                        MessageCentre.InternalErrorWriteLine("*** ERROR: failing to erase deployment area ***");
 
                         // throw exception to signal deployment failure
                         throw new DeploymentException(ResourceStrings.EraseTargetDeploymentFailed);
@@ -453,7 +462,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 }
                 else
                 {
-                    MessageCentre.InternalErrorMessage("Failing to connect to device.");
+                    MessageCentre.InternalErrorWriteAndCloseMessage("");
+                    MessageCentre.InternalErrorWriteLine("*** ERROR: failing to connect to device ***");
 
                     // throw exception to signal deployment failure
                     throw new DeploymentException($"{_viewModelLocator.DeviceExplorer.SelectedDevice.Description} is not responding. Please retry the deployment. If the situation persists reboot the device.");
@@ -466,7 +476,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             }
             catch (Exception ex)
             {
-                MessageCentre.InternalErrorMessage($"Unhandled exception with deployment provider:"  +
+                MessageCentre.InternalErrorWriteLine($"Unhandled exception with deployment provider:"  +
                     $"{Environment.NewLine} {ex.Message} " +
                     $"{Environment.NewLine} {ex.InnerException} " +
                     $"{Environment.NewLine} {ex.StackTrace}");
@@ -521,9 +531,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         }
 
                         // no suitable native assembly found build a (hopefully) helpful message to the developer
-                        wrongAssemblies += $"Couldn't find a valid native assembly required by {Path.GetFileNameWithoutExtension(peItem.Path)} v{peItem.Version}, checksum 0x{nativeMethodsChecksum.ToString("X8")}." + Environment.NewLine +
+                        wrongAssemblies += $"Couldn't find a valid native assembly required by {Path.GetFileNameWithoutExtension(peItem.Path)} v{peItem.Version}, checksum 0x{nativeMethodsChecksum:X8}." + Environment.NewLine +
                                         $"This project is referencing {Path.GetFileNameWithoutExtension(peItem.Path)} NuGet package requiring native v{peItem.NativeVersion}." + Environment.NewLine +
                                         $"The connected target has v{nativeAssembly.Version.ToString(4)}." + Environment.NewLine;
+
+                        MessageCentre.InternalErrorWriteLine($"Couldn't find a valid native assembly required by {Path.GetFileNameWithoutExtension(peItem.Path)} v{peItem.Version}, checksum 0x{nativeMethodsChecksum:X8}");
+                        MessageCentre.InternalErrorWriteLine($"The connected target has v{nativeAssembly.Version.ToString(4)}");
                     }
                     else
                     {
@@ -531,10 +544,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         missingAssemblies += $"Couldn't find a valid native assembly required by {Path.GetFileNameWithoutExtension(peItem.Path)} v{peItem.Version}, checksum 0x{nativeMethodsChecksum.ToString("X8")}." + Environment.NewLine +
                                         $"This project is referencing {Path.GetFileNameWithoutExtension(peItem.Path)} NuGet package requiring native v{peItem.NativeVersion}." + Environment.NewLine +
                                         $"The connected target does not have support for {Path.GetFileNameWithoutExtension(peItem.Path)}." + Environment.NewLine;
+
+                        MessageCentre.InternalErrorWriteLine($"Couldn't find a valid native assembly required by {Path.GetFileNameWithoutExtension(peItem.Path)} v{peItem.Version}, checksum 0x{nativeMethodsChecksum:X8}");
+                        MessageCentre.InternalErrorWriteLine($"The connected target does not have support for {Path.GetFileNameWithoutExtension(peItem.Path)}.");
                     }
                 }
             }
-
 
             if (!string.IsNullOrEmpty(wrongAssemblies) ||
                 !string.IsNullOrEmpty(missingAssemblies))

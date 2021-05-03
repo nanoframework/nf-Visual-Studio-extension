@@ -998,7 +998,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             // sanity check
             if(rtv == null)
             {
-                MessageCentre.InternalErrorMessage($"ERROR: Failed to get value for field [{fieldDef.ToString("X8")}] assembly {((CorDebugClass)pClass).Assembly.Name}.");
+                MessageCentre.InternalErrorWriteLine($"ERROR: Failed to get value for field [{fieldDef.ToString("X8")}] assembly {((CorDebugClass)pClass).Assembly.Name}.");
                 
                 ppValue = null;
 

@@ -11,6 +11,7 @@ using Microsoft.VisualStudio.Shell.Interop;
 using nanoFramework.Tools.Debugger;
 using System;
 using System.Diagnostics;
+using System.Text;
 
 namespace nanoFramework.Tools.VisualStudio.Extension
 {
@@ -67,7 +68,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         /// <param name="message">Message to be outputted.</param>
         public static void DebugMessage(string message)
         {
-            Message(_debugPane, message ?? "");
+            Message(_debugPane, message + Environment.NewLine ?? "");
         }
 
         public static void ClearDeploymentMessages()
@@ -81,38 +82,78 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         public static void DeploymentMessage(string message)
         {
-            Message(_nanoFrameworkMessagesPane, message);
+            Message(_nanoFrameworkMessagesPane, message + Environment.NewLine);
         }
 
-        public static void InternalErrorMessage(string message)
+        public static void InternalErrorWriteLine(string message)
         {
-            InternalErrorMessage(false, message);
+            InternalErrorMessage(false, message, false);
         }
 
-        public static void InternalErrorMessage(bool assertion, string message)
+        public static void InternalErrorWrite(string message, bool sameLine = false)
         {
-            InternalErrorMessage(assertion, message, -1);
+            InternalErrorMessage(false, message, -1, true, sameLine);
         }
 
-        public static void InternalErrorMessage(bool assertion, string message, int skipFrames)
+        public static void InternalErrorWriteAndCloseMessage(string message)
+        {
+            // take care of closing error message
+            InternalErrorMessage(false, $"{message}]{Environment.NewLine}", -1, true, true);
+        }
+
+        public static void InternalErrorMessage(bool assertion, string message, bool noNewline = false)
+        {
+            InternalErrorMessage(assertion, message, -1, noNewline);
+        }
+
+        private static void InternalErrorMessage(bool assertion, string message, int skipFrames, bool noNewline, bool sameLine = false)
         {
             if (!assertion && NanoFrameworkPackage.OptionShowInternalErrors)
             {
-                message = string.IsNullOrEmpty(message) ? "Unknown Error" : message;
-
-                if (skipFrames >= 0)
+                var outputMessage = new StringBuilder();
+        
+                if(!sameLine)
                 {
-                    StackTrace st = new StackTrace(skipFrames + 1, true);
-                    Message(
-                        _nanoFrameworkMessagesPane,
-                        $"{DateTime.Now:HH:mm:ss.fff} [{message}: { st }]");
+                    // output to new line, add timestamp
+                    outputMessage.Append($"{DateTime.Now:HH:mm:ss.fff}");
+                }
+
+                if (string.IsNullOrEmpty(message))
+                {
+                    outputMessage.Append(" Unknown Error");
                 }
                 else
                 {
-                    Message(
-                        _nanoFrameworkMessagesPane,
-                        $"{DateTime.Now:HH:mm:ss.fff} [{ message }]");
+                    if (sameLine)
+                    {
+                        outputMessage.Append(message);
+                    }
+                    else
+                    {
+                        outputMessage.Append($" [{message}");
+                    }
+
+                    if (skipFrames >= 0)
+                    {
+                        StackTrace st = new StackTrace(skipFrames + 1, true);
+
+                        outputMessage.Append($"{ st }");
+                    }
+
+                    if (!noNewline && !sameLine)
+                    {
+                        outputMessage.Append("]");
+                    }
+
+                    if (!noNewline)
+                    {
+                        outputMessage.Append(Environment.NewLine);
+                    }
                 }
+
+                Message(
+                    _nanoFrameworkMessagesPane,
+                    outputMessage.ToString());
             }
         }
 
@@ -127,6 +168,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         /// <param name="message">Message to be outputted.</param>
         public static void OutputMessage(string message)
         {
+            message += Environment.NewLine;
+
             Message(_nanoFrameworkMessagesPane, message);
         }
 
@@ -136,8 +179,10 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         /// <param name="message">Message to be outputted.</param>
         public static void OutputFirmwareUpdateMessage(string message)
         {
+            message += Environment.NewLine;
+
             Message(
-                _firmwareUpdatManager, 
+                _firmwareUpdatManager,
                 message,
                 false);
         }
@@ -161,20 +206,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             {
                 await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
-                // if the message already ends with a return & new line, strip it
-                // this is the case with some messages from the target
-                // in case the message has more than one and intends to output an empty line this will occur anyway as we are adding it bellow
-                if(message.EndsWith("\r\n"))
-                {
-                    message = message.Substring(0, message.Length - 2);
-                }
-
                 if (activatePane)
                 {
                     pane.Activate();
                 }
 
-                pane.OutputStringThreadSafe(message + "\r\n");
+                pane.OutputStringThreadSafe(message);
             });
         }
 
