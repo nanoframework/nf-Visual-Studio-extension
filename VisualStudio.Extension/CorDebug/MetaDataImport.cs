@@ -660,8 +660,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
         }
 
         public int GetAssemblyFromScope (IntPtr ptkAssembly)
-        {            
+        {
             //Only one assembly per MetaDataImport, doesn't matter what token we give them back            
+            NotImpl();
             return COM_HResults.E_NOTIMPL;
         }
 
