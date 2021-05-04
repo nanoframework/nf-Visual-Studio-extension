@@ -37,7 +37,7 @@ jobs:
 ##############################
 - job: Get_Build_Options
   pool:
-    vmImage: 'VS2017-Win2016'
+    vmImage: 'windows-2019'
 
   steps:
   - checkout: self
@@ -108,7 +108,7 @@ jobs:
   - Get_Build_Options
 
   pool:
-    vmImage: 'VS2017-Win2016'
+    vmImage: 'windows-2019'
 
   variables:
     solution: '**/nanoFramework.Tools.VisualStudio.sln'
@@ -502,7 +502,7 @@ jobs:
     MY_VS2019_VERSION: $[ dependencies.VS2019.outputs['VS2019Build.BUILD_VERSION'] ]
 
   pool:
-    vmImage: 'VS2017-Win2016'
+    vmImage: 'windows-2019'
 
   steps:
   - checkout: self
