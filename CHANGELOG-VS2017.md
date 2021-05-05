@@ -1,5 +1,13 @@
 # Changelog
 
+## [v2017.5.0.59](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v2017.5.0.59) (2021-05-05)
+
+[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2019.5.0.43...v2017.5.0.59)
+
+**Fixed bugs:**
+
+- Fix loading of assembly without debug symbols [\#606](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/606)
+
 ## [v2019.5.0.43](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v2019.5.0.43) (2021-04-12)
 
 [Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2017.5.0.43...v2019.5.0.43)
