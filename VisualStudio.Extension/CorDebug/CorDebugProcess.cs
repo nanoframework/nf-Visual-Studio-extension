@@ -1430,6 +1430,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             MessageCentre.InternalErrorMessage(Resources.ResourceStrings.LoadedAssembliesInformation);
             lock (_appDomains)
             {
+                _assemblies = new ArrayList();
+
                 LoadAssemblies();
 
                 uint[] appDomains = new uint[] { CorDebugAppDomain.c_AppDomainId_ForNoAppDomainSupport };
