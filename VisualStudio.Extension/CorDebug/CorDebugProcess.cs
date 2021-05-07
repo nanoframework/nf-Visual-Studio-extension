@@ -159,6 +159,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             }
             catch
             {
+                // catch all as this can throw and we need to continue
             }
 
             if(!isProcess)
@@ -166,16 +167,18 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 // try sender as Engine
                 try
                 {
-                    Engine engine = sender as Engine;
-                    engine.Stop();
-                    engine.Dispose();
-                    engine = null;
+                    _engine.OnMessage -= new MessageEventHandler(OnMessage);
+                    _engine.OnCommand -= new CommandEventHandler(OnCommand);
+                    _engine.OnNoise -= new NoiseEventHandler(OnNoise);
+                    _engine.OnProcessExit -= new EventHandler(OnProcessExit);
+
                     _engine = null;
 
                     GC.WaitForPendingFinalizers();
                 }
                 catch
                 {
+                    // catch all as this can throw and we need to continue
                 }
             }
 
@@ -284,19 +287,18 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     _engine.OnNoise -= new NoiseEventHandler(OnNoise);
                     _engine.OnProcessExit -= new EventHandler(OnProcessExit);
 
+                    // need to reset flag
+                    _engine.StopDebuggerOnConnect = false;
+
                     // better do this inside a try/catch for unexpected side effects from the dispose and finalizer
                     try
                     {
-                        _engine.Stop();
-                        _engine.Dispose();
-
-                        (Device as NanoDeviceBase).Disconnect();
+                        _engine = null;
                     }
                     catch
                     {
+                        // catch all as this can throw and we need to continue
                     }
-
-                    _engine = null;
 
                     GC.WaitForPendingFinalizers();
                 }
@@ -305,51 +307,74 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         private void EnsureProcessIsInInitializedState()
         {
-            if (!_engine.IsDeviceInInitializeState())
+            var currentExecutionMode = _engine.GetExecutionMode();
+
+            if (!currentExecutionMode.IsDeviceInInitializeState())
             {
                 bool fSucceeded = false;
 
                 MessageCentre.StartProgressMessage(Resources.ResourceStrings.Rebooting);
 
-                for(int retries = 0; retries < maxOperationRetries; retries++)
+                _engine.RebootDevice(RebootOptions.ClrOnly | RebootOptions.WaitForDebugger);
+
+                // TODO
+                //if (_engine.PortDefinition is PortDefinition_Tcp)
+                //{
+                //    DetachFromEngine();
+                //}
+
+                for (int retries = 0; retries < maxOperationRetries; retries++)
                 {
-                    if(_engine.IsConnectedTonanoCLR)
+                    if (_engine.IsConnectedTonanoCLR)
                     {
-                        if (_engine.IsDeviceInInitializeState())
+                        currentExecutionMode = _engine.GetExecutionMode();
+
+                        if (currentExecutionMode.IsDeviceInInitializeState())
                         {
-                            MessageCentre.InternalErrorMessage("Device is running CLR in initialized state.");
+                            MessageCentre.InternalErrorWriteLine("Device is running the CLR in initialized state");
 
-                            fSucceeded = true;
-                            break;
-                        }
+                            // check to see if the device has type resolution failed flag set
+                            if (currentExecutionMode.IsDeviceStoppedOnTypeResolutionFailed())
+                            {
+                                MessageCentre.DebugMessage("******************************************************************************");
+                                MessageCentre.DebugMessage("** Error: Device stopped after type resolution failure.                     **");
+                                MessageCentre.DebugMessage("** Check in each assembly which assemblies are referenced and their version **");
+                                MessageCentre.DebugMessage("******************************************************************************");
 
-                        // check to see if the device has type resolution failed flag set
-                        if (_engine.IsDeviceStoppedOnTypeResolutionFailed())
-                        {
-                            MessageCentre.DebugMessage("******************************************************************************");
-                            MessageCentre.DebugMessage("** Error: Device stopped after type resolution failure.                     **");
-                            MessageCentre.DebugMessage("** Check in each assembly which assemblies are referenced and their version **");
-                            MessageCentre.DebugMessage("******************************************************************************");
+#pragma warning disable S112 // General exceptions should never be thrown
+                                throw new Exception("Device stopped after type resolution failure. Can't start execution.");
+#pragma warning restore S112 // OK to use this here, that's the way to exit the debugger process
+                            }
 
-                            throw new Exception("Device stopped after type resolution failure. Can't start execution.");
+                            if (_engine.UpdateDebugFlags())
+                            {
+                                fSucceeded = true;
+                                break;
+                            }
                         }
                         else
                         {
-                            MessageCentre.InternalErrorMessage($"Device is running CLR, requesting reboot and pause for debugger ({retries + 1}/{ maxOperationRetries }).");
+                            MessageCentre.InternalErrorWriteLine($"Device is running CLR, requesting reboot and pause for debugger ({retries + 1}/{ maxOperationRetries }).");
 
                             _engine.RebootDevice(RebootOptions.ClrOnly | RebootOptions.WaitForDebugger);
                         }
                     }
-                    else if(_engine.IsConnectedTonanoBooter)
+                    else if (_engine.IsConnectedTonanoBooter)
                     {
-                        MessageCentre.InternalErrorMessage($"Device is running nanoBooter, requesting to launch CLR ({retries + 1}/{ maxOperationRetries }).");
+                        MessageCentre.InternalErrorWriteLine($"Device is running nanoBooter, requesting to launch CLR ({retries + 1}/{ maxOperationRetries }).");
 
                         // this is telling nanoBooter to enter CLR
                         _engine.ExecuteMemory(0);
+
+                        Thread.Yield();
+
+                        // better pause here to allow the reboot to occur
+                        // use a back-off strategy of increasing the wait time to accommodate slower or less responsive targets (such as networked ones)
+                        Thread.Sleep(initDeviceWaitTimeout * (retries + 1));
                     }
                     else
                     {
-                        MessageCentre.InternalErrorMessage("Error: Device is running on an unknown state.");
+                        MessageCentre.InternalErrorWriteLine("*** ERROR: device is running on an unknown state ***");
 
                         // unknown connection source?!
                         // shouldn't be here, but...
@@ -357,17 +382,11 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     }
 
                     Thread.Yield();
-
-                    // better pause here to allow the reboot to occur
-                    // use a back-off strategy of increasing the wait time to accommodate slower or less responsive targets (such as networked ones)
-                    Thread.Sleep(initDeviceWaitTimeout * (retries + 1));
-
-                    Thread.Yield();
                 }
                 
                 if (!ShuttingDown && !fSucceeded)
                 {
-                    MessageCentre.InternalErrorMessage("Error: all attempts to put device in initialized state have failed.");
+                    MessageCentre.InternalErrorWriteLine("*** ERROR: all attempts to put device in initialized state have failed ***");
 
                     MessageCentre.StopProgressMessage();
                     throw new Exception(Resources.ResourceStrings.CouldNotReconnect);
@@ -384,11 +403,13 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             {
                 if (ShuttingDown)
                 {
-                    MessageCentre.InternalErrorMessage($"Engine has shutdown flag set. Won't try attaching to engine.");
+                    MessageCentre.InternalErrorWriteLine($"Engine has shutdown flag set. Won't try attaching to engine");
 
                     break;
                 }
-                
+
+                MessageCentre.InternalErrorWriteLine($"Attempting to connect debugger engine ({retry + 1}/{ maxOperationRetries })");
+
                 try
                 {
                     lock (this)
@@ -397,12 +418,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         {
                             if(Device.DebugEngine == null)
                             {
-                                MessageCentre.InternalErrorMessage("Creating debug engine for target device.");
+                                MessageCentre.InternalErrorWriteLine("Creating debug engine for target device");
 
                                 Device.CreateDebugEngine();
                             }
 
-                            MessageCentre.InternalErrorMessage("Assigning debug engine of target device.");
+                            MessageCentre.InternalErrorWriteLine("Assigning debug engine of target device");
 
                             _engine = Device.DebugEngine;
                         }
@@ -421,7 +442,10 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         _engine.OnProcessExit += new EventHandler(OnProcessExit);
                     }
 
-                    MessageCentre.InternalErrorMessage($"Attempting to update device debugger flags ({retry + 1}/{ maxOperationRetries }).");
+                    if(!_engine.IsConnected)
+                    {
+                        _engine.Connect();
+                    }
 
                     if (_engine.UpdateDebugFlags())
                     {
@@ -431,7 +455,10 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     }
                     else
                     {
-                        MessageCentre.InternalErrorMessage($"Error update device debugger flags.");
+                        MessageCentre.InternalErrorWriteLine($"*** ERROR: updating debugger flags of device ***");
+
+                        // reset flag
+                        _engine.StopDebuggerOnConnect = false;
                     }
 
                     Thread.Yield();
@@ -649,7 +676,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             {
                 MessageCentre.DebugMessage(Resources.ResourceStrings.InitializationFailed);
 
-                MessageCentre.InternalErrorMessage($"Exception starting CLR on device: {ex.Message}.");
+                MessageCentre.InternalErrorWriteLine($"Exception starting CLR on device: {ex.Message}.");
 
                 throw;
             }
@@ -667,7 +694,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
           when a real breakpoint gets hit, when execution is stopped via BreakAll, etc..
          */
 
-            MessageCentre.InternalErrorMessage(Resources.ResourceStrings.RunningThreadsInformation);
+            MessageCentre.InternalErrorWriteLine(Resources.ResourceStrings.RunningThreadsInformation);
 
             uint[] threads = _engine.GetThreadList();
 
@@ -1427,7 +1454,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         public void UpdateAssemblies()
         {
-            MessageCentre.InternalErrorMessage(Resources.ResourceStrings.LoadedAssembliesInformation);
+            MessageCentre.InternalErrorWriteLine(Resources.ResourceStrings.LoadedAssembliesInformation);
             lock (_appDomains)
             {
                 _assemblies = new ArrayList();
@@ -1510,6 +1537,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             }
             else
             {
+                // if the message already ends with a return & new line, strip it as this is being added
+                if (text.EndsWith("\r\n"))
+                {
+                    text = text.Substring(0, text.Length - 2);
+                }
+
                 MessageCentre.DebugMessage(text);
             }
         }
@@ -1607,7 +1640,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         {
             if(buf != null && (offset + count) <= buf.Length)
             {
-                MessageCentre.InternalErrorMessage( System.Text.UTF8Encoding.UTF8.GetString(buf, offset, count) );
+                MessageCentre.InternalErrorWriteLine( System.Text.UTF8Encoding.UTF8.GetString(buf, offset, count) );
             }
         }
 

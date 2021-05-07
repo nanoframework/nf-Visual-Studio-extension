@@ -139,7 +139,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         // no debug symbols available, so can't call the LoadModule event
                         // this is probably an assembly that was loaded inside the application running using reflection
                         MessageCentre.DebugMessage($"*** No debugging symbols available for '{assembly.Name}'. This assembly won't be loaded in the current debug session. ***");
-                        MessageCentre.InternalErrorMessage($"*** No debugging symbols available for '{assembly.Name}'. This assembly won't be loaded in the current debug session. ***");
+                        MessageCentre.InternalErrorWriteLine($"*** No debugging symbols available for '{assembly.Name}'. This assembly won't be loaded in the current debug session. ***");
                     }
                 }
             }

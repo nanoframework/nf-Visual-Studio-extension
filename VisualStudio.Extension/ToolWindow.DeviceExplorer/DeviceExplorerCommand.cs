@@ -292,28 +292,31 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         NanoDeviceCommService.Device.CreateDebugEngine();
                     }
 
-                    // connect to the device
-                    if (await NanoDeviceCommService.Device.DebugEngine.ConnectAsync(5000))
+                    // connect to the device, if needed
+                    if (!NanoDeviceCommService.Device.DebugEngine.IsConnected)
                     {
-                        // ping device
-                        NanoDeviceCommService.Device.Ping();
+                        if (!NanoDeviceCommService.Device.DebugEngine.Connect())
+                        {
+                            MessageCentre.OutputMessage($"{descriptionBackup} is not responding, please reboot the device.");
 
-                        if (ViewModelLocator.DeviceExplorer.SelectedDevice.DebugEngine.IsConnectedTonanoBooter)
-                        {
-                            MessageCentre.OutputMessage($"{descriptionBackup} is active running nanoBooter.");
+                            return;
                         }
-                        if (ViewModelLocator.DeviceExplorer.SelectedDevice.DebugEngine.IsConnectedTonanoCLR)
-                        {
-                            MessageCentre.OutputMessage($"{descriptionBackup} is active running nanoCLR.");
-                        }
-                        else
-                        {
-                            MessageCentre.OutputMessage($"No reply from {descriptionBackup}");
-                        }
+                    }
+
+                    // ping device
+                    var reply = NanoDeviceCommService.Device.Ping();
+
+                    if (reply == ConnectionSource.nanoBooter)
+                    {
+                        MessageCentre.OutputMessage($"{descriptionBackup} is active running nanoBooter.");
+                    }
+                    else if (reply == ConnectionSource.nanoCLR)
+                    {
+                        MessageCentre.OutputMessage($"{descriptionBackup} is active running nanoCLR.");
                     }
                     else
                     {
-                        MessageCentre.OutputMessage($"{descriptionBackup} is not responding, please reboot the device.");
+                        MessageCentre.OutputMessage($"No reply from {descriptionBackup}");
                     }
                 }
                 catch
@@ -369,8 +372,11 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                             NanoDeviceCommService.Device.CreateDebugEngine();
                         }
 
+
                         // connect to the device
-                        if (await NanoDeviceCommService.Device.DebugEngine.ConnectAsync(5000))
+                        if (NanoDeviceCommService.Device.DebugEngine.Connect(
+                            false,
+                            true))
                         {
                             // check that we are in CLR
                             if (NanoDeviceCommService.Device.DebugEngine.IsConnectedTonanoCLR)
@@ -379,14 +385,13 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                                 {
                                     // get device info
                                     var deviceInfo = NanoDeviceCommService.Device.GetDeviceInfo(true);
-                                    var memoryMap = NanoDeviceCommService.Device.DebugEngine.GetMemoryMap();
-                                    var flashMap = NanoDeviceCommService.Device.DebugEngine.GetFlashSectorMap();
+                                    var memoryMap = NanoDeviceCommService.Device.DebugEngine.MemoryMap;
+                                    var flashMap = NanoDeviceCommService.Device.DebugEngine.FlashSectorMap;
                                     var deploymentMap = NanoDeviceCommService.Device.DebugEngine.GetDeploymentMap();
 
                                     // we have to have a valid device info
                                     if (deviceInfo.Valid)
                                     {
-
                                         // load view model properties for maps
                                         ViewModelLocator.DeviceExplorer.DeviceMemoryMap = new StringBuilder(memoryMap?.ToStringForOutput() ?? "Empty");
                                         ViewModelLocator.DeviceExplorer.DeviceFlashSectorMap = new StringBuilder(flashMap?.ToStringForOutput() ?? "Empty");
@@ -527,7 +532,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
             var descriptionBackup = ViewModelLocator.DeviceExplorer.SelectedDevice.Description;
 
-            var logProgressIndicator = new Progress<string>(MessageCentre.InternalErrorMessage);
+            var logProgressIndicator = new Progress<string>(MessageCentre.InternalErrorWriteLine);
             var progressIndicator = new Progress<MessageWithProgress>((m) => MessageCentre.StartMessageWithProgress(m));
 
             MessageCentre.StartProgressMessage($"Erasing {descriptionBackup} deployment area...");
@@ -549,13 +554,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     }
 
                     // connect to the device
-                    if (await NanoDeviceCommService.Device.DebugEngine.ConnectAsync(5000))
+                    if (NanoDeviceCommService.Device.DebugEngine.Connect(false, true))
                     {
                         try
                         {
-                            if (await NanoDeviceCommService.Device.EraseAsync(
+                            if (NanoDeviceCommService.Device.Erase(
                                 EraseOptions.Deployment,
-                                CancellationToken.None,
                                 progressIndicator,
                                 logProgressIndicator))
                             {
@@ -638,7 +642,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     }
 
                     // connect to the device
-                    if (await NanoDeviceCommService.Device.DebugEngine.ConnectAsync(5000))
+                    if (NanoDeviceCommService.Device.DebugEngine.Connect(false, true))
                     {
                         try
                         {
@@ -745,7 +749,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     var previousSelectedDeviceDescription = NanoDeviceCommService.Device.Description;
 
                     // connect to the device
-                    if (await NanoDeviceCommService.Device.DebugEngine.ConnectAsync(5000))
+                    if (NanoDeviceCommService.Device.DebugEngine.Connect(5000))
                     {
                         try
                         {
@@ -841,13 +845,20 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 // disable the button
                 (sender as MenuCommand).Enabled = false;
 
-                NanoDeviceCommService.DebugClient.ReScanDevices();
+                try
+                {
+                    NanoDeviceCommService.DebugClient.ReScanDevices();
 
-                // need to remove event handler
-                NanoDeviceCommService.DebugClient.NanoFrameworkDevices.CollectionChanged -= ViewModelLocator.DeviceExplorer.NanoFrameworkDevices_CollectionChanged;
+                    // don't enable the button here to prevent compulsive developers to click it when the operation is still ongoing
+                    // it will be enabled back at NanoDevicesCollectionChangedHandlerAsync
+                }
+                catch
+                {
+                    // empty on purpose, exceptions can happen during rescan
 
-                // don't enable the button here to prevent compulsive developers to click it when the operation is still ongoing
-                // it will be enabled back at NanoDevicesCollectionChangedHandlerAsync
+                    // OK to enable button here, in case an exception occurs
+                    (sender as MenuCommand).Enabled = true;
+                }
             });
         }
 
@@ -875,7 +886,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             // call device port API 
             if (currentCheckState)
             {
-                MessageCentre.InternalErrorMessage("Starting device watchers.");
+                MessageCentre.InternalErrorWriteLine("Starting device watchers");
 
                 NanoDeviceCommService.DebugClient.StartDeviceWatchers();
 
@@ -883,7 +894,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             }
             else
             {
-                MessageCentre.InternalErrorMessage("Stopping device watchers.");
+                MessageCentre.InternalErrorWriteLine("Stopping device watchers");
 
                 NanoDeviceCommService.DebugClient.StopDeviceWatchers();
 

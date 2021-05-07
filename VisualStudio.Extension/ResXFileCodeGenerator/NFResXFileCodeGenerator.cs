@@ -379,7 +379,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             else
             {
                 // this shouldn't happen
-                MessageCentre.InternalErrorMessage("Exception when generating code-behind file. ProcessResourceFiles type missing. Please reinstall the nanoFramework extension.");
+                MessageCentre.InternalErrorWriteLine("*** ERROR: exception when generating code-behind file. ProcessResourceFiles type missing. Please reinstall the nanoFramework extension ***");
             }
 
             return base.StreamToBytes(outputStream);
