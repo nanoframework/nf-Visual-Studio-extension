@@ -85,13 +85,13 @@ jobs:
           # changes here impact VS2019
           echo "##vso[task.setvariable variable=BUILD_VS2019;isOutput=true]true"  
         }
-        if( $commit.files.filename -like "*VisualStudio.Extension*" )
+        if( $commit.files.filename -like "*VisualStudio.Extension\*" )
         {
           # changes here, most likely impact VS2019 too
           echo "##vso[task.setvariable variable=BUILD_VS2017;isOutput=true]true"  
           echo "##vso[task.setvariable variable=BUILD_VS2019;isOutput=true]true"  
         }
-        if( $commit.files.filename -like "*VisualStudio.Extension-2019*" )
+        if( $commit.files.filename -like "*VisualStudio.Extension-2019\*" )
         {
           # changes here only impact VS2019
           echo "##vso[task.setvariable variable=BUILD_VS2019;isOutput=true]true"
