@@ -148,7 +148,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 // don't care about bad user input/format/etc 
             }
 
-            NanoFrameworkPackage.NanoDeviceCommService.DebugClient.PortBlackList = comPortList;
+            NanoFrameworkPackage.NanoDeviceCommService.DebugClient.PortExclusionList = comPortList;
         }
 
         private void AutoUpdateEnable_Checked(object sender, System.Windows.RoutedEventArgs e)
