@@ -302,15 +302,15 @@
       },
       "nanoFramework.CoreLibrary": {
         "type": "Direct",
-        "requested": "[1.10.3-preview.7, )",
-        "resolved": "1.10.3-preview.7",
-        "contentHash": "zhHvkrLLIdbqo4YVhG/oQ7lNpI/xInjNQnIMFX3m0heGnfELFMffb7z5pHL+YcZ995jqPzMJjK+M2EkossjE5A=="
+        "requested": "[1.10.3-preview.20, )",
+        "resolved": "1.10.3-preview.20",
+        "contentHash": "soWJe4FdBCgq9aXfIyqSFFBQBisV31QDJjoN+9GDculaLw4g4jsdSh333ETPLdeFg0E2u5aqtZF81jZ7QsYj4g=="
       },
       "nanoFramework.TestFramework": {
         "type": "Direct",
-        "requested": "[1.0.98, )",
-        "resolved": "1.0.98",
-        "contentHash": "vb16eJaxeGmLvbfYqOGsJm725zK91GTXcPwODcKosnuMXnWadXwGggaovjCWclpyxGQ2RY0GZ114o+gZ47cx2w=="
+        "requested": "[1.0.110, )",
+        "resolved": "1.0.110",
+        "contentHash": "O5G7VssTCvTeCqpavCc2xploPHg63y4P3VH9rSvcbfP0InnJXcqbBDBvNB/XSm48agEjSkArcugfJ9lnuY2CAg=="
       },
       "nanoFramework.Tools.Debugger.Net": {
         "type": "Direct",
@@ -348,9 +348,9 @@
       },
       "Nerdbank.GitVersioning": {
         "type": "Direct",
-        "requested": "[3.3.37, )",
-        "resolved": "3.3.37",
-        "contentHash": "YlDKV/gSHQGDThWSGqVyPfKeNP/kx1fj/NPFFgGc/cxzgIbXv4jtYOcbFOz3ZIeAKtpCcSAmVNDOikBs3OxI/A=="
+        "requested": "[3.4.194, )",
+        "resolved": "3.4.194",
+        "contentHash": "f4V2lLy9G0BnddqGhfaVa+dKsbu8iCiLiUARHKBo0l899MgJdRjVU2C7e29gHrZWxc2HZkq3aq28OHHK7q0/iQ=="
       },
       "Newtonsoft.Json": {
         "type": "Direct",
@@ -360,9 +360,9 @@
       },
       "NuGet.VisualStudio": {
         "type": "Direct",
-        "requested": "[5.9.0, )",
-        "resolved": "5.9.0",
-        "contentHash": "MG9M62PdzCPkU0oeRbPukQbcVsaKwg/I7QbIMUF/SXsbdZc/LT3n0k9ie5msV+AOtnF05EjesYW5UXbPau08qQ==",
+        "requested": "[5.9.1, )",
+        "resolved": "5.9.1",
+        "contentHash": "JkxAuAyzneH2VYdhVrbZmNPK0NpJX3WKn3qCHjI2yOWM+MKnqqR10mavkfFvOD/J58pAzYqu15RDZah8GrE62g==",
         "dependencies": {
           "VSSDK.TemplateWizardInterface": "12.0.4"
         }
@@ -2264,11 +2264,7 @@
         }
       },
       "csharp.assemblyinfotemplate": {
-        "type": "Project",
-        "dependencies": {
-          "Microsoft.VisualStudio.SDK.Analyzers": "15.8.36",
-          "Microsoft.VisualStudio.Threading.Analyzers": "15.8.209"
-        }
+        "type": "Project"
       },
       "csharp.blankapplication": {
         "type": "Project"
