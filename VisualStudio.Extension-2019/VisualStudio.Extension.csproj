@@ -339,13 +339,13 @@
     <Compile Include="AutomaticUpdates\UpdateManager.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="$(PkgnanoFramework_CoreLibrary)\nanoFramework.CoreLibrary.1.10.3-preview.7.nupkg">
-      <Link>Packages\nanoFramework.CoreLibrary.1.10.3-preview.7.nupkg</Link>
+    <Content Include="$(PkgnanoFramework_CoreLibrary)\nanoFramework.CoreLibrary.1.10.3-preview.20.nupkg">
+      <Link>Packages\nanoFramework.CoreLibrary.1.10.3-preview.20.nupkg</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
-    <Content Include="$(PkgnanoFramework_TestFramework)\nanoFramework.TestFramework.1.0.98.nupkg">
-      <Link>Packages\nanoFramework.TestFramework.1.0.98.nupkg</Link>
+    <Content Include="$(PkgnanoFramework_TestFramework)\nanoFramework.TestFramework.1.0.110.nupkg">
+      <Link>Packages\nanoFramework.TestFramework.1.0.110.nupkg</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
@@ -785,18 +785,18 @@
       <Version>5.4.1.1</Version>
     </PackageReference>
     <PackageReference Include="nanoFramework.CoreLibrary" GeneratePathProperty="true">
-      <Version>1.10.3-preview.7</Version>
+      <Version>1.10.3-preview.20</Version>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="nanoFramework.TestFramework" GeneratePathProperty="true">
-      <Version>1.0.98</Version>
+      <Version>1.0.110</Version>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="nanoFramework.Tools.Debugger.Net" Version="2.0.0-preview.3" />
     <PackageReference Include="nanoFramework.Tools.MetadataProcessor.Core" Version="2.31.3" />
     <PackageReference Include="nanoFramework.Tools.MetadataProcessor.MsBuildTask" Version="2.34.4" />
     <PackageReference Include="Nerdbank.GitVersioning">
-      <Version>3.3.37</Version>
+      <Version>3.4.194</Version>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
@@ -804,7 +804,7 @@
       <Version>12.0.3</Version>
     </PackageReference>
     <PackageReference Include="NuGet.VisualStudio">
-      <Version>5.9.0</Version>
+      <Version>5.9.1</Version>
     </PackageReference>
     <PackageReference Include="PropertyChanging.Fody">
       <Version>1.29.3</Version>
