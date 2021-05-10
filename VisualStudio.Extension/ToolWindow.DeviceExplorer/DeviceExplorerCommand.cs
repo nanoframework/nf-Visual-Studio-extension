@@ -292,15 +292,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         NanoDeviceCommService.Device.CreateDebugEngine();
                     }
 
-                    // connect to the device, if needed
-                    if (!NanoDeviceCommService.Device.DebugEngine.IsConnected)
+                    // connect to the device
+                    if (!NanoDeviceCommService.Device.DebugEngine.Connect())
                     {
-                        if (!NanoDeviceCommService.Device.DebugEngine.Connect())
-                        {
-                            MessageCentre.OutputMessage($"{descriptionBackup} is not responding, please reboot the device.");
+                        MessageCentre.OutputMessage($"{descriptionBackup} is not responding, please reboot the device.");
 
-                            return;
-                        }
+                        return;
                     }
 
                     // ping device
@@ -325,6 +322,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 }
                 finally
                 {
+                    // disconnect device
+                    NanoDeviceCommService.Device?.DebugEngine?.Stop(true);
+
                     // enable buttons
                     await UpdateDeviceDependentToolbarButtonsAsync(true);
 
@@ -508,6 +508,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 }
                 finally
                 {
+                    // disconnect device
+                    NanoDeviceCommService.Device?.DebugEngine?.Stop(true);
+
                     // enable buttons
                     await UpdateDeviceDependentToolbarButtonsAsync(true);
 
@@ -601,6 +604,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 }
                 finally
                 {
+                    // disconnect device
+                    NanoDeviceCommService.Device?.DebugEngine?.Stop(true);
+
                     // enable buttons
                     await UpdateDeviceDependentToolbarButtonsAsync(true);
 
@@ -705,6 +711,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 }
                 finally
                 {
+                    // disconnect device
+                    NanoDeviceCommService.Device?.DebugEngine?.Stop(true);
+
                     // enable buttons
                     await UpdateDeviceDependentToolbarButtonsAsync(true);
 
@@ -749,7 +758,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     var previousSelectedDeviceDescription = NanoDeviceCommService.Device.Description;
 
                     // connect to the device
-                    if (NanoDeviceCommService.Device.DebugEngine.Connect(5000))
+                    if (NanoDeviceCommService.Device.DebugEngine.Connect(
+                        false,
+                        true))
                     {
                         try
                         {
@@ -820,6 +831,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 }
                 finally
                 {
+                    // disconnect device
+                    NanoDeviceCommService.Device?.DebugEngine?.Stop(true);
+
                     // enable buttons
                     await UpdateDeviceDependentToolbarButtonsAsync(true);
                 }
