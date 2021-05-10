@@ -33,7 +33,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         public override async Task<IReadOnlyList<IDebugLaunchSettings>> QueryDebugTargetsAsync(DebugLaunchOptions launchOptions)
         {
-            try
+            if (SimpleIoc.Default.GetInstance<DeviceExplorerViewModel>().SelectedDevice != null)
             {
                 var deployDeviceName = SimpleIoc.Default.GetInstance<DeviceExplorerViewModel>().SelectedDevice.Description;
 
@@ -41,13 +41,15 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 var device = SimpleIoc.Default.GetInstance<DeviceExplorerViewModel>().SelectedDevice;
 
                 // check for debug engine
-                if(device.DebugEngine == null)
+                if (device.DebugEngine == null)
                 {
                     device.CreateDebugEngine(device.Transport == Debugger.WireProtocol.TransportType.Serial ? NanoSerialDevice.SafeDefaultTimeout : 5000);
                 }
 
                 // make sure that the device is connected
-                if (device.DebugEngine.Connect())
+                if (device.DebugEngine.Connect(
+                    false,
+                    true))
                 {
                     string commandLine = await GetCommandLineForLaunchAsync();
                     commandLine = string.Format("{0} \"{1}{2}\"", commandLine, CorDebugProcess.DeployDeviceName, deployDeviceName);
@@ -65,14 +67,17 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                     return new IDebugLaunchSettings[] { settings };
                 }
+
+#pragma warning disable S112 // OK to use Exception here
+                throw new Exception($"Can't connect to {deployDeviceName}!");
+#pragma warning restore S112 // General exceptions should never be thrown            
             }
-            catch
+            else
             {
-                // in case something goes wrong, we catch it here
-
+#pragma warning disable S112 // OK to use Exception here
+                throw new Exception("There is no device selected. Please select a device in Device Explorer tool window.");
+#pragma warning restore S112 // General exceptions should never be thrown            
             }
-
-            return new List<DebugLaunchSettings>();
         }
 
         public override Task<bool> CanLaunchAsync(DebugLaunchOptions launchOptions)
