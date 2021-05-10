@@ -360,6 +360,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                             MessageCentre.InternalErrorWriteLine($"Device is running CLR, requesting reboot and pause for debugger ({retries + 1}/{ maxOperationRetries }).");
 
                             _engine.RebootDevice(RebootOptions.ClrOnly | RebootOptions.WaitForDebugger);
+
+                            Thread.Sleep(500);
                         }
                     }
                     else if (_engine.IsConnectedTonanoBooter)
