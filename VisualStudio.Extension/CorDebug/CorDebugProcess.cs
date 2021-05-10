@@ -290,6 +290,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     // need to reset flag
                     _engine.StopDebuggerOnConnect = false;
 
+                    // stop processing engine so it disconnects from device
+                    _engine.Stop(true);
+
                     // better do this inside a try/catch for unexpected side effects from the dispose and finalizer
                     try
                     {
