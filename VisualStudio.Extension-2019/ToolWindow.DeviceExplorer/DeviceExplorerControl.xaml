@@ -30,10 +30,17 @@
             </Grid.RowDefinitions>
 
 
-            <TreeView Grid.Row="0" Height="116" Background="Transparent" VerticalContentAlignment="Stretch" VerticalAlignment="Top" SelectedItemChanged="DevicesTreeView_SelectedItemChanged" Name="deviceTreeView">
+            <TreeView Grid.Row="0" Height="116" Background="Transparent" VerticalContentAlignment="Stretch" VerticalAlignment="Top" SelectedItemChanged="DevicesTreeView_SelectedItemChanged" Name="deviceTreeView" VirtualizingPanel.VirtualizationMode="Recycling">
+                  
                 <TreeView.Style>
                     <StaticResource ResourceKey="{x:Static vsfx:VsResourceKeys.ThemedDialogTreeViewStyleKey}"/>
                 </TreeView.Style>
+
+                <TreeView.Resources>
+                    <!-- Style the inactive selection the same as active -->
+                    <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="{DynamicResource {x:Static SystemColors.HighlightColorKey}}" />
+                    <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightTextBrushKey}" Color="{DynamicResource {x:Static SystemColors.HighlightTextColorKey}}"/>
+                </TreeView.Resources>
 
                 <TreeView.ItemContainerStyle>
                     <Style x:Uid="Style_1" TargetType="{x:Type TreeViewItem}" BasedOn="{StaticResource {x:Static vsfx:VsResourceKeys.ThemedDialogTreeViewItemStyleKey}}">
@@ -47,9 +54,7 @@
                         <Setter Property="ItemTemplate">
                             <Setter.Value>
                                 <DataTemplate DataType="{x:Type debugger:NanoDeviceBase}">
-                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Top" HorizontalAlignment="Stretch">
-                                        <TextBlock Text="{Binding Description, Mode=OneWay}" Foreground="{DynamicResource {x:Static vsp:EnvironmentColors.ToolWindowTextBrushKey}}"/>
-                                    </StackPanel>
+                                    <TextBlock Text="{Binding Description, Mode=OneWay}" Foreground="{DynamicResource {x:Static vsp:EnvironmentColors.ToolWindowTextBrushKey}}"/>
                                 </DataTemplate>
                             </Setter.Value>
                         </Setter>
@@ -114,7 +119,7 @@
                                     <Hyperlink Style="{StaticResource {x:Static vsfx:VsResourceKeys.ThemedDialogHyperlinkStyleKey}}"
                                                 NavigateUri="http://www.nanoframework.net"
                                                 RequestNavigate="Hyperlink_RequestNavigate">
-                                    website</Hyperlink>!
+                                    website</Hyperlink>.
                             </TextBlock>
 
                             <TextBlock Margin="10,0,0,0" VerticalAlignment="Center" >
@@ -122,7 +127,7 @@
                                     <Hyperlink Style="{StaticResource {x:Static vsfx:VsResourceKeys.ThemedDialogHyperlinkStyleKey}}"
                                                 NavigateUri="https://github.com/nanoframework/samples"
                                                 RequestNavigate="Hyperlink_RequestNavigate">
-                                    samples repository</Hyperlink>.
+                                    samples repository</Hyperlink>!
                             </TextBlock>
 
                             <TextBlock Margin="10,0,0,0" VerticalAlignment="Center">
