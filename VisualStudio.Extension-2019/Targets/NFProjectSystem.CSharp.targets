@@ -12,7 +12,6 @@
     <GenerateTargetFrameworkAttribute>true</GenerateTargetFrameworkAttribute>
     <GenerateManifests>true</GenerateManifests>
     <DefineConstants>$(DefineConstants),NANOFRAMEWORK_1_0</DefineConstants>
-    <LangVersion>7.3</LangVersion>
   </PropertyGroup>
 
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
