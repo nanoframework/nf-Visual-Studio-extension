@@ -1,16 +1,25 @@
 # Changelog
 
-## [v2019.6.0.17](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v2019.6.0.17) (2021-05-10)
+## [v2019.6.0.25](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v2019.6.0.25) (2021-05-12)
 
-[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2019.6.0.3...v2019.6.0.17)
+[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2019.6.0.3...v2019.6.0.25)
 
 **Implemented enhancements:**
 
+- Improvements in debug attach sequence [\#620](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/620)
+- Fix Device explorer tree view [\#618](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/618)
+- Move setting of LangVersion to NF default props [\#616](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/616)
 - Fix debug start [\#614](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/614)
 - Improvements in device operations [\#611](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/611)
 
+**Fixed bugs:**
+
+- Update targets for build in Azure pipelines [\#619](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/619)
+
 **Updated dependencies and other chores:**
 
+- Bumps nanoFramework.Tools.Debugger to 2.0.0-preview.15 [\#621](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/621)
+- Default C\# language version is now 9.0 [\#617](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/617)
 - Bumps nanoFramework.Tools.Debugger to 2.0.0-preview.13 [\#615](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/615)
 - Bumps nanoFramework.Tools.Debugger to 2.0.0-preview.11 [\#612](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/612)
 - Bumps nanoFramework.Tools.Debugger to 2.0.0-preview.8 [\#610](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/610)
