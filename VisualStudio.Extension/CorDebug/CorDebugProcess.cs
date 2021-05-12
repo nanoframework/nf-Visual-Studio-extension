@@ -328,62 +328,69 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                 for (int retries = 0; retries < maxOperationRetries; retries++)
                 {
-                    if (_engine.IsConnectedTonanoCLR)
+                    if (AttachToEngine() != null)
                     {
-                        currentExecutionMode = _engine.GetExecutionMode();
+                        Thread.Yield();
 
-                        if (currentExecutionMode.IsDeviceInInitializeState())
+                        if (_engine.IsConnectedTonanoCLR)
                         {
-                            MessageCentre.InternalErrorWriteLine("Device is running the CLR in initialized state");
+                            currentExecutionMode = _engine.GetExecutionMode();
 
-                            // check to see if the device has type resolution failed flag set
-                            if (currentExecutionMode.IsDeviceStoppedOnTypeResolutionFailed())
+                            if (currentExecutionMode.IsDeviceInInitializeState())
                             {
-                                MessageCentre.DebugMessage("******************************************************************************");
-                                MessageCentre.DebugMessage("** Error: Device stopped after type resolution failure.                     **");
-                                MessageCentre.DebugMessage("** Check in each assembly which assemblies are referenced and their version **");
-                                MessageCentre.DebugMessage("******************************************************************************");
+                                MessageCentre.InternalErrorWriteLine("Device is running the CLR in initialized state");
+
+                                // check to see if the device has type resolution failed flag set
+                                if (currentExecutionMode.IsDeviceStoppedOnTypeResolutionFailed())
+                                {
+                                    MessageCentre.DebugMessage("******************************************************************************");
+                                    MessageCentre.DebugMessage("** Error: Device stopped after type resolution failure.                     **");
+                                    MessageCentre.DebugMessage("** Check in each assembly which assemblies are referenced and their version **");
+                                    MessageCentre.DebugMessage("******************************************************************************");
 
 #pragma warning disable S112 // General exceptions should never be thrown
-                                throw new Exception("Device stopped after type resolution failure. Can't start execution.");
+                                    throw new Exception("Device stopped after type resolution failure. Can't start execution.");
 #pragma warning restore S112 // OK to use this here, that's the way to exit the debugger process
-                            }
+                                }
 
-                            if (_engine.UpdateDebugFlags())
-                            {
-                                fSucceeded = true;
-                                break;
+                                if (_engine.UpdateDebugFlags())
+                                {
+                                    Thread.Yield();
+                                    
+                                    fSucceeded = true;
+                                    break;
+                                }
                             }
+                            else
+                            {
+                                MessageCentre.InternalErrorWriteLine($"Device is running CLR, requesting reboot and pause for debugger ({retries + 1}/{ maxOperationRetries }).");
+
+                                _engine.RebootDevice(RebootOptions.ClrOnly | RebootOptions.WaitForDebugger);
+
+                                Thread.Yield();
+                            }
+                        }
+                        else if (_engine.IsConnectedTonanoBooter)
+                        {
+                            MessageCentre.InternalErrorWriteLine($"Device is running nanoBooter, requesting to launch CLR ({retries + 1}/{ maxOperationRetries }).");
+
+                            // this is telling nanoBooter to enter CLR
+                            _engine.ExecuteMemory(0);
+
+                            Thread.Yield();
+
+                            // better pause here to allow the reboot to occur
+                            // use a back-off strategy of increasing the wait time to accommodate slower or less responsive targets (such as networked ones)
+                            Thread.Sleep(initDeviceWaitTimeout * (retries + 1));
                         }
                         else
                         {
-                            MessageCentre.InternalErrorWriteLine($"Device is running CLR, requesting reboot and pause for debugger ({retries + 1}/{ maxOperationRetries }).");
+                            MessageCentre.InternalErrorWriteLine("*** ERROR: device is running on an unknown state ***");
 
-                            _engine.RebootDevice(RebootOptions.ClrOnly | RebootOptions.WaitForDebugger);
-
-                            Thread.Sleep(500);
+                            // unknown connection source?!
+                            // shouldn't be here, but...
+                            // ...maybe this is caused by a comm timeout because the target is rebooting
                         }
-                    }
-                    else if (_engine.IsConnectedTonanoBooter)
-                    {
-                        MessageCentre.InternalErrorWriteLine($"Device is running nanoBooter, requesting to launch CLR ({retries + 1}/{ maxOperationRetries }).");
-
-                        // this is telling nanoBooter to enter CLR
-                        _engine.ExecuteMemory(0);
-
-                        Thread.Yield();
-
-                        // better pause here to allow the reboot to occur
-                        // use a back-off strategy of increasing the wait time to accommodate slower or less responsive targets (such as networked ones)
-                        Thread.Sleep(initDeviceWaitTimeout * (retries + 1));
-                    }
-                    else
-                    {
-                        MessageCentre.InternalErrorWriteLine("*** ERROR: device is running on an unknown state ***");
-
-                        // unknown connection source?!
-                        // shouldn't be here, but...
-                        // ...maybe this is caused by a comm timeout because the target is rebooting
                     }
 
                     Thread.Yield();
@@ -447,23 +454,26 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         _engine.OnProcessExit += new EventHandler(OnProcessExit);
                     }
 
-                    if(!_engine.IsConnected)
+                    if (_engine.Connect(true))
                     {
-                        _engine.Connect();
-                    }
+                        Thread.Yield();
 
-                    if (_engine.UpdateDebugFlags())
-                    {
-                        _engine.ThrowOnCommunicationFailure = true;
+                        if (_engine.UpdateDebugFlags())
+                        {
+                            Thread.Yield();
 
-                        break;
+                            _engine.ThrowOnCommunicationFailure = true;
+
+                            break;
+                        }
+                        else
+                        {
+                            MessageCentre.InternalErrorWriteLine($"*** ERROR: updating debugger flags of device ***");
+                        }
                     }
                     else
                     {
-                        MessageCentre.InternalErrorWriteLine($"*** ERROR: updating debugger flags of device ***");
-
-                        // reset flag
-                        _engine.StopDebuggerOnConnect = false;
+                        Thread.Sleep(500);
                     }
 
                     Thread.Yield();
@@ -661,7 +671,10 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 else
                 {
                     IsExecutionPaused = false;
+
                     PauseExecution();
+
+                    Thread.Yield();
 
                     UpdateAssemblies();
                     UpdateThreadList();
@@ -735,7 +748,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             try
             {
                 if (_pid == 0)
+                {
                     throw new Exception(Resources.ResourceStrings.BogusCorDebugProcess);
+                }
 
                 Init(corDebug, fLaunch);
 
@@ -1636,7 +1651,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     //nop
                     break;
                 default:
-                    MessageCentre.InternalErrorMessage(false, "Unexpected command=" + msg.Header.Cmd);
+                    MessageCentre.InternalErrorMessage(false, "Unexpected command=" + GetCommandName(msg.Header.Cmd));
                     break;
             }
         }
@@ -2363,6 +2378,27 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         private static void DebugAssert(bool condition, string message)
         {
             MessageCentre.InternalErrorMessage(condition, message);
+        }
+
+        private string GetCommandName(uint cmd)
+        {
+            switch(cmd)
+            {
+                case Commands.c_Debugging_Execution_BreakpointStatus:
+                    return "BreakpointStatus";
+
+                case Commands.c_Debugging_Execution_QueryCLRCapabilities:
+                    return "QueryCLRCapabilities";
+ 
+                case Commands.c_Debugging_Execution_Allocate:
+                    return "Allocate";
+ 
+                case Commands.c_Debugging_Execution_ChangeConditions:
+                    return "ChangeConditions";
+
+                default:
+                    return $"0x{cmd:X8}";
+           }
         }
     }
 }
