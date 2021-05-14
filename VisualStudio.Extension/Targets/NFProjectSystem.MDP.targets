@@ -247,7 +247,7 @@
     <CallTarget Targets="NanoGenerateBinaryOutput"/>
 
     <!--Output native checksum to Azure Pipelines var (only usefull on Azure)-->
-    <Message Text="##vso[task.setvariable variable=NATIVE_ASSEMBLY_CHECKSUM;]$(NativeChecksum)" Condition="'$(TF_BUILD)' == 'true'" />
+    <Message Text="##vso[task.setvariable variable=NATIVE_ASSEMBLY_CHECKSUM;]$(NativeChecksum)" Condition="'$(TF_BUILD)' == 'True' and '$(NativeChecksum)' != '' and '$(NativeChecksum)' != '0x00000000'" />
     <Message Importance="high" Text="Metadata processor location overriden with: $(NF_MDP_MSBUILDTASK_PATH)" Condition="'$(NF_MDP_MSBUILDTASK_PATH)' != ''" />
 
   </Target>
@@ -445,7 +445,7 @@
     </MetaDataProcessorTask>
 
     <!--Output native checksum to Azure Pipelines var (only usefull on Azure)-->
-    <Message Text="##vso[task.setvariable variable=NATIVE_ASSEMBLY_CHECKSUM;]$(NativeChecksum)" Condition="'$(TF_BUILD)' == 'true'" />
+    <Message Text="##vso[task.setvariable variable=NATIVE_ASSEMBLY_CHECKSUM;]$(NativeChecksum)" Condition="'$(TF_BUILD)' == 'True' and '$(NativeChecksum)' != '' and '$(NativeChecksum)' != '0x00000000'" />
 
     <Message Text="Distilling assemblies to nanoCLR PE files along with stubs and skeleton files..." Condition="'$(NFMDP_GENERATE_STUBS)' == 'true'"/>
     <!-- Create STUB file -->
@@ -478,7 +478,7 @@
     </MetaDataProcessorTask>
 
     <!--Output native checksum to Azure Pipelines var (only usefull on Azure)-->
-    <Message Text="##vso[task.setvariable variable=NATIVE_ASSEMBLY_CHECKSUM;]$(NativeChecksum)" Condition="'$(TF_BUILD)' == 'true'"/>
+    <Message Text="##vso[task.setvariable variable=NATIVE_ASSEMBLY_CHECKSUM;]$(NativeChecksum)" Condition="'$(TF_BUILD)' == 'True' and '$(NativeChecksum)' != '' and '$(NativeChecksum)' != '0x00000000'"/>
 
     <!-- Copy files (dll, pe, pdb and pdbx) to ouput directory -->
     <CallTarget Targets="CopyFilesToOutputDirectory" />
@@ -552,7 +552,7 @@
     </MetaDataProcessorTask>
 
     <!--Output native checksum to Azure Pipelines var (only usefull on Azure)-->
-    <Message Text="##vso[task.setvariable variable=NATIVE_ASSEMBLY_CHECKSUM;]$(NativeChecksum)" Condition="'$(TF_BUILD)' == 'true'" />
+    <Message Text="##vso[task.setvariable variable=NATIVE_ASSEMBLY_CHECKSUM;]$(NativeChecksum)" Condition="'$(TF_BUILD)' == 'True' and '$(NativeChecksum)' != '' and '$(NativeChecksum)' != '0x00000000'" />
     <Message Importance="high" Text="Metadata processor location overriden with: $(NF_MDP_MSBUILDTASK_PATH)" Condition="'$(NF_MDP_MSBUILDTASK_PATH)' != ''" />
 
   </Target>
