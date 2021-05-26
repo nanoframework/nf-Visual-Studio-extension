@@ -1,12 +1,21 @@
 # Changelog
 
-## [v2019.6.0.28](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v2019.6.0.28) (2021-05-14)
+## [v2019.6.0.33](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v2019.6.0.33) (2021-05-26)
 
-[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2019.6.0.25...v2019.6.0.28)
+[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2019.6.0.25...v2019.6.0.33)
 
 **Implemented enhancements:**
 
 - Fix native checksum output in targets [\#622](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/622)
+
+**Fixed bugs:**
+
+- Improve sequence of debug start [\#625](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/625)
+- Revert LangVersion to 7.3 for VS2017 [\#623](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/623)
+
+**Updated dependencies and other chores:**
+
+- Bumps nanoFramework.Tools.Debugger to 2.0.0-preview.18 [\#624](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/624)
 
 ## [v2019.6.0.25](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v2019.6.0.25) (2021-05-12)
 
