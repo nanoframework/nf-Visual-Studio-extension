@@ -353,13 +353,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 #pragma warning restore S112 // OK to use this here, that's the way to exit the debugger process
                                 }
 
-                                if (_engine.UpdateDebugFlags())
-                                {
-                                    Thread.Yield();
-                                    
-                                    fSucceeded = true;
-                                    break;
-                                }
+                                fSucceeded = true;
+                                break;
                             }
                             else
                             {
@@ -391,6 +386,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                             // shouldn't be here, but...
                             // ...maybe this is caused by a comm timeout because the target is rebooting
                         }
+                    }
+                    else
+                    {
+                        // better pause here to allow the reboot to occur
+                        // use a back-off strategy of increasing the wait time to accommodate slower or less responsive targets (such as networked ones)
+                        Thread.Sleep(initDeviceWaitTimeout * (retries + 1));
                     }
 
                     Thread.Yield();
@@ -458,18 +459,18 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     {
                         Thread.Yield();
 
-                        if (_engine.UpdateDebugFlags())
+                        if(_engine.IsConnectedTonanoBooter)
                         {
+                            _engine.ExecuteMemory(0);
                             Thread.Yield();
-
-                            _engine.ThrowOnCommunicationFailure = true;
-
-                            break;
                         }
-                        else
-                        {
-                            MessageCentre.InternalErrorWriteLine($"*** ERROR: updating debugger flags of device ***");
-                        }
+
+                        _engine.ThrowOnCommunicationFailure = true;
+
+                        _engine.SetExecutionMode(Commands.DebuggingExecutionChangeConditions.State.SourceLevelDebugging, 0);
+
+                        // done here
+                        break;
                     }
                     else
                     {
