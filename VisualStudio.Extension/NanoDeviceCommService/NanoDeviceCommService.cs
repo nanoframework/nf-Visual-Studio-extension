@@ -74,15 +74,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
             Device = device;
 
-            // has we'll be needing the debugger engine anyway, create it if needed
-            if (device != null)
-            {
-                if (device.DebugEngine == null)
-                {
-                    device.CreateDebugEngine();
-                }
-            }
-
             return true;
         }
 

@@ -318,15 +318,13 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                 MessageCentre.StartProgressMessage(Resources.ResourceStrings.Rebooting);
 
-                _engine.RebootDevice(RebootOptions.ClrOnly | RebootOptions.WaitForDebugger);
-
                 // TODO
                 //if (_engine.PortDefinition is PortDefinition_Tcp)
                 //{
                 //    DetachFromEngine();
                 //}
 
-                for (int retries = 0; retries < maxOperationRetries; retries++)
+                for (int retry = 0; retry < maxOperationRetries; retry++)
                 {
                     if (AttachToEngine() != null)
                     {
@@ -358,25 +356,23 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                             }
                             else
                             {
-                                MessageCentre.InternalErrorWriteLine($"Device is running CLR, requesting reboot and pause for debugger ({retries + 1}/{ maxOperationRetries }).");
+                                MessageCentre.InternalErrorWriteLine($"Device is running CLR, requesting reboot and pause for debugger ({retry + 1}/{ maxOperationRetries }).");
 
                                 _engine.RebootDevice(RebootOptions.ClrOnly | RebootOptions.WaitForDebugger);
-
+                                
                                 Thread.Yield();
                             }
                         }
                         else if (_engine.IsConnectedTonanoBooter)
                         {
-                            MessageCentre.InternalErrorWriteLine($"Device is running nanoBooter, requesting to launch CLR ({retries + 1}/{ maxOperationRetries }).");
+                            MessageCentre.InternalErrorWriteLine($"Device is running nanoBooter, requesting to launch CLR ({retry + 1}/{ maxOperationRetries }).");
 
                             // this is telling nanoBooter to enter CLR
                             _engine.ExecuteMemory(0);
 
-                            Thread.Yield();
-
                             // better pause here to allow the reboot to occur
                             // use a back-off strategy of increasing the wait time to accommodate slower or less responsive targets (such as networked ones)
-                            Thread.Sleep(initDeviceWaitTimeout * (retries + 1));
+                            Thread.Sleep(initDeviceWaitTimeout);
                         }
                         else
                         {
@@ -391,12 +387,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     {
                         // better pause here to allow the reboot to occur
                         // use a back-off strategy of increasing the wait time to accommodate slower or less responsive targets (such as networked ones)
-                        Thread.Sleep(initDeviceWaitTimeout * (retries + 1));
+                        Thread.Sleep(initDeviceWaitTimeout * (retry + 1));
                     }
 
-                    Thread.Yield();
+                    Thread.Sleep(500);
                 }
-                
+
                 if (!ShuttingDown && !fSucceeded)
                 {
                     MessageCentre.InternalErrorWriteLine("*** ERROR: all attempts to put device in initialized state have failed ***");
@@ -429,7 +425,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     {
                         if (_engine == null)
                         {
-                            if(Device.DebugEngine == null)
+                            if (Device.DebugEngine == null)
                             {
                                 MessageCentre.InternalErrorWriteLine("Creating debug engine for target device");
 
@@ -439,45 +435,62 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                             MessageCentre.InternalErrorWriteLine("Assigning debug engine of target device");
 
                             _engine = Device.DebugEngine;
+
+                            // make sure there is only one handler, so remove whatever is there before adding a new one
+                            _engine.OnMessage -= new MessageEventHandler(OnMessage);
+                            _engine.OnMessage += new MessageEventHandler(OnMessage);
+                            _engine.OnCommand -= new CommandEventHandler(OnCommand);
+                            _engine.OnCommand += new CommandEventHandler(OnCommand);
+                            _engine.OnNoise -= new NoiseEventHandler(OnNoise);
+                            _engine.OnNoise += new NoiseEventHandler(OnNoise);
+                            _engine.OnProcessExit -= new EventHandler(OnProcessExit);
+                            _engine.OnProcessExit += new EventHandler(OnProcessExit);
                         }
 
                         _engine.ThrowOnCommunicationFailure = false;
                         _engine.StopDebuggerOnConnect = true;
-
-                        // make sure there is only one handler, so remove whatever is there before adding a new one
-                        _engine.OnMessage -= new MessageEventHandler(OnMessage);
-                        _engine.OnMessage += new MessageEventHandler(OnMessage);
-                        _engine.OnCommand -= new CommandEventHandler(OnCommand);
-                        _engine.OnCommand += new CommandEventHandler(OnCommand);
-                        _engine.OnNoise -= new NoiseEventHandler(OnNoise);
-                        _engine.OnNoise += new NoiseEventHandler(OnNoise);
-                        _engine.OnProcessExit -= new EventHandler(OnProcessExit);
-                        _engine.OnProcessExit += new EventHandler(OnProcessExit);
                     }
 
-                    if (_engine.Connect(true))
+                    if (_engine.IsConnectedTonanoBooter)
                     {
+                        _engine.ExecuteMemory(0);
+
                         Thread.Yield();
 
-                        if(_engine.IsConnectedTonanoBooter)
+                        continue;
+                    }
+                    else if (_engine.IsConnectedTonanoCLR)
+                    {
+                        if (_engine.UpdateDebugFlags())
                         {
-                            _engine.ExecuteMemory(0);
-                            Thread.Yield();
+                            _engine.ThrowOnCommunicationFailure = true;
+
+                            break;
                         }
-
-                        _engine.ThrowOnCommunicationFailure = true;
-
-                        _engine.SetExecutionMode(Commands.DebuggingExecutionChangeConditions.State.SourceLevelDebugging, 0);
-
-                        // done here
-                        break;
+                        else
+                        {
+                            MessageCentre.InternalErrorWriteLine($"Error update device debugger flags.");
+                        }
                     }
                     else
                     {
-                        Thread.Sleep(500);
+                        if (_engine.Connect())
+                        {
+                            _engine.ThrowOnCommunicationFailure = true;
+
+                            Thread.Sleep(10);
+
+                            if(_engine.SetExecutionMode(Commands.DebuggingExecutionChangeConditions.State.SourceLevelDebugging, 0))
+                            {
+                                // done here
+                                break;
+                            }
+
+                        }
                     }
 
-                    Thread.Yield();
+                    // use a back-off strategy of increasing the wait time to accommodate slower or less responsive targets (such as networked ones)
+                    Thread.Sleep(initDeviceWaitTimeout * (retry + 1));
                 }
                 catch
                 {
@@ -485,7 +498,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                     if(!ShuttingDown)
                     {
-                        Thread.Yield();
+                        Thread.Sleep(10);
                     }
                 }
             }
