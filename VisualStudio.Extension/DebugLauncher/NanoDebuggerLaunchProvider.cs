@@ -43,7 +43,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 // check for debug engine
                 if (device.DebugEngine == null)
                 {
-                    device.CreateDebugEngine(device.Transport == Debugger.WireProtocol.TransportType.Serial ? NanoSerialDevice.SafeDefaultTimeout : 5000);
+                    device.CreateDebugEngine();
                 }
 
                 // make sure that the device is connected
