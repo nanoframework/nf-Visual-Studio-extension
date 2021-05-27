@@ -1,8 +1,24 @@
 # Changelog
 
+## [v2019.6.0.37](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v2019.6.0.37) (2021-05-27)
+
+[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2019.6.0.33...v2019.6.0.37)
+
+**Implemented enhancements:**
+
+- Improvements in debug session start [\#627](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/627)
+
+**Updated dependencies and other chores:**
+
+- Bumps nanoFramework.Tools.Debugger to 2.0.0-preview.23 [\#626](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/626)
+
 ## [v2019.6.0.33](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v2019.6.0.33) (2021-05-26)
 
-[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2019.6.0.25...v2019.6.0.33)
+[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2017.6.0.33...v2019.6.0.33)
+
+## [v2017.6.0.33](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v2017.6.0.33) (2021-05-26)
+
+[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2017.6.0.25...v2017.6.0.33)
 
 **Implemented enhancements:**
 
@@ -17,13 +33,13 @@
 
 - Bumps nanoFramework.Tools.Debugger to 2.0.0-preview.18 [\#624](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/624)
 
-## [v2019.6.0.25](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v2019.6.0.25) (2021-05-12)
-
-[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2017.6.0.25...v2019.6.0.25)
-
 ## [v2017.6.0.25](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v2017.6.0.25) (2021-05-12)
 
-[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2017.6.0.3...v2017.6.0.25)
+[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2019.6.0.25...v2017.6.0.25)
+
+## [v2019.6.0.25](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v2019.6.0.25) (2021-05-12)
+
+[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2019.6.0.3...v2019.6.0.25)
 
 **Implemented enhancements:**
 
@@ -46,13 +62,13 @@
 - Bumps nanoFramework.Tools.Debugger to 2.0.0-preview.8 [\#610](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/610)
 - Bumps nanoFramework.Tools.Debugger to 2.0.0-preview.6 [\#609](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/609)
 
-## [v2017.6.0.3](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v2017.6.0.3) (2021-05-07)
-
-[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2019.6.0.3...v2017.6.0.3)
-
 ## [v2019.6.0.3](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v2019.6.0.3) (2021-05-07)
 
-[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2019.5.0.59...v2019.6.0.3)
+[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2017.6.0.3...v2019.6.0.3)
+
+## [v2017.6.0.3](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v2017.6.0.3) (2021-05-07)
+
+[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2019.5.0.59...v2017.6.0.3)
 
 **Implemented enhancements:**
 
@@ -92,28 +108,28 @@
 
 ## [v2017.5.0.40](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v2017.5.0.40) (2021-03-25)
 
-[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2019.5.0.39...v2017.5.0.40)
-
-## [v2019.5.0.39](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v2019.5.0.39) (2021-03-24)
-
-[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2017.5.0.39...v2019.5.0.39)
+[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2017.5.0.39...v2017.5.0.40)
 
 ## [v2017.5.0.39](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v2017.5.0.39) (2021-03-24)
 
-[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2017.5.0.37...v2017.5.0.39)
+[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2019.5.0.39...v2017.5.0.39)
+
+## [v2019.5.0.39](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v2019.5.0.39) (2021-03-24)
+
+[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2019.5.0.37...v2019.5.0.39)
 
 **Updated dependencies and other chores:**
 
 - Update dependencies [\#604](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/604)
 - Replace Binray repo with Cloudsmith [\#599](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/599)
 
-## [v2017.5.0.37](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v2017.5.0.37) (2021-03-23)
-
-[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2019.5.0.37...v2017.5.0.37)
-
 ## [v2019.5.0.37](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v2019.5.0.37) (2021-03-23)
 
-[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2019.5.0.34...v2019.5.0.37)
+[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2017.5.0.37...v2019.5.0.37)
+
+## [v2017.5.0.37](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v2017.5.0.37) (2021-03-23)
+
+[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2019.5.0.34...v2017.5.0.37)
 
 **Fixed bugs:**
 
@@ -125,7 +141,7 @@
 
 ## [v2017.5.0.34](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v2017.5.0.34) (2021-03-19)
 
-[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2019.5.0.27...v2017.5.0.34)
+[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2017.5.0.27...v2017.5.0.34)
 
 **Implemented enhancements:**
 
@@ -136,13 +152,13 @@
 
 - Bumps nanoFramework.Tools.Debugger to 1.30.0-preview.1 [\#595](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/595)
 
-## [v2019.5.0.27](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v2019.5.0.27) (2021-03-12)
-
-[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2017.5.0.27...v2019.5.0.27)
-
 ## [v2017.5.0.27](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v2017.5.0.27) (2021-03-12)
 
-[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2017.5.0.22...v2017.5.0.27)
+[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2019.5.0.27...v2017.5.0.27)
+
+## [v2019.5.0.27](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v2019.5.0.27) (2021-03-12)
+
+[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2017.5.0.22...v2019.5.0.27)
 
 ## [v2017.5.0.22](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v2017.5.0.22) (2021-03-12)
 
@@ -158,7 +174,7 @@
 
 ## [v2019.5.0.19](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v2019.5.0.19) (2021-03-12)
 
-[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2017.5.0.14...v2019.5.0.19)
+[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2019.5.0.14...v2019.5.0.19)
 
 **Implemented enhancements:**
 
@@ -168,13 +184,13 @@
 
 - Update VS2019 NuGets [\#593](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/593)
 
-## [v2017.5.0.14](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v2017.5.0.14) (2021-03-10)
-
-[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2019.5.0.14...v2017.5.0.14)
-
 ## [v2019.5.0.14](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v2019.5.0.14) (2021-03-10)
 
-[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2019.5.0.11...v2019.5.0.14)
+[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2017.5.0.14...v2019.5.0.14)
+
+## [v2017.5.0.14](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v2017.5.0.14) (2021-03-10)
+
+[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2019.5.0.11...v2017.5.0.14)
 
 **Implemented enhancements:**
 
@@ -198,19 +214,19 @@
 
 ## [v2017.5.0.8](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v2017.5.0.8) (2021-03-04)
 
-[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2019.5.0.5...v2017.5.0.8)
+[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2017.5.0.5...v2017.5.0.8)
 
 **Updated dependencies and other chores:**
 
 - Bumps MetadataProcessor.MsBuildTask to 2.34.4 [\#589](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/589)
 
-## [v2019.5.0.5](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v2019.5.0.5) (2021-03-03)
-
-[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2017.5.0.5...v2019.5.0.5)
-
 ## [v2017.5.0.5](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v2017.5.0.5) (2021-03-03)
 
-[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2017.5.0.1...v2017.5.0.5)
+[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2019.5.0.5...v2017.5.0.5)
+
+## [v2019.5.0.5](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v2019.5.0.5) (2021-03-03)
+
+[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2017.5.0.1...v2019.5.0.5)
 
 **Updated dependencies and other chores:**
 
@@ -265,7 +281,7 @@
 
 ## [v2019.4.0.86](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v2019.4.0.86) (2020-12-29)
 
-[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2017.4.0.31...v2019.4.0.86)
+[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2019.4.0.31...v2019.4.0.86)
 
 **Implemented enhancements:**
 
@@ -295,13 +311,13 @@
 - Bumps MetadataProcessor.Core to 2.29.8 [\#555](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/555)
 - Bumps MetadataProcessor.Core to 2.29.4 [\#551](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/551)
 
-## [v2017.4.0.31](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v2017.4.0.31) (2020-12-02)
-
-[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2019.4.0.31...v2017.4.0.31)
-
 ## [v2019.4.0.31](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v2019.4.0.31) (2020-12-02)
 
-[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2017.2.3.5...v2019.4.0.31)
+[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2017.4.0.31...v2019.4.0.31)
+
+## [v2017.4.0.31](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v2017.4.0.31) (2020-12-02)
+
+[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2017.2.3.5...v2017.4.0.31)
 
 **Implemented enhancements:**
 
@@ -341,20 +357,20 @@
 
 ## [v2019.2.3.5](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v2019.2.3.5) (2020-11-02)
 
-[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2017.2.3.1...v2019.2.3.5)
+[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2019.2.3.1...v2019.2.3.5)
 
 **Implemented enhancements:**
 
 - Improve debug helper [\#526](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/526)
 - Improve resource processing [\#525](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/525)
 
-## [v2017.2.3.1](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v2017.2.3.1) (2020-10-27)
-
-[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2019.2.3.1...v2017.2.3.1)
-
 ## [v2019.2.3.1](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v2019.2.3.1) (2020-10-27)
 
-[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2019.2.2.51...v2019.2.3.1)
+[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2017.2.3.1...v2019.2.3.1)
+
+## [v2017.2.3.1](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v2017.2.3.1) (2020-10-27)
+
+[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2019.2.2.51...v2017.2.3.1)
 
 **Implemented enhancements:**
 
@@ -445,7 +461,7 @@
 
 ## [v2017.2.2.1](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v2017.2.2.1) (2020-07-24)
 
-[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2019.2.1.1...v2017.2.2.1)
+[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2017.2.1.1...v2017.2.2.1)
 
 **Implemented enhancements:**
 
@@ -456,13 +472,13 @@
 - Bumps nanoFramework.Tools.Debugger to 1.18.0-preview.1 [\#506](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/506)
 - Bumps nanoFramework.Tools.Debugger to 1.17.0-preview.12 [\#504](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/504)
 
-## [v2019.2.1.1](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v2019.2.1.1) (2020-07-09)
-
-[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2017.2.1.1...v2019.2.1.1)
-
 ## [v2017.2.1.1](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v2017.2.1.1) (2020-07-09)
 
-[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2017.2.0.26...v2017.2.1.1)
+[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2019.2.1.1...v2017.2.1.1)
+
+## [v2019.2.1.1](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v2019.2.1.1) (2020-07-09)
+
+[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2019.2.0.26...v2019.2.1.1)
 
 **Implemented enhancements:**
 
@@ -472,25 +488,25 @@
 
 - Fix issue with deploy provide listing missing assemblies [\#502](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/502)
 
-## [v2017.2.0.26](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v2017.2.0.26) (2020-07-08)
-
-[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2019.2.0.26...v2017.2.0.26)
-
 ## [v2019.2.0.26](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v2019.2.0.26) (2020-07-08)
 
-[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2017.2.0.23...v2019.2.0.26)
+[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2017.2.0.26...v2019.2.0.26)
+
+## [v2017.2.0.26](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v2017.2.0.26) (2020-07-08)
+
+[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2019.2.0.23...v2017.2.0.26)
 
 **Updated dependencies and other chores:**
 
 - Bumps MetadataProcessor.Core to  [\#501](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/501)
 
-## [v2017.2.0.23](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v2017.2.0.23) (2020-07-02)
-
-[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2019.2.0.23...v2017.2.0.23)
-
 ## [v2019.2.0.23](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v2019.2.0.23) (2020-07-02)
 
-[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2019.2.0.17...v2019.2.0.23)
+[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2017.2.0.23...v2019.2.0.23)
+
+## [v2017.2.0.23](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v2017.2.0.23) (2020-07-02)
+
+[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2019.2.0.17...v2017.2.0.23)
 
 **Updated dependencies and other chores:**
 
@@ -542,19 +558,19 @@
 
 ## [v2017.2.0.9](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v2017.2.0.9) (2020-05-29)
 
-[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2019.2.0.8...v2017.2.0.9)
+[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2017.2.0.8...v2017.2.0.9)
 
 **Updated dependencies and other chores:**
 
 - Bumps MetadataProcessor.Core to 2.23.7 [\#491](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/491)
 
-## [v2019.2.0.8](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v2019.2.0.8) (2020-05-29)
-
-[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2017.2.0.8...v2019.2.0.8)
-
 ## [v2017.2.0.8](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v2017.2.0.8) (2020-05-29)
 
-[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2019.2.0.6...v2017.2.0.8)
+[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2019.2.0.8...v2017.2.0.8)
+
+## [v2019.2.0.8](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v2019.2.0.8) (2020-05-29)
+
+[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2017.2.0.6...v2019.2.0.8)
 
 **Fixed bugs:**
 
@@ -564,25 +580,25 @@
 
 - Bumps MetadataProcessor.Core to 2.23.6 [\#490](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/490)
 
-## [v2019.2.0.6](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v2019.2.0.6) (2020-05-15)
-
-[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2017.2.0.6...v2019.2.0.6)
-
 ## [v2017.2.0.6](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v2017.2.0.6) (2020-05-15)
 
-[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2017.2.0.5...v2017.2.0.6)
+[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2019.2.0.6...v2017.2.0.6)
+
+## [v2019.2.0.6](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v2019.2.0.6) (2020-05-15)
+
+[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2019.2.0.5...v2019.2.0.6)
 
 **Updated dependencies and other chores:**
 
 - Bumps MetadataProcessor.Core to 2.23.3 [\#487](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/487)
 
-## [v2017.2.0.5](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v2017.2.0.5) (2020-05-15)
-
-[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2019.2.0.5...v2017.2.0.5)
-
 ## [v2019.2.0.5](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v2019.2.0.5) (2020-05-15)
 
-[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2019.2.0.1...v2019.2.0.5)
+[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2017.2.0.5...v2019.2.0.5)
+
+## [v2017.2.0.5](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v2017.2.0.5) (2020-05-15)
+
+[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2019.2.0.1...v2017.2.0.5)
 
 **Implemented enhancements:**
 
@@ -620,31 +636,31 @@
 
 ## [v2017.1.8.16](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v2017.1.8.16) (2020-04-24)
 
-[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2019.1.8.14...v2017.1.8.16)
+[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2017.1.8.15...v2017.1.8.16)
 
 **Updated dependencies and other chores:**
 
 - Bumps MetadataProcessor.Core to 2.22.42 [\#478](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/478)
 
-## [v2019.1.8.14](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v2019.1.8.14) (2020-04-24)
-
-[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2017.1.8.15...v2019.1.8.14)
-
 ## [v2017.1.8.15](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v2017.1.8.15) (2020-04-24)
 
-[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2017.1.8.14...v2017.1.8.15)
+[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2019.1.8.14...v2017.1.8.15)
+
+## [v2019.1.8.14](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v2019.1.8.14) (2020-04-24)
+
+[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2019.1.8.13...v2019.1.8.14)
 
 **Updated dependencies and other chores:**
 
 - Bumps MetadataProcessor.Core to 2.22.41 [\#477](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/477)
 
-## [v2017.1.8.14](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v2017.1.8.14) (2020-04-21)
-
-[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2019.1.8.13...v2017.1.8.14)
-
 ## [v2019.1.8.13](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v2019.1.8.13) (2020-04-21)
 
-[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2019.1.8.11...v2019.1.8.13)
+[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2017.1.8.14...v2019.1.8.13)
+
+## [v2017.1.8.14](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v2017.1.8.14) (2020-04-21)
+
+[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2017.1.8.12...v2017.1.8.14)
 
 **Implemented enhancements:**
 
@@ -654,13 +670,13 @@
 
 - Bumps MetadataProcessor.Core to 2.22.39 [\#476](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/476)
 
-## [v2019.1.8.11](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v2019.1.8.11) (2020-04-13)
-
-[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2017.1.8.12...v2019.1.8.11)
-
 ## [v2017.1.8.12](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v2017.1.8.12) (2020-04-13)
 
-[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2017.1.8.11...v2017.1.8.12)
+[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2019.1.8.11...v2017.1.8.12)
+
+## [v2019.1.8.11](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v2019.1.8.11) (2020-04-13)
+
+[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2017.1.8.11...v2019.1.8.11)
 
 **Updated dependencies and other chores:**
 
@@ -672,19 +688,19 @@
 
 ## [v2019.1.8.10](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v2019.1.8.10) (2020-04-08)
 
-[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2019.1.8.9...v2019.1.8.10)
+[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2017.1.8.10...v2019.1.8.10)
 
 **Updated dependencies and other chores:**
 
 - Bumps MetadataProcessor.Core to 2.22.31 [\#473](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/473)
 
-## [v2019.1.8.9](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v2019.1.8.9) (2020-03-20)
-
-[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2017.1.8.10...v2019.1.8.9)
-
 ## [v2017.1.8.10](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v2017.1.8.10) (2020-03-20)
 
-[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2017.1.8.8...v2017.1.8.10)
+[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2019.1.8.9...v2017.1.8.10)
+
+## [v2019.1.8.9](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v2019.1.8.9) (2020-03-20)
+
+[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2017.1.8.8...v2019.1.8.9)
 
 **Implemented enhancements:**
 
@@ -997,19 +1013,19 @@
 
 ## [v1.7.0.3-VS2019](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v1.7.0.3-VS2019) (2020-02-21)
 
-[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v1.7.0.2-VS2017...v1.7.0.3-VS2019)
+[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v1.7.0.2-VS2019...v1.7.0.3-VS2019)
 
 **Updated dependencies and other chores:**
 
 - Update MDP to 2.21.3 [\#433](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/433)
 
-## [v1.7.0.2-VS2017](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v1.7.0.2-VS2017) (2020-02-21)
-
-[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v1.7.0.2-VS2019...v1.7.0.2-VS2017)
-
 ## [v1.7.0.2-VS2019](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v1.7.0.2-VS2019) (2020-02-21)
 
-[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v1.7.0.1-VS2017...v1.7.0.2-VS2019)
+[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v1.7.0.2-VS2017...v1.7.0.2-VS2019)
+
+## [v1.7.0.2-VS2017](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v1.7.0.2-VS2017) (2020-02-21)
+
+[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v1.7.0.1-VS2017...v1.7.0.2-VS2017)
 
 **Updated dependencies and other chores:**
 
