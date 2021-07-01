@@ -162,7 +162,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
                     // is there a single device
                     if (AvailableDevices.Count == 1)
                     {
-                        ForceNanoDeviceSelectionAsync(AvailableDevices[0]).ConfigureAwait(true);
+                        ForceNanoDeviceSelection(AvailableDevices[0]);
                     }
                 }
 
@@ -222,7 +222,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
                     if (deviceToReSelect != null)
                     {
                         // device seems to be back online, select it
-                        ForceNanoDeviceSelectionAsync(deviceToReSelect).ConfigureAwait(true);
+                        ForceNanoDeviceSelection(deviceToReSelect);
 
                         // clear device to reselect
                         DeviceToReSelect = null;
@@ -234,7 +234,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
                     // is there a single device
                     if (AvailableDevices.Count == 1)
                     {
-                        ForceNanoDeviceSelectionAsync(AvailableDevices[0]).ConfigureAwait(true);
+                        ForceNanoDeviceSelection(AvailableDevices[0]);
                     }
                     else
                     {
@@ -242,26 +242,26 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
                         if (SelectedDevice != null)
                         {
                             // maintain selection
-                            ForceNanoDeviceSelectionAsync(AvailableDevices.FirstOrDefault(d => d.Description == SelectedDevice.Description)).ConfigureAwait(false);
+                            ForceNanoDeviceSelection(AvailableDevices.FirstOrDefault(d => d.Description == SelectedDevice.Description));
                         }
                     }
                 }
             }
         }
 
-        private async Task ForceNanoDeviceSelectionAsync(NanoDeviceBase nanoDevice)
+        private void ForceNanoDeviceSelection(NanoDeviceBase nanoDevice)
         {
             // select the device
             SelectedDevice = nanoDevice;
 
             // request forced selection of device in UI
-            await Task.Run(() => { MessengerInstance.Send(new NotificationMessage(""), MessagingTokens.ForceSelectionOfNanoDevice); });
+            _ = Task.Run(() => { MessengerInstance.Send(new NotificationMessage(""), MessagingTokens.ForceSelectionOfNanoDevice); });
         }
 
-        public async Task ForceNanoDeviceSelectionAsync()
+        public void ForceNanoDeviceSelection()
         {
             // request forced selection of device in UI
-            await Task.Run(() => { MessengerInstance.Send(new NotificationMessage(""), MessagingTokens.ForceSelectionOfNanoDevice); });
+            _ = Task.Run(() => { MessengerInstance.Send(new NotificationMessage(""), MessagingTokens.ForceSelectionOfNanoDevice); });
         }
 
         public void OnSelectedDeviceChanged()
