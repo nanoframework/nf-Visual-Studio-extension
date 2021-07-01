@@ -284,7 +284,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     await UpdateDeviceDependentToolbarButtonsAsync(false);
 
                     // make sure this device is showing as selected in Device Explorer tree view
-                    await ViewModelLocator.DeviceExplorer.ForceNanoDeviceSelectionAsync();
+                    ViewModelLocator.DeviceExplorer.ForceNanoDeviceSelection();
 
                     // check if debugger engine exists
                     if (NanoDeviceCommService.Device.DebugEngine == null)
@@ -358,7 +358,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     await UpdateDeviceDependentToolbarButtonsAsync(false);
 
                     // make sure this device is showing as selected in Device Explorer tree view
-                    await ViewModelLocator.DeviceExplorer.ForceNanoDeviceSelectionAsync();
+                    ViewModelLocator.DeviceExplorer.ForceNanoDeviceSelection();
 
                     // only query device if it's different 
                     if (descriptionBackup.GetHashCode() != ViewModelLocator.DeviceExplorer.LastDeviceConnectedHash)
@@ -548,7 +548,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     await UpdateDeviceDependentToolbarButtonsAsync(false);
 
                     // make sure this device is showing as selected in Device Explorer tree view
-                    await ViewModelLocator.DeviceExplorer.ForceNanoDeviceSelectionAsync();
+                    ViewModelLocator.DeviceExplorer.ForceNanoDeviceSelection();
 
                     // check if debugger engine exists
                     if (NanoDeviceCommService.Device.DebugEngine == null)
@@ -639,7 +639,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     await UpdateDeviceDependentToolbarButtonsAsync(false);
 
                     // make sure this device is showing as selected in Device Explorer tree view
-                    await ViewModelLocator.DeviceExplorer.ForceNanoDeviceSelectionAsync();
+                    ViewModelLocator.DeviceExplorer.ForceNanoDeviceSelection();
 
                     // check if debugger engine exists
                     if (NanoDeviceCommService.Device.DebugEngine == null)
@@ -744,7 +744,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     await UpdateDeviceDependentToolbarButtonsAsync(false);
 
                     // make sure this device is showing as selected in Device Explorer tree view
-                    await ViewModelLocator.DeviceExplorer.ForceNanoDeviceSelectionAsync();
+                    ViewModelLocator.DeviceExplorer.ForceNanoDeviceSelection();
 
                     // check if debugger engine exists
                     if (NanoDeviceCommService.Device.DebugEngine == null)

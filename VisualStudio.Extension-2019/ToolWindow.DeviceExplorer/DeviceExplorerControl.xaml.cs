@@ -10,6 +10,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
     using nanoFramework.Tools.Debugger;
     using nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel;
     using System;
+    using System.Threading;
     using System.Windows.Controls;
 
     /// <summary>
@@ -77,6 +78,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         private async System.Threading.Tasks.Task ForceSelectionOfNanoDeviceHandlerAsync()
         {
+            int tryCount = 2;
+
             await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
             // make sure the item in the treeview is selected, in case the selected device was changed in the view model
@@ -90,20 +93,29 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 return;
             }
 
-            // select the device
-            if (DevicesHeaderItem.ItemContainerGenerator.ContainerFromItem((DataContext as DeviceExplorerViewModel).SelectedDevice) is TreeViewItem deviceItem)
+            do
             {
-                // switch to UI main thread
-                await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+                // select the device
+                if (DevicesHeaderItem.ItemContainerGenerator.ContainerFromItem((DataContext as DeviceExplorerViewModel).SelectedDevice) is TreeViewItem deviceItem)
+                {
+                    // switch to UI main thread
+                    await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
-                // need to disable the event handler otherwise it will mess the selection
-                deviceTreeView.SelectedItemChanged -= DevicesTreeView_SelectedItemChanged;
+                    // need to disable the event handler otherwise it will mess the selection
+                    deviceTreeView.SelectedItemChanged -= DevicesTreeView_SelectedItemChanged;
 
-                deviceItem.IsSelected = true;
+                    deviceItem.IsSelected = true;
 
-                // enabled it back
-                deviceTreeView.SelectedItemChanged += DevicesTreeView_SelectedItemChanged;
+                    // enabled it back
+                    deviceTreeView.SelectedItemChanged += DevicesTreeView_SelectedItemChanged;
+                }
+                else
+                {
+                    // needs some time to allow the collection to be populated
+                    await System.Threading.Tasks.Task.Delay(10).ConfigureAwait(true);
+                }
             }
+            while (tryCount-- > 0);
 
             Messenger.Default.Send(new NotificationMessage(""), DeviceExplorerViewModel.MessagingTokens.SelectedNanoDeviceHasChanged);
 
