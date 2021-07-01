@@ -358,8 +358,17 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                             {
                                 MessageCentre.InternalErrorWriteLine($"Device is running CLR, requesting reboot and pause for debugger ({retry + 1}/{ maxOperationRetries }).");
 
-                                _engine.RebootDevice(RebootOptions.ClrOnly | RebootOptions.WaitForDebugger);
-                                
+                                bool rebootSuccessful = _engine.RebootDevice(RebootOptions.ClrOnly | RebootOptions.WaitForDebugger);
+
+                                if (rebootSuccessful)
+                                {
+                                    MessageCentre.InternalErrorWriteLine($"Reboot execution succesfull.");
+                                }
+                                else
+                                {
+                                    MessageCentre.InternalErrorWriteLine($"Device in unknown state after reboot execution....");
+                                }
+
                                 Thread.Yield();
                             }
                         }
@@ -453,6 +462,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                     if (_engine.IsConnectedTonanoBooter)
                     {
+                        MessageCentre.InternalErrorWriteLine("Device running nanoBooter, requesting to reboot...");
+
                         _engine.ExecuteMemory(0);
 
                         Thread.Yield();
@@ -461,6 +472,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     }
                     else if (_engine.IsConnectedTonanoCLR)
                     {
+                        MessageCentre.InternalErrorWriteLine("Device running nanoCLR, updating debug flags...");
+
                         if (_engine.UpdateDebugFlags())
                         {
                             _engine.ThrowOnCommunicationFailure = true;
