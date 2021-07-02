@@ -1,5 +1,17 @@
 # Changelog
 
+## [v2019.6.0.54](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v2019.6.0.54) (2021-07-02)
+
+[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2019.6.0.50...v2019.6.0.54)
+
+**Fixed bugs:**
+
+- Fix handling of load assembly event [\#634](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/634)
+
+**Updated dependencies and other chores:**
+
+- Bumps nanoFramework.Tools.Debugger to 2.0.0-preview.30 [\#635](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/635)
+
 ## [v2019.6.0.50](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v2019.6.0.50) (2021-07-01)
 
 [Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2017.6.0.50...v2019.6.0.50)
