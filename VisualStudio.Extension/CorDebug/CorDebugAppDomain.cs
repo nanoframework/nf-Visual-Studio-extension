@@ -119,27 +119,31 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     
                     Debug.Assert( assembly != null );
 
+                    //create a new CorDebugAssemblyInstance
+                    assembly = assembly.CreateAssemblyInstance(this);
+
+                    Debug.Assert(assembly != null);
+
+                    m_assemblies.Add(assembly);
+
+                    //cpde expects mscorlib to be the first assembly it hears about
+                    int index = (assembly.Name == "mscorlib") ? 0 : callbacks.Count;
+
+                    callbacks.Insert(index, new ManagedCallbacks.ManagedCallbackAssembly(assembly, ManagedCallbacks.ManagedCallbackAssembly.EventType.LoadAssembly));
+
+                    // if there aren't debug symbols available, can't call the LoadModule event
                     if (assembly.HasSymbols)
-                    {
-                        //create a new CorDebugAssemblyInstance
-                        assembly = assembly.CreateAssemblyInstance(this);
-
-                        Debug.Assert(assembly != null);
-
-                        m_assemblies.Add(assembly);
-
-                        //cpde expects mscorlib to be the first assembly it hears about
-                        int index = (assembly.Name == "mscorlib") ? 0 : callbacks.Count;
-
-                        callbacks.Insert(index, new ManagedCallbacks.ManagedCallbackAssembly(assembly, ManagedCallbacks.ManagedCallbackAssembly.EventType.LoadAssembly));
+                    { 
                         callbacks.Insert(index + 1, new ManagedCallbacks.ManagedCallbackAssembly(assembly, ManagedCallbacks.ManagedCallbackAssembly.EventType.LoadModule));
                     }
                     else
                     {
-                        // no debug symbols available, so can't call the LoadModule event
                         // this is probably an assembly that was loaded inside the application running using reflection
-                        MessageCentre.DebugMessage($"*** No debugging symbols available for '{assembly.Name}'. This assembly won't be loaded in the current debug session. ***");
-                        MessageCentre.InternalErrorWriteLine($"*** No debugging symbols available for '{assembly.Name}'. This assembly won't be loaded in the current debug session. ***");
+                        // warn user about no debugging symbols to be loaded
+                        string message = $"*** No debugging symbols available for '{assembly.Name}'. This assembly won't be loaded in the current debug session. ***";
+
+                        MessageCentre.DebugMessage(message);
+                        MessageCentre.InternalErrorWriteLine(message);
                     }
                 }
             }
