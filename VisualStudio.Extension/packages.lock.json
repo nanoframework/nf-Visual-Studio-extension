@@ -270,9 +270,9 @@
       },
       "nanoFramework.Tools.Debugger.Net": {
         "type": "Direct",
-        "requested": "[2.0.0-preview.30, )",
-        "resolved": "2.0.0-preview.30",
-        "contentHash": "PnMoFzEmOJYiRrnzgZto3nrhPRU3xTWXuieBOFjWzyp+QxaTtkQlpzDiGR/BToIzS0Y+f9poiuy2/WGGkTfR1Q==",
+        "requested": "[2.0.0-preview.32, )",
+        "resolved": "2.0.0-preview.32",
+        "contentHash": "BXVan1FN7/Ggy2vyqQENTMZbvn4+zd1jYxB3m/wqX2GQXM9KWiqP0uBqaTd8SxYp+7nNWVP+yNqXGIc+c+u73w==",
         "dependencies": {
           "Polly": "7.2.1",
           "Polly.Contrib.WaitAndRetry": "1.1.1",
@@ -286,16 +286,6 @@
         "requested": "[2.31.3, )",
         "resolved": "2.31.3",
         "contentHash": "sOzVxNepnIXCGCSJs3YzE0OS3R3+L/vbEW2YK86/GEn4vqE+0bNyfJX+Onpu2k6P4/mV7D86iemB2Qrp1uszNg==",
-        "dependencies": {
-          "Mono.Cecil": "0.11.3",
-          "mustache-sharp": "1.0.0"
-        }
-      },
-      "nanoFramework.Tools.MetadataProcessor.MsBuildTask": {
-        "type": "Direct",
-        "requested": "[2.34.4, )",
-        "resolved": "2.34.4",
-        "contentHash": "5j3jt6gF/54YBiAN9Q7+UZizn+xgi6Z8bK+jcmj0VlLIyyYPJHUTi/ARy3AIcNNd0qX1zcFrljQyHhjO65GGzw==",
         "dependencies": {
           "Mono.Cecil": "0.11.3",
           "mustache-sharp": "1.0.0"
