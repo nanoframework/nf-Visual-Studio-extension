@@ -337,11 +337,11 @@
       },
       "nanoFramework.Tools.MetadataProcessor.MsBuildTask": {
         "type": "Direct",
-        "requested": "[2.35.3, )",
-        "resolved": "2.35.3",
-        "contentHash": "+DMAl8ZuVZhnRWugt6zvb6d1GDBScDH/MzkkkOHzr708KTlfLqzFDaKCK49+RFLu4pw0jXh0TynMREVBdDi02g==",
+        "requested": "[2.35.5, )",
+        "resolved": "2.35.5",
+        "contentHash": "KR7+6+a73ldQWAHKUwa/X6TPlUaL2yL9GASUyRxOV/5sDCeIo3p2jyfa+bixULeooBa5wRpMYnnk0rtmcBGmtw==",
         "dependencies": {
-          "Mono.Cecil": "0.11.3",
+          "Mono.Cecil": "0.11.4",
           "mustache-sharp": "1.0.0"
         }
       },
@@ -1852,8 +1852,8 @@
       },
       "Mono.Cecil": {
         "type": "Transitive",
-        "resolved": "0.11.3",
-        "contentHash": "DNYE+io5XfEE8+E+5padThTPHJARJHbz1mhbhMPNrrWGKVKKqj/KEeLvbawAmbIcT73NuxLV7itHZaYCZcVWGg=="
+        "resolved": "0.11.4",
+        "contentHash": "IC1h5g0NeJGHIUgzM1P82ld57knhP0IcQfrYITDPXlNpMYGUrsG5TxuaWTjaeqDNQMBDNZkB8L0rBnwsY6JHuQ=="
       },
       "mustache-sharp": {
         "type": "Transitive",
