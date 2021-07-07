@@ -667,9 +667,6 @@
     </PackageReference>
     <PackageReference Include="nanoFramework.Tools.Debugger.Net" Version="2.0.0-preview.32" />
     <PackageReference Include="nanoFramework.Tools.MetadataProcessor.Core" Version="2.31.3" />
-    <PackageReference Include="nanoFramework.Tools.MetadataProcessor.MsBuildTask">
-      <Version>2.35.3</Version>
-    </PackageReference>
     <PackageReference Include="Nerdbank.GitVersioning">
       <Version>3.3.37</Version>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
