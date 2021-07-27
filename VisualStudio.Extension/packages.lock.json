@@ -258,15 +258,15 @@
       },
       "nanoFramework.CoreLibrary": {
         "type": "Direct",
-        "requested": "[1.10.5-preview.18, )",
-        "resolved": "1.10.5-preview.18",
-        "contentHash": "gfHYalT/syk+AU32Oq/99HxX/QBqsJ3Js5PWlkmm/qWfVKWmh/2UxpfAFVIceGs8z+NwRrngvkMUezLyUMlxng=="
+        "requested": "[1.10.5, )",
+        "resolved": "1.10.5",
+        "contentHash": "jBqzT/jcEQrbQA4E7ybHE65yF6PLOI3W9nxIr5X0D3PyaDYKdg/CURR33og6mK/wp6vHppzZv1nO+4xe9G97qA=="
       },
       "nanoFramework.TestFramework": {
         "type": "Direct",
-        "requested": "[1.0.141, )",
-        "resolved": "1.0.141",
-        "contentHash": "kO+52oUmGPIkaFiot6+BZJNo6zTYz+Q7oYmYCFRycnLD2JpjlAbmQ7kkh1Cio7UaeB0z44TeytkPbBKDHrhFPQ=="
+        "requested": "[1.0.150, )",
+        "resolved": "1.0.150",
+        "contentHash": "Qmi49QXPfFyo5O1+XpTLIVf5iNfR6uViOuLHk09EWAJF5zSzObqElPk1CeJyNqcWg1PndlkQ72h2seP6Gs/Dng=="
       },
       "nanoFramework.Tools.Debugger.Net": {
         "type": "Direct",
