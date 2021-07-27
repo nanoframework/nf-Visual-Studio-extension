@@ -339,13 +339,13 @@
     <Compile Include="AutomaticUpdates\UpdateManager.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="$(PkgnanoFramework_CoreLibrary)\nanoFramework.CoreLibrary.1.10.5-preview.18.nupkg">
-      <Link>Packages\nanoFramework.CoreLibrary.1.10.5-preview.18.nupkg</Link>
+    <Content Include="$(PkgnanoFramework_CoreLibrary)\nanoFramework.CoreLibrary.1.10.5.nupkg">
+      <Link>Packages\nanoFramework.CoreLibrary.1.10.5.nupkg</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
-    <Content Include="$(PkgnanoFramework_TestFramework)\nanoFramework.TestFramework.1.0.141.nupkg">
-      <Link>Packages\nanoFramework.TestFramework.1.0.141.nupkg</Link>
+    <Content Include="$(PkgnanoFramework_TestFramework)\nanoFramework.TestFramework.1.0.150.nupkg">
+      <Link>Packages\nanoFramework.TestFramework.1.0.150.nupkg</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
@@ -768,11 +768,11 @@
       <Version>5.4.1.1</Version>
     </PackageReference>
     <PackageReference Include="nanoFramework.CoreLibrary" GeneratePathProperty="true">
-      <Version>1.10.5-preview.18</Version>
+      <Version>1.10.5</Version>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="nanoFramework.TestFramework" GeneratePathProperty="true">
-      <Version>1.0.141</Version>
+      <Version>1.0.150</Version>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="nanoFramework.Tools.Debugger.Net" Version="2.0.0-preview.32" />

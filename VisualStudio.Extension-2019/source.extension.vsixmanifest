@@ -31,7 +31,7 @@
         <Asset Type="Microsoft.VisualStudio.ItemTemplate" d:Source="Project" d:ProjectName="CSharp.ClassTemplate" d:TargetPath="|CSharp.ClassTemplate;TemplateProjectOutputGroup|" Path="ItemTemplates" d:VsixSubPath="ItemTemplates" />
         <Asset Type="Microsoft.VisualStudio.ResourceTemplate" d:Source="Project" d:ProjectName="CSharp.ResourceTemplate" d:TargetPath="|CSharp.ResourceTemplate;TemplateProjectOutputGroup|" Path="ItemTemplates" d:VsixSubPath="ItemTemplates" />
         <Asset Type="Microsoft.VisualStudio.ProjectTemplate" d:Source="Project" d:ProjectName="CSharp.TestApplication" d:TargetPath="|CSharp.TestApplication;TemplateProjectOutputGroup|" Path="ProjectTemplates" d:VsixSubPath="ProjectTemplates" />
-        <Asset Type="nanoFramework.CoreLibrary.1.10.5-preview.18.nupkg" d:Source="File" Path="Packages\nanoFramework.CoreLibrary.1.10.5-preview.18.nupkg" d:VsixSubPath="Packages" />
-        <Asset Type="nanoFramework.TestFramework.1.0.141.nupkg" d:Source="File" Path="Packages\nanoFramework.TestFramework.1.0.141.nupkg" d:VsixSubPath="Packages" />
+        <Asset Type="nanoFramework.CoreLibrary.1.10.5.nupkg" d:Source="File" Path="Packages\nanoFramework.CoreLibrary.1.10.5.nupkg" d:VsixSubPath="Packages" />
+        <Asset Type="nanoFramework.TestFramework.1.0.150.nupkg" d:Source="File" Path="Packages\nanoFramework.TestFramework.1.0.150.nupkg" d:VsixSubPath="Packages" />
     </Assets>
 </PackageManifest>
