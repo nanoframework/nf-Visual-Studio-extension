@@ -1,5 +1,13 @@
 # Changelog
 
+## [v2019.6.0.73](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v2019.6.0.73) (2021-07-27)
+
+[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2019.6.0.70...v2019.6.0.73)
+
+**Updated dependencies and other chores:**
+
+- Update nugets for template projects [\#644](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/644)
+
 ## [v2019.6.0.70](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v2019.6.0.70) (2021-07-08)
 
 [Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2017.6.0.70...v2019.6.0.70)
