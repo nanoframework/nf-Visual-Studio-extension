@@ -270,9 +270,9 @@
       },
       "nanoFramework.Tools.Debugger.Net": {
         "type": "Direct",
-        "requested": "[2.0.0-preview.32, )",
-        "resolved": "2.0.0-preview.32",
-        "contentHash": "BXVan1FN7/Ggy2vyqQENTMZbvn4+zd1jYxB3m/wqX2GQXM9KWiqP0uBqaTd8SxYp+7nNWVP+yNqXGIc+c+u73w==",
+        "requested": "[2.0.0-preview.34, )",
+        "resolved": "2.0.0-preview.34",
+        "contentHash": "RK/IFwrotZf3cqNA1kihH0SkbNe00ZwC0fc5gQY5u+qy/SUOo2rIdZ1SGYiOnl7vES36ViTXPsque/wfISX7jg==",
         "dependencies": {
           "Polly": "7.2.1",
           "Polly.Contrib.WaitAndRetry": "1.1.1",
@@ -645,9 +645,9 @@
       },
       "System.Text.RegularExpressions": {
         "type": "Direct",
-        "requested": "[4.3.0, )",
-        "resolved": "4.3.0",
-        "contentHash": "RpT2DA+L660cBt1FssIE9CAGpLFdFPuheB7pLpKpn6ZXNby7jDERe8Ua/Ne2xGiwLVG2JOqziiaVCGDon5sKFA=="
+        "requested": "[4.3.1, )",
+        "resolved": "4.3.1",
+        "contentHash": "N0kNRrWe4+nXOWlpLT4LAY5brb8caNFlUuIRpraCVMDLYutKkol1aV079rQjLuSxKMJT2SpBQsYX9xbcTMmzwg=="
       },
       "System.Threading": {
         "type": "Direct",
