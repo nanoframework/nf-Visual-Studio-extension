@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects Condition="'$(MSBuildVersion)' == '' Or '$(MSBuildVersion)' &lt; '16.0'">$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>b16737e2-4b5d-4048-a740-2bb1df462637</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>vs_extension.shared</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)NanoFrameworkMonikers.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ProvideDebugEngineAttribute.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ProvideDebugPortSupplierAttribute.cs" />
+  </ItemGroup>
+</Project>

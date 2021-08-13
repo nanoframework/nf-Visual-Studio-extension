@@ -41,14 +41,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "nanoFramework.Tools.DebugLi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSharp.TestApplication", "CSharp.TestApplication\CSharp.TestApplication.csproj", "{3040BA82-56CC-4189-A26C-CABB4B6B7B87}"
 EndProject
-Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "vs-extension.shared", "vs-extension.shared\vs-extension.shared.shproj", "{B16737E2-4B5D-4048-A740-2BB1DF462637}"
-EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		nf-debugger\nanoFramework.Tools.DebugLibrary.Shared\nanoFramework.Tools.DebugLibrary.Net.projitems*{101d57ad-d22f-4905-a992-de15e723f164}*SharedItemsImports = 4
 		nf-debugger\nanoFramework.Tools.DebugLibrary.Shared\nanoFramework.Tools.DebugLibrary.Net.projitems*{31472cae-4b1a-4ab9-9b2a-8f28dbe01bcf}*SharedItemsImports = 13
-		vs-extension.shared\vs-extension.shared.projitems*{aed4a7c6-24eb-4ee3-b387-fdadc36a3d1b}*SharedItemsImports = 4
-		vs-extension.shared\vs-extension.shared.projitems*{b16737e2-4b5d-4048-a740-2bb1df462637}*SharedItemsImports = 13
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

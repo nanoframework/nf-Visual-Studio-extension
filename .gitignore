@@ -250,3 +250,5 @@ paket-files/
 # JetBrains Rider
 .idea/
 *.sln.iml
+
+nanoFramework.Tools.VisualStudio-2019.dt
