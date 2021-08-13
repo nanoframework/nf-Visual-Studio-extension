@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="utf-16"?>
+<DevTrackerData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" SolutionTotalEditTime="PT0S" SolutionTotalViewTime="PT9M30.081928S" SolutionTotalDebugTime="PT0S">
+  <FileVersion>
+    <Major>1</Major>
+    <Minor>0</Minor>
+  </FileVersion>
+  <SolutionFolder>D:\User_files\Projekty\CSharp\NanoCoreFramework\nf-Visual-Studio-extension</SolutionFolder>
+  <SolutionCreattionDate>2021-08-12T15:09:47.9784507+02:00</SolutionCreattionDate>
+  <ProjectsCreatedDateList>
+    <ProjectCreated>
+      <ProjectName>D:\User_files\Projekty\CSharp\NanoCoreFramework\nf-Visual-Studio-extension\VisualStudio.Extension\VisualStudio.Extension.csproj</ProjectName>
+      <CreatedDate>2021-08-12T14:34:34.3976323+02:00</CreatedDate>
+    </ProjectCreated>
+  </ProjectsCreatedDateList>
+  <SessionTimeList />
+  <LastSessionTimeList>
+    <DevTrackerDataItem ViewActiveTime="PT1.400901S" EditActiveTime="PT0S">
+      <ModifiedDate>0001-01-01T00:00:00</ModifiedDate>
+      <EditedCount>0</EditedCount>
+      <ViewedCount>1</ViewedCount>
+      <Item>D:\User_files\Projekty\CSharp\NanoCoreFramework\nf-Visual-Studio-extension\VisualStudio.Extension\ToolWindow.DeviceExplorer\DeviceExplorer.cs</Item>
+      <ItemType>ProjectItem</ItemType>
+      <ProjectName>D:\User_files\Projekty\CSharp\NanoCoreFramework\nf-Visual-Studio-extension\VisualStudio.Extension\VisualStudio.Extension.csproj</ProjectName>
+      <CreatedDate>2021-08-13T14:10:03.0157408+02:00</CreatedDate>
+      <ViewedBy>lukij</ViewedBy>
+    </DevTrackerDataItem>
+    <DevTrackerDataItem ViewActiveTime="PT2.4660003S" EditActiveTime="PT0S">
+      <ModifiedDate>0001-01-01T00:00:00</ModifiedDate>
+      <EditedCount>0</EditedCount>
+      <ViewedCount>1</ViewedCount>
+      <Item>D:\User_files\Projekty\CSharp\NanoCoreFramework\nf-Visual-Studio-extension\VisualStudio.Extension\NanoFrameworkMoniker.imagemanifest</Item>
+      <ItemType>ProjectItem</ItemType>
+      <ProjectName>D:\User_files\Projekty\CSharp\NanoCoreFramework\nf-Visual-Studio-extension\VisualStudio.Extension\VisualStudio.Extension.csproj</ProjectName>
+      <CreatedDate>2021-08-13T13:23:19.8699554+02:00</CreatedDate>
+      <ViewedBy>lukij</ViewedBy>
+    </DevTrackerDataItem>
+    <DevTrackerDataItem ViewActiveTime="PT1M57.2559908S" EditActiveTime="PT0S">
+      <ModifiedDate>0001-01-01T00:00:00</ModifiedDate>
+      <EditedCount>0</EditedCount>
+      <ViewedCount>1</ViewedCount>
+      <Item>D:\User_files\Projekty\CSharp\NanoCoreFramework\nf-Visual-Studio-extension\VisualStudio.Extension\ResXFileCodeGenerator\NFResXFileCodeGenerator.cs</Item>
+      <ItemType>ProjectItem</ItemType>
+      <ProjectName>D:\User_files\Projekty\CSharp\NanoCoreFramework\nf-Visual-Studio-extension\VisualStudio.Extension\VisualStudio.Extension.csproj</ProjectName>
+      <CreatedDate>2021-08-13T13:35:22.221078+02:00</CreatedDate>
+      <ViewedBy>lukij</ViewedBy>
+    </DevTrackerDataItem>
+    <DevTrackerDataItem ViewActiveTime="PT4M5.1501929S" EditActiveTime="PT0S">
+      <ModifiedDate>0001-01-01T00:00:00</ModifiedDate>
+      <EditedCount>0</EditedCount>
+      <ViewedCount>1</ViewedCount>
+      <Item>D:\User_files\Projekty\CSharp\NanoCoreFramework\nf-Visual-Studio-extension\Tools.BuildTasks\ProcessResourceFiles.cs</Item>
+      <ItemType>ProjectItem</ItemType>
+      <ProjectName>D:\User_files\Projekty\CSharp\NanoCoreFramework\nf-Visual-Studio-extension\VisualStudio.Extension\VisualStudio.Extension.csproj</ProjectName>
+      <CreatedDate>2021-08-13T13:34:34.6928098+02:00</CreatedDate>
+      <ViewedBy>lukij</ViewedBy>
+    </DevTrackerDataItem>
+    <DevTrackerDataItem ViewActiveTime="PT11.02407S" EditActiveTime="PT0S">
+      <ModifiedDate>0001-01-01T00:00:00</ModifiedDate>
+      <EditedCount>0</EditedCount>
+      <ViewedCount>1</ViewedCount>
+      <Item>D:\User_files\Projekty\CSharp\NanoCoreFramework\nf-Visual-Studio-extension\VisualStudio.Extension\ProvideDebugEngineAttribute.cs</Item>
+      <ItemType>ProjectItem</ItemType>
+      <ProjectName>D:\User_files\Projekty\CSharp\NanoCoreFramework\nf-Visual-Studio-extension\VisualStudio.Extension\VisualStudio.Extension.csproj</ProjectName>
+      <CreatedDate>2021-08-13T13:23:08.8418853+02:00</CreatedDate>
+      <ViewedBy>lukij</ViewedBy>
+    </DevTrackerDataItem>
+    <DevTrackerDataItem ViewActiveTime="PT7.73343S" EditActiveTime="PT0S">
+      <ModifiedDate>0001-01-01T00:00:00</ModifiedDate>
+      <EditedCount>0</EditedCount>
+      <ViewedCount>1</ViewedCount>
+      <Item>D:\User_files\Projekty\CSharp\NanoCoreFramework\nf-Visual-Studio-extension\vs-extension.shared\ProvideDebugEngineAttribute.cs</Item>
+      <ItemType>ProjectItem</ItemType>
+      <ProjectName>D:\User_files\Projekty\CSharp\NanoCoreFramework\nf-Visual-Studio-extension\vs-extension.shared\vs-extension.shared.shproj</ProjectName>
+      <CreatedDate>2021-08-13T13:24:25.9396271+02:00</CreatedDate>
+      <ViewedBy>lukij</ViewedBy>
+    </DevTrackerDataItem>
+    <DevTrackerDataItem ViewActiveTime="PT3M5.0943443S" EditActiveTime="PT0S">
+      <ModifiedDate>0001-01-01T00:00:00</ModifiedDate>
+      <EditedCount>0</EditedCount>
+      <ViewedCount>1</ViewedCount>
+      <Item>D:\User_files\Projekty\CSharp\NanoCoreFramework\nf-Visual-Studio-extension\VisualStudio.Extension\ProvideDebugPortSupplierAttribute.cs</Item>
+      <ItemType>ProjectItem</ItemType>
+      <ProjectName>D:\User_files\Projekty\CSharp\NanoCoreFramework\nf-Visual-Studio-extension\VisualStudio.Extension\VisualStudio.Extension.csproj</ProjectName>
+      <CreatedDate>2021-08-13T13:23:22.3379555+02:00</CreatedDate>
+      <ViewedBy>lukij</ViewedBy>
+    </DevTrackerDataItem>
+  </LastSessionTimeList>
+  <TotalTimeList>
+    <DevTrackerDataItem ViewActiveTime="PT1.400901S" EditActiveTime="PT0S">
+      <ModifiedDate>0001-01-01T00:00:00</ModifiedDate>
+      <EditedCount>0</EditedCount>
+      <ViewedCount>1</ViewedCount>
+      <Item>D:\User_files\Projekty\CSharp\NanoCoreFramework\nf-Visual-Studio-extension\VisualStudio.Extension\ToolWindow.DeviceExplorer\DeviceExplorer.cs</Item>
+      <ItemType>ProjectItem</ItemType>
+      <ProjectName>D:\User_files\Projekty\CSharp\NanoCoreFramework\nf-Visual-Studio-extension\VisualStudio.Extension\VisualStudio.Extension.csproj</ProjectName>
+      <CreatedDate>2021-08-13T14:10:03.0157408+02:00</CreatedDate>
+      <ViewedBy>lukij</ViewedBy>
+    </DevTrackerDataItem>
+    <DevTrackerDataItem ViewActiveTime="PT2.4660003S" EditActiveTime="PT0S">
+      <ModifiedDate>0001-01-01T00:00:00</ModifiedDate>
+      <EditedCount>0</EditedCount>
+      <ViewedCount>1</ViewedCount>
+      <Item>D:\User_files\Projekty\CSharp\NanoCoreFramework\nf-Visual-Studio-extension\VisualStudio.Extension\NanoFrameworkMoniker.imagemanifest</Item>
+      <ItemType>ProjectItem</ItemType>
+      <ProjectName>D:\User_files\Projekty\CSharp\NanoCoreFramework\nf-Visual-Studio-extension\VisualStudio.Extension\VisualStudio.Extension.csproj</ProjectName>
+      <CreatedDate>2021-08-13T13:23:19.8699554+02:00</CreatedDate>
+      <ViewedBy>lukij</ViewedBy>
+    </DevTrackerDataItem>
+    <DevTrackerDataItem ViewActiveTime="PT1M57.2149929S" EditActiveTime="PT0S">
+      <ModifiedDate>0001-01-01T00:00:00</ModifiedDate>
+      <EditedCount>0</EditedCount>
+      <ViewedCount>1</ViewedCount>
+      <Item>D:\User_files\Projekty\CSharp\NanoCoreFramework\nf-Visual-Studio-extension\VisualStudio.Extension\ResXFileCodeGenerator\NFResXFileCodeGenerator.cs</Item>
+      <ItemType>ProjectItem</ItemType>
+      <ProjectName>D:\User_files\Projekty\CSharp\NanoCoreFramework\nf-Visual-Studio-extension\VisualStudio.Extension\VisualStudio.Extension.csproj</ProjectName>
+      <CreatedDate>2021-08-13T13:35:22.221078+02:00</CreatedDate>
+      <ViewedBy>lukij</ViewedBy>
+    </DevTrackerDataItem>
+    <DevTrackerDataItem ViewActiveTime="PT4M5.1501929S" EditActiveTime="PT0S">
+      <ModifiedDate>0001-01-01T00:00:00</ModifiedDate>
+      <EditedCount>0</EditedCount>
+      <ViewedCount>1</ViewedCount>
+      <Item>D:\User_files\Projekty\CSharp\NanoCoreFramework\nf-Visual-Studio-extension\Tools.BuildTasks\ProcessResourceFiles.cs</Item>
+      <ItemType>ProjectItem</ItemType>
+      <ProjectName>D:\User_files\Projekty\CSharp\NanoCoreFramework\nf-Visual-Studio-extension\VisualStudio.Extension\VisualStudio.Extension.csproj</ProjectName>
+      <CreatedDate>2021-08-13T13:34:34.6928098+02:00</CreatedDate>
+      <ViewedBy>lukij</ViewedBy>
+    </DevTrackerDataItem>
+    <DevTrackerDataItem ViewActiveTime="PT11.02407S" EditActiveTime="PT0S">
+      <ModifiedDate>0001-01-01T00:00:00</ModifiedDate>
+      <EditedCount>0</EditedCount>
+      <ViewedCount>1</ViewedCount>
+      <Item>D:\User_files\Projekty\CSharp\NanoCoreFramework\nf-Visual-Studio-extension\VisualStudio.Extension\ProvideDebugEngineAttribute.cs</Item>
+      <ItemType>ProjectItem</ItemType>
+      <ProjectName>D:\User_files\Projekty\CSharp\NanoCoreFramework\nf-Visual-Studio-extension\VisualStudio.Extension\VisualStudio.Extension.csproj</ProjectName>
+      <CreatedDate>2021-08-13T13:23:08.8418853+02:00</CreatedDate>
+      <ViewedBy>lukij</ViewedBy>
+    </DevTrackerDataItem>
+    <DevTrackerDataItem ViewActiveTime="PT7.73343S" EditActiveTime="PT0S">
+      <ModifiedDate>0001-01-01T00:00:00</ModifiedDate>
+      <EditedCount>0</EditedCount>
+      <ViewedCount>1</ViewedCount>
+      <Item>D:\User_files\Projekty\CSharp\NanoCoreFramework\nf-Visual-Studio-extension\vs-extension.shared\ProvideDebugEngineAttribute.cs</Item>
+      <ItemType>ProjectItem</ItemType>
+      <ProjectName>D:\User_files\Projekty\CSharp\NanoCoreFramework\nf-Visual-Studio-extension\vs-extension.shared\vs-extension.shared.shproj</ProjectName>
+      <CreatedDate>2021-08-13T13:24:25.9396271+02:00</CreatedDate>
+      <ViewedBy>lukij</ViewedBy>
+    </DevTrackerDataItem>
+    <DevTrackerDataItem ViewActiveTime="PT3M5.0943443S" EditActiveTime="PT0S">
+      <ModifiedDate>0001-01-01T00:00:00</ModifiedDate>
+      <EditedCount>0</EditedCount>
+      <ViewedCount>1</ViewedCount>
+      <Item>D:\User_files\Projekty\CSharp\NanoCoreFramework\nf-Visual-Studio-extension\VisualStudio.Extension\ProvideDebugPortSupplierAttribute.cs</Item>
+      <ItemType>ProjectItem</ItemType>
+      <ProjectName>D:\User_files\Projekty\CSharp\NanoCoreFramework\nf-Visual-Studio-extension\VisualStudio.Extension\VisualStudio.Extension.csproj</ProjectName>
+      <CreatedDate>2021-08-13T13:23:22.3379555+02:00</CreatedDate>
+      <ViewedBy>lukij</ViewedBy>
+    </DevTrackerDataItem>
+  </TotalTimeList>
+  <HistoryTimeList>
+    <DevTrackerDataItem ViewActiveTime="PT1.400901S" EditActiveTime="PT0S">
+      <ModifiedDate>0001-01-01T00:00:00</ModifiedDate>
+      <EditedCount>0</EditedCount>
+      <ViewedCount>1</ViewedCount>
+      <Item>D:\User_files\Projekty\CSharp\NanoCoreFramework\nf-Visual-Studio-extension\VisualStudio.Extension\ToolWindow.DeviceExplorer\DeviceExplorer.cs</Item>
+      <ItemType>ProjectItem</ItemType>
+      <ProjectName>D:\User_files\Projekty\CSharp\NanoCoreFramework\nf-Visual-Studio-extension\VisualStudio.Extension\VisualStudio.Extension.csproj</ProjectName>
+      <CreatedDate>2021-08-13T14:10:03.0157408+02:00</CreatedDate>
+      <ViewedBy>lukij</ViewedBy>
+    </DevTrackerDataItem>
+    <DevTrackerDataItem ViewActiveTime="PT1M57.2159894S" EditActiveTime="PT0S">
+      <ModifiedDate>0001-01-01T00:00:00</ModifiedDate>
+      <EditedCount>0</EditedCount>
+      <ViewedCount>1</ViewedCount>
+      <Item>D:\User_files\Projekty\CSharp\NanoCoreFramework\nf-Visual-Studio-extension\VisualStudio.Extension\ResXFileCodeGenerator\NFResXFileCodeGenerator.cs</Item>
+      <ItemType>ProjectItem</ItemType>
+      <ProjectName>D:\User_files\Projekty\CSharp\NanoCoreFramework\nf-Visual-Studio-extension\VisualStudio.Extension\VisualStudio.Extension.csproj</ProjectName>
+      <CreatedDate>2021-08-13T13:35:22.221078+02:00</CreatedDate>
+      <ViewedBy>lukij</ViewedBy>
+    </DevTrackerDataItem>
+    <DevTrackerDataItem ViewActiveTime="PT4M5.1501929S" EditActiveTime="PT0S">
+      <ModifiedDate>0001-01-01T00:00:00</ModifiedDate>
+      <EditedCount>0</EditedCount>
+      <ViewedCount>1</ViewedCount>
+      <Item>D:\User_files\Projekty\CSharp\NanoCoreFramework\nf-Visual-Studio-extension\Tools.BuildTasks\ProcessResourceFiles.cs</Item>
+      <ItemType>ProjectItem</ItemType>
+      <ProjectName>D:\User_files\Projekty\CSharp\NanoCoreFramework\nf-Visual-Studio-extension\VisualStudio.Extension\VisualStudio.Extension.csproj</ProjectName>
+      <CreatedDate>2021-08-13T13:34:34.6928098+02:00</CreatedDate>
+      <ViewedBy>lukij</ViewedBy>
+    </DevTrackerDataItem>
+    <DevTrackerDataItem ViewActiveTime="PT7.73343S" EditActiveTime="PT0S">
+      <ModifiedDate>0001-01-01T00:00:00</ModifiedDate>
+      <EditedCount>0</EditedCount>
+      <ViewedCount>1</ViewedCount>
+      <Item>D:\User_files\Projekty\CSharp\NanoCoreFramework\nf-Visual-Studio-extension\vs-extension.shared\ProvideDebugEngineAttribute.cs</Item>
+      <ItemType>ProjectItem</ItemType>
+      <ProjectName>D:\User_files\Projekty\CSharp\NanoCoreFramework\nf-Visual-Studio-extension\vs-extension.shared\vs-extension.shared.shproj</ProjectName>
+      <CreatedDate>2021-08-13T13:24:25.9396271+02:00</CreatedDate>
+      <ViewedBy>lukij</ViewedBy>
+    </DevTrackerDataItem>
+    <DevTrackerDataItem ViewActiveTime="PT3M5.0943443S" EditActiveTime="PT0S">
+      <ModifiedDate>0001-01-01T00:00:00</ModifiedDate>
+      <EditedCount>0</EditedCount>
+      <ViewedCount>1</ViewedCount>
+      <Item>D:\User_files\Projekty\CSharp\NanoCoreFramework\nf-Visual-Studio-extension\VisualStudio.Extension\ProvideDebugPortSupplierAttribute.cs</Item>
+      <ItemType>ProjectItem</ItemType>
+      <ProjectName>D:\User_files\Projekty\CSharp\NanoCoreFramework\nf-Visual-Studio-extension\VisualStudio.Extension\VisualStudio.Extension.csproj</ProjectName>
+      <CreatedDate>2021-08-13T13:23:22.3379555+02:00</CreatedDate>
+      <ViewedBy>lukij</ViewedBy>
+    </DevTrackerDataItem>
+    <DevTrackerDataItem ViewActiveTime="PT2.4660003S" EditActiveTime="PT0S">
+      <ModifiedDate>0001-01-01T00:00:00</ModifiedDate>
+      <EditedCount>0</EditedCount>
+      <ViewedCount>1</ViewedCount>
+      <Item>D:\User_files\Projekty\CSharp\NanoCoreFramework\nf-Visual-Studio-extension\VisualStudio.Extension\NanoFrameworkMoniker.imagemanifest</Item>
+      <ItemType>ProjectItem</ItemType>
+      <ProjectName>D:\User_files\Projekty\CSharp\NanoCoreFramework\nf-Visual-Studio-extension\VisualStudio.Extension\VisualStudio.Extension.csproj</ProjectName>
+      <CreatedDate>2021-08-13T13:23:19.8699554+02:00</CreatedDate>
+      <ViewedBy>lukij</ViewedBy>
+    </DevTrackerDataItem>
+    <DevTrackerDataItem ViewActiveTime="PT11.02407S" EditActiveTime="PT0S">
+      <ModifiedDate>0001-01-01T00:00:00</ModifiedDate>
+      <EditedCount>0</EditedCount>
+      <ViewedCount>1</ViewedCount>
+      <Item>D:\User_files\Projekty\CSharp\NanoCoreFramework\nf-Visual-Studio-extension\VisualStudio.Extension\ProvideDebugEngineAttribute.cs</Item>
+      <ItemType>ProjectItem</ItemType>
+      <ProjectName>D:\User_files\Projekty\CSharp\NanoCoreFramework\nf-Visual-Studio-extension\VisualStudio.Extension\VisualStudio.Extension.csproj</ProjectName>
+      <CreatedDate>2021-08-13T13:23:08.8418853+02:00</CreatedDate>
+      <ViewedBy>lukij</ViewedBy>
+    </DevTrackerDataItem>
+  </HistoryTimeList>
+</DevTrackerData>

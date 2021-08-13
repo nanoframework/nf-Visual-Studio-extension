@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-16"?>
+<DevTrackerData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" SolutionTotalEditTime="PT0S" SolutionTotalViewTime="PT7M3.2364852S" SolutionTotalDebugTime="PT0S">
+  <FileVersion>
+    <Major>1</Major>
+    <Minor>0</Minor>
+  </FileVersion>
+  <SolutionFolder>D:\User_files\Projekty\CSharp\NanoCoreFramework\nf-Visual-Studio-extension</SolutionFolder>
+  <SolutionCreattionDate>2021-08-13T13:08:58.4019364+02:00</SolutionCreattionDate>
+  <ProjectsCreatedDateList>
+    <ProjectCreated>
+      <ProjectName>D:\User_files\Projekty\CSharp\NanoCoreFramework\nf-Visual-Studio-extension\VisualStudio.Extension-2019\VisualStudio.Extension.csproj</ProjectName>
+      <CreatedDate>2021-08-12T14:34:34.3086324+02:00</CreatedDate>
+    </ProjectCreated>
+  </ProjectsCreatedDateList>
+  <SessionTimeList />
+  <LastSessionTimeList />
+  <TotalTimeList>
+    <DevTrackerDataItem ViewActiveTime="PT4.6150014S" EditActiveTime="PT0S">
+      <ModifiedDate>0001-01-01T00:00:00</ModifiedDate>
+      <EditedCount>0</EditedCount>
+      <ViewedCount>1</ViewedCount>
+      <Item>D:\User_files\Projekty\CSharp\NanoCoreFramework\nf-Visual-Studio-extension\nf-debugger\nanoFramework.Tools.DebugLibrary.Net\nanoFramework.Tools.DebugLibrary.Net.csproj</Item>
+      <ItemType>ProjectItem</ItemType>
+      <ProjectName />
+      <CreatedDate>2021-08-13T13:09:07.034934+02:00</CreatedDate>
+      <ViewedBy>lukij</ViewedBy>
+    </DevTrackerDataItem>
+    <DevTrackerDataItem ViewActiveTime="PT6M58.6214838S" EditActiveTime="PT0S">
+      <ModifiedDate>0001-01-01T00:00:00</ModifiedDate>
+      <EditedCount>0</EditedCount>
+      <ViewedCount>1</ViewedCount>
+      <Item>D:\User_files\Projekty\CSharp\NanoCoreFramework\nf-Visual-Studio-extension\nf-debugger\nanoFramework.Tools.DebugLibrary.Shared\nanoFramework.Tools.DebugLibrary.Shared.shproj</Item>
+      <ItemType>ProjectItem</ItemType>
+      <ProjectName />
+      <CreatedDate>2021-08-13T13:09:11.6509352+02:00</CreatedDate>
+      <ViewedBy>lukij</ViewedBy>
+    </DevTrackerDataItem>
+  </TotalTimeList>
+  <HistoryTimeList>
+    <DevTrackerDataItem ViewActiveTime="PT6M58.6224844S" EditActiveTime="PT0S">
+      <ModifiedDate>0001-01-01T00:00:00</ModifiedDate>
+      <EditedCount>0</EditedCount>
+      <ViewedCount>1</ViewedCount>
+      <Item>D:\User_files\Projekty\CSharp\NanoCoreFramework\nf-Visual-Studio-extension\nf-debugger\nanoFramework.Tools.DebugLibrary.Shared\nanoFramework.Tools.DebugLibrary.Shared.shproj</Item>
+      <ItemType>ProjectItem</ItemType>
+      <ProjectName />
+      <CreatedDate>2021-08-13T13:09:11.6509352+02:00</CreatedDate>
+      <ViewedBy>lukij</ViewedBy>
+    </DevTrackerDataItem>
+    <DevTrackerDataItem ViewActiveTime="PT4.6150014S" EditActiveTime="PT0S">
+      <ModifiedDate>0001-01-01T00:00:00</ModifiedDate>
+      <EditedCount>0</EditedCount>
+      <ViewedCount>1</ViewedCount>
+      <Item>D:\User_files\Projekty\CSharp\NanoCoreFramework\nf-Visual-Studio-extension\nf-debugger\nanoFramework.Tools.DebugLibrary.Net\nanoFramework.Tools.DebugLibrary.Net.csproj</Item>
+      <ItemType>ProjectItem</ItemType>
+      <ProjectName />
+      <CreatedDate>2021-08-13T13:09:07.034934+02:00</CreatedDate>
+      <ViewedBy>lukij</ViewedBy>
+    </DevTrackerDataItem>
+  </HistoryTimeList>
+</DevTrackerData>

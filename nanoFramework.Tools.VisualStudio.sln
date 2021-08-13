@@ -20,7 +20,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSharp.AssemblyInfoTemplate
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Templates", "Templates", "{C9ECFA69-6CFF-4CB6-9982-9423FA96DFC4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tools.BuildTasks", "Tools.BuildTasks\Tools.BuildTasks.csproj", "{CE0631F2-731D-4A48-B927-F13F6B2FB055}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tools.BuildTasks-2017", "Tools.BuildTasks-2017\Tools.BuildTasks.csproj", "{CE0631F2-731D-4A48-B927-F13F6B2FB055}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "MSBuildSystem", "MSBuildSystem", "{1E0CD797-F69D-4BD3-B77E-496B51F95214}"
 EndProject

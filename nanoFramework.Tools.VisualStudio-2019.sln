@@ -33,7 +33,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "metadata-processor", "metad
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MetadataProcessor.Core", "metadata-processor\MetadataProcessor.Core\MetadataProcessor.Core.csproj", "{E32F7D15-2499-440C-8026-4D5EE1C5EC3A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tools.BuildTasks", "Tools.BuildTasks-2019\Tools.BuildTasks.csproj", "{552C2500-2C53-4148-A422-0ED983EF135D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tools.BuildTasks", "Tools.BuildTasks\Tools.BuildTasks.csproj", "{552C2500-2C53-4148-A422-0ED983EF135D}"
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "nanoFramework.Tools.DebugLibrary.Shared", "nf-debugger\nanoFramework.Tools.DebugLibrary.Shared\nanoFramework.Tools.DebugLibrary.Shared.shproj", "{31472CAE-4B1A-4AB9-9B2A-8F28DBE01BCF}"
 EndProject

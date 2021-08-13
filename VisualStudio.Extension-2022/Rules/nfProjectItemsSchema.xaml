@@ -1,0 +1,35 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
+<!--Copyright, Microsoft Corporation, All rights reserved.-->
+<ProjectSchemaDefinitions
+    xmlns="http://schemas.microsoft.com/build/2009/properties">
+
+    <ContentType
+        Name="Text"
+        DisplayName="Text file"
+        ItemType="None">
+    </ContentType>
+
+    <ContentType
+        Name="XML"
+        DisplayName="Xml file"
+        ItemType="None">
+    </ContentType>
+
+    <ContentType
+        Name="CSharpFile"
+        DisplayName="C# file"
+        ItemType="Compile">
+    </ContentType>
+
+    <ItemType Name="Compile" DisplayName="C# compiler"/>
+    <ItemType Name="EmbeddedResource" DisplayName="Embedded Resource"/>
+    <ItemType Name="None" DisplayName="Does not participate in build"/>
+    <ItemType Name="Content" DisplayName="Content" />
+
+    <FileExtension Name=".txt" ContentType="Text"/>
+    <FileExtension Name=".resx" ContentType="RESX"/>
+    <FileExtension Name=".bmp" ContentType="BMP"/>
+    <FileExtension Name=".xml" ContentType="XML"/>
+    <FileExtension Name=".cs" ContentType="CSharpFile"/>
+</ProjectSchemaDefinitions>
