@@ -128,6 +128,11 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
             MessengerInstance.Send(new NotificationMessage(""), MessagingTokens.NanoDevicesDeviceEnumerationCompleted);
         }
 
+        // temp code: create a dummy device to be used later (part of "option 2").  Should be in the nf-debugger code
+        //class NanoVirtualDevice
+        //{
+
+        //}
         private void UpdateAvailableDevices()
         {
             switch (SelectedTransportType)
@@ -152,6 +157,14 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
                     //    SelectedDevice = null;
                     break;
             }
+
+            // generate an entry for a virtual device that will run on the developers machine using the nanoCLR.CLI
+            // (this is possible for "option 2"
+            //if (NanoFrameworkPackage.SettingVirtualDeviceEnable)
+            //{
+            //    NanoDevice<NanoVirtualDevice> virtualItem = new NanoDevice<NanoVirtualDevice>();
+            //    AvailableDevices.Add(virtualItem);
+            //}
 
             // handle auto-connect option
             if (_deviceEnumerationCompleted || NanoDeviceCommService.DebugClient.IsDevicesEnumerationComplete)

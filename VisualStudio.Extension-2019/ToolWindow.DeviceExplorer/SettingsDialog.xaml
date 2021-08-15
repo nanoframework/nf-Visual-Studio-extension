@@ -5,8 +5,6 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:vsp="clr-namespace:Microsoft.VisualStudio.PlatformUI;assembly=Microsoft.VisualStudio.Shell.15.0"
              x:Class="nanoFramework.Tools.VisualStudio.Extension.SettingsDialog"
-             Background="{DynamicResource {x:Static vsp:EnvironmentColors.ToolWindowBackgroundBrushKey}}"
-             Foreground="{DynamicResource {x:Static vsp:EnvironmentColors.ToolWindowTextBrushKey}}"
              mc:Ignorable="d"
              WindowStartupLocation="CenterScreen"
              Width="326" Height="430"
@@ -117,6 +115,58 @@
                     </GroupBox>
 
                 </Grid>
+            </TabItem>
+
+            <TabItem Header="Virtual Device" IsEnabled="True">
+                <Grid Margin="10,10,10,10">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <GroupBox Grid.Row="0" Margin="0,0,0,69" Header="                                        " IsEnabled="{Binding IsChecked, ElementName=EnableVirtualDevice}" Grid.RowSpan="4" >
+                        <Grid Margin="8,10,10,10">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="*"/>
+
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="60*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <!-- setting to include configuration block in deployment image -->
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="*"/>
+
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <Label Grid.Row="0" Grid.Column ="0" Content="Port name:  " HorizontalAlignment="Left"/>
+                                <TextBox Grid.Row ="0" Grid.Column="1" x:Name="PortName" Width="50" HorizontalAlignment="Left" LostFocus="PortName_LostFocus"/>
+                                <Label Grid.Row="1" Content="Override Path to CLI (optional):  " Grid.ColumnSpan="2" Width="208" HorizontalAlignment="Left"/>
+                                <TextBox Grid.Row ="2" Grid.Column="0" x:Name="CLICommandPath" Width="112" Margin="0,0,0,0" HorizontalAlignment="Left" LostFocus="CLICommandPath_LostFocus"/>
+                                <Button Grid.Row="2" Grid.Column="1"  Name="CLIFilePicker" Content="Browse..." Width="60" HorizontalAlignment="Left" Click="CLIFilePicker_Click"/>
+                            </Grid>
+                            <Button x:Name="StartStopDevice" Content="Start virtual device" HorizontalAlignment="Center"  Click="StartStopDevice_Click" Grid.Row="1" VerticalAlignment="Center" Width="106"/>
+                            <CheckBox Content="Show in command window" x:Name="ShowInCommandWindow" HorizontalAlignment="Left" Margin="10,10,0,0" Grid.Row="1" VerticalAlignment="Top"  Checked="ShowInCommandWindow_Checked" Unchecked="ShowInCommandWindow_Checked"/>
+
+                        </Grid>
+                    </GroupBox>
+
+                    <CheckBox x:Name="EnableVirtualDevice"  Grid.Row="0" Margin="10,2,-10,0" Content="Enable Virtual Device"  Height="16" VerticalAlignment="Top" Checked="EnableVirtualDevice_Checked" Unchecked="EnableVirtualDevice_Checked"/>
+
+
+                </Grid>
+
             </TabItem>
 
         </TabControl>

@@ -958,6 +958,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     HasMaximizeButton = false
                 };
                 allSettingsDialog.ShowModal();
+                // virtual device may have been started or stopped - rescan devices
+                NanoDeviceCommService.DebugClient.ReScanDevices();
+
             }
             catch
             {

@@ -18,6 +18,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using System.Net.NetworkInformation;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading;
@@ -109,6 +110,11 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         private const string SETTINGS_PORT_BLACK_LIST_KEY = "PortBlackList";
         private const string SETTINGS_AUTO_UPDATE_ENABLE_KEY = "AutoUpdateEnable";
         private const string SETTINGS_ALLOW_PREVIEW_IMAGES_KEY = "IncludePrereleaseUpdates";
+        private const string SETTINGS_VIRTUAL_DEVICE_ENABLE_KEY = "VirtualDeviceEnable";
+        private const string SETTINGS_VIRTUAL_DEVICE_PORT = "VirtualDevicePort";
+        private const string SETTINGS_VIRTUAL_DEVICE_CLI_PATH = "VirtualDeviceCLIPath";
+        private const string SETTINGS_VIRTUAL_DEVICE_COMMAND_WINDOW = "VirtualDeviceCommandWindow";
+
 
         private static bool? s_OptionShowInternalErrors;
         /// <summary>
@@ -335,6 +341,120 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 s_SettingIncludePrereleaseUpdates = value;
             }
         }
+
+        private static bool? s_SettingVirtualDeviceEnable = null;
+
+        /// <summary>
+        /// Setting to enable the use of a virtual device running on the development machine as a command line interface (CLI)
+        /// The value is persisted per user
+        /// Default is <see langword="false"/>
+        /// </summary>
+        public static bool SettingVirtualDeviceEnable
+        {
+            get
+            {
+                if (!s_SettingVirtualDeviceEnable.HasValue)
+                {
+                    s_SettingVirtualDeviceEnable = bool.Parse((string)s_instance.UserRegistryRoot.OpenSubKey(EXTENSION_SUBKEY).GetValue(SETTINGS_VIRTUAL_DEVICE_ENABLE_KEY, "False"));
+                }
+
+                return s_SettingVirtualDeviceEnable.Value;
+
+            }
+            set
+            {
+                s_instance.UserRegistryRoot.OpenSubKey(EXTENSION_SUBKEY, true).SetValue(SETTINGS_VIRTUAL_DEVICE_ENABLE_KEY, value);
+                s_instance.UserRegistryRoot.OpenSubKey(EXTENSION_SUBKEY, true).Flush();
+
+                s_SettingVirtualDeviceEnable = value;
+
+            }
+        }
+
+        private static string s_SettingVirtualDevicePort = null;
+        /// <summary>
+        /// Setting to store COM port for the virtual device
+        /// The value is persisted per user.
+        /// Default is empty.
+        /// </summary>
+        public static string SettingVirtualDevicePort
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(s_SettingVirtualDevicePort))
+                {
+                    s_SettingVirtualDevicePort = (string)s_instance.UserRegistryRoot.OpenSubKey(EXTENSION_SUBKEY).GetValue(SETTINGS_VIRTUAL_DEVICE_PORT);
+                }
+
+                return s_SettingVirtualDevicePort;
+            }
+
+            set
+            {
+                s_instance.UserRegistryRoot.OpenSubKey(EXTENSION_SUBKEY, true).SetValue(SETTINGS_VIRTUAL_DEVICE_PORT, value);
+                s_instance.UserRegistryRoot.OpenSubKey(EXTENSION_SUBKEY, true).Flush();
+
+                s_SettingVirtualDevicePort = value;
+            }
+        }
+
+
+        private static string s_SettingVirtualDeviceCLIPath = null;
+        /// <summary>
+        /// Setting to store path where to cache flash dump. If empty the cache will be the project output path.
+        /// The value is persisted per user.
+        /// Default is empty.
+        /// </summary>
+        public static string SettingVirtualDeviceCLIPath
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(s_SettingVirtualDeviceCLIPath))
+                {
+                    s_SettingVirtualDeviceCLIPath = (string)s_instance.UserRegistryRoot.OpenSubKey(EXTENSION_SUBKEY).GetValue(SETTINGS_VIRTUAL_DEVICE_CLI_PATH);
+                }
+
+                return s_SettingVirtualDeviceCLIPath;
+            }
+
+            set
+            {
+                s_instance.UserRegistryRoot.OpenSubKey(EXTENSION_SUBKEY, true).SetValue(SETTINGS_VIRTUAL_DEVICE_CLI_PATH, value);
+                s_instance.UserRegistryRoot.OpenSubKey(EXTENSION_SUBKEY, true).Flush();
+
+                s_SettingVirtualDeviceCLIPath = value;
+            }
+        }
+
+        private static bool? s_SettingVirtualDeviceCommandWindow = null;
+
+        /// <summary>
+        /// Setting to enable the use of a virtual device running on the development machine as a command line interface (CLI)
+        /// The value is persisted per user
+        /// Default is <see langword="false"/>
+        /// </summary>
+        public static bool SettingVirtualDeviceCommandWindow
+        {
+            get
+            {
+                if (!s_SettingVirtualDeviceCommandWindow.HasValue)
+                {
+                    s_SettingVirtualDeviceCommandWindow = bool.Parse((string)s_instance.UserRegistryRoot.OpenSubKey(EXTENSION_SUBKEY).GetValue(SETTINGS_VIRTUAL_DEVICE_COMMAND_WINDOW, "False"));
+                }
+
+                return s_SettingVirtualDeviceCommandWindow.Value;
+
+            }
+            set
+            {
+                s_instance.UserRegistryRoot.OpenSubKey(EXTENSION_SUBKEY, true).SetValue(SETTINGS_VIRTUAL_DEVICE_COMMAND_WINDOW, value);
+                s_instance.UserRegistryRoot.OpenSubKey(EXTENSION_SUBKEY, true).Flush();
+
+                s_SettingVirtualDeviceCommandWindow = value;
+
+            }
+        }
+
 
         #endregion
 
