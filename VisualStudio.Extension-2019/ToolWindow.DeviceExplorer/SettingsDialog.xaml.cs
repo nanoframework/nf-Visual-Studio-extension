@@ -12,6 +12,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
     using System.Windows.Forms;
     using System.Diagnostics;
     using System.IO;
+    using Microsoft.VisualStudio.Shell;
+    using System;
 
     /// <summary>
     /// Interaction logic for DeviceExplorerControl.
@@ -241,6 +243,16 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     virtualDeviceProcess.StartInfo.UseShellExecute = false; 
                     virtualDeviceProcess.StartInfo.CreateNoWindow = !NanoFrameworkPackage.SettingVirtualDeviceCommandWindow;
                     virtualDeviceProcess.StartInfo.FileName = Path.Combine(NanoFrameworkPackage.SettingVirtualDeviceCLIPath, "nanoFramework.nanoCLR.CLI.exe");
+                    // if not using a window for the CLR.CLI then intercept any output messages and send to VS
+                    if (NanoFrameworkPackage.SettingVirtualDeviceCommandWindow == false)
+                    {
+                        virtualDeviceProcess.StartInfo.RedirectStandardOutput = true;
+                        virtualDeviceProcess.StartInfo.RedirectStandardError = true;
+                        virtualDeviceProcess.OutputDataReceived += VirtualDeviceProcess_OutputDataReceived;
+                        virtualDeviceProcess.ErrorDataReceived += VirtualDeviceProcess_ErrorDataReceived;
+                    }
+                    virtualDeviceProcess.EnableRaisingEvents = true;
+
                     if (File.Exists(virtualDeviceProcess.StartInfo.FileName) == false)
                     {
                         MessageBox.Show($"Invalid path to virtual device CLI: {virtualDeviceProcess.StartInfo.FileName}");
@@ -250,6 +262,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     }
 
                     virtualDeviceProcess.StartInfo.Arguments = $"run --serialport {NanoFrameworkPackage.SettingVirtualDevicePort}";
+                    // intercept any output and redirect it to either the extension output window or the debug output window
+                    virtualDeviceProcess.Exited += VirtualDeviceProcess_Exited;
+
                     started = virtualDeviceProcess.Start();
                     virtualDeviceProcess.WaitForExit(1000);  // give it one second to start up and possibly exit with error
                     if (virtualDeviceProcess.HasExited)
@@ -257,6 +272,11 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         MessageBox.Show("Failed to start the virtual device.");
                         virtualDeviceProcess = null;
                         StartStopDevice.Content = "Start virtual device";
+                    }
+                    if (NanoFrameworkPackage.SettingVirtualDeviceCommandWindow == false)
+                    {
+                        virtualDeviceProcess.BeginErrorReadLine();
+                        virtualDeviceProcess.BeginOutputReadLine();
                     }
 
                 }
@@ -285,6 +305,32 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 }
             }
 
+        }
+
+        //
+        // The static methods below belong in the NanoVirtualDevice object when Option 2 is implemented
+        //
+        private void VirtualDeviceProcess_Exited(object sender, System.EventArgs e)
+        {
+            virtualDeviceProcess = null;
+        }
+
+        private void VirtualDeviceProcess_ErrorDataReceived(object sender, DataReceivedEventArgs e)
+        {
+            if (e.Data == null)
+            {
+                return;
+            }
+            MessageCentre.OutputMessage($"{DateTime.Now:HH.mm.ss.fff} [NanoVirtualDevice - Error message from nanoCLR.CLI.exe: {e.Data}");
+        }
+
+        private void VirtualDeviceProcess_OutputDataReceived(object sender, DataReceivedEventArgs e)
+        {
+            if (e.Data == null)
+            {
+                return;
+            }
+            MessageCentre.OutputMessage($"{DateTime.Now:HH.mm.ss.fff} [NanoVirtualDevice - Output message from nanoCLR.CLI.exe: {e.Data}");
         }
 
         private void ShowInCommandWindow_Checked(object sender, System.Windows.RoutedEventArgs e)
