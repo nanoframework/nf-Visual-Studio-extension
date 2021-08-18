@@ -261,22 +261,22 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         return;
                     }
 
-                    virtualDeviceProcess.StartInfo.Arguments = $"run --serialport {NanoFrameworkPackage.SettingVirtualDevicePort}";
+                    virtualDeviceProcess.StartInfo.Arguments = $"run --serialport {NanoFrameworkPackage.SettingVirtualDevicePort} --monitorparentpid {Process.GetCurrentProcess().Id}";
                     // intercept any output and redirect it to either the extension output window or the debug output window
                     virtualDeviceProcess.Exited += VirtualDeviceProcess_Exited;
 
                     started = virtualDeviceProcess.Start();
-                    virtualDeviceProcess.WaitForExit(1000);  // give it one second to start up and possibly exit with error
-                    if (virtualDeviceProcess.HasExited)
-                    {
-                        MessageBox.Show("Failed to start the virtual device.");
-                        virtualDeviceProcess = null;
-                        StartStopDevice.Content = "Start virtual device";
-                    }
                     if (NanoFrameworkPackage.SettingVirtualDeviceCommandWindow == false)
                     {
                         virtualDeviceProcess.BeginErrorReadLine();
                         virtualDeviceProcess.BeginOutputReadLine();
+                    }
+                    virtualDeviceProcess.WaitForExit(1000);  // give it one second to start up and possibly exit with error
+                    if (virtualDeviceProcess.HasExited)
+                    {
+                        MessageBox.Show("Failed to start the virtual device. Check for messages in the .NET nanoFramework Extension Output window");
+                        virtualDeviceProcess = null;
+                        StartStopDevice.Content = "Start virtual device";
                     }
 
                 }
