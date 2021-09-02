@@ -436,7 +436,7 @@
         GenerateDependency="$(NFMDP_PE_GenerateDependency)"
         CreateDatabase="@(NFMDP_PE_CreateDatabase)"
         CreateDatabaseFile="$(NFMDP_PE_CreateDatabaseFile)"
-        LoadHints="@(NFMDP_PE_LoadHints)"
+        LoadHints="@(ReferencePath);@(ReferenceDependencyPaths);@(ReferenceSatellitePaths)"
         IgnoreAssembly="@(NFMDP_PE_IgnoreAssembly)"
         ExcludeClassByName="@(NFMDP_PE_ExcludeClassByName)"
         Condition="'$(NFMDP_GENERATE_STUBS)' == 'false'">
@@ -469,7 +469,7 @@
         GenerateDependency="$(NFMDP_STUB_GenerateDependency)"
         CreateDatabase="@(NFMDP_STUB_CreateDatabase)"
         CreateDatabaseFile="$(NFMDP_STUB_CreateDatabaseFile)"
-        LoadHints="@(NFMDP_PE_LoadHints)"
+        LoadHints="@(ReferencePath);@(ReferenceDependencyPaths);@(ReferenceSatellitePaths)"
         IgnoreAssembly="@(NFMDP_STUB_IgnoreAssembly)"
         ExcludeClassByName="@(NFMDP_PE_ExcludeClassByName)"
         Condition="'$(NFMDP_GENERATE_STUBS)' == 'true'">
