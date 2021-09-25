@@ -356,17 +356,17 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                             }
                             else
                             {
-                                MessageCentre.InternalErrorWriteLine($"Device is running CLR, requesting reboot and pause for debugger ({retry + 1}/{ maxOperationRetries }).");
+                                MessageCentre.InternalErrorWriteLine($"Device is running nanoCLR, requesting a restart and pause of debugger ({retry + 1}/{ maxOperationRetries }).");
 
                                 bool rebootSuccessful = _engine.RebootDevice(RebootOptions.ClrOnly | RebootOptions.WaitForDebugger);
 
                                 if (rebootSuccessful)
                                 {
-                                    MessageCentre.InternalErrorWriteLine($"Reboot execution succesfull.");
+                                    MessageCentre.InternalErrorWriteLine($"nanoCLR restarted successfully.");
                                 }
                                 else
                                 {
-                                    MessageCentre.InternalErrorWriteLine($"Device in unknown state after reboot execution....");
+                                    MessageCentre.InternalErrorWriteLine($"Device in unknown state after attempting nanoCLR restart!");
                                 }
 
                                 Thread.Yield();
@@ -374,7 +374,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         }
                         else if (_engine.IsConnectedTonanoBooter)
                         {
-                            MessageCentre.InternalErrorWriteLine($"Device is running nanoBooter, requesting to launch CLR ({retry + 1}/{ maxOperationRetries }).");
+                            MessageCentre.InternalErrorWriteLine($"Device is running nanoBooter, requesting to launch nanoCLR ({retry + 1}/{ maxOperationRetries }).");
 
                             // this is telling nanoBooter to enter CLR
                             _engine.ExecuteMemory(0);
@@ -385,7 +385,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         }
                         else
                         {
-                            MessageCentre.InternalErrorWriteLine("*** ERROR: device is running on an unknown state ***");
+                            MessageCentre.InternalErrorWriteLine("*** ERROR: device is in an unknown state ***");
 
                             // unknown connection source?!
                             // shouldn't be here, but...
@@ -404,7 +404,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                 if (!ShuttingDown && !fSucceeded)
                 {
-                    MessageCentre.InternalErrorWriteLine("*** ERROR: all attempts to put device in initialized state have failed ***");
+                    MessageCentre.InternalErrorWriteLine("*** ERROR: all attempts to initialize the device state have failed! ***");
 
                     MessageCentre.StopProgressMessage();
                     throw new Exception(Resources.ResourceStrings.CouldNotReconnect);
@@ -426,7 +426,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     break;
                 }
 
-                MessageCentre.InternalErrorWriteLine($"Attempting to connect debugger engine ({retry + 1}/{ maxOperationRetries })");
+                MessageCentre.InternalErrorWriteLine($"Attempting to connect the debugger engine ({retry + 1}/{ maxOperationRetries })");
 
                 try
                 {
@@ -436,7 +436,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         {
                             if (Device.DebugEngine == null)
                             {
-                                MessageCentre.InternalErrorWriteLine("Creating debug engine for target device");
+                                MessageCentre.InternalErrorWriteLine("Creating debug engine for the target device");
 
                                 Device.CreateDebugEngine();
                             }
@@ -472,7 +472,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     }
                     else if (_engine.IsConnectedTonanoCLR)
                     {
-                        MessageCentre.InternalErrorWriteLine("Device running nanoCLR, updating debug flags...");
+                        MessageCentre.InternalErrorWriteLine("Device running nanoCLR, updating the debug flags...");
 
                         if (_engine.UpdateDebugFlags())
                         {
@@ -482,7 +482,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         }
                         else
                         {
-                            MessageCentre.InternalErrorWriteLine($"Error update device debugger flags.");
+                            MessageCentre.InternalErrorWriteLine($"Error updating the device debug flags.");
                         }
                     }
                     else
