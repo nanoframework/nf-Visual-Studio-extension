@@ -1,11 +1,12 @@
 # Changelog
 
-## [v2017.6.0.84](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v2017.6.0.84) (2021-09-28)
+## [v2017.7.0.1](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v2017.7.0.1) (2021-09-28)
 
-[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2019.6.0.80...v2017.6.0.84)
+[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2019.6.0.80...v2017.7.0.1)
 
 **Implemented enhancements:**
 
+- Add network port base [\#653](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/653)
 - Improvements in debugger informational messages [\#650](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/650)
 
 **Updated dependencies and other chores:**
