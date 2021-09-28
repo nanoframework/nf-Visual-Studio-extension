@@ -4,7 +4,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{552C2500-2C53-4148-A422-0ED983EF135D}</ProjectGuid>
+    <ProjectGuid>{CE0631F2-731D-4A48-B927-F13F6B2FB055}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>nanoFramework.Tools</RootNamespace>
@@ -53,37 +53,29 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\Tools.BuildTasks\Extensions\CommandLineBuilderExtensions.cs">
-      <Link>Extensions\CommandLineBuilderExtensions.cs</Link>
-    </Compile>
-    <Compile Include="..\Tools.BuildTasks\GenerateBinaryOutputTask.cs">
-      <Link>GenerateBinaryOutputTask.cs</Link>
-    </Compile>
-    <Compile Include="..\Tools.BuildTasks\GenerateNanoResourceTask.cs">
-      <Link>GenerateNanoResourceTask.cs</Link>
-    </Compile>
-    <Compile Include="..\Tools.BuildTasks\ProcessResourceFiles.cs">
-      <Link>ProcessResourceFiles.cs</Link>
-    </Compile>
-    <Compile Include="..\Tools.BuildTasks\ResolveRuntimeDependenciesTask.cs">
-      <Link>ResolveRuntimeDependenciesTask.cs</Link>
-    </Compile>
-    <Compile Include="..\Tools.BuildTasks\TasksConstants.cs">
-      <Link>TasksConstants.cs</Link>
-    </Compile>
-    <Compile Include="..\Tools.BuildTasks\Utilities\DebuggerHelper.cs">
-      <Link>Utilities\DebuggerHelper.cs</Link>
-    </Compile>
+    <Compile Include="GenerateBinaryOutputTask.cs" />
+    <Compile Include="ProcessResourceFiles.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Extensions\CommandLineBuilderExtensions.cs" />
+    <Compile Include="GenerateNanoResourceTask.cs" />
+    <Compile Include="ResolveRuntimeDependenciesTask.cs" />
+    <Compile Include="TasksConstants.cs" />
+    <Compile Include="Utilities\DebuggerHelper.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="key.snk" />
     <None Include="version.json" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Microsoft.VisualStudio.SDK.Analyzers">
+      <Version>15.8.36</Version>
+    </PackageReference>
+    <PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers">
+      <Version>15.8.209</Version>
+    </PackageReference>
     <PackageReference Include="Nerdbank.GitVersioning">
-      <Version>3.4.194</Version>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <Version>3.3.37</Version>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="System.Runtime.CompilerServices.Unsafe">

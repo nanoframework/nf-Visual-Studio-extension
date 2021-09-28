@@ -67,7 +67,7 @@
     <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="..\Tools.BuildTasks\ProcessResourceFiles.cs">
+    <Compile Include="..\Tools.BuildTasks-2017\ProcessResourceFiles.cs">
       <Link>ResXFileCodeGenerator\ProcessResourceFiles.cs</Link>
     </Compile>
     <Compile Include="..\VisualStudio.Extension-2019\AutomaticUpdates\CloudsmithPackageInfo.cs">
@@ -88,84 +88,15 @@
     <Compile Include="..\VisualStudio.Extension-2019\AutomaticUpdates\UpdateManager.cs">
       <Link>AutomaticUpdates\UpdateManager.cs</Link>
     </Compile>
-    <Compile Include="Converters\AuthenticationTypeConverter.cs" />
-    <Compile Include="Converters\EncryptionTypeConverter.cs" />
-    <Compile Include="Converters\NetworkInterfaceTypeConverter.cs" />
-    <Compile Include="Converters\MacAddressConverter.cs" />
-    <Compile Include="Converters\InterfaceTypeToBoolConverters.cs" />
-    <Compile Include="Converters\WirelessAP_OptionsTypeConverter.cs" />
-    <Compile Include="Converters\Wireless80211_OptionsTypeConverter.cs" />
-    <Compile Include="Converters\RadioTypeConverter.cs" />
-    <Compile Include="CorDebug\Utility\Boolean.cs" />
-    <Compile Include="CorDebug\COM_HResults.cs" />
-    <Compile Include="CorDebug\ConnectionPoint.cs" />
-    <Compile Include="CorDebug\CorDebug.cs" />
-    <Compile Include="CorDebug\CorDebugAppDomain.cs" />
-    <Compile Include="CorDebug\CorDebugAssembly.cs" />
-    <Compile Include="CorDebug\CorDebugBreakpoint.cs" />
-    <Compile Include="CorDebug\CorDebugBreakpointStepper.cs" />
-    <Compile Include="CorDebug\CorDebugChain.cs" />
-    <Compile Include="CorDebug\CorDebugClass.cs" />
-    <Compile Include="CorDebug\CorDebugCode.cs" />
-    <Compile Include="CorDebug\CorDebugEnum.cs" />
-    <Compile Include="CorDebug\CorDebugEval.cs" />
-    <Compile Include="CorDebug\CorDebugFrame.cs" />
-    <Compile Include="CorDebug\CorDebugFunction.cs" />
-    <Compile Include="CorDebug\CorDebugProcess.cs" />
-    <Compile Include="CorDebug\CorDebugStepper.cs" />
-    <Compile Include="CorDebug\CorDebugThread.cs" />
-    <Compile Include="CorDebug\CorDebugType.cs" />
-    <Compile Include="CorDebug\CorDebugValue.cs" />
-    <Compile Include="CorDebug\DebugEvent.cs" />
-    <Compile Include="CorDebug\DebuggerInteropConstants.cs" />
-    <Compile Include="CorDebug\DebugPort.cs" />
-    <Compile Include="CorDebug\DebugPortSupplier.cs" />
-    <Compile Include="CorDebug\ICorDebugInterop.cs" />
-    <Compile Include="CorDebug\ManagedCallbacks.cs" />
-    <Compile Include="CorDebug\MetaDataImport.cs" />
-    <Compile Include="CorDebug\MetaDataImportInterface.cs" />
-    <Compile Include="CorDebug\nanoCLR_TypeSystem.cs" />
-    <Compile Include="CorDebug\Pdbx.cs" />
-    <Compile Include="CorDebug\PdbxFile.cs" />
-    <Compile Include="CorDebug\ProcessExitException.cs" />
-    <Compile Include="DeployProvider\DeploymentAssembly.cs" />
-    <Compile Include="DeployProvider\DeploymentAssemblyDistinctEquality.cs" />
-    <Compile Include="DeployProvider\DeploymentException.cs" />
     <Compile Include="IPMaskedTextBox\IPMaskedTextBox.xaml.cs">
       <DependentUpon>IPMaskedTextBox.xaml</DependentUpon>
     </Compile>
-    <Compile Include="MessageCentre\MessageCentre.cs" />
-    <Compile Include="CorDebug\Utility\Utility.FImplies.cs" />
-    <Compile Include="CorDebug\Utility\Utility.InRange.cs" />
-    <Compile Include="CorDebug\Utility\Utility.Kernel32.cs" />
-    <Compile Include="CorDebug\Utility\Utility.MarshalInt.cs" />
-    <Compile Include="CorDebug\Utility\Utility.MarshalString.cs" />
-    <Compile Include="CorDebug\Utility\Utility.XmlDeserialize.cs" />
-    <Compile Include="DebugLauncher\CommandLineBuilder.cs" />
-    <Compile Include="DebugLauncher\NanoDebuggerLaunchProvider.cs" />
-    <Compile Include="DeployProvider\DeployProvider.cs" />
-    <Compile Include="Extensions\TaskExtensions.cs" />
-    <Compile Include="NanoDeviceCommService\NanoDeviceCommService.cs" />
-    <Compile Include="NanoDeviceCommService\SNanoDeviceCommService.cs" />
-    <Compile Include="NanoDeviceCommService\INanoDeviceCommService.cs" />
-    <Compile Include="Extensions\VersionExtensions.cs" />
-    <Compile Include="NanoFrameworkMonikers.cs" />
-    <Compile Include="ProjectSystem\GlobalPropertiesProvider.cs" />
-    <Compile Include="ProjectSystem\NanoCSharpProjectConfigured.cs" />
-    <Compile Include="ProjectSystem\NanoCSharpProjectUnconfigured.cs" />
-    <Compile Include="ProjectSystem\ProjectProperties.cs" />
-    <Compile Include="ProjectSystem\ProjectTreePropertiesProvider.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ProvideDebugEngineAttribute.cs" />
-    <Compile Include="ProvideDebugPortSupplierAttribute.cs" />
     <Compile Include="Resources\ResourceStrings.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>ResourceStrings.resx</DependentUpon>
     </Compile>
-    <Compile Include="ResXFileCodeGenerator\NFResXFileCodeGenerator.cs" />
-    <Compile Include="ToolWindow.DeviceExplorer\DeviceExplorer.cs" />
-    <Compile Include="ToolWindow.DeviceExplorer\DeviceExplorerCommand.cs" />
     <Compile Include="ToolWindow.DeviceExplorer\SettingsDialog.xaml.cs">
       <DependentUpon>SettingsDialog.xaml</DependentUpon>
     </Compile>
@@ -176,18 +107,6 @@
       <DependentUpon>DeviceExplorerControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="NanoFrameworkPackage.cs" />
-    <Compile Include="ToolWindow.DeviceExplorer\Models\ConnectionState.cs" />
-    <Compile Include="ToolWindow.DeviceExplorer\Models\PingConnectionResult.cs" />
-    <Compile Include="ToolWindow.DeviceExplorer\Services\NanoFrameworkService\INFDebugClientBaseService.cs" />
-    <Compile Include="ToolWindow.DeviceExplorer\Services\NanoFrameworkService\INFSerialDebugClientService.cs" />
-    <Compile Include="ToolWindow.DeviceExplorer\Services\NanoFrameworkService\NFSerialDebugClientService.cs" />
-    <Compile Include="ToolWindow.DeviceExplorer\ViewModel\DesignDataService.cs" />
-    <Compile Include="ToolWindow.DeviceExplorer\ViewModel\DeviceExplorerViewModel.cs" />
-    <Compile Include="ToolWindow.DeviceExplorer\ViewModel\IDataService.cs" />
-    <Compile Include="ToolWindow.DeviceExplorer\ViewModel\ViewModelLocator.cs" />
-    <Compile Include="Utilities\DeploymentImageGenerator.cs" />
-    <Compile Include="Utilities\EnumToItemsSource.cs" />
-    <Compile Include="Utilities\ReferenceCrawler.cs" />
   </ItemGroup>
   <ItemGroup>
     <!-- GeneratePathProperty doesn't work on VS2017, so need to add this workaround -->
@@ -352,7 +271,7 @@
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
       <VSIXSubPath>ProjectTemplates</VSIXSubPath>
     </ProjectReference>
-    <ProjectReference Include="..\Tools.BuildTasks\Tools.BuildTasks.csproj">
+    <ProjectReference Include="..\Tools.BuildTasks-2017\Tools.BuildTasks.csproj">
       <Project>{ce0631f2-731d-4a48-b927-f13f6b2fb055}</Project>
       <Name>Tools.BuildTasks</Name>
       <InstallRoot>MSBuild</InstallRoot>
@@ -827,6 +746,7 @@
       <Version>4.3.0</Version>
     </PackageReference>
   </ItemGroup>
+  <Import Project="..\vs-extension.shared\vs-extension.shared.projitems" Label="Shared" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(VSToolsPath)\VSSDK\Microsoft.VsSDK.targets" Condition="'$(VSToolsPath)' != '' AND Exists('$(VSToolsPath)\VSSDK\Microsoft.VsSDK.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
