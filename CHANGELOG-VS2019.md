@@ -1,11 +1,12 @@
 # Changelog
 
-## [v2019.7.0.1](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v2019.7.0.1) (2021-09-28)
+## [v2019.8.0.1](https://github.com/nanoframework/nf-Visual-Studio-extension/tree/v2019.8.0.1) (2021-10-16)
 
-[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2019.6.0.80...v2019.7.0.1)
+[Full Changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/compare/v2019.6.0.80...v2019.8.0.1)
 
 **Implemented enhancements:**
 
+- Replace logo in extension  [\#655](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/655)
 - Add network port base [\#653](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/653)
 - Improvements in debugger informational messages [\#650](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/650)
 
