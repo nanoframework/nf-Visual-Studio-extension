@@ -56,7 +56,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
     /// </remarks>
     [PackageRegistration(AllowsBackgroundLoading = true, RegisterUsing = RegistrationMethod.CodeBase, UseManagedResourcesOnly = true)]
     // info that shown on extension catalog
-    [Description("Visual Studio 2019 extension for nanoFramework. Enables creating C# Solutions to be deployed to a target board and provides debugging tools.")]
+    [Description("Visual Studio 2022 extension for .NET nanoFramework. Enables creating C# Solutions to be deployed to a target board and provides debugging tools.")]
     // menu for ToolWindow
     [ProvideMenuResource("Menus.ctmenu", 1)]
     // declaration of Device Explorer ToolWindow that (as default) will show tabbed in Solution Explorer
@@ -70,7 +70,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension
     // register code generator for resources
     [ProvideObject(typeof(nFResXFileCodeGenerator))]
     [ProvideCodeGenerator(typeof(nFResXFileCodeGenerator), nFResXFileCodeGenerator.Name, nFResXFileCodeGenerator.Description, true, ProjectSystem = ProvideCodeGeneratorAttribute.CSharpProjectGuid)]
-    [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1650:ElementDocumentationMustBeSpelledCorrectly", Justification = "pkgdef, VS and vsixmanifest are valid VS terms")]
     public sealed class NanoFrameworkPackage : AsyncPackage, Microsoft.VisualStudio.OLE.Interop.IOleCommandTarget
     {
         /// <summary>
