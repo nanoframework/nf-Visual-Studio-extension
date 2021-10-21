@@ -314,9 +314,9 @@
       },
       "nanoFramework.Tools.Debugger.Net": {
         "type": "Direct",
-        "requested": "[2.0.0-preview.34, )",
-        "resolved": "2.0.0-preview.34",
-        "contentHash": "RK/IFwrotZf3cqNA1kihH0SkbNe00ZwC0fc5gQY5u+qy/SUOo2rIdZ1SGYiOnl7vES36ViTXPsque/wfISX7jg==",
+        "requested": "[2.0.0-preview.41, )",
+        "resolved": "2.0.0-preview.41",
+        "contentHash": "8PjjdLgSFd++WSMcqpCL15ezCLYpTLbuO6YiVr2abvlQYfafWYs0XiejhE3BI0DV+GrOaQcBRcXSiKl0/IMuag==",
         "dependencies": {
           "Polly": "7.2.1",
           "Polly.Contrib.WaitAndRetry": "1.1.1",

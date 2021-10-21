@@ -6,7 +6,6 @@
     <Name>Class definition (nanoFramework)</Name>
     <Description>An empty .NET nanoFramework class definition.</Description>
     <AppliesTo>CSharp</AppliesTo>
-    <Icon>CSClassFile.ico</Icon>
     <TemplateID>2202056b-59a6-4362-b498-df418a940084</TemplateID>
     <NumberOfParentCategoriesToRollUp>1</NumberOfParentCategoriesToRollUp>
     <DefaultName>Class.cs</DefaultName>
