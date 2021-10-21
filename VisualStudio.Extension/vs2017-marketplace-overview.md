@@ -29,4 +29,4 @@ To report issues go to our issue tracker on GitHub [here](https://github.com/nan
 
 For conversations, sharing ideas and support please join our Discord community [here](https://discord.gg/gCyBu8T).
 
-Please note that we also offer a VS extension compatible with [VS2019](https://marketplace.visualstudio.com/items?itemName=nanoframework.nanoFramework-VS2019-Extension).
+Please note that we also offer a VS extension compatible with [VS2019](https://marketplace.visualstudio.com/items?itemName=nanoframework.nanoFramework-VS2019-Extension) and another compatible with [VS2022](https://marketplace.visualstudio.com/items?itemName=nanoframework.nanoFramework-VS2022-Extension).
