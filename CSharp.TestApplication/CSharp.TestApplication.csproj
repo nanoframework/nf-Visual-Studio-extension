@@ -59,7 +59,11 @@
       <SubType>Designer</SubType>
       <OutputSubPath>nanoFramework</OutputSubPath>
     </VSTemplate>
-    <VSTemplate Include="CSharp.TestApplication.vstemplate" Condition=" '$(VisualStudioVersion)' == '16.0'">
+    <VSTemplate Include="CSharp.TestApplication-vs2019.vstemplate" Condition=" '$(VisualStudioVersion)' == '16.0'">
+      <SubType>Designer</SubType>
+      <OutputSubPath>nanoFramework</OutputSubPath>
+    </VSTemplate>
+    <VSTemplate Include="CSharp.TestApplication.vstemplate" Condition=" '$(VisualStudioVersion)' == '17.0'">
       <SubType>Designer</SubType>
       <OutputSubPath>nanoFramework</OutputSubPath>
     </VSTemplate>
