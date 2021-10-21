@@ -6,9 +6,9 @@
         "programming languages"
     ],
     "identity": {
-        "internalName": "nanoframework-vs2019-extension"
+        "internalName": "nanoframework-vs2022-extension"
     },
-    "overview": "vs2019-marketplace-overview.md",
+    "overview": "vs2022-marketplace-overview.md",
     "priceCategory": "free",
     "publisher": "nanoframework",
     "private": false,
