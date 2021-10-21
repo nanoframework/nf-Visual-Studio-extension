@@ -1,11 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="$(VisualStudioVersion)" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-    <MinimumVisualStudioVersion>16.0</MinimumVisualStudioVersion>
+    <MinimumVisualStudioVersion>17.0</MinimumVisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
-    <NuGetPackageImportStamp>
-    </NuGetPackageImportStamp>
-    <TargetFrameworkProfile />
     <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
   </PropertyGroup>
   <PropertyGroup>
@@ -17,7 +14,7 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectTypeGuids>{82b43b9b-a64c-4715-b499-d71e9ca2bd60};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
-    <ProjectGuid>{F217D29D-F8B0-4F43-A3AC-8445F20BF880}</ProjectGuid>
+    <ProjectGuid>{E3E5B359-8E18-4B7D-8469-F93C6867D712}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>nanoFramework.Tools.VisualStudio.Extension</RootNamespace>
@@ -472,7 +469,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="EnvDTE80">
-      <Version>16.9.31023.347</Version>
+      <Version>17.0.0-previews-4-31709-430</Version>
     </PackageReference>
     <PackageReference Include="Extended.Wpf.Toolkit">
       <Version>4.0.2</Version>
@@ -487,33 +484,27 @@
       <Version>2.2.85</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.Build">
-      <Version>16.9.0</Version>
+      <Version>16.11.0</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.Build.Tasks.Core">
-      <Version>16.9.0</Version>
+      <Version>16.11.0</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.CodeAnalysis.BannedApiAnalyzers">
       <Version>3.3.2</Version>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.VisualStudio.Composition">
-      <Version>16.4.11</Version>
-    </PackageReference>
     <PackageReference Include="Microsoft.VisualStudio.Debugger.Engine">
-      <Version>16.4.1111102</Version>
+      <Version>17.0.1051901-preview</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.VisualStudio.ProjectSystem">
-      <Version>16.0.374-pre</Version>
+      <Version>17.0.667-pre</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.VisualStudio.ProjectSystem.Sdk">
-      <Version>15.8.243</Version>
+      <Version>17.0.667-pre</Version>
     </PackageReference>
-    <PackageReference Include="Microsoft.VisualStudio.Text.Data">
-      <Version>16.9.227</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.VisualStudio.TextTemplating.VSHost.15.0">
-      <Version>16.9.31025.194</Version>
+    <PackageReference Include="Microsoft.VisualStudio.SDK">
+      <Version>17.0.0-previews-4-31709-430</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.Win32.Primitives">
       <Version>4.3.0</Version>
@@ -532,7 +523,7 @@
       <Version>1.0.150</Version>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="nanoFramework.Tools.Debugger.Net" Version="2.0.0-preview.34" />
+    <PackageReference Include="nanoFramework.Tools.Debugger.Net" Version="2.0.0-preview.41" />
     <PackageReference Include="nanoFramework.Tools.MetadataProcessor.Core" Version="2.31.3" />
     <PackageReference Include="nanoFramework.Tools.MetadataProcessor.MsBuildTask" Version="2.35.10" />
     <PackageReference Include="Nerdbank.GitVersioning">
@@ -541,19 +532,19 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Newtonsoft.Json">
-      <Version>12.0.3</Version>
+      <Version>13.0.1</Version>
     </PackageReference>
     <PackageReference Include="NuGet.VisualStudio">
-      <Version>5.9.1</Version>
+      <Version>5.11.0</Version>
     </PackageReference>
     <PackageReference Include="PropertyChanging.Fody">
       <Version>1.29.3</Version>
     </PackageReference>
     <PackageReference Include="stdole">
-      <Version>16.9.31023.347</Version>
+      <Version>17.0.0-previews-4-31709-430</Version>
     </PackageReference>
     <PackageReference Include="StreamJsonRpc">
-      <Version>2.7.76</Version>
+      <Version>2.9.12-alpha</Version>
     </PackageReference>
     <PackageReference Include="System.Collections">
       <Version>4.3.0</Version>
@@ -621,10 +612,7 @@
     <PackageReference Include="System.Xml.ReaderWriter">
       <Version>4.3.1</Version>
     </PackageReference>
-    <PackageReference Include="Microsoft.VisualStudio.SDK" Version="16.9.31025.194" ExcludeAssets="runtime">
-      <IncludeAssets>compile; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="Microsoft.VSSDK.BuildTools" Version="16.9.1050" PrivateAssets="all" IncludeAssets="runtime; build; native; contentfiles; analyzers" />
+    <PackageReference Include="Microsoft.VSSDK.BuildTools" Version="17.1.9-preview1" PrivateAssets="all" IncludeAssets="runtime; build; native; contentfiles; analyzers" />
   </ItemGroup>
   <Import Project="..\vs-extension.shared\vs-extension.shared.projitems" Label="Shared" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
