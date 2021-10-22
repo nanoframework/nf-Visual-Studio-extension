@@ -4,14 +4,15 @@
 
 -----
 
-### Welcome to the **nanoFramework** Visual Studio extension repository!
+### Welcome to the .NET **nanoFramework** Visual Studio extension repository!
 
-This repo contains **nanoFramework** Visual Studio extension and associated tools.
+This repo contains .NET **nanoFramework** Visual Studio extension and associated tools.
 
 ## Build status
 
 | Component | Build Status | Stable version | Preview version |
 |:-|---|---|---|
+| Visual Studio 2022 extension | [![Build Status](https://dev.azure.com/nanoframework/Visual-Studio-extension/_apis/build/status/nanoframework.nf-Visual-Studio-extension)](https://dev.azure.com/nanoframework/Visual-Studio-extension/_build/latest?definitionId=17) | [![Visual Studio Marketplace](https://img.shields.io/vscode-marketplace/d/nanoframework.nanoFramework-VS2022-Extension.svg)](https://marketplace.visualstudio.com/items?itemName=nanoframework.nanoFramework-VS2022-Extension) | [![Open VSIX Gallery](https://img.shields.io/badge/Open%20VSIX%20Gallery-(preview)-yellow.svg)](http://vsixgallery.com/extension/432ef961-ea3b-4099-ada9-b720ff3a566b) |
 | Visual Studio 2019 extension | [![Build Status](https://dev.azure.com/nanoframework/Visual-Studio-extension/_apis/build/status/nanoframework.nf-Visual-Studio-extension)](https://dev.azure.com/nanoframework/Visual-Studio-extension/_build/latest?definitionId=17) | [![Visual Studio Marketplace](https://img.shields.io/vscode-marketplace/d/nanoframework.nanoFramework-VS2019-Extension.svg)](https://marketplace.visualstudio.com/items?itemName=nanoframework.nanoFramework-VS2019-Extension) | [![Open VSIX Gallery](https://img.shields.io/badge/Open%20VSIX%20Gallery-(preview)-yellow.svg)](http://vsixgallery.com/extension/455f2be5-bb07-451e-b351-a9faf3018dc9) |
 | Visual Studio 2017 extension | [![Build Status](https://dev.azure.com/nanoframework/Visual-Studio-extension/_apis/build/status/nanoframework.nf-Visual-Studio-extension)](https://dev.azure.com/nanoframework/Visual-Studio-extension/_build/latest?definitionId=17) | [![Visual Studio Marketplace](https://img.shields.io/vscode-marketplace/d/vs-publisher-1470366.nanoFrameworkVS2017Extension.svg)](https://marketplace.visualstudio.com/items?itemName=vs-publisher-1470366.nanoFrameworkVS2017Extension) | [![Open VSIX Gallery](https://img.shields.io/badge/Open%20VSIX%20Gallery-(preview)-yellow.svg)](http://vsixgallery.com/extension/47973986-ed3c-4b64-ba40-a9da73b44ef7) |
 
