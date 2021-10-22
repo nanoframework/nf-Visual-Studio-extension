@@ -1142,10 +1142,10 @@
       "csharp.assemblyinfotemplate": {
         "type": "Project"
       },
-      "csharp.blankapplication": {
+      "csharp.blankapplication-vs2017": {
         "type": "Project"
       },
-      "csharp.classlibrary": {
+      "csharp.classlibrary-vs2017": {
         "type": "Project"
       },
       "csharp.classtemplate": {
@@ -1154,7 +1154,7 @@
       "csharp.resourcetemplate": {
         "type": "Project"
       },
-      "csharp.testapplication": {
+      "csharp.testapplication-vs2017": {
         "type": "Project"
       },
       "tools.buildtasks": {

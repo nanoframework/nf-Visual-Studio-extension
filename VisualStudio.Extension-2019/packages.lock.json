@@ -2256,10 +2256,10 @@
       "csharp.assemblyinfotemplate": {
         "type": "Project"
       },
-      "csharp.blankapplication": {
+      "csharp.blankapplication-vs2022": {
         "type": "Project"
       },
-      "csharp.classlibrary": {
+      "csharp.classlibrary-vs2019": {
         "type": "Project"
       },
       "csharp.classtemplate": {
@@ -2268,10 +2268,10 @@
       "csharp.resourcetemplate": {
         "type": "Project"
       },
-      "csharp.testapplication": {
+      "csharp.testapplication-vs2019": {
         "type": "Project"
       },
-      "tools.buildtasks": {
+      "nanoFramework.Tools.BuildTasks": {
         "type": "Project",
         "dependencies": {
           "System.Runtime.CompilerServices.Unsafe": "4.7.0"
