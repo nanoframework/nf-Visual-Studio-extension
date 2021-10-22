@@ -241,47 +241,40 @@ jobs:
       }
 
     displayName: set release draft var
-
-  # create or update GitHub release
-  - task: GitHubReleasePublish@1
-    inputs:
-      githubEndpoint: 'nanoframework'
-      githubOwner: 'nanoframework'
-      githubRepositoryName: 'nf-Visual-Studio-extension'
-      githubTag: v$(NBGV_AssemblyVersion)
-      githubReleaseTitle: '.NET nanoFramework VS2017 Extension v$(NBGV_AssemblyVersion)'
-      githubReleaseNotes: 'Check the [changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/blob/$(Build.SourceBranchName)/CHANGELOG-VS2017.md).<br><br><h4>Install from nanoFramework Open VSIX Gallery development feed</h4><br>The following Visual Studio Extensions are available for install from this release<br><br>:package: [nanoFramework VS2017 Extension](http://vsixgallery.com/extension/47973986-ed3c-4b64-ba40-a9da73b44ef7)'
-      githubTargetCommitsh: $(Build.SourceVersion)
-      githubReleaseDraft: $(RELEASE_DRAFT)
-      githubReleasePrerelease: true
-      githubReuseDraftOnly: true
-      githubReuseRelease: true
-      githubEditRelease: true
-      githubDeleteEmptyTag: true
-      githubReleaseAsset: '$(Build.ArtifactStagingDirectory)/*.vsix'
-    condition: and( succeeded(), eq(variables['System.PullRequest.PullRequestId'], ''), not( startsWith(variables['Build.SourceBranch'], 'refs/tags/v') ) )
-    displayName: Create/Update GitHub release
-
-  # create or update GitHub release ON tags from release or master branches
-  - task: GitHubReleasePublish@1
-    inputs:
-      githubEndpoint: 'nanoframework'
-      githubOwner: 'nanoframework'
-      githubRepositoryName: 'nf-Visual-Studio-extension'
-      githubTag: v$(NBGV_AssemblyVersion)
-      githubReleaseTitle: '.NET nanoFramework VS2017 Extension v$(NBGV_AssemblyVersion)'
-      githubReleaseNotes: 'Check the [changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/blob/$(Build.SourceBranchName)/CHANGELOG-VS2017.md).<br><br><h4>Install from Visual Studio Marketplace</h4><br>The following Visual Studio Extensions are available for install from this release<br>:package: [nanoFramework VS2017 Extension](https://marketplace.visualstudio.com/items?itemName=vs-publisher-1470366.nanoFrameworkVS2017Extension)'
-      githubTargetCommitsh: $(Build.SourceVersion)
-      githubReleaseDraft: false
-      githubReleasePrerelease: false
-      githubReuseDraftOnly: false
-      githubReuseRelease: false
-      githubEditRelease: false
-      githubDeleteEmptyTag: true
-      githubReleaseAsset: '$(Build.ArtifactStagingDirectory)/*.vsix'
-    condition: and( succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/v'), contains(variables['Build.SourceBranch'], 'vs2017'), or( eq(variables['Build.SourceBranchName'], 'master'), contains(variables['Build.SourceBranchName'], 'release') ) )
-    displayName: Create/Update GitHub release VS2017 only
  
+  # create or update GitHub release
+  - task: GithubRelease@1
+    condition: and( succeeded(), eq(variables['System.PullRequest.PullRequestId'], ''), not( startsWith(variables['Build.SourceBranch'], 'refs/tags/v') ) )
+    displayName: Create/Update GitHub release VS2017 only
+    inputs:
+      gitHubConnection: 'github.com_nano-$(System.TeamProject)'
+      tagSource: userSpecifiedTag
+      tag: v$(NBGV_AssemblyVersion)
+      title: '.NET nanoFramework VS2017 Extension v$(NBGV_AssemblyVersion)'
+      releaseNotesSource: inline
+      releaseNotesInline: 'Check the [changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/blob/$(Build.SourceBranchName)/CHANGELOG-VS2017.md).<br><br><h4>Install from nanoFramework Open VSIX Gallery development feed</h4><br>The following Visual Studio Extensions are available for install from this release<br><br>:package: [nanoFramework VS2017 Extension](http://vsixgallery.com/extension/47973986-ed3c-4b64-ba40-a9da73b44ef7)'
+      assets: '$(Build.ArtifactStagingDirectory)/*.vsix'
+      assetUploadMode: replace
+      isPreRelease: true
+      addChangeLog: false
+
+  # create or update GitHub release ON tags from release or main branches
+  - task: GithubRelease@1
+    condition: and( succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/v'), contains(variables['Build.SourceBranch'], 'vs2017'), or( eq(variables['Build.SourceBranchName'], 'master'), contains(variables['Build.SourceBranchName'], 'release') ) )
+    displayName: Create/Update GitHub stable release VS2017 only
+    inputs:
+      action: edit
+      gitHubConnection: 'github.com_nano-$(System.TeamProject)'
+      tagSource: userSpecifiedTag
+      tag: v$(NBGV_AssemblyVersion)
+      title: '.NET nanoFramework VS2017 Extension v$(NBGV_AssemblyVersion)'
+      releaseNotesSource: inline
+      releaseNotesInline: 'Check the [changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/blob/$(Build.SourceBranchName)/CHANGELOG-VS2017.md).<br><br><h4>Install from Visual Studio Marketplace</h4><br>The following Visual Studio Extensions are available for install from this release<br>:package: [nanoFramework VS2017 Extension](https://marketplace.visualstudio.com/items?itemName=vs-publisher-1470366.nanoFrameworkVS2017Extension)'
+      assets: '$(Build.ArtifactStagingDirectory)/*.vsix'
+      assetUploadMode: replace
+      isPreRelease: false
+      addChangeLog: false
+
 ######################
 - job: VS2019_2022
   condition: or( eq( dependencies.Get_Build_Options.outputs['BuildOptions.BUILD_VS2019_2022'], true ), eq(variables['BUILD_VS2019'], 'true'), eq(variables['BUILD_2022'], 'true') )
