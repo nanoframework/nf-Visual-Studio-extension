@@ -23,7 +23,7 @@ jobs:
 ##############################
 - job: Get_Build_Options
   pool:
-    vmImage: 'windows-2019'
+    vmImage: 'windows-latest'
 
   steps:
   - checkout: self
@@ -41,7 +41,7 @@ jobs:
 
       # default values 
       echo "##vso[task.setvariable variable=BUILD_VS2017;isOutput=true]false"  
-      echo "##vso[task.setvariable variable=BUILD_VS2019;isOutput=true]false"  
+      echo "##vso[task.setvariable variable=BUILD_VS2019_2022;isOutput=true]false"  
 
       if( ($commit.files.filename -like "*CSharp.AssemblyInfoTemplate*") -Or
           ($commit.files.filename -like "*CSharp.BlankApplication*") -Or
@@ -57,30 +57,35 @@ jobs:
       {
           # global changes, build both
           echo "##vso[task.setvariable variable=BUILD_VS2017;isOutput=true]true"  
-          echo "##vso[task.setvariable variable=BUILD_VS2019;isOutput=true]true"  
+          echo "##vso[task.setvariable variable=BUILD_VS2019_2022;isOutput=true]true"  
       }
       else
       {
-        if( $commit.files.filename -like "*nanoFramework.Tools.VisualStudio.sln")
+        if( $commit.files.filename -like "*nanoFramework.Tools.VisualStudio-2017.sln")
         {
           # changes here impact VS2017
           echo "##vso[task.setvariable variable=BUILD_VS2017;isOutput=true]true"  
         }
-        if( $commit.files.filename -like "*nanoFramework.Tools.VisualStudio-2019.sln")
+        if( $commit.files.filename -like "*nanoFramework.Tools.VisualStudio.sln")
         {
-          # changes here impact VS2019
-          echo "##vso[task.setvariable variable=BUILD_VS2019;isOutput=true]true"  
+          # changes here impact VS2022 and VS2019
+          echo "##vso[task.setvariable variable=BUILD_VS2019_2022;isOutput=true]true"  
         }
-        if( $commit.files.filename -like "*VisualStudio.Extension/*" )
+        if( $commit.files.filename -like "*VisualStudio.Extension-2017/*" )
         {
-          # changes here, most likely impact VS2019 too
+          # changes here, most likely impact VS2022 and VS2019 too
           echo "##vso[task.setvariable variable=BUILD_VS2017;isOutput=true]true"  
-          echo "##vso[task.setvariable variable=BUILD_VS2019;isOutput=true]true"  
+          echo "##vso[task.setvariable variable=BUILD_VS2019_2022;isOutput=true]true"  
         }
         if( $commit.files.filename -like "*VisualStudio.Extension-2019/*" )
         {
-          # changes here only impact VS2019
-          echo "##vso[task.setvariable variable=BUILD_VS2019;isOutput=true]true"
+          # changes here only impact VS2022 and VS2019
+          echo "##vso[task.setvariable variable=BUILD_VS2019_2022;isOutput=true]true"
+        }
+        if( $commit.files.filename -like "*VisualStudio.Extension-2022/*" )
+        {
+          # changes here only impact VS2022
+          echo "##vso[task.setvariable variable=BUILD_VS2019_2022;isOutput=true]true"
         }
       }
 
@@ -97,7 +102,7 @@ jobs:
     vmImage: 'windows-2019'
 
   variables:
-    solution: '**/nanoFramework.Tools.VisualStudio.sln'
+    solution: '**/nanoFramework.Tools.VisualStudio-2017.sln'
     buildPlatform: 'Any CPU'
     buildConfiguration: 'Release'
 
@@ -278,16 +283,16 @@ jobs:
     displayName: Create/Update GitHub release VS2017 only
  
 ######################
-- job: VS2019
-  condition: or( eq( dependencies.Get_Build_Options.outputs['BuildOptions.BUILD_VS2019'], true ), eq(variables['BUILD_VS2019'], 'true') )
+- job: VS2019_2022
+  condition: or( eq( dependencies.Get_Build_Options.outputs['BuildOptions.BUILD_VS2019_2022'], true ), eq(variables['BUILD_VS2019_2022'], 'true') )
   dependsOn:
   - Get_Build_Options
 
   pool:
-    vmImage: 'windows-2019'
+    vmImage: 'windows-2022'
 
   variables:
-    solution: '**/nanoFramework.Tools.VisualStudio-2019.sln'
+    solution: '**/nanoFramework.Tools.VisualStudio.sln'
     buildPlatform: 'Any CPU'
     buildConfiguration: 'Release'
 
@@ -328,13 +333,13 @@ jobs:
     inputs:
         targetType: 'inline'
         script: |
-            Write-Host "VS2019 build version $env:NBGV_AssemblyVersion"
+            Write-Host "VS2019+2022 build version $env:NBGV_AssemblyVersion"
             
             echo "##vso[task.setvariable variable=BUILD_VERSION;isOutput=true]$env:NBGV_AssemblyVersion"  
 
     condition: succeeded()
-    name: VS2019Build
-    displayName: Store VS2019 build version
+    name: VS2019_2022_Build
+    displayName: Store VS2019+2022 build version
 
   #####
   # can't update could build number with release number because it's shared among VS2017 and VS2019
@@ -344,16 +349,30 @@ jobs:
     inputs:
       sourceFolder: $(Build.SourcesDirectory)
       Contents: |
-        **\*.vsix
+        **\*VS2019.Extension.vsix
         **\vs2019-extension-manifest.json
         **\vs2019-marketplace-overview.md
         **\vs2019\debug-session.png
         **\vs2019\starting-new-project.png
-      TargetFolder: '$(Build.ArtifactStagingDirectory)'
+      TargetFolder: '$(Build.ArtifactStagingDirectory)\vs2019'
       flattenFolders: true
     condition: succeeded()
-    displayName: Collecting deployable artifacts
-    
+    displayName: Collecting VS2019 deployable artifacts
+
+  - task: CopyFiles@1
+    inputs:
+      sourceFolder: $(Build.SourcesDirectory)
+      Contents: |
+        **\*VS2022.Extension.vsix
+        **\vs2022-extension-manifest.json
+        **\vs2022-marketplace-overview.md
+        **\vs2022\debug-session.png
+        **\vs2022\starting-new-project.png
+      TargetFolder: '$(Build.ArtifactStagingDirectory)\vs2022'
+      flattenFolders: true
+    condition: succeeded()
+    displayName: Collecting VS2022 deployable artifacts
+
   - task: DotNetCoreCLI@2
     displayName: Install SignTool tool
     condition: and( succeeded(), eq(variables['System.PullRequest.PullRequestId'], '') )
@@ -364,7 +383,7 @@ jobs:
   
   - pwsh: |
       .\SignClient "Sign" `
-      --baseDirectory "$(Build.ArtifactStagingDirectory)" `
+      --baseDirectory "$(Build.ArtifactStagingDirectory)\vs2019" `
       --input "**\*.vsix" `
       --config "$(Build.Repository.LocalPath)\config\SignClient.json" `
       --filelist "$(Build.Repository.LocalPath)\config\filelist.txt" `
@@ -373,7 +392,21 @@ jobs:
       --name ".NET nanoFramework VS2019 Extension" `
       --description ".NET nanoFramework VS2019 Extension" `
       --descriptionUrl "https://github.com/$env:Build_Repository_Name"
-    displayName: Sign packages
+    displayName: Sign VS2019 packages
+    condition: and( succeeded(), eq(variables['System.PullRequest.PullRequestId'], '') )
+  
+  - pwsh: |
+      .\SignClient "Sign" `
+      --baseDirectory "$(Build.ArtifactStagingDirectory)\vs2022" `
+      --input "**\*.vsix" `
+      --config "$(Build.Repository.LocalPath)\config\SignClient.json" `
+      --filelist "$(Build.Repository.LocalPath)\config\filelist.txt" `
+      --user "$(SignClientUser)" `
+      --secret '$(SignClientSecret)' `
+      --name ".NET nanoFramework VS2019 Extension" `
+      --description ".NET nanoFramework VS2019 Extension" `
+      --descriptionUrl "https://github.com/$env:Build_Repository_Name"
+    displayName: Sign VS2022 packages
     condition: and( succeeded(), eq(variables['System.PullRequest.PullRequestId'], '') )
 
   # publish artifacts (only possible if this is not a PR originated on a fork)
@@ -391,8 +424,8 @@ jobs:
         targetType: 'inline'
         script: |
 
-          $artifactsSearchPattern = "./*.vsix"
-          $artifactsCollection = (Get-ChildItem $artifactsSearchPattern -Recurse)
+          # filter out VS2022 because VSIX gallery doesn't support these (yet)
+          $artifactsCollection = @("./*VS2017.Extension.vsix", "./*VS2019.Extension.vsix") | %{ Get-ChildItem -File . -Filter $_ -Recurse}
 
           (new-object Net.WebClient).DownloadString("https://raw.github.com/madskristensen/ExtensionScripts/master/AppVeyor/vsix.ps1") | iex
 
@@ -434,8 +467,8 @@ jobs:
       githubOwner: 'nanoframework'
       githubRepositoryName: 'nf-Visual-Studio-extension'
       githubTag: v$(NBGV_AssemblyVersion)
-      githubReleaseTitle: '.NET nanoFramework VS2019 Extension v$(NBGV_AssemblyVersion)'
-      githubReleaseNotes: 'Check the [changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/blob/$(Build.SourceBranchName)/CHANGELOG-VS2019.md).<br><br><h4>Install from nanoFramework Open VSIX Gallery development feed</h4><br>The following Visual Studio Extensions are available for install from this release<br><br>:package: [nanoFramework VS2019 Extension](http://vsixgallery.com/extension/455f2be5-bb07-451e-b351-a9faf3018dc9)'
+      githubReleaseTitle: '.NET nanoFramework Extension v$(NBGV_AssemblyVersion)'
+      githubReleaseNotes: 'Check the [changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/blob/$(Build.SourceBranchName)/CHANGELOG-VS2019.md).<br><br><h4>Install from nanoFramework Open VSIX Gallery development feed</h4><br>The following Visual Studio Extensions are available for install from this release<br><br>:package: [nanoFramework VS2019 Extension](http://vsixgallery.com/extension/455f2be5-bb07-451e-b351-a9faf3018dc9)<br>:package: [nanoFramework VS2022 Extension](http://vsixgallery.com/extension/432ef961-ea3b-4099-ada9-b720ff3a566b)'
       githubTargetCommitsh: $(Build.SourceVersion)
       githubReleaseDraft: $(RELEASE_DRAFT)
       githubReleasePrerelease: true
@@ -454,8 +487,8 @@ jobs:
       githubOwner: 'nanoframework'
       githubRepositoryName: 'nf-Visual-Studio-extension'
       githubTag: v$(NBGV_AssemblyVersion)
-      githubReleaseTitle: '.NET nanoFramework VS2019 Extension v$(NBGV_AssemblyVersion)'
-      githubReleaseNotes: 'Check the [changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/blob/$(Build.SourceBranchName)/CHANGELOG-VS2019.md).<br><br><h4>Install from Visual Studio Marketplace</h4><br>The following Visual Studio Extensions are available for install from this release<br>:package: [nanoFramework VS2019 Extension](https://marketplace.visualstudio.com/items?itemName=nanoframework.nanoFramework-VS2019-Extension)'
+      githubReleaseTitle: '.NET nanoFramework Extension v$(NBGV_AssemblyVersion)'
+      githubReleaseNotes: 'Check the [changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/blob/$(Build.SourceBranchName)/CHANGELOG-VS2019.md).<br><br><h4>Install from Visual Studio Marketplace</h4><br>The following Visual Studio Extensions are available for install from this release<br>:package: [nanoFramework VS2019 Extension](https://marketplace.visualstudio.com/items?itemName=nanoframework.nanoFramework-VS2019-Extension)<br>:package: [nanoFramework VS2022 Extension](https://marketplace.visualstudio.com/items?itemName=nanoframework.nanoFramework-VS2022-Extension)'
       githubTargetCommitsh: $(Build.SourceVersion)
       githubReleaseDraft: false
       githubReleasePrerelease: false
@@ -472,17 +505,19 @@ jobs:
   dependsOn:
   - Get_Build_Options  
   - VS2017
-  - VS2019
-  condition: and( succeeded('Get_Build_Options'), succeeded('VS2017'), succeeded('VS2019'), eq(variables['System.PullRequest.PullRequestId'], '') )
+  - VS2019_2022
+  condition: and( succeeded('Get_Build_Options'), succeeded('VS2017'), succeeded('VS2019_2022'), eq(variables['System.PullRequest.PullRequestId'], '') )
 
   variables:
     myBuildVS2017: $[ dependencies.Get_Build_Options.outputs['BuildOptions.BUILD_VS2017'] ]
     MY_VS2017_VERSION: $[ dependencies.VS2017.outputs['VS2017Build.BUILD_VERSION'] ]
-    myBuildVS2019: $[ dependencies.Get_Build_Options.outputs['BuildOptions.BUILD_VS2019'] ]
-    MY_VS2019_VERSION: $[ dependencies.VS2019.outputs['VS2019Build.BUILD_VERSION'] ]
+    myBuildVS2019: $[ dependencies.Get_Build_Options.outputs['BuildOptions.BUILD_VS2019_2022'] ]
+    MY_VS2019_VERSION: $[ dependencies.VS2019_2022.outputs['VS2019Build.BUILD_VERSION'] ]
+    myBuildVS2022: $[ dependencies.Get_Build_Options.outputs['BuildOptions.BUILD_VS2019_2022'] ]
+    MY_VS2022_VERSION: $[ dependencies.VS2019_2022.outputs['VS2019Build.BUILD_VERSION'] ]
 
   pool:
-    vmImage: 'windows-2019'
+    vmImage: 'windows-latest'
 
   steps:
   - checkout: self
@@ -510,23 +545,39 @@ jobs:
   - powershell: |
         # need to call it passing both cache options with full path otherwise it won't work
         github_changelog_generator --token $(GitHubToken) --cache-log  $env:AGENT_TEMPDIRECTORY\github-changelog-logger.log --cache-file $env:AGENT_TEMPDIRECTORY\github-changelog-http-cache --since-tag v1.1.0.101-VS2019 --output CHANGELOG-VS2019.md
-    condition: and( succeeded(), eq(variables['System.PullRequest.PullRequestId'], ''), not( startsWith(variables['Build.SourceBranch'], 'refs/tags/v') ), or( eq(variables['Build.SourceBranchName'], 'master'), contains(variables['Build.SourceBranchName'], 'release') ), or( eq( variables['myBuildVS2019'], true ), eq(variables['BUILD_VS2019'], 'true') ) )
+    condition: and( succeeded(), eq(variables['System.PullRequest.PullRequestId'], ''), not( startsWith(variables['Build.SourceBranch'], 'refs/tags/v') ), or( eq(variables['Build.SourceBranchName'], 'master'), contains(variables['Build.SourceBranchName'], 'release') ), or( eq( variables['myBuildVS2019'], true ), eq(variables['BUILD_VS2019_2022'], 'true') ) )
     displayName: Generate VS2019 change log
+
+  # generate VS2022 change log
+  - powershell: |
+        # need to call it passing both cache options with full path otherwise it won't work
+        github_changelog_generator --token $(GitHubToken) --cache-log  $env:AGENT_TEMPDIRECTORY\github-changelog-logger.log --cache-file $env:AGENT_TEMPDIRECTORY\github-changelog-http-cache --since-tag v1.1.0.101-VS2022 --output CHANGELOG-VS2022.md
+    condition: and( succeeded(), eq(variables['System.PullRequest.PullRequestId'], ''), not( startsWith(variables['Build.SourceBranch'], 'refs/tags/v') ), or( eq(variables['Build.SourceBranchName'], 'master'), contains(variables['Build.SourceBranchName'], 'release') ), or( eq( variables['myBuildVS2022'], true ), eq(variables['BUILD_VS2019_2022'], 'true') ) )
+    displayName: Generate VS2022 change log
 
   # generate VS2019 change log including future version
   - powershell: |
         # need to call it passing both cache options with full path otherwise it won't work
         github_changelog_generator --token $(GitHubToken) --cache-log  $env:AGENT_TEMPDIRECTORY\github-changelog-logger.log --cache-file $env:AGENT_TEMPDIRECTORY\github-changelog-http-cache --since-tag v1.1.0.101-VS2019 --future-release v$(MY_VS2019_VERSION) --output CHANGELOG-VS2019.md
-    condition: and( succeeded(), eq(variables['System.PullRequest.PullRequestId'], ''), not( startsWith(variables['Build.SourceBranch'], 'refs/tags/v') ), not( or( eq(variables['Build.SourceBranchName'], 'master'), contains(variables['Build.SourceBranchName'], 'release') ) ), or( eq( variables['myBuildVS2019'], true ), eq(variables['BUILD_VS2019'], 'true') ) )
+    condition: and( succeeded(), eq(variables['System.PullRequest.PullRequestId'], ''), not( startsWith(variables['Build.SourceBranch'], 'refs/tags/v') ), not( or( eq(variables['Build.SourceBranchName'], 'master'), contains(variables['Build.SourceBranchName'], 'release') ) ), or( eq( variables['myBuildVS2019'], true ), eq(variables['BUILD_VS2019_2022'], 'true') ) )
     displayName: Generate VS2019 change log
+
+  # generate VS2022 change log including future version
+  - powershell: |
+        # need to call it passing both cache options with full path otherwise it won't work
+        github_changelog_generator --token $(GitHubToken) --cache-log  $env:AGENT_TEMPDIRECTORY\github-changelog-logger.log --cache-file $env:AGENT_TEMPDIRECTORY\github-changelog-http-cache --since-tag v1.1.0.101-VS2022 --future-release v$(MY_VS2022_VERSION) --output CHANGELOG-VS2022.md
+    condition: and( succeeded(), eq(variables['System.PullRequest.PullRequestId'], ''), not( startsWith(variables['Build.SourceBranch'], 'refs/tags/v') ), not( or( eq(variables['Build.SourceBranchName'], 'master'), contains(variables['Build.SourceBranchName'], 'release') ) ), or( eq( variables['myBuildVS2022'], true ), eq(variables['BUILD_VS2019_2022'], 'true') ) )
+    displayName: Generate VS2022 change log
 
   # copy VS2019 change log to artifacts directory
   - task: CopyFiles@2
     inputs:
       SourceFolder: '$(System.DefaultWorkingDirectory)'
-      Contents: 'CHANGELOG-VS2019.md'
+      Contents: |
+        'CHANGELOG-VS2019.md'
+        'CHANGELOG-VS2022.md'
       TargetFolder: '$(Build.ArtifactStagingDirectory)'
-    condition: and( succeeded(), eq(variables['System.PullRequest.PullRequestId'], ''), not( startsWith(variables['Build.SourceBranch'], 'refs/tags/v') ), or( eq( variables['myBuildVS2019'], true ), eq(variables['BUILD_VS2019'], 'true') ) )
+    condition: and( succeeded(), eq(variables['System.PullRequest.PullRequestId'], ''), not( startsWith(variables['Build.SourceBranch'], 'refs/tags/v') ), or( eq( variables['myBuildVS2019'], true ), eq(variables['BUILD_VS2019_2022'], 'true') ) )
     displayName: Copy Changelog
 
   # generate VS2017 change log
@@ -579,9 +630,10 @@ jobs:
       Contents: |
         **\CHANGELOG-VS2017.md
         **\CHANGELOG-VS2019.md
+        **\CHANGELOG-VS2022.md
       TargetFolder: '$(Build.ArtifactStagingDirectory)'
       flattenFolders: true
-    condition: and( succeeded(), or( eq( variables['myBuildVS2019'], true ), eq(variables['BUILD_VS2019'], 'true') ) )
+    condition: and( succeeded(), or( eq( variables['myBuildVS2019'], true ), eq(variables['BUILD_VS2019_2022'], 'true') ) )
     displayName: Collecting deployable artifacts
 
   # publish artifacts (only possible if this is not a PR originated on a fork)
@@ -601,8 +653,19 @@ jobs:
             git add CHANGELOG-VS2019.md
             git commit -m "Update CHANGELOG for VS2019 v$env:MY_VS2019_VERSION" -m"***NO_CI***"
 
-    condition: and( succeeded(), eq(variables['System.PullRequest.PullRequestId'], ''), not( startsWith(variables['Build.SourceBranch'], 'refs/tags/v') ), or( eq( variables['myBuildVS2019'], true ), eq(variables['BUILD_VS2019'], 'true') ) )
+    condition: and( succeeded(), eq(variables['System.PullRequest.PullRequestId'], ''), not( startsWith(variables['Build.SourceBranch'], 'refs/tags/v') ), or( eq( variables['myBuildVS2019'], true ), eq(variables['BUILD_VS2019_2022'], 'true') ) )
     displayName: Commit VS2019 changelog
+
+  # commit VS2022 changelog
+  - task: PowerShell@2
+    inputs:
+        targetType: 'inline'
+        script: |
+            git add CHANGELOG-VS2022.md
+            git commit -m "Update CHANGELOG for VS2019 v$env:MY_VS2022_VERSION" -m"***NO_CI***"
+
+    condition: and( succeeded(), eq(variables['System.PullRequest.PullRequestId'], ''), not( startsWith(variables['Build.SourceBranch'], 'refs/tags/v') ), or( eq( variables['myBuildVS2022'], true ), eq(variables['BUILD_VS2019_2022'], 'true') ) )
+    displayName: Commit VS2022 changelog
 
   # push changelogs to GitHub repo
   - task: PowerShell@2

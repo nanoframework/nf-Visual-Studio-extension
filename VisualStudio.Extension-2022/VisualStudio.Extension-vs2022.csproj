@@ -32,6 +32,7 @@
     <StartAction>Program</StartAction>
     <StartProgram Condition="'$(DevEnvDir)' != ''">$(DevEnvDir)devenv.exe</StartProgram>
     <StartArguments>/rootSuffix Exp</StartArguments>
+    <NF_Build_VS2022>True</NF_Build_VS2022>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -216,16 +217,16 @@
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
       <IncludeOutputGroupsInVSIX>TemplateProjectOutputGroup%3b</IncludeOutputGroupsInVSIX>
     </ProjectReference>
-    <ProjectReference Include="..\CSharp.BlankApplication\CSharp.BlankApplication.csproj">
-      <Project>{572121BD-E972-4BF7-ABF1-78251DDE1181}</Project>
-      <Name>CSharp.BlankApplication</Name>
+    <ProjectReference Include="..\CSharp.BlankApplication\CSharp.BlankApplication-vs2022.csproj">
+      <Project>{e58792c2-6291-4d90-870d-1d50e7a2b064}</Project>
+      <Name>CSharp.BlankApplication-vs2022</Name>
       <VSIXSubPath>ProjectTemplates</VSIXSubPath>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
       <IncludeOutputGroupsInVSIX>TemplateProjectOutputGroup%3b</IncludeOutputGroupsInVSIX>
     </ProjectReference>
-    <ProjectReference Include="..\CSharp.ClassLibrary\CSharp.ClassLibrary.csproj">
+    <ProjectReference Include="..\CSharp.ClassLibrary\CSharp.ClassLibrary-vs2022.csproj">
       <Project>{4AA9A693-FF7C-4F84-B0CE-28A7EE009471}</Project>
-      <Name>CSharp.ClassLibrary</Name>
+      <Name>CSharp.ClassLibrary-vs2022</Name>
       <VSIXSubPath>ProjectTemplates</VSIXSubPath>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
       <IncludeOutputGroupsInVSIX>TemplateProjectOutputGroup%3b</IncludeOutputGroupsInVSIX>
@@ -244,9 +245,9 @@
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
       <VSIXSubPath>ItemTemplates</VSIXSubPath>
     </ProjectReference>
-    <ProjectReference Include="..\CSharp.TestApplication\CSharp.TestApplication.csproj">
+    <ProjectReference Include="..\CSharp.TestApplication\CSharp.TestApplication-vs2022.csproj">
       <Project>{3040ba82-56cc-4189-a26c-cabb4b6b7b87}</Project>
-      <Name>CSharp.TestApplication</Name>
+      <Name>CSharp.TestApplication-vs2022</Name>
       <IncludeOutputGroupsInVSIX>TemplateProjectOutputGroup%3b</IncludeOutputGroupsInVSIX>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
       <VSIXSubPath>ProjectTemplates</VSIXSubPath>

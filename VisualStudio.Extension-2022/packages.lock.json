@@ -2037,10 +2037,10 @@
       "csharp.assemblyinfotemplate": {
         "type": "Project"
       },
-      "csharp.blankapplication": {
+      "csharp.blankapplication-vs2022": {
         "type": "Project"
       },
-      "csharp.classlibrary": {
+      "csharp.classlibrary-vs2022": {
         "type": "Project"
       },
       "csharp.classtemplate": {
@@ -2049,7 +2049,7 @@
       "csharp.resourcetemplate": {
         "type": "Project"
       },
-      "csharp.testapplication": {
+      "csharp.testapplication-vs2022": {
         "type": "Project"
       },
       "nanoFramework.Tools.BuildTasks": {

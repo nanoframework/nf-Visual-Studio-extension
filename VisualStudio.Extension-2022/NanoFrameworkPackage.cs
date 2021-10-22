@@ -384,50 +384,41 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         {
             await ThreadHelper.JoinableTaskFactory.RunAsync(async () =>
             {
-                // check Windows version
-                if (Environment.OSVersion.Version.Major < 10)
+                // make sure "our" key exists and it's writeable
+                s_instance.UserRegistryRoot.CreateSubKey(EXTENSION_SUBKEY, true);
+
+                await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+
+                AddService(typeof(NanoDeviceCommService), CreateNanoDeviceCommServiceAsync);
+
+                NanoDeviceCommService = await GetServiceAsync(typeof(NanoDeviceCommService)) as INanoDeviceCommService;
+
+                ViewModelLocator viewModelLocator = null;
+
+                // Need to add the View model Locator to the application resource dictionary programmatically 
+                // because at the extension level we don't have 'XAML' access to it
+                // try to find if the view model locator is already in the app resources dictionary
+                if (Application.Current.TryFindResource("Locator") == null)
                 {
-                    // the extension won't run properly if we are not on Windows 10, warn user
-                    MessageBox.Show(".NET nanoFramework Extension requires Windows 10!", ".NET nanoFramework extension", MessageBoxButton.OK, MessageBoxImage.Error);
+                    // instantiate the view model locator...
+                    viewModelLocator = new ViewModelLocator();
+
+                    // ... and add it there
+                    Application.Current.Resources.Add("Locator", viewModelLocator);
                 }
-                else
-                {
-                    // make sure "our" key exists and it's writeable
-                    s_instance.UserRegistryRoot.CreateSubKey(EXTENSION_SUBKEY, true);
 
-                    await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+                SimpleIoc.Default.GetInstance<DeviceExplorerViewModel>().Package = this;
 
-                    AddService(typeof(NanoDeviceCommService), CreateNanoDeviceCommServiceAsync);
+                await MessageCentre.InitializeAsync(this, ".NET nanoFramework Extension");
 
-                    NanoDeviceCommService = await GetServiceAsync(typeof(NanoDeviceCommService)) as INanoDeviceCommService;
+                await DeviceExplorerCommand.InitializeAsync(this, viewModelLocator);
+                DeployProvider.Initialize(this, viewModelLocator);
+                UpdateManager.Initialize(this, viewModelLocator);
 
-                    ViewModelLocator viewModelLocator = null;
+                // Enable debugger UI context
+                UIContext.FromUIContextGuid(CorDebug.EngineGuid).IsActive = true;
 
-                    // Need to add the View model Locator to the application resource dictionary programmatically 
-                    // because at the extension level we don't have 'XAML' access to it
-                    // try to find if the view model locator is already in the app resources dictionary
-                    if (Application.Current.TryFindResource("Locator") == null)
-                    {
-                        // instantiate the view model locator...
-                        viewModelLocator = new ViewModelLocator();
-
-                        // ... and add it there
-                        Application.Current.Resources.Add("Locator", viewModelLocator);
-                    }
-
-                    SimpleIoc.Default.GetInstance<DeviceExplorerViewModel>().Package = this;
-
-                    await MessageCentre.InitializeAsync(this, ".NET nanoFramework Extension");
-
-                    await DeviceExplorerCommand.InitializeAsync(this, viewModelLocator);
-                    DeployProvider.Initialize(this, viewModelLocator);
-                    UpdateManager.Initialize(this, viewModelLocator);
-
-                    // Enable debugger UI context
-                    UIContext.FromUIContextGuid(CorDebug.EngineGuid).IsActive = true;
-
-                    OutputWelcomeMessage();
-                }
+                OutputWelcomeMessage();
             });
 
             await base.InitializeAsync(cancellationToken, progress);

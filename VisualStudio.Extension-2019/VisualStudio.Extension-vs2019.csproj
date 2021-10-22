@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="$(VisualStudioVersion)" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="16.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-    <MinimumVisualStudioVersion>15.0</MinimumVisualStudioVersion>
+    <MinimumVisualStudioVersion>16.0</MinimumVisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
@@ -9,7 +9,6 @@
     <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
   </PropertyGroup>
   <PropertyGroup>
-    <UseCodebase>true</UseCodebase>
     <VsixType>v3</VsixType>
   </PropertyGroup>
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
@@ -18,11 +17,11 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectTypeGuids>{82b43b9b-a64c-4715-b499-d71e9ca2bd60};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
-    <ProjectGuid>{5403BD28-7431-41FB-BF52-956758E9F5C1}</ProjectGuid>
+    <ProjectGuid>{AED4A7C6-24EB-4EE3-B387-FDADC36A3D1B}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>nanoFramework.Tools.VisualStudio.Extension</RootNamespace>
-    <AssemblyName>nanoFramework.Tools.VS2017.Extension</AssemblyName>
+    <AssemblyName>nanoFramework.Tools.VS2019.Extension</AssemblyName>
     <SignAssembly>True</SignAssembly>
     <AssemblyOriginatorKeyFile>Key.snk</AssemblyOriginatorKeyFile>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
@@ -45,7 +44,7 @@
     <DefineConstants>TRACE;DEBUG</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DeployExtension>true</DeployExtension>
+    <DeployExtension>True</DeployExtension>
     <CreateVsixContainer>True</CreateVsixContainer>
     <CodeAnalysisRuleSet>
     </CodeAnalysisRuleSet>
@@ -70,35 +69,12 @@
     <Compile Include="..\Tools.BuildTasks-2017\ProcessResourceFiles.cs">
       <Link>ResXFileCodeGenerator\ProcessResourceFiles.cs</Link>
     </Compile>
-    <Compile Include="..\VisualStudio.Extension-2019\AutomaticUpdates\CloudsmithPackageInfo.cs">
-      <Link>AutomaticUpdates\CloudsmithPackageInfo.cs</Link>
-    </Compile>
-    <Compile Include="..\VisualStudio.Extension-2019\AutomaticUpdates\CC13x26x2Firmware.cs">
-      <Link>AutomaticUpdates\CC13x26x2Firmware.cs</Link>
-    </Compile>
-    <Compile Include="..\VisualStudio.Extension-2019\AutomaticUpdates\Esp32Firmware.cs">
-      <Link>AutomaticUpdates\Esp32Firmware.cs</Link>
-    </Compile>
-    <Compile Include="..\VisualStudio.Extension-2019\AutomaticUpdates\FirmwarePackage.cs">
-      <Link>AutomaticUpdates\FirmwarePackage.cs</Link>
-    </Compile>
-    <Compile Include="..\VisualStudio.Extension-2019\AutomaticUpdates\Stm32Firmware.cs">
-      <Link>AutomaticUpdates\Stm32Firmware.cs</Link>
-    </Compile>
-    <Compile Include="..\VisualStudio.Extension-2019\AutomaticUpdates\UpdateManager.cs">
-      <Link>AutomaticUpdates\UpdateManager.cs</Link>
-    </Compile>
-    <Compile Include="IPMaskedTextBox\IPMaskedTextBox.xaml.cs">
-      <DependentUpon>IPMaskedTextBox.xaml</DependentUpon>
-    </Compile>
+    <Compile Include="NanoFrameworkPackage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Resources\ResourceStrings.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>ResourceStrings.resx</DependentUpon>
-    </Compile>
-    <Compile Include="ToolWindow.DeviceExplorer\SettingsDialog.xaml.cs">
-      <DependentUpon>SettingsDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="ToolWindow.DeviceExplorer\NetworkConfigurationDialog.xaml.cs">
       <DependentUpon>NetworkConfigurationDialog.xaml</DependentUpon>
@@ -106,16 +82,26 @@
     <Compile Include="ToolWindow.DeviceExplorer\DeviceExplorerControl.xaml.cs">
       <DependentUpon>DeviceExplorerControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="NanoFrameworkPackage.cs" />
+    <Compile Include="IPMaskedTextBox\IPMaskedTextBox.xaml.cs">
+      <DependentUpon>IPMaskedTextBox.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="ToolWindow.DeviceExplorer\SettingsDialog.xaml.cs">
+      <DependentUpon>SettingsDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="AutomaticUpdates\CloudsmithPackageInfo.cs" />
+    <Compile Include="AutomaticUpdates\CC13x26x2Firmware.cs" />
+    <Compile Include="AutomaticUpdates\Esp32Firmware.cs" />
+    <Compile Include="AutomaticUpdates\FirmwarePackage.cs" />
+    <Compile Include="AutomaticUpdates\Stm32Firmware.cs" />
+    <Compile Include="AutomaticUpdates\UpdateManager.cs" />
   </ItemGroup>
   <ItemGroup>
-    <!-- GeneratePathProperty doesn't work on VS2017, so need to add this workaround -->
-    <Content Include="$(NuGetPackageRoot)\nanoframework.corelibrary\1.10.5\nanoFramework.CoreLibrary.1.10.5.nupkg">
+    <Content Include="$(PkgnanoFramework_CoreLibrary)\nanoFramework.CoreLibrary.1.10.5.nupkg">
       <Link>Packages\nanoFramework.CoreLibrary.1.10.5.nupkg</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
-    <Content Include="$(NuGetPackageRoot)\nanoFramework.TestFramework\1.0.150\nanoFramework.TestFramework.1.0.150.nupkg">
+    <Content Include="$(PkgnanoFramework_TestFramework)\nanoFramework.TestFramework.1.0.150.nupkg">
       <Link>Packages\nanoFramework.TestFramework.1.0.150.nupkg</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <IncludeInVSIX>true</IncludeInVSIX>
@@ -176,9 +162,7 @@
       <ResourceName>Menus.ctmenu</ResourceName>
       <SubType>Designer</SubType>
     </VSCTCompile>
-    <None Include="app.config">
-      <SubType>Designer</SubType>
-    </None>
+    <None Include="app.config" />
     <Content Include="Targets\NFProjectSystem.props">
       <SubType>Designer</SubType>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -209,7 +193,6 @@
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Data" />
-    <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Design" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.IO.Compression.FileSystem" />
@@ -236,16 +219,16 @@
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
       <IncludeOutputGroupsInVSIX>TemplateProjectOutputGroup%3b</IncludeOutputGroupsInVSIX>
     </ProjectReference>
-    <ProjectReference Include="..\CSharp.BlankApplication\CSharp.BlankApplication.csproj">
+    <ProjectReference Include="..\CSharp.BlankApplication\CSharp.BlankApplication-vs2019.csproj">
       <Project>{572121BD-E972-4BF7-ABF1-78251DDE1181}</Project>
-      <Name>CSharp.BlankApplication</Name>
+      <Name>CSharp.BlankApplication-vs2019</Name>
       <VSIXSubPath>ProjectTemplates</VSIXSubPath>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
       <IncludeOutputGroupsInVSIX>TemplateProjectOutputGroup%3b</IncludeOutputGroupsInVSIX>
     </ProjectReference>
-    <ProjectReference Include="..\CSharp.ClassLibrary\CSharp.ClassLibrary.csproj">
-      <Project>{4AA9A693-FF7C-4F84-B0CE-28A7EE009471}</Project>
-      <Name>CSharp.ClassLibrary</Name>
+    <ProjectReference Include="..\CSharp.ClassLibrary\CSharp.ClassLibrary-vs2019.csproj">
+      <Project>{845c278b-2a26-4e4c-89f0-f270ac5364a2}</Project>
+      <Name>CSharp.ClassLibrary-vs2019</Name>
       <VSIXSubPath>ProjectTemplates</VSIXSubPath>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
       <IncludeOutputGroupsInVSIX>TemplateProjectOutputGroup%3b</IncludeOutputGroupsInVSIX>
@@ -264,15 +247,15 @@
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
       <VSIXSubPath>ItemTemplates</VSIXSubPath>
     </ProjectReference>
-    <ProjectReference Include="..\CSharp.TestApplication\CSharp.TestApplication.csproj">
-      <Project>{3040ba82-56cc-4189-a26c-cabb4b6b7b87}</Project>
-      <Name>CSharp.TestApplication</Name>
+    <ProjectReference Include="..\CSharp.TestApplication\CSharp.TestApplication-vs2019.csproj">
+      <Project>{0521556e-fe69-4569-be63-137a10a1fae3}</Project>
+      <Name>CSharp.TestApplication-vs2019</Name>
       <IncludeOutputGroupsInVSIX>TemplateProjectOutputGroup%3b</IncludeOutputGroupsInVSIX>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
       <VSIXSubPath>ProjectTemplates</VSIXSubPath>
     </ProjectReference>
-    <ProjectReference Include="..\Tools.BuildTasks-2017\Tools.BuildTasks.csproj">
-      <Project>{ce0631f2-731d-4a48-b927-f13f6b2fb055}</Project>
+    <ProjectReference Include="..\Tools.BuildTasks\Tools.BuildTasks.csproj">
+      <Project>{552C2500-2C53-4148-A422-0ED983EF135D}</Project>
       <Name>Tools.BuildTasks</Name>
       <InstallRoot>MSBuild</InstallRoot>
       <VSIXSubPath>nanoFramework\v1.0\</VSIXSubPath>
@@ -300,7 +283,9 @@
     <Resource Include="Resources\NanoFrameworkProject.xaml">
       <SubType>Designer</SubType>
     </Resource>
-    <Resource Include="Resources\DeviceConnected.xaml" />
+    <Resource Include="Resources\DeviceConnected.xaml">
+      <SubType>Designer</SubType>
+    </Resource>
     <Resource Include="Resources\DeviceCapabilities.xaml">
       <SubType>Designer</SubType>
     </Resource>
@@ -316,6 +301,10 @@
     <Resource Include="Resources\DeviceDisconnected.xaml">
       <SubType>Designer</SubType>
     </Resource>
+    <Page Include="ToolWindow.DeviceExplorer\SettingsDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Resource Include="Resources\ShowInternalErrors.xaml">
       <SubType>Designer</SubType>
     </Resource>
@@ -328,17 +317,13 @@
     <Resource Include="Resources\Settings.xaml">
       <SubType>Designer</SubType>
     </Resource>
-    <Page Include="ToolWindow.DeviceExplorer\SettingsDialog.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
     <Page Include="ToolWindow.DeviceExplorer\NetworkConfigurationDialog.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
     <Page Include="ToolWindow.DeviceExplorer\DeviceExplorerControl.xaml">
-      <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
   </ItemGroup>
   <ItemGroup>
@@ -372,13 +357,13 @@
       <InstallRoot>MSBuild</InstallRoot>
       <VSIXSubPath>nanoFramework\v1.0\Rules\</VSIXSubPath>
     </Content>
-    <Content Include="Rules\EmbeddedResource.BrowseObject.xaml">
+    <Content Include="Rules\folder.xaml">
       <SubType>Designer</SubType>
       <IncludeInVSIX>true</IncludeInVSIX>
       <InstallRoot>MSBuild</InstallRoot>
       <VSIXSubPath>nanoFramework\v1.0\Rules\</VSIXSubPath>
     </Content>
-    <Content Include="Rules\folder.xaml">
+    <Content Include="Rules\EmbeddedResource.BrowseObject.xaml">
       <SubType>Designer</SubType>
       <IncludeInVSIX>true</IncludeInVSIX>
       <InstallRoot>MSBuild</InstallRoot>
@@ -487,134 +472,88 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="EnvDTE80">
-      <Version>8.0.3</Version>
+      <Version>16.9.31023.347</Version>
     </PackageReference>
     <PackageReference Include="Extended.Wpf.Toolkit">
-      <Version>3.8.1</Version>
+      <Version>4.0.2</Version>
     </PackageReference>
-    <PackageReference Include="Fody">
-      <Version>4.2.1</Version>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
-      <PrivateAssets>all</PrivateAssets>
+    <PackageReference Include="Humanizer">
+      <Version>2.8.26</Version>
     </PackageReference>
     <PackageReference Include="ICSharpCode.Decompiler">
-      <Version>4.0.0.4521</Version>
+      <Version>6.2.1.6137</Version>
     </PackageReference>
     <PackageReference Include="MessagePack">
-      <Version>2.1.90</Version>
+      <Version>2.2.85</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.Build">
-      <Version>15.9.20</Version>
+      <Version>16.9.0</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.Build.Tasks.Core">
-      <Version>15.9.20</Version>
+      <Version>16.9.0</Version>
     </PackageReference>
-    <PackageReference Include="Microsoft.Composition">
-      <Version>1.0.31</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.NETCore.Platforms">
-      <Version>3.1.0</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.Tpl.Dataflow">
-      <Version>4.5.24</Version>
+    <PackageReference Include="Microsoft.CodeAnalysis.BannedApiAnalyzers">
+      <Version>3.3.2</Version>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.VisualStudio.Composition">
-      <Version>15.8.118</Version>
+      <Version>16.4.11</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.VisualStudio.Debugger.Engine">
-      <Version>15.9.28307</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.VisualStudio.Designer.Interfaces">
-      <Version>1.1.4323</Version>
+      <Version>16.4.1111102</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.VisualStudio.ProjectSystem">
-      <Version>15.8.243</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.VisualStudio.ProjectSystem.Analyzers">
-      <Version>15.8.243</Version>
+      <Version>16.0.374-pre</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.VisualStudio.ProjectSystem.Sdk">
       <Version>15.8.243</Version>
     </PackageReference>
-    <PackageReference Include="Microsoft.VisualStudio.ProjectSystem.Sdk.Tools">
-      <Version>15.8.243</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.VisualStudio.SDK.Analyzers">
-      <Version>15.8.36</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.VisualStudio.Setup.Configuration.Interop">
-      <Version>1.16.30</Version>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
-      <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
-    <PackageReference Include="Microsoft.VisualStudio.Shell.Interop.12.1.DesignTime">
-      <Version>12.1.30329</Version>
-    </PackageReference>
     <PackageReference Include="Microsoft.VisualStudio.Text.Data">
-      <Version>15.8.525</Version>
+      <Version>16.9.227</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.VisualStudio.TextTemplating.VSHost.15.0">
-      <Version>15.9.28307</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers">
-      <Version>15.8.209</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.VisualStudio.Validation">
-      <Version>15.5.31</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.VSSDK.BuildTools">
-      <Version>15.9.3039</Version>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
-      <PrivateAssets>all</PrivateAssets>
+      <Version>16.9.31025.194</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.Win32.Primitives">
       <Version>4.3.0</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.Win32.Registry">
-      <Version>4.6.0</Version>
+      <Version>5.0.0</Version>
     </PackageReference>
     <PackageReference Include="MvvmLightLibsStd10">
       <Version>5.4.1.1</Version>
     </PackageReference>
-    <PackageReference Include="nanoFramework.CoreLibrary">
+    <PackageReference Include="nanoFramework.CoreLibrary" GeneratePathProperty="true">
       <Version>1.10.5</Version>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="nanoFramework.TestFramework">
+    <PackageReference Include="nanoFramework.TestFramework" GeneratePathProperty="true">
       <Version>1.0.150</Version>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-      <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="nanoFramework.Tools.Debugger.Net" Version="2.0.0-preview.41" />
     <PackageReference Include="nanoFramework.Tools.MetadataProcessor.Core" Version="2.31.3" />
     <PackageReference Include="nanoFramework.Tools.MetadataProcessor.MsBuildTask" Version="2.35.10" />
     <PackageReference Include="Nerdbank.GitVersioning">
-      <Version>3.3.37</Version>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+      <Version>3.4.194</Version>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
-    <PackageReference Include="Nerdbank.Streams">
-      <Version>2.2.43</Version>
-    </PackageReference>
-    <PackageReference Include="NETStandard.Library">
-      <Version>2.0.3</Version>
     </PackageReference>
     <PackageReference Include="Newtonsoft.Json">
       <Version>12.0.3</Version>
     </PackageReference>
     <PackageReference Include="NuGet.VisualStudio">
-      <Version>5.4.0</Version>
-    </PackageReference>
-    <PackageReference Include="PropertyChanged.Fody">
-      <Version>2.6.1</Version>
+      <Version>5.9.1</Version>
     </PackageReference>
     <PackageReference Include="PropertyChanging.Fody">
       <Version>1.29.3</Version>
     </PackageReference>
     <PackageReference Include="stdole">
-      <Version>7.0.3303</Version>
+      <Version>16.9.31023.347</Version>
     </PackageReference>
     <PackageReference Include="StreamJsonRpc">
-      <Version>2.0.208</Version>
+      <Version>2.7.76</Version>
     </PackageReference>
     <PackageReference Include="System.Collections">
       <Version>4.3.0</Version>
@@ -622,11 +561,8 @@
     <PackageReference Include="System.Collections.Concurrent">
       <Version>4.3.0</Version>
     </PackageReference>
-    <PackageReference Include="System.ComponentModel.Composition">
-      <Version>4.7.0</Version>
-    </PackageReference>
     <PackageReference Include="System.Composition">
-      <Version>1.4.0</Version>
+      <Version>5.0.1</Version>
     </PackageReference>
     <PackageReference Include="System.Console">
       <Version>4.3.1</Version>
@@ -635,10 +571,7 @@
       <Version>4.3.0</Version>
     </PackageReference>
     <PackageReference Include="System.Diagnostics.DiagnosticSource">
-      <Version>4.7.0</Version>
-    </PackageReference>
-    <PackageReference Include="System.Diagnostics.Tools">
-      <Version>4.3.0</Version>
+      <Version>5.0.1</Version>
     </PackageReference>
     <PackageReference Include="System.Diagnostics.Tracing">
       <Version>4.3.0</Version>
@@ -646,85 +579,34 @@
     <PackageReference Include="System.Dynamic.Runtime">
       <Version>4.3.0</Version>
     </PackageReference>
-    <PackageReference Include="System.Globalization">
-      <Version>4.3.0</Version>
-    </PackageReference>
     <PackageReference Include="System.Globalization.Calendars">
-      <Version>4.3.0</Version>
-    </PackageReference>
-    <PackageReference Include="System.IO.Compression.ZipFile">
       <Version>4.3.0</Version>
     </PackageReference>
     <PackageReference Include="System.IO.FileSystem">
       <Version>4.3.0</Version>
     </PackageReference>
-    <PackageReference Include="System.IO.Pipelines">
-      <Version>4.6.0</Version>
-    </PackageReference>
     <PackageReference Include="System.Linq">
       <Version>4.3.0</Version>
     </PackageReference>
-    <PackageReference Include="System.Linq.Expressions">
-      <Version>4.3.0</Version>
-    </PackageReference>
-    <PackageReference Include="System.Net.Http">
-      <Version>4.3.4</Version>
-    </PackageReference>
-    <PackageReference Include="System.Net.Primitives">
-      <Version>4.3.0</Version>
-    </PackageReference>
     <PackageReference Include="System.Net.Sockets">
-      <Version>4.3.0</Version>
-    </PackageReference>
-    <PackageReference Include="System.ObjectModel">
-      <Version>4.3.0</Version>
-    </PackageReference>
-    <PackageReference Include="System.Reflection">
-      <Version>4.3.0</Version>
-    </PackageReference>
-    <PackageReference Include="System.Reflection.Extensions">
-      <Version>4.3.0</Version>
-    </PackageReference>
-    <PackageReference Include="System.Reflection.Primitives">
       <Version>4.3.0</Version>
     </PackageReference>
     <PackageReference Include="System.Resources.ResourceManager">
       <Version>4.3.0</Version>
     </PackageReference>
     <PackageReference Include="System.Runtime.CompilerServices.Unsafe">
-      <Version>4.7.0</Version>
+      <Version>5.0.0</Version>
     </PackageReference>
     <PackageReference Include="System.Runtime.Extensions">
-      <Version>4.3.0</Version>
+      <Version>4.3.1</Version>
     </PackageReference>
-    <PackageReference Include="System.Runtime.Handles">
+    <PackageReference Include="System.Runtime.InteropServices.RuntimeInformation">
       <Version>4.3.0</Version>
-    </PackageReference>
-    <PackageReference Include="System.Runtime.InteropServices">
-      <Version>4.3.0</Version>
-    </PackageReference>
-    <PackageReference Include="System.Runtime.Numerics">
-      <Version>4.3.0</Version>
-    </PackageReference>
-    <PackageReference Include="System.Runtime.WindowsRuntime">
-      <Version>5.0.0-preview.5.20278.1</Version>
     </PackageReference>
     <PackageReference Include="System.Runtime.WindowsRuntime.UI.Xaml">
       <Version>5.0.0-preview.5.20278.1</Version>
     </PackageReference>
     <PackageReference Include="System.Security.Cryptography.Algorithms">
-      <Version>4.3.1</Version>
-    </PackageReference>
-    <PackageReference Include="System.Security.Cryptography.X509Certificates">
-      <Version>4.3.2</Version>
-    </PackageReference>
-    <PackageReference Include="System.Text.Encoding">
-      <Version>4.3.0</Version>
-    </PackageReference>
-    <PackageReference Include="System.Text.Encoding.Extensions">
-      <Version>4.3.0</Version>
-    </PackageReference>
-    <PackageReference Include="System.Text.RegularExpressions">
       <Version>4.3.1</Version>
     </PackageReference>
     <PackageReference Include="System.Threading">
@@ -734,17 +616,15 @@
       <Version>4.3.0</Version>
     </PackageReference>
     <PackageReference Include="System.Threading.Tasks.Dataflow">
-      <Version>4.9.0</Version>
-    </PackageReference>
-    <PackageReference Include="System.Threading.Timer">
-      <Version>4.3.0</Version>
+      <Version>5.0.0</Version>
     </PackageReference>
     <PackageReference Include="System.Xml.ReaderWriter">
       <Version>4.3.1</Version>
     </PackageReference>
-    <PackageReference Include="System.Xml.XDocument">
-      <Version>4.3.0</Version>
+    <PackageReference Include="Microsoft.VisualStudio.SDK" Version="16.9.31025.194" ExcludeAssets="runtime">
+      <IncludeAssets>compile; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="Microsoft.VSSDK.BuildTools" Version="16.9.1050" PrivateAssets="all" IncludeAssets="runtime; build; native; contentfiles; analyzers" />
   </ItemGroup>
   <Import Project="..\vs-extension.shared\vs-extension.shared.projitems" Label="Shared" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
@@ -752,8 +632,6 @@
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
   </Target>
   -->
 </Project>
