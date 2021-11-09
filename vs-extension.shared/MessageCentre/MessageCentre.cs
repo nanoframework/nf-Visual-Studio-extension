@@ -73,11 +73,11 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         public static void ClearDeploymentMessages()
         {
-            ThreadHelper.JoinableTaskFactory.RunAsync(async () =>
-            {
-                await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
-                _nanoFrameworkMessagesPane.Clear();
-            });
+            _ = ThreadHelper.JoinableTaskFactory.RunAsync(async () =>
+              {
+                  await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+                  _nanoFrameworkMessagesPane.Clear();
+              });
         }
 
         public static void DeploymentMessage(string message)
@@ -202,24 +202,24 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 message = "[no message string provided to MessageCentre.Message()" + new StackTrace().ToString();
             }
 
-            ThreadHelper.JoinableTaskFactory.RunAsync(async () =>
-            {
-                await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+            _ = ThreadHelper.JoinableTaskFactory.RunAsync(async () =>
+              {
+                  await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
-                if (activatePane)
-                {
-                    pane.Activate();
-                }
+                  if (activatePane)
+                  {
+                      pane.Activate();
+                  }
 
-                pane.OutputStringThreadSafe(message);
-            });
+                  pane.OutputStringThreadSafe(message);
+              });
         }
 
         public static void StartProgressMessage(string message)
         {
-            ThreadHelper.JoinableTaskFactory.RunAsync(async () =>
-            {
-                await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+            _ = ThreadHelper.JoinableTaskFactory.RunAsync(async () =>
+              {
+                  await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
                 // stock general animation icon
                 object icon = (short)Constants.SBAI_General;
@@ -228,17 +228,17 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 // Make sure the status bar is not frozen  
                 _statusBar.IsFrozen(out int frozen);
 
-                if (frozen != 0)
-                {
-                    _statusBar.FreezeOutput(0);
-                }
+                  if (frozen != 0)
+                  {
+                      _statusBar.FreezeOutput(0);
+                  }
 
-                _statusBar.SetText(message);
+                  _statusBar.SetText(message);
 
                 // start icon animation
                 _statusBar.Animation(1, ref icon);
 
-            });
+              });
         }
 
         public static void StartMessageWithProgress(MessageWithProgress message)
@@ -246,32 +246,32 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         //    uint nComplete, 
         //    uint nTotal)
         {
-            ThreadHelper.JoinableTaskFactory.RunAsync(async () =>
-            {
-                await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+            _ = ThreadHelper.JoinableTaskFactory.RunAsync(async () =>
+              {
+                  await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
                 // Make sure the status bar is not frozen  
                 _statusBar.IsFrozen(out int frozen);
 
-                if (frozen != 0)
-                {
-                    _statusBar.FreezeOutput(0);
-                }
+                  if (frozen != 0)
+                  {
+                      _statusBar.FreezeOutput(0);
+                  }
 
-                _statusBar.SetText("");
+                  _statusBar.SetText("");
 
                 // start progress bar
                 _statusBar.Progress(ref progressCookie, 1, message.Message, message.Current, message.Total);
 
-            });
+              });
         }
 
         public static void StopProgressMessage(string message = null)
         {
 
-            ThreadHelper.JoinableTaskFactory.RunAsync(async () =>
-            {
-                await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+            _ = ThreadHelper.JoinableTaskFactory.RunAsync(async () =>
+              {
+                  await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
                 // stock general animation icon
                 object icon = (short)Constants.SBAI_General;
@@ -279,32 +279,32 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 // Make sure the status bar is not frozen  
                 _statusBar.IsFrozen(out int frozen);
 
-                if (frozen != 0)
-                {
-                    _statusBar.FreezeOutput(0);
-                }
+                  if (frozen != 0)
+                  {
+                      _statusBar.FreezeOutput(0);
+                  }
 
-                if (string.IsNullOrEmpty(message))
-                {
-                    _statusBar.SetText(message);
-                }
-                else
-                {
-                    _statusBar.Clear();
-                }
+                  if (string.IsNullOrEmpty(message))
+                  {
+                      _statusBar.SetText(message);
+                  }
+                  else
+                  {
+                      _statusBar.Clear();
+                  }
 
                 // stop the animation
                 _statusBar?.Animation(0, ref icon);
 
                 // stop the progress bar
                 if (progressCookie > 0)
-                {
-                    _statusBar?.Progress(ref progressCookie, 0, "", 0, 0);
+                  {
+                      _statusBar?.Progress(ref progressCookie, 0, "", 0, 0);
 
                     // reset cookie
                     progressCookie = 0;
-                }
-            });
+                  }
+              });
         }
     }
 }
