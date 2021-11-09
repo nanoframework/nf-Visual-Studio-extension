@@ -94,17 +94,27 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         public int Next(uint celt, System.IntPtr values, out uint pceltFetched)
         {
             pceltFetched = System.Math.Min(celt, Count - m_iCurrent);
+
+#if DEV16
             int[] arr = new int[pceltFetched];
+#else
+            long[] arr = new long[pceltFetched];
+#endif
 
             for (uint i = 0; i < pceltFetched; i++)
             {
+#if DEV16
                 arr[i] = Marshal.GetComInterfaceForObject(m_items[(int) m_iCurrent], m_typeElement).ToInt32();
+#else
+                arr[i] = Marshal.GetComInterfaceForObject(m_items[(int)m_iCurrent], m_typeElement).ToInt64();
+#endif
                 m_iCurrent++;
             }
 
             Marshal.Copy(arr, 0, values, (int)pceltFetched);
             return COM_HResults.S_OK;
         }
+
         #endregion
 
         public int NextCore(uint celt, object[] ptr, out uint pceltFetched)
