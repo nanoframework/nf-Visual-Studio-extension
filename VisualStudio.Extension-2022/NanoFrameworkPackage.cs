@@ -16,7 +16,6 @@ using nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel;
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -459,18 +458,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 MessageCentre.OutputMessage("Star our GitHub repos: https://github.com/nanoframework/Home");
                 MessageCentre.OutputMessage("Add a short review or rate the VS extension: https://marketplace.visualstudio.com/items?itemName=nanoframework.nanoFramework-VS2022-Extension");
                 MessageCentre.OutputMessage(Environment.NewLine);
-
-                // check Windows version
-                if (Environment.OSVersion.Version < new Version(6, 2, 9200, 0))
-                {
-                    // this is running on a Windows version lower than Windows 10
-                    MessageCentre.OutputMessage(Environment.NewLine);
-                    MessageCentre.OutputMessage("*************************************************************************");
-                    MessageCentre.OutputMessage("** Seems that you are running this on a Window version earlier than 10 **");
-                    MessageCentre.OutputMessage("** .NET nanoFramework debug engine component requires Windows 10       **");
-                    MessageCentre.OutputMessage("*************************************************************************");
-                    MessageCentre.OutputMessage(Environment.NewLine);
-                }
 
                 // check device watchers option
                 if (OptionDisableDeviceWatchers)
