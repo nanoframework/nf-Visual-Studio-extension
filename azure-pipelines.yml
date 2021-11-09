@@ -286,7 +286,6 @@ jobs:
 
   variables:
     solution: '**/nanoFramework.Tools.VisualStudio.sln'
-    buildPlatform: 'Any CPU'
     buildConfiguration: 'Release'
 
   steps:
@@ -312,7 +311,6 @@ jobs:
   - task: VSBuild@1
     inputs:
       solution: '$(solution)'
-      platform: '$(buildPlatform)'
       msbuildArgs: '/p:PublicRelease=true'
       configuration: '$(buildConfiguration)'
 
@@ -418,7 +416,7 @@ jobs:
         script: |
 
           # filter out VS2022 because VSIX gallery doesn't support these (yet)
-          $artifactsCollection = @("./*VS2017.Extension.vsix", "./*VS2019.Extension.vsix") | %{ Get-ChildItem -File . -Filter $_ -Recurse}
+          $artifactsCollection = @("./*VS2017.Extension.vsix", "./*VS2019.Extension.vsix", "./*VS2022.Extension.vsix") | %{ Get-ChildItem -File . -Filter $_ -Recurse}
 
           (new-object Net.WebClient).DownloadString("https://raw.github.com/madskristensen/ExtensionScripts/master/AppVeyor/vsix.ps1") | iex
 
