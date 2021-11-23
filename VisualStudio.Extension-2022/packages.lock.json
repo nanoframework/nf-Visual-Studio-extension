@@ -2080,7 +2080,7 @@
       "csharp.testapplication-vs2022": {
         "type": "Project"
       },
-      "tools.buildtasks": {
+      "nanoFramework.Tools.BuildTasks": {
         "type": "Project",
         "dependencies": {
           "System.Runtime.CompilerServices.Unsafe": "4.7.0"

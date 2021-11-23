@@ -80,7 +80,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         /// <summary>
         /// The GUID for this package.
         /// </summary>
-        public const string PackageGuid = "046B40EB-1DE1-4D08-AF61-FDB7592B9BBD";
+        public const string PackageGuid = "c72d2e12-4593-421e-9ced-5ce21fe0aeb4";
 
         public const string NanoCSharpProjectSystemCommandSet = "DF641D51-1E8C-48E4-B549-CC6BCA9BDE19";
 
