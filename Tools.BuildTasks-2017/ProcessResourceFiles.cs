@@ -944,32 +944,10 @@ namespace nanoFramework.Tools
 
                     if (entry == null)
                     {
-                        // Try to create a bitmap from byte[]
-                        // If it doesn't contain a BMP format (will throw an exception) then create BinaryEntry
+                        // Create BinaryEntry
                         using (var ms = new MemoryStream(rawValue))
                         {
-                            try
-                            {
-                                Bitmap bmp = new Bitmap(ms);
-
-                                // validate supported formats
-                                if (
-                                    bmp.RawFormat.Equals(ImageFormat.Jpeg) ||
-                                    bmp.RawFormat.Equals(ImageFormat.Gif) ||
-                                    bmp.RawFormat.Equals(ImageFormat.Bmp))
-                                {
-                                    entry = new BitmapEntry(name, bmp);
-                                }
-                                else
-                                {
-                                    // bitmap image format not supported 
-                                    throw new NotSupportedException();
-                                }
-                            }
-                            catch(Exception) 
-                            {
-                                entry = new BinaryEntry(name, rawValue);
-                            }
+                            entry = new BinaryEntry(name, rawValue);
                         }
                     }
                 }
