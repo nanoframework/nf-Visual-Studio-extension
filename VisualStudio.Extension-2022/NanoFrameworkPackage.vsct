@@ -260,7 +260,7 @@
 
   <Symbols>
     <!-- This is the package guid. -->
-    <GuidSymbol name="guidNanoFrameworkPackage" value="{046B40EB-1DE1-4D08-AF61-FDB7592B9BBD}" />
+    <GuidSymbol name="guidNanoFrameworkPackage" value="{c72d2e12-4593-421e-9ced-5ce21fe0aeb4}" />
 
     <!-- This is the guid used to group the commands together -->
     <GuidSymbol name="guidNanoDebugPackageCmdSet" value="{6A0F19B1-00EF-4215-BD7B-29DEB4425F7C}">
