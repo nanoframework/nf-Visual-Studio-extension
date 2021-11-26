@@ -52,7 +52,10 @@ jobs:
           ($commit.files.filename -like "*Tools.BuildTasks-2019*") -Or
           ($commit.files.filename -like "*Tools.CorHelper*") -Or
           ($commit.files.filename -like "*Tools.MetaDataProcessor*") -Or
-          ($commit.files.filename -like "*Tools.Parser*")
+          ($commit.files.filename -like "*Tools.Parser*") -Or
+          ($commit.files.filename -like "*Tools.BuildTasks-2017*") -Or
+          ($commit.files.filename -like "*Tools.BuildTasks*") -Or
+          ($commit.files.filename -like "*vs-extension.shared*")
         )
       {
           # global changes, build both
