@@ -79,6 +79,32 @@ jobs:
     name: BuildOptions
     displayName: get list of changed paths
 
+  - powershell: |
+      # read VS2019 manifest file
+      $vs2019Manifest = Get-Content VisualStudio.Extension-2019/source.extension.vsixmanifest -Encoding utf8
+
+      $VersionFormatChecks = $vs2019Manifest | Where-Object {$_.ToString() -match "(?>Version=""\|%CurrentProject%;GetBuildVersion\|"")"}
+      if($null -eq $VersionFormatChecks)
+      {
+          Write-Host "***************************************************"
+          Write-Host "* WRONG format on version in VS2019 manifest file *"
+          Write-Host "***************************************************"
+          exit 1
+      }
+
+      # read VS2022 manifest file
+      $vs2022Manifest = Get-Content VisualStudio.Extension-2022/source.extension.vsixmanifest -Encoding utf8
+
+      $VersionFormatChecks = $vs2022Manifest | Where-Object {$_.ToString() -match "(?>Version=""\|%CurrentProject%;GetBuildVersion\|"")"}
+      if($null -eq $VersionFormatChecks)
+      {
+          Write-Host "***************************************************"
+          Write-Host "* WRONG format on version in VS2022 manifest file *"
+          Write-Host "***************************************************"
+          exit 1
+      }
+    displayName: Check proper version format
+
 ######################
 - job: VS2019_2022
   condition: >-
