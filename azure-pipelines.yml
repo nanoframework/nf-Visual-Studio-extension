@@ -85,6 +85,7 @@ jobs:
 
     name: BuildOptions
     displayName: Get what to build
+    condition: not(startsWith(variables['Build.SourceBranch'], 'refs/tags/v'))
 
   - powershell: |
       # read VS2019 manifest file
@@ -117,7 +118,8 @@ jobs:
   condition: >-
     or(
       eq(dependencies.Get_Build_Options.outputs['BuildOptions.BUILD_VS2019'], true),
-      eq(variables['BUILD_VS2019'], 'true')
+      eq(variables['BUILD_VS2019'], 'true'),
+      startsWith(variables['Build.SourceBranch'], 'refs/tags/v2019')
     )
   dependsOn:
   - Get_Build_Options
@@ -280,7 +282,7 @@ jobs:
       title: '.NET nanoFramework VS Extension v$(NBGV_AssemblyVersion)'
       releaseNotesSource: inline
       releaseNotesInline: 'Check the [changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/blob/$(Build.SourceBranchName)/CHANGELOG-VS2019.md).<br><br><h4>Install from nanoFramework Open VSIX Gallery development feed</h4><br>The following Visual Studio Extensions are available for install from this release<br><br>:package: [nanoFramework VS2019 Extension](https://marketplace.visualstudio.com/items?itemName=nanoframework.nanoFramework-VS2019-Extension)'
-      assets: '$(Build.ArtifactStagingDirectory)/*.vsix'
+      assets: '$(Build.ArtifactStagingDirectory)\*.vsix'
       assetUploadMode: replace
       isPreRelease: true
       addChangeLog: false
@@ -306,7 +308,7 @@ jobs:
       title: '.NET nanoFramework VS Extension v$(NBGV_AssemblyVersion)'
       releaseNotesSource: inline
       releaseNotesInline: 'Check the [changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/blob/$(Build.SourceBranchName)/CHANGELOG-VS2019.md).<br><br><h4>Install from nanoFramework Open VSIX Gallery development feed</h4><br>The following Visual Studio Extensions are available for install from this release<br><br>:package: [nanoFramework VS2019 Extension](http://vsixgallery.com/extension/455f2be5-bb07-451e-b351-a9faf3018dc9)'
-      assets: '$(Build.ArtifactStagingDirectory)/*.vsix'
+      assets: '$(Build.ArtifactStagingDirectory)\*.vsix'
       assetUploadMode: replace
       isPreRelease: false
       addChangeLog: false
@@ -316,7 +318,8 @@ jobs:
   condition: >-
     or(
       eq(dependencies.Get_Build_Options.outputs['BuildOptions.BUILD_VS2022'], true),
-      eq(variables['BUILD_VS2022'], 'true')
+      eq(variables['BUILD_VS2022'], 'true'),
+      startsWith(variables['Build.SourceBranch'], 'refs/tags/v2022')
     )
   dependsOn:
   - Get_Build_Options
@@ -478,7 +481,7 @@ jobs:
       title: '.NET nanoFramework VS Extension v$(NBGV_AssemblyVersion)'
       releaseNotesSource: inline
       releaseNotesInline: 'Check the [changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/blob/$(Build.SourceBranchName)/CHANGELOG-VS2022.md).<br><br><h4>Install from nanoFramework Open VSIX Gallery development feed</h4><br>The following Visual Studio Extensions are available for install from this release<br><br>:package: [nanoFramework VS2022 Extension](https://marketplace.visualstudio.com/items?itemName=nanoframework.nanoFramework-VS2022-Extension)'
-      assets: '$(Build.ArtifactStagingDirectory)/*.vsix'
+      assets: '$(Build.ArtifactStagingDirectory)\*.vsix'
       assetUploadMode: replace
       isPreRelease: true
       addChangeLog: false
@@ -503,8 +506,8 @@ jobs:
       tag: v$(NBGV_AssemblyVersion)
       title: '.NET nanoFramework VS Extension v$(NBGV_AssemblyVersion)'
       releaseNotesSource: inline
-      releaseNotesInline: 'Check the [changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/blob/$(Build.SourceBranchName)/CHANGELOG-VS2022.md).<br><br><h4>Install from nanoFramework Open VSIX Gallery development feed</h4><br>The following Visual Studio Extensions are available for install from this release<br><br>:package: [nanoFramework VS2022 Extension](http://vsixgallery.com/extension/432ef961-ea3b-4099-ada9-b720ff3a566b)'
-      assets: '$(Build.ArtifactStagingDirectory)/*.vsix'
+      releaseNotesInline: 'Check the [changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/blob/$(Build.SourceBranchName)/CHANGELOG-VS2022.md).<br><br><h4>Install from nanoFramework Open VSIX Gallery development feed</h4><br>The following Visual Studio Extensions are available for install from this release<br><br>:package: [nanoFramework VS2022 Extension](http://vsixgallery.com/extension/bf694e17-fa5f-4877-9317-6d3664b2689a)'
+      assets: '$(Build.ArtifactStagingDirectory)\*.vsix'
       assetUploadMode: replace
       isPreRelease: false
       addChangeLog: false
@@ -606,7 +609,7 @@ jobs:
       and(
         succeeded(),
         eq(variables['System.PullRequest.PullRequestId'], ''),
-        startsWith(variables['Build.SourceBranch'], 'refs/tags/v'),
+        startsWith(variables['Build.SourceBranch'], 'refs/tags/v2019'),
         not(
           or(
             eq(variables['Build.SourceBranchName'], 'main'),
@@ -615,7 +618,8 @@ jobs:
         ),
         or(
           eq(variables['GO_BuildVS2019'], true),
-          eq(variables['BUILD_VS2019'], 'true')
+          eq(variables['BUILD_VS2019'], 'true'),
+          startsWith(variables['Build.SourceBranch'], 'refs/tags/v2019')
         )
       )
     displayName: Generate VS2019 change log
@@ -628,7 +632,7 @@ jobs:
       and(
         succeeded(),
         eq(variables['System.PullRequest.PullRequestId'], ''),
-        startsWith(variables['Build.SourceBranch'], 'refs/tags/v'),
+        startsWith(variables['Build.SourceBranch'], 'refs/tags/v2022'),
         not(
           or(
             eq(variables['Build.SourceBranchName'], 'main'),
@@ -637,7 +641,8 @@ jobs:
         ),
         or(
           eq(variables['GO_BuildVS202'], true),
-          eq(variables['BUILD_VS2022'], 'true')
+          eq(variables['BUILD_VS2022'], 'true'),
+          startsWith(variables['Build.SourceBranch'], 'refs/tags/v2022')
         )
       )
     displayName: Generate VS2022 change log
@@ -673,65 +678,27 @@ jobs:
       ArtifactName: deployables
       ArtifactType: Container
 
-  # commit VS2019 changelog
+  # commit changelogs
   - task: PowerShell@2
-    condition: >-
-      and(
-        succeeded(),
-        eq(variables['System.PullRequest.PullRequestId'], ''),
-        not(startsWith(variables['Build.SourceBranch'], 'refs/tags/v')),
-        or(
-          eq(variables['GO_BuildVS2019'], true),
-          eq(variables['BUILD_VS2019'], 'true')
-        )
-      )
+    condition: succeeded()
     displayName: Commit VS2019 changelog
     inputs:
       targetType: 'inline'
       script: |
         git add CHANGELOG-VS2019.md
-
-        # check if there is anything to commit
-        $anythingToCommit = git status --porcelain
-        if($anythingToCommit -ne $null)
-        {
-            git commit -m "Update CHANGELOG for VS2019 v$env:MY_VS2019_VERSION" -m"***NO_CI***"
-        }
-
-  # commit VS2022 changelog
-  - task: PowerShell@2
-    condition: >-
-      and(
-        succeeded(),
-        eq(variables['System.PullRequest.PullRequestId'], ''),
-        not(startsWith(variables['Build.SourceBranch'], 'refs/tags/v')),
-        or(
-          eq(variables['GO_BuildVS202'], true),
-          eq(variables['BUILD_VS2022'], 'true')
-        )
-      )
-    displayName: Commit VS2022 changelog
-    inputs:
-      targetType: 'inline'
-      script: |
         git add CHANGELOG-VS2022.md
 
         # check if there is anything to commit
         $anythingToCommit = git status --porcelain
         if($anythingToCommit -ne $null)
         {
-            git commit -m "Update CHANGELOG for VS2019 v$env:MY_VS2022_VERSION" -m"***NO_CI***"
+            git commit -m "Update CHANGELOGs" -m"***NO_CI***"
         }
 
   # push changelogs to GitHub repo
   - task: PowerShell@2
     displayName: Push changelogs to GitHub
-    condition: >-
-      and(
-        succeeded(),
-        eq(variables['System.PullRequest.PullRequestId'], ''),
-        not(startsWith(variables['Build.SourceBranch'], 'refs/tags/v'))
-      )
+    condition: succeeded()
     inputs:
       targetType: 'inline'
       script: |
