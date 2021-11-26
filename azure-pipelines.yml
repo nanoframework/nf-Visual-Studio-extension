@@ -315,7 +315,7 @@ jobs:
         startsWith(variables['Build.SourceBranch'], 'refs/tags/v'),
         contains(variables['Build.SourceBranch'], 'vs2019'),
         or(
-          eq(variables['Build.SourceBranchName'], 'master'),
+          eq(variables['Build.SourceBranchName'], 'main'),
           contains(variables['Build.SourceBranchName'], 'release')
         )
       )
@@ -382,15 +382,15 @@ jobs:
 
   # generate VS2019 change log
   - powershell: |
-        # need to call it passing both cache options with full path otherwise it won't work
-        github_changelog_generator --token $(GitHubToken) --cache-log  $env:AGENT_TEMPDIRECTORY\github-changelog-logger.log --cache-file $env:AGENT_TEMPDIRECTORY\github-changelog-http-cache --since-tag v1.1.0.101-VS2019 --output CHANGELOG-VS2019.md
+      # need to call it passing both cache options with full path otherwise it won't work
+      github_changelog_generator --token $(GitHubToken) --cache-log  $env:AGENT_TEMPDIRECTORY\github-changelog-logger.log --cache-file $env:AGENT_TEMPDIRECTORY\github-changelog-http-cache --since-tag v1.1.0.101-VS2019 --output CHANGELOG-VS2019.md
     condition: >-
       and(
         succeeded(),
         eq(variables['System.PullRequest.PullRequestId'], ''),
         not(startsWith(variables['Build.SourceBranch'], 'refs/tags/v')),
         or(
-          eq(variables['Build.SourceBranchName'], 'master'),
+          eq(variables['Build.SourceBranchName'], 'main'),
           contains(variables['Build.SourceBranchName'], 'release')
         ),
         or(
@@ -402,15 +402,15 @@ jobs:
 
   # generate VS2022 change log
   - powershell: |
-        # need to call it passing both cache options with full path otherwise it won't work
-        github_changelog_generator --token $(GitHubToken) --cache-log  $env:AGENT_TEMPDIRECTORY\github-changelog-logger.log --cache-file $env:AGENT_TEMPDIRECTORY\github-changelog-http-cache --since-tag v1.1.0.101-VS2022 --output CHANGELOG-VS2022.md
+      # need to call it passing both cache options with full path otherwise it won't work
+      github_changelog_generator --token $(GitHubToken) --cache-log  $env:AGENT_TEMPDIRECTORY\github-changelog-logger.log --cache-file $env:AGENT_TEMPDIRECTORY\github-changelog-http-cache --since-tag v2019.8.0.7 --output CHANGELOG-VS2022.md
     condition: >-
       and(
         succeeded(),
         eq(variables['System.PullRequest.PullRequestId'], ''),
         not(startsWith(variables['Build.SourceBranch'], 'refs/tags/v')),
         or(
-          eq(variables['Build.SourceBranchName'], 'master'),
+          eq(variables['Build.SourceBranchName'], 'main'),
           contains(variables['Build.SourceBranchName'], 'release')
         ),
         or(
@@ -422,16 +422,16 @@ jobs:
 
   # generate VS2019 change log including future version
   - powershell: |
-        # need to call it passing both cache options with full path otherwise it won't work
-        github_changelog_generator --token $(GitHubToken) --cache-log  $env:AGENT_TEMPDIRECTORY\github-changelog-logger.log --cache-file $env:AGENT_TEMPDIRECTORY\github-changelog-http-cache --since-tag v1.1.0.101-VS2019 --future-release v$(MY_VS2019_VERSION) --output CHANGELOG-VS2019.md
+      # need to call it passing both cache options with full path otherwise it won't work
+      github_changelog_generator --token $(GitHubToken) --cache-log  $env:AGENT_TEMPDIRECTORY\github-changelog-logger.log --cache-file $env:AGENT_TEMPDIRECTORY\github-changelog-http-cache --since-tag v1.1.0.101-VS2019 --future-release v$(MY_VS2019_VERSION) --output CHANGELOG-VS2019.md
     condition: >-
       and(
         succeeded(),
         eq(variables['System.PullRequest.PullRequestId'], ''),
-        not(startsWith(variables['Build.SourceBranch'], 'refs/tags/v')),
+        startsWith(variables['Build.SourceBranch'], 'refs/tags/v'),
         not(
           or(
-            eq(variables['Build.SourceBranchName'], 'master'),
+            eq(variables['Build.SourceBranchName'], 'main'),
             contains(variables['Build.SourceBranchName'], 'release')
           )
         ),
@@ -444,16 +444,16 @@ jobs:
 
   # generate VS2022 change log including future version
   - powershell: |
-        # need to call it passing both cache options with full path otherwise it won't work
-        github_changelog_generator --token $(GitHubToken) --cache-log  $env:AGENT_TEMPDIRECTORY\github-changelog-logger.log --cache-file $env:AGENT_TEMPDIRECTORY\github-changelog-http-cache --since-tag v1.1.0.101-VS2022 --future-release v$(MY_VS2022_VERSION) --output CHANGELOG-VS2022.md
+      # need to call it passing both cache options with full path otherwise it won't work
+      github_changelog_generator --token $(GitHubToken) --cache-log  $env:AGENT_TEMPDIRECTORY\github-changelog-logger.log --cache-file $env:AGENT_TEMPDIRECTORY\github-changelog-http-cache --since-tag v2019.8.0.7 --future-release v$(MY_VS2022_VERSION) --output CHANGELOG-VS2022.md
     condition: >-
       and(
         succeeded(),
         eq(variables['System.PullRequest.PullRequestId'], ''),
-        not(startsWith(variables['Build.SourceBranch'], 'refs/tags/v')),
+        startsWith(variables['Build.SourceBranch'], 'refs/tags/v'),
         not(
           or(
-            eq(variables['Build.SourceBranchName'], 'master'),
+            eq(variables['Build.SourceBranchName'], 'main'),
             contains(variables['Build.SourceBranchName'], 'release')
           )
         ),
