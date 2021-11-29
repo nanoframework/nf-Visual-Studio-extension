@@ -38,12 +38,10 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         private ViewModelLocator ViewModelLocator;
 
-        private static OleMenuCommandService _commandService;
-
         /// <summary>
         /// VS Package that provides this command, not null.
         /// </summary>
-        private readonly Package package;
+        private readonly AsyncPackage package;
 
         // command set Guids
         public const string guidDeviceExplorerCmdSet = "DF641D51-1E8C-48E4-B549-CC6BCA9BDE19";  // this GUID is coming from the .vsct file  
@@ -70,31 +68,39 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         public const int ShowInternalErrorsCommandID = 0x0300;
         public const int ShowSettingsCommandID = 0x0420;
 
-
         INanoDeviceCommService NanoDeviceCommService;
-        private static DeviceExplorerCommand s_instance;
+        OleMenuCommandService MenuCommandService;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="DeviceExplorerCommand"/> class.
+        /// Initializes a new instance of the <see cref="DisableDeviceWatchersHandler"/> class.
         /// Adds our command handlers for menu (commands must exist in the command table file)
         /// </summary>
         /// <param name="package">Owner package, not null.</param>
-        private DeviceExplorerCommand(Package package)
+        private DeviceExplorerCommand(AsyncPackage package, OleMenuCommandService commandService)
         {
             this.package = package ?? throw new ArgumentNullException("Package can't be null.");
+            commandService = commandService ?? throw new ArgumentNullException(nameof(commandService));
 
-            _commandService = ServiceProvider.GetService(typeof(IMenuCommandService)) as OleMenuCommandService;
-            Assumes.Present(_commandService);
+            MenuCommandService = commandService;
 
             var menuCommandID = new CommandID(CommandSet, CommandId);
             var menuItem = new MenuCommand(ShowToolWindow, menuCommandID);
-            _commandService.AddCommand(menuItem);
+            commandService.AddCommand(menuItem);
+        }
+
+        /// <summary>
+        /// Gets the instance of the command.
+        /// </summary>
+        public static DeviceExplorerCommand Instance
+        {
+            get;
+            private set;
         }
 
         /// <summary>
         /// Gets the service provider from the owner package.
         /// </summary>
-        private IServiceProvider ServiceProvider
+        private Microsoft.VisualStudio.Shell.IAsyncServiceProvider ServiceProvider
         {
             get
             {
@@ -108,33 +114,34 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         /// <param name="package">Owner package, not null.</param>
         public static async Task InitializeAsync(AsyncPackage package, ViewModelLocator vmLocator)
         {
-            s_instance = new DeviceExplorerCommand(package);
+            // Switch to the main thread - the call to AddCommand in ToolWindow1Command's constructor requires
+            // the UI thread.
+            await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync(package.DisposalToken);
 
-            s_instance.ViewModelLocator = vmLocator;
+            OleMenuCommandService commandService = await package.GetServiceAsync((typeof(IMenuCommandService))) as OleMenuCommandService;
 
-            // need to switch to the main thread to initialize the command handlers
-            await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+            Instance = new DeviceExplorerCommand(package, commandService);
 
-            var commService = await package.GetServiceAsync(typeof(NanoDeviceCommService));
-            Assumes.Present(commService);
+            Instance.ViewModelLocator = vmLocator;
 
-            s_instance.NanoDeviceCommService = commService as INanoDeviceCommService;
+            var commService = await package.GetServiceAsync(typeof(NanoDeviceCommService)) ?? throw new ArgumentNullException(nameof(NanoDeviceCommService));
 
-            s_instance.CreateToolbarHandlers();
+            Instance.NanoDeviceCommService = commService as INanoDeviceCommService;
 
-            SimpleIoc.Default.GetInstance<DeviceExplorerViewModel>().NanoDeviceCommService = s_instance.NanoDeviceCommService;
+            await Instance.CreateToolbarHandlersAsync();
+
+            SimpleIoc.Default.GetInstance<DeviceExplorerViewModel>().NanoDeviceCommService = Instance.NanoDeviceCommService;
 
             // setup message listeners to be notified of events occurring in the View Model
-            Messenger.Default.Register<NotificationMessage>(s_instance, DeviceExplorerViewModel.MessagingTokens.SelectedNanoDeviceHasChanged, (message) => s_instance.SelectedNanoDeviceHasChangedHandlerAsync().ConfigureAwait(false));
-            Messenger.Default.Register<NotificationMessage>(s_instance, DeviceExplorerViewModel.MessagingTokens.NanoDevicesCollectionHasChanged, (message) => s_instance.NanoDevicesCollectionChangedHandlerAsync().ConfigureAwait(false));
-            Messenger.Default.Register<NotificationMessage>(s_instance, DeviceExplorerViewModel.MessagingTokens.NanoDevicesDeviceEnumerationCompleted, (message) => s_instance.NanoDevicesDeviceEnumerationCompletedHandlerAsync().ConfigureAwait(false));
+            Messenger.Default.Register<NotificationMessage>(Instance, DeviceExplorerViewModel.MessagingTokens.SelectedNanoDeviceHasChanged, (message) => Instance.SelectedNanoDeviceHasChangedHandlerAsync().ConfigureAwait(false));
+            Messenger.Default.Register<NotificationMessage>(Instance, DeviceExplorerViewModel.MessagingTokens.NanoDevicesCollectionHasChanged, (message) => Instance.NanoDevicesCollectionChangedHandlerAsync().ConfigureAwait(false));
+            Messenger.Default.Register<NotificationMessage>(Instance, DeviceExplorerViewModel.MessagingTokens.NanoDevicesDeviceEnumerationCompleted, (message) => Instance.NanoDevicesDeviceEnumerationCompletedHandlerAsync().ConfigureAwait(false));
         }
 
-        private void CreateToolbarHandlers()
+        private async Task CreateToolbarHandlersAsync()
         {
             // Create the handles for the toolbar commands
-            var menuCommandService = ServiceProvider.GetService(typeof(IMenuCommandService)) as OleMenuCommandService;
-            Assumes.Present(menuCommandService);
+            var menuCommandService = await ServiceProvider.GetServiceAsync(typeof(IMenuCommandService)) as OleMenuCommandService ?? throw new ArgumentNullException(nameof(IMenuCommandService));
 
             CommandID toolbarButtonCommandId;
             MenuCommand menuItem;
@@ -240,23 +247,24 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         /// </summary>
         /// <param name="sender">The event sender.</param>
         /// <param name="e">The event args.</param>
-        private async void ShowToolWindow(object sender, EventArgs e)
+        private void ShowToolWindow(object sender, EventArgs e)
         {
-            await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+            _ = package.JoinableTaskFactory.RunAsync(async delegate
+                {
 
-            // Get the instance number 0 of this tool window. This window is single instance so this instance
-            // is actually the only one.
-            // The last flag is set to true so that if the tool window does not exists it will be created.
-            ToolWindowPane toolWindow = package.FindToolWindow(typeof(DeviceExplorer), 0, true);
-            if ((null == toolWindow) || (null == toolWindow.Frame))
-            {
-                throw new NotSupportedException("Cannot create nanoFramework Device Explorer tool window.");
-            }
+                  // Get the instance number 0 of this tool window. This window is single instance so this instance
+                  // is actually the only one.
+                  // The last flag is set to true so that if the tool window does not exists it will be created.
+                  ToolWindowPane toolWindow = await package.ShowToolWindowAsync(typeof(DeviceExplorer), 0, true, package.DisposalToken);
+                    if ((null == toolWindow) || (null == toolWindow.Frame))
+                    {
+                        throw new NotSupportedException("Cannot create nanoFramework Device Explorer tool window.");
+                    }
 
-            IVsWindowFrame windowFrame = (IVsWindowFrame)toolWindow.Frame;
-            ErrorHandler.ThrowOnFailure(windowFrame.Show());
+                  //IVsWindowFrame windowFrame = (IVsWindowFrame)toolWindow.Frame;
+                  //ErrorHandler.ThrowOnFailure(windowFrame.Show());
+              });
         }
-
 
         #region Command button handlers
 
@@ -921,12 +929,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 MessageCentre.OutputMessage("*******************************************************************************");
                 MessageCentre.OutputMessage(Environment.NewLine);
 
-                // get the menu command service to reach the toolbar commands
-                var menuCommandService = ServiceProvider.GetService(typeof(IMenuCommandService)) as OleMenuCommandService;
-                Assumes.Present(menuCommandService);
-
                 // set rescan devices button to disabled state
-                menuCommandService.FindCommand(GenerateCommandID(RescanDevicesCommandID)).Enabled = false;
+                MenuCommandService.FindCommand(GenerateCommandID(RescanDevicesCommandID)).Enabled = false;
             }
 
             // toggle button checked state
@@ -979,22 +983,20 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         public static void UpdateShowInternalErrorsButton(bool value)
         {
             var toolbarButtonCommandId = GenerateCommandID(ShowInternalErrorsCommandID);
-            var menuItem = _commandService.FindCommand(toolbarButtonCommandId);
+
+            var menuItem = Instance.MenuCommandService.FindCommand(toolbarButtonCommandId);
             menuItem.Checked = value;
         }
 
         public static void UpdateDisableDeviceWatchersButton(bool value)
         {
             var toolbarButtonCommandId = GenerateCommandID(DisableDeviceWatchersCommandID);
-            var menuItem = _commandService.FindCommand(toolbarButtonCommandId);
+
+            var menuItem = Instance.MenuCommandService.FindCommand(toolbarButtonCommandId);
             menuItem.Checked = value;
 
-            // get the menu command service to reach the toolbar commands
-            var menuCommandService = s_instance.ServiceProvider.GetService(typeof(IMenuCommandService)) as OleMenuCommandService;
-            Assumes.Present(menuCommandService);
-
             // enable rescan devices button because rescan operation has completed
-            menuCommandService.FindCommand(GenerateCommandID(RescanDevicesCommandID)).Enabled = !value;
+            Instance.MenuCommandService.FindCommand(GenerateCommandID(RescanDevicesCommandID)).Enabled = !value;
         }
 
         #region MVVM messaging handlers
@@ -1033,12 +1035,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     // switch to UI main thread
                     await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
-                    // get the menu command service to reach the toolbar commands
-                    var menuCommandService = ServiceProvider.GetService(typeof(IMenuCommandService)) as OleMenuCommandService;
-                    Assumes.Present(menuCommandService);
-
                     // enable rescan devices button because rescan operation has completed
-                    menuCommandService.FindCommand(GenerateCommandID(RescanDevicesCommandID)).Enabled = true;
+                    Instance.MenuCommandService.FindCommand(GenerateCommandID(RescanDevicesCommandID)).Enabled = true;
                 }
             });
         }
@@ -1056,8 +1054,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
                 // get the menu command service to reach the toolbar commands
-                var menuCommandService = ServiceProvider.GetService(typeof(IMenuCommandService)) as OleMenuCommandService;
-                Assumes.Present(menuCommandService);
+                var menuCommandService = Instance.MenuCommandService;
 
                 // are there any devices available
                 if (ViewModelLocator.DeviceExplorer.AvailableDevices.Count > 0)
@@ -1141,8 +1138,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
                 // get the menu command service to reach the toolbar commands
-                var menuCommandService = ServiceProvider.GetService(typeof(IMenuCommandService)) as OleMenuCommandService;
-                Assumes.Present(menuCommandService);
+                var menuCommandService = Instance.MenuCommandService;
 
                 // if we are to enable the buttons have to check 1st for device availability and selection
                 // because these could have been changes when the command was executing

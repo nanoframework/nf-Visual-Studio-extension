@@ -2,16 +2,6 @@
   "version": 1,
   "dependencies": {
     ".NETFramework,Version=v4.7.2": {
-      "EnvDTE80": {
-        "type": "Direct",
-        "requested": "[16.9.31023.347, )",
-        "resolved": "16.9.31023.347",
-        "contentHash": "hVP+82Z42DlxSdIK9CWYFpfIru7RRp1hfUnRTdGEBYTPc8dARIs7oaR5DIMCxj2XZ1ko7vZCwZmoc3sBrziQ+w==",
-        "dependencies": {
-          "EnvDTE": "16.9.31023.347",
-          "Microsoft.VisualStudio.SDK.EmbedInteropTypes": "15.0.34"
-        }
-      },
       "Extended.Wpf.Toolkit": {
         "type": "Direct",
         "requested": "[4.0.2, )",
@@ -583,6 +573,15 @@
         "contentHash": "EmBssxuTgoTm0svUDfS1uQvH0azDxotoRdgBuvw9/s/terTD8O/Wxcmmn8PBFkWiA9hjvfgcXKCkro/TiVs8gg==",
         "dependencies": {
           "EnvDTE90a": "16.10.31320.204",
+          "Microsoft.VisualStudio.SDK.EmbedInteropTypes": "15.0.34"
+        }
+      },
+      "EnvDTE80": {
+        "type": "Transitive",
+        "resolved": "16.10.31320.204",
+        "contentHash": "co2tF7mfkpi2le77Bte5rI56oojl/8GPNcqbIbUJdBcEux6yex8K29gA/1GqVbbkM07QQX7lr6vo5Z/f/ATojg==",
+        "dependencies": {
+          "EnvDTE": "16.10.31320.204",
           "Microsoft.VisualStudio.SDK.EmbedInteropTypes": "15.0.34"
         }
       },
@@ -2381,7 +2380,7 @@
       "csharp.testapplication-vs2019": {
         "type": "Project"
       },
-      "tools.buildtasks": {
+      "nanoFramework.Tools.BuildTasks": {
         "type": "Project",
         "dependencies": {
           "System.Runtime.CompilerServices.Unsafe": "4.7.0"

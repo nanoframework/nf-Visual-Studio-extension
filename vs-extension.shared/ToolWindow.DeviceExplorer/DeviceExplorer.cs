@@ -25,9 +25,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
     [Guid("65ff0124-880b-4bf4-9441-08a10b4e4c06")]
     public class DeviceExplorer : ToolWindowPane
     {
-
         internal DeviceExplorerControl control;
-
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DeviceExplorer"/> class.
