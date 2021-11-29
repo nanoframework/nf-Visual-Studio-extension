@@ -2,9 +2,10 @@ trigger:
   branches:
     include: [main, develop, "release-*" ]
   paths:
-    exclude: [README.md, LICENSE.md, NuGet.Config, .github_changelog_generator, .gitignore]
+    exclude: [README.md, CHANGELOG-VS2017.md, CHANGELOG-VS2019.md, CHANGELOG-VS2022.md, LICENSE.md, NuGet.Config, .github_changelog_generator, .gitignore]
   tags:
-    include: ["v*"]
+    include:
+    - refs/tags/v*
 
 # PR always trigger build
 pr:
@@ -128,7 +129,8 @@ jobs:
     vmImage: 'windows-2019'
 
   variables:
-    solution: 'VisualStudio.Extension-2019\VisualStudio.Extension-vs2019.csproj'
+    DOTNET_NOLOGO: true
+    solution: 'nanoFramework.Tools.VisualStudio.sln'
     buildConfiguration: 'Release'
 
   steps:
@@ -142,6 +144,14 @@ jobs:
       git config --global user.name 'nfbot'
     displayName: Setup git identity
 
+  - task: DotNetCoreCLI@2  
+    displayName: Install NBGV tool
+    condition: succeeded()
+    inputs:
+      command: custom
+      custom: tool
+      arguments: install -g nbgv
+    
   - template: azure-pipelines-templates/install-nuget.yml@templates
 
   - task: NuGetCommand@2
@@ -165,12 +175,16 @@ jobs:
 
   - task: PowerShell@2
     inputs:
-        targetType: 'inline'
-        script: |
-            Write-Host "VS2019 build version $env:NBGV_AssemblyVersion"
-            
-            echo "##vso[task.setvariable variable=BUILD_VERSION;isOutput=true]$env:NBGV_AssemblyVersion"  
+      targetType: 'inline'
+      script: |
+        $versionData = & nbgv get-version -f json -p VisualStudio.Extension-2019
+        $versionData =$versionData | ConvertFrom-Json
+        
+        $version = $versionData.AssemblyVersion
 
+        Write-Host "VS2019 build version $version"
+          
+        echo "##vso[task.setvariable variable=BUILD_VERSION;isOutput=true]$version" 
     condition: succeeded()
     name: VS2019_Build
     displayName: Store VS2019 build version
@@ -285,6 +299,7 @@ jobs:
       assets: '$(Build.ArtifactStagingDirectory)\*.vsix'
       assetUploadMode: replace
       isPreRelease: true
+      isDraft: true
       addChangeLog: false
 
   # create or update GitHub release ON tags from release or main branches
@@ -328,7 +343,8 @@ jobs:
     vmImage: 'windows-2022'
 
   variables:
-    solution: 'VisualStudio.Extension-2022/VisualStudio.Extension-vs2022.csproj'
+    DOTNET_NOLOGO: true
+    solution: 'nanoFramework.Tools.VisualStudio.sln'
     buildConfiguration: 'Release'
 
   steps:
@@ -341,6 +357,14 @@ jobs:
       git config --global user.email 'nanoframework@outlook.com'
       git config --global user.name 'nfbot'
     displayName: Setup git identity
+
+  - task: DotNetCoreCLI@2  
+    displayName: Install NBGV tool
+    condition: succeeded()
+    inputs:
+      command: custom
+      custom: tool
+      arguments: install -g nbgv
 
   - template: azure-pipelines-templates/install-nuget.yml@templates
 
@@ -365,12 +389,16 @@ jobs:
 
   - task: PowerShell@2
     inputs:
-        targetType: 'inline'
-        script: |
-            Write-Host "VS2022 build version $env:NBGV_AssemblyVersion"
-            
-            echo "##vso[task.setvariable variable=BUILD_VERSION;isOutput=true]$env:NBGV_AssemblyVersion"  
+      targetType: 'inline'
+      script: |
+        $versionData = & nbgv get-version -f json -p VisualStudio.Extension-2022
+        $versionData =$versionData | ConvertFrom-Json
+        
+        $version = $versionData.AssemblyVersion
 
+        Write-Host "VS2022 build version $version"
+          
+        echo "##vso[task.setvariable variable=BUILD_VERSION;isOutput=true]$version"
     condition: succeeded()
     name: VS2022_Build
     displayName: Store VS2022 build version
@@ -483,6 +511,7 @@ jobs:
       releaseNotesInline: 'Check the [changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/blob/$(Build.SourceBranchName)/CHANGELOG-VS2022.md).<br><br><h4>Install from nanoFramework Open VSIX Gallery development feed</h4><br>The following Visual Studio Extensions are available for install from this release<br><br>:package: [nanoFramework VS2022 Extension](https://marketplace.visualstudio.com/items?itemName=nanoframework.nanoFramework-VS2022-Extension)'
       assets: '$(Build.ArtifactStagingDirectory)\*.vsix'
       assetUploadMode: replace
+      isDraft: true
       isPreRelease: true
       addChangeLog: false
 
@@ -492,7 +521,7 @@ jobs:
       and(
         succeeded(),
         startsWith(variables['Build.SourceBranch'], 'refs/tags/v'),
-        contains(variables['Build.SourceBranch'], 'vs2019'),
+        contains(variables['Build.SourceBranch'], 'vs2022'),
         or(
           eq(variables['Build.SourceBranchName'], 'main'),
           contains(variables['Build.SourceBranchName'], 'release')
@@ -528,9 +557,9 @@ jobs:
 
   variables:
     GO_BuildVS2019: $[ dependencies.Get_Build_Options.outputs['BuildOptions.BUILD_VS2019'] ]
-    MY_VS2019_VERSION: $[ dependencies.VS2019_2022.outputs['VS2019Build.BUILD_VERSION'] ]
+    MY_VS2019_VERSION: $[ dependencies.VS2019.outputs['VS2019_Build.BUILD_VERSION'] ]
     GO_BuildVS202: $[ dependencies.Get_Build_Options.outputs['BuildOptions.BUILD_VS2022'] ]
-    MY_VS2022_VERSION: $[ dependencies.VS2019_2022.outputs['VS2022Build.BUILD_VERSION'] ]
+    MY_VS2022_VERSION: $[ dependencies.VS2022.outputs['VS2022_Build.BUILD_VERSION'] ]
 
   pool:
     vmImage: 'windows-latest'
