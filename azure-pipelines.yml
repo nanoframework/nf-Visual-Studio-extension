@@ -292,8 +292,8 @@ jobs:
     inputs:
       gitHubConnection: 'github.com_nano-$(System.TeamProject)'
       tagSource: userSpecifiedTag
-      tag: v$(NBGV_AssemblyVersion)
-      title: '.NET nanoFramework VS Extension v$(NBGV_AssemblyVersion)'
+      tag: v$(BUILD_VERSION)
+      title: '.NET nanoFramework VS Extension v$(BUILD_VERSION)'
       releaseNotesSource: inline
       releaseNotesInline: 'Check the [changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/blob/$(Build.SourceBranchName)/CHANGELOG-VS2019.md).<br><br><h4>Install from nanoFramework Open VSIX Gallery development feed</h4><br>The following Visual Studio Extensions are available for install from this release<br><br>:package: [nanoFramework VS2019 Extension](https://marketplace.visualstudio.com/items?itemName=nanoframework.nanoFramework-VS2019-Extension)'
       assets: '$(Build.ArtifactStagingDirectory)\*.vsix'
@@ -319,8 +319,8 @@ jobs:
       action: edit
       gitHubConnection: 'github.com_nano-$(System.TeamProject)'
       tagSource: userSpecifiedTag
-      tag: v$(NBGV_AssemblyVersion)
-      title: '.NET nanoFramework VS Extension v$(NBGV_AssemblyVersion)'
+      tag: v$(BUILD_VERSION)
+      title: '.NET nanoFramework VS Extension v$(BUILD_VERSION)'
       releaseNotesSource: inline
       releaseNotesInline: 'Check the [changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/blob/$(Build.SourceBranchName)/CHANGELOG-VS2019.md).<br><br><h4>Install from nanoFramework Open VSIX Gallery development feed</h4><br>The following Visual Studio Extensions are available for install from this release<br><br>:package: [nanoFramework VS2019 Extension](http://vsixgallery.com/extension/455f2be5-bb07-451e-b351-a9faf3018dc9)'
       assets: '$(Build.ArtifactStagingDirectory)\*.vsix'
@@ -505,8 +505,8 @@ jobs:
     inputs:
       gitHubConnection: 'github.com_nano-$(System.TeamProject)'
       tagSource: userSpecifiedTag
-      tag: v$(NBGV_AssemblyVersion)
-      title: '.NET nanoFramework VS Extension v$(NBGV_AssemblyVersion)'
+      tag: v$(BUILD_VERSION)
+      title: '.NET nanoFramework VS Extension v$(BUILD_VERSION)'
       releaseNotesSource: inline
       releaseNotesInline: 'Check the [changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/blob/$(Build.SourceBranchName)/CHANGELOG-VS2022.md).<br><br><h4>Install from nanoFramework Open VSIX Gallery development feed</h4><br>The following Visual Studio Extensions are available for install from this release<br><br>:package: [nanoFramework VS2022 Extension](https://marketplace.visualstudio.com/items?itemName=nanoframework.nanoFramework-VS2022-Extension)'
       assets: '$(Build.ArtifactStagingDirectory)\*.vsix'
@@ -532,8 +532,8 @@ jobs:
       action: edit
       gitHubConnection: 'github.com_nano-$(System.TeamProject)'
       tagSource: userSpecifiedTag
-      tag: v$(NBGV_AssemblyVersion)
-      title: '.NET nanoFramework VS Extension v$(NBGV_AssemblyVersion)'
+      tag: v$(BUILD_VERSION)
+      title: '.NET nanoFramework VS Extension v$(BUILD_VERSION)'
       releaseNotesSource: inline
       releaseNotesInline: 'Check the [changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/blob/$(Build.SourceBranchName)/CHANGELOG-VS2022.md).<br><br><h4>Install from nanoFramework Open VSIX Gallery development feed</h4><br>The following Visual Studio Extensions are available for install from this release<br><br>:package: [nanoFramework VS2022 Extension](http://vsixgallery.com/extension/bf694e17-fa5f-4877-9317-6d3664b2689a)'
       assets: '$(Build.ArtifactStagingDirectory)\*.vsix'
@@ -598,7 +598,7 @@ jobs:
       and(
         succeeded(),
         eq(variables['System.PullRequest.PullRequestId'], ''),
-        not(startsWith(variables['Build.SourceBranch'], 'refs/tags/v')),
+        not(startsWith(variables['Build.SourceBranch'], 'refs/tags/v2019')),
         or(
           eq(variables['Build.SourceBranchName'], 'main'),
           contains(variables['Build.SourceBranchName'], 'release')
@@ -618,7 +618,7 @@ jobs:
       and(
         succeeded(),
         eq(variables['System.PullRequest.PullRequestId'], ''),
-        not(startsWith(variables['Build.SourceBranch'], 'refs/tags/v')),
+        not(startsWith(variables['Build.SourceBranch'], 'refs/tags/v2022')),
         or(
           eq(variables['Build.SourceBranchName'], 'main'),
           contains(variables['Build.SourceBranchName'], 'release')
