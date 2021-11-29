@@ -16,7 +16,7 @@
     "^refs/tags/$"
   ],
   "cloudBuild": {
-    "setVersionVariables": true,
-    "setAllVariables": true
+    "setVersionVariables": false,
+    "setAllVariables": false
   }
 }
