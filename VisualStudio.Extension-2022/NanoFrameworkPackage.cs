@@ -58,7 +58,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
     [Description("Visual Studio 2022 extension for .NET nanoFramework. Enables creating C# Solutions to be deployed to a target board and provides debugging tools.")]
     // menu for ToolWindow
     [ProvideMenuResource("Menus.ctmenu", 1)]
-    // declaration of Device Explorer ToolWindow that (as default) will show tabbed in Solution Explorer
+    // declaration of Device Explorer ToolWindow that (as default) will show tabbed in Solution Explorer Windows (GUID below)
     [ProvideToolWindow(typeof(DeviceExplorer), Style = VsDockStyle.Tabbed, Window = "3ae79031-e1bc-11d0-8f78-00a0c9110057")]
     // register nanoDevice communication service
     [ProvideService((typeof(NanoDeviceCommService)), IsAsyncQueryable = true)]
@@ -285,7 +285,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         /// The value is persisted per user.
         /// Default is <see langword="true"/>.
         /// </summary>
-        public static bool SettingAutoUpdateEnable 
+        public static bool SettingAutoUpdateEnable
         {
             get
             {
@@ -381,46 +381,41 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         /// <returns>A task representing the async work of package initialization, or an already completed task if there is none. Do not return null from this method.</returns>
         protected override async Task InitializeAsync(CancellationToken cancellationToken, IProgress<ServiceProgressData> progress)
         {
-            await ThreadHelper.JoinableTaskFactory.RunAsync(async () =>
+            // make sure "our" key exists and it's writeable
+            s_instance.UserRegistryRoot.CreateSubKey(EXTENSION_SUBKEY, true);
+
+            await JoinableTaskFactory.SwitchToMainThreadAsync(cancellationToken);
+
+            AddService(typeof(NanoDeviceCommService), CreateNanoDeviceCommServiceAsync);
+
+            NanoDeviceCommService = await GetServiceAsync(typeof(NanoDeviceCommService)) as INanoDeviceCommService;
+
+            ViewModelLocator viewModelLocator = null;
+
+            // Need to add the View model Locator to the application resource dictionary programmatically 
+            // because at the extension level we don't have 'XAML' access to it
+            // try to find if the view model locator is already in the app resources dictionary
+            if (Application.Current.TryFindResource("Locator") == null)
             {
-                // make sure "our" key exists and it's writeable
-                s_instance.UserRegistryRoot.CreateSubKey(EXTENSION_SUBKEY, true);
+                // instantiate the view model locator...
+                viewModelLocator = new ViewModelLocator();
 
-                await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+                // ... and add it there
+                Application.Current.Resources.Add("Locator", viewModelLocator);
+            }
 
-                AddService(typeof(NanoDeviceCommService), CreateNanoDeviceCommServiceAsync);
+            SimpleIoc.Default.GetInstance<DeviceExplorerViewModel>().Package = this;
 
-                NanoDeviceCommService = await GetServiceAsync(typeof(NanoDeviceCommService)) as INanoDeviceCommService;
+            await MessageCentre.InitializeAsync(this, ".NET nanoFramework Extension");
 
-                ViewModelLocator viewModelLocator = null;
+            await DeviceExplorerCommand.InitializeAsync(this, viewModelLocator);
+            DeployProvider.Initialize(this, viewModelLocator);
+            UpdateManager.Initialize(this, viewModelLocator);
 
-                // Need to add the View model Locator to the application resource dictionary programmatically 
-                // because at the extension level we don't have 'XAML' access to it
-                // try to find if the view model locator is already in the app resources dictionary
-                if (Application.Current.TryFindResource("Locator") == null)
-                {
-                    // instantiate the view model locator...
-                    viewModelLocator = new ViewModelLocator();
+            // Enable debugger UI context
+            UIContext.FromUIContextGuid(CorDebug.EngineGuid).IsActive = true;
 
-                    // ... and add it there
-                    Application.Current.Resources.Add("Locator", viewModelLocator);
-                }
-
-                SimpleIoc.Default.GetInstance<DeviceExplorerViewModel>().Package = this;
-
-                await MessageCentre.InitializeAsync(this, ".NET nanoFramework Extension");
-
-                await DeviceExplorerCommand.InitializeAsync(this, viewModelLocator);
-                DeployProvider.Initialize(this, viewModelLocator);
-                UpdateManager.Initialize(this, viewModelLocator);
-
-                // Enable debugger UI context
-                UIContext.FromUIContextGuid(CorDebug.EngineGuid).IsActive = true;
-
-                OutputWelcomeMessage();
-            });
-
-            await base.InitializeAsync(cancellationToken, progress);
+            OutputWelcomeMessage();
         }
 
         #endregion
@@ -430,7 +425,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         {
             NanoDeviceCommService service = null;
 
-            await System.Threading.Tasks.Task.Run(() => {
+            await System.Threading.Tasks.Task.Run(() =>
+            {
                 service = new NanoDeviceCommService(this);
             });
 
@@ -439,7 +435,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         private void OutputWelcomeMessage()
         {
-            System.Threading.Tasks.Task.Run(async () =>
+            _ = System.Threading.Tasks.Task.Run(async () =>
             {
                 // schedule this to wait a few seconds (allowing VS to load) before doing it's thing
                 await System.Threading.Tasks.Task.Delay(5000);
@@ -468,7 +464,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     MessageCentre.OutputMessage("*******************************************************************************");
                     MessageCentre.OutputMessage(Environment.NewLine);
                 }
-            }).WaitWithoutInlining();
+            });
         }
 
         private int LaunchNanoDebug(uint nCmdExecOpt, IntPtr pvaIn, IntPtr pvaOut)

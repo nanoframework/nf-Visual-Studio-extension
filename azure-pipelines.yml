@@ -299,6 +299,7 @@ jobs:
       assets: '$(Build.ArtifactStagingDirectory)\*.vsix'
       assetUploadMode: replace
       isPreRelease: true
+      isDraft: true
       addChangeLog: false
 
   # create or update GitHub release ON tags from release or main branches
@@ -510,6 +511,7 @@ jobs:
       releaseNotesInline: 'Check the [changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/blob/$(Build.SourceBranchName)/CHANGELOG-VS2022.md).<br><br><h4>Install from nanoFramework Open VSIX Gallery development feed</h4><br>The following Visual Studio Extensions are available for install from this release<br><br>:package: [nanoFramework VS2022 Extension](https://marketplace.visualstudio.com/items?itemName=nanoframework.nanoFramework-VS2022-Extension)'
       assets: '$(Build.ArtifactStagingDirectory)\*.vsix'
       assetUploadMode: replace
+      isDraft: true
       isPreRelease: true
       addChangeLog: false
 

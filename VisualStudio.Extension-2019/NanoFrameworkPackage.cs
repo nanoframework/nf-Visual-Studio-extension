@@ -287,7 +287,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         /// The value is persisted per user.
         /// Default is <see langword="true"/>.
         /// </summary>
-        public static bool SettingAutoUpdateEnable 
+        public static bool SettingAutoUpdateEnable
         {
             get
             {
@@ -383,55 +383,41 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         /// <returns>A task representing the async work of package initialization, or an already completed task if there is none. Do not return null from this method.</returns>
         protected override async Task InitializeAsync(CancellationToken cancellationToken, IProgress<ServiceProgressData> progress)
         {
-            await ThreadHelper.JoinableTaskFactory.RunAsync(async () =>
+            // make sure "our" key exists and it's writeable
+            s_instance.UserRegistryRoot.CreateSubKey(EXTENSION_SUBKEY, true);
+
+            await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+
+            AddService(typeof(NanoDeviceCommService), CreateNanoDeviceCommServiceAsync);
+
+            NanoDeviceCommService = await GetServiceAsync(typeof(NanoDeviceCommService)) as INanoDeviceCommService;
+
+            ViewModelLocator viewModelLocator = null;
+
+            // Need to add the View model Locator to the application resource dictionary programmatically 
+            // because at the extension level we don't have 'XAML' access to it
+            // try to find if the view model locator is already in the app resources dictionary
+            if (Application.Current.TryFindResource("Locator") == null)
             {
-                // check Windows version
-                if (Environment.OSVersion.Version.Major < 10)
-                {
-                    // the extension won't run properly if we are not on Windows 10, warn user
-                    MessageBox.Show(".NET nanoFramework Extension requires Windows 10!", ".NET nanoFramework extension", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
-                else
-                {
-                    // make sure "our" key exists and it's writeable
-                    s_instance.UserRegistryRoot.CreateSubKey(EXTENSION_SUBKEY, true);
+                // instantiate the view model locator...
+                viewModelLocator = new ViewModelLocator();
 
-                    await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+                // ... and add it there
+                Application.Current.Resources.Add("Locator", viewModelLocator);
+            }
 
-                    AddService(typeof(NanoDeviceCommService), CreateNanoDeviceCommServiceAsync);
+            SimpleIoc.Default.GetInstance<DeviceExplorerViewModel>().Package = this;
 
-                    NanoDeviceCommService = await GetServiceAsync(typeof(NanoDeviceCommService)) as INanoDeviceCommService;
+            await MessageCentre.InitializeAsync(this, ".NET nanoFramework Extension");
 
-                    ViewModelLocator viewModelLocator = null;
+            await DeviceExplorerCommand.InitializeAsync(this, viewModelLocator);
+            DeployProvider.Initialize(this, viewModelLocator);
+            UpdateManager.Initialize(this, viewModelLocator);
 
-                    // Need to add the View model Locator to the application resource dictionary programmatically 
-                    // because at the extension level we don't have 'XAML' access to it
-                    // try to find if the view model locator is already in the app resources dictionary
-                    if (Application.Current.TryFindResource("Locator") == null)
-                    {
-                        // instantiate the view model locator...
-                        viewModelLocator = new ViewModelLocator();
+            // Enable debugger UI context
+            UIContext.FromUIContextGuid(CorDebug.EngineGuid).IsActive = true;
 
-                        // ... and add it there
-                        Application.Current.Resources.Add("Locator", viewModelLocator);
-                    }
-
-                    SimpleIoc.Default.GetInstance<DeviceExplorerViewModel>().Package = this;
-
-                    await MessageCentre.InitializeAsync(this, ".NET nanoFramework Extension");
-
-                    await DeviceExplorerCommand.InitializeAsync(this, viewModelLocator);
-                    DeployProvider.Initialize(this, viewModelLocator);
-                    UpdateManager.Initialize(this, viewModelLocator);
-
-                    // Enable debugger UI context
-                    UIContext.FromUIContextGuid(CorDebug.EngineGuid).IsActive = true;
-
-                    OutputWelcomeMessage();
-                }
-            });
-
-            await base.InitializeAsync(cancellationToken, progress);
+            OutputWelcomeMessage();
         }
 
         #endregion
@@ -441,7 +427,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         {
             NanoDeviceCommService service = null;
 
-            await System.Threading.Tasks.Task.Run(() => {
+            await System.Threading.Tasks.Task.Run(() =>
+            {
                 service = new NanoDeviceCommService(this);
             });
 
@@ -450,48 +437,48 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         private void OutputWelcomeMessage()
         {
-            System.Threading.Tasks.Task.Run(async () =>
-            {
-                // schedule this to wait a few seconds (allowing VS to load) before doing it's thing
-                await System.Threading.Tasks.Task.Delay(5000);
+            _ = System.Threading.Tasks.Task.Run(async () =>
+              {
+                  // schedule this to wait a few seconds (allowing VS to load) before doing it's thing
+                  await System.Threading.Tasks.Task.Delay(5000);
 
-                // loaded 
-                MessageCentre.OutputMessage($"** .NET nanoFramework extension v{NanoFrameworkExtensionVersion.ToString()} loaded **");
+                  // loaded 
+                  MessageCentre.OutputMessage($"** .NET nanoFramework extension v{NanoFrameworkExtensionVersion.ToString()} loaded **");
 
-                // intro messages
-                MessageCentre.OutputMessage("GitHub repo: https://github.com/nanoframework/Home");
-                MessageCentre.OutputMessage("Report issues: https://github.com/nanoframework/Home/issues");
-                MessageCentre.OutputMessage("Browse samples: https://github.com/nanoframework/samples");
-                MessageCentre.OutputMessage("Join our Discord community: https://discord.gg/gCyBu8T");
-                MessageCentre.OutputMessage("Join our Hackster.io platform: https://www.hackster.io/nanoframework");
-                MessageCentre.OutputMessage("Follow us on Twitter: https://twitter.com/nanoframework");
-                MessageCentre.OutputMessage("Follow our YouTube channel: https://www.youtube.com/c/nanoFramework");
-                MessageCentre.OutputMessage("Star our GitHub repos: https://github.com/nanoframework/Home");
-                MessageCentre.OutputMessage("Add a short review or rate the VS extension: https://marketplace.visualstudio.com/items?itemName=nanoframework.nanoFramework-VS2019-Extension");
-                MessageCentre.OutputMessage(Environment.NewLine);
+                  // intro messages
+                  MessageCentre.OutputMessage("GitHub repo: https://github.com/nanoframework/Home");
+                  MessageCentre.OutputMessage("Report issues: https://github.com/nanoframework/Home/issues");
+                  MessageCentre.OutputMessage("Browse samples: https://github.com/nanoframework/samples");
+                  MessageCentre.OutputMessage("Join our Discord community: https://discord.gg/gCyBu8T");
+                  MessageCentre.OutputMessage("Join our Hackster.io platform: https://www.hackster.io/nanoframework");
+                  MessageCentre.OutputMessage("Follow us on Twitter: https://twitter.com/nanoframework");
+                  MessageCentre.OutputMessage("Follow our YouTube channel: https://www.youtube.com/c/nanoFramework");
+                  MessageCentre.OutputMessage("Star our GitHub repos: https://github.com/nanoframework/Home");
+                  MessageCentre.OutputMessage("Add a short review or rate the VS extension: https://marketplace.visualstudio.com/items?itemName=nanoframework.nanoFramework-VS2019-Extension");
+                  MessageCentre.OutputMessage(Environment.NewLine);
 
-                // check Windows version
-                if (Environment.OSVersion.Version < new Version(6, 2, 9200, 0))
-                {
-                    // this is running on a Windows version lower than Windows 10
-                    MessageCentre.OutputMessage(Environment.NewLine);
-                    MessageCentre.OutputMessage("*************************************************************************");
-                    MessageCentre.OutputMessage("** Seems that you are running this on a Window version earlier than 10 **");
-                    MessageCentre.OutputMessage("** .NET nanoFramework debug engine component requires Windows 10       **");
-                    MessageCentre.OutputMessage("*************************************************************************");
-                    MessageCentre.OutputMessage(Environment.NewLine);
-                }
+                  // check Windows version
+                  if (Environment.OSVersion.Version < new Version(6, 2, 9200, 0))
+                  {
+                      // this is running on a Windows version lower than Windows 10
+                      MessageCentre.OutputMessage(Environment.NewLine);
+                      MessageCentre.OutputMessage("*************************************************************************");
+                      MessageCentre.OutputMessage("** Seems that you are running this on a Window version earlier than 10 **");
+                      MessageCentre.OutputMessage("** .NET nanoFramework debug engine component requires Windows 10       **");
+                      MessageCentre.OutputMessage("*************************************************************************");
+                      MessageCentre.OutputMessage(Environment.NewLine);
+                  }
 
-                // check device watchers option
-                if (OptionDisableDeviceWatchers)
-                {
-                    MessageCentre.OutputMessage(Environment.NewLine);
-                    MessageCentre.OutputMessage("*******************************************************************************");
-                    MessageCentre.OutputMessage("** Device Watchers are DISABLED. Won't be able to connect to any nanoDevice. **");
-                    MessageCentre.OutputMessage("*******************************************************************************");
-                    MessageCentre.OutputMessage(Environment.NewLine);
-                }
-            }).WaitWithoutInlining();
+                  // check device watchers option
+                  if (OptionDisableDeviceWatchers)
+                  {
+                      MessageCentre.OutputMessage(Environment.NewLine);
+                      MessageCentre.OutputMessage("*******************************************************************************");
+                      MessageCentre.OutputMessage("** Device Watchers are DISABLED. Won't be able to connect to any nanoDevice. **");
+                      MessageCentre.OutputMessage("*******************************************************************************");
+                      MessageCentre.OutputMessage(Environment.NewLine);
+                  }
+              });
         }
 
         private int LaunchNanoDebug(uint nCmdExecOpt, IntPtr pvaIn, IntPtr pvaOut)

@@ -471,9 +471,6 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="EnvDTE80">
-      <Version>16.9.31023.347</Version>
-    </PackageReference>
     <PackageReference Include="Extended.Wpf.Toolkit">
       <Version>4.0.2</Version>
     </PackageReference>
