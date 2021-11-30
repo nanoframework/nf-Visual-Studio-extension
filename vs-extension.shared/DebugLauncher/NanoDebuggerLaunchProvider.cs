@@ -14,7 +14,9 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace nanoFramework.Tools.VisualStudio.Extension
 {
@@ -22,10 +24,17 @@ namespace nanoFramework.Tools.VisualStudio.Extension
     [AppliesTo(NanoCSharpProjectUnconfigured.UniqueCapability)]
     internal partial class NanoDebuggerLaunchProvider : DebugLaunchProviderBase
     {
+        private static AssemblyInformationalVersionAttribute _informationalVersionAttribute;
+
         [ImportingConstructor]
         public NanoDebuggerLaunchProvider(ConfiguredProject configuredProject)
             : base(configuredProject)
         {
+            // get details about assembly
+            _informationalVersionAttribute = Attribute.GetCustomAttribute(
+                Assembly.GetExecutingAssembly(),
+                typeof(AssemblyInformationalVersionAttribute))
+                as AssemblyInformationalVersionAttribute;
         }
 
         [Import]
@@ -33,6 +42,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         public override async Task<IReadOnlyList<IDebugLaunchSettings>> QueryDebugTargetsAsync(DebugLaunchOptions launchOptions)
         {
+            // output information about assembly running this to help debugging
+            MessageCentre.InternalErrorWriteLine($"Launching debugger provider from v{_informationalVersionAttribute.InformationalVersion}");
+
             if (SimpleIoc.Default.GetInstance<DeviceExplorerViewModel>().SelectedDevice != null)
             {
                 var deployDeviceName = SimpleIoc.Default.GetInstance<DeviceExplorerViewModel>().SelectedDevice.Description;

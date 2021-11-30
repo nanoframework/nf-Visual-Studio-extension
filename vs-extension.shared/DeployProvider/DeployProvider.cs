@@ -12,6 +12,7 @@ using Microsoft.VisualStudio.Shell;
 using nanoFramework.Tools.Debugger;
 using nanoFramework.Tools.Debugger.Extensions;
 using nanoFramework.Tools.VisualStudio.Extension.Resources;
+using System.Reflection;
 using nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel;
 using System;
 using System.Collections.Generic;
@@ -22,6 +23,7 @@ using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
+using System.Windows;
 using Task = System.Threading.Tasks.Task;
 
 namespace nanoFramework.Tools.VisualStudio.Extension
@@ -39,6 +41,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         private static ViewModelLocator _viewModelLocator;
 
         private static Package _package;
+
+        private static AssemblyInformationalVersionAttribute _informationalVersionAttribute;
 
         /// <summary>
         /// Gets the service provider from the owner package.
@@ -66,6 +70,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         {
             _package = package;
             _viewModelLocator = vmLocator;
+
+            // get details about assembly
+            _informationalVersionAttribute = Attribute.GetCustomAttribute(
+                Assembly.GetExecutingAssembly(),
+                typeof(AssemblyInformationalVersionAttribute))
+                as AssemblyInformationalVersionAttribute;
         }
 
         public async Task DeployAsync(CancellationToken cancellationToken, TextWriter outputPaneWriter)
@@ -75,6 +85,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             int retryCount = 0;
 
             await Task.Yield();
+
+            // output information about assembly running this to help debugging
+            MessageCentre.InternalErrorWriteLine($"Starting deployment transaction from v{_informationalVersionAttribute.InformationalVersion}");
 
             //... we need to access the project name using reflection (step by step)
             // get type for ConfiguredProject
@@ -273,7 +286,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         using (FileStream fs = File.Open(peItem.Path, FileMode.Open, FileAccess.Read))
                         {
                             long length = (fs.Length + 3) / 4 * 4;
-                                    
+
                             await outputPaneWriter.WriteLineAsync($"Adding {Path.GetFileNameWithoutExtension(peItem.Path)} v{peItem.Version} ({length} bytes) to deployment bundle");
                             MessageCentre.InternalErrorWriteLine($"Assembly: {Path.GetFileNameWithoutExtension(peItem.Path)} v{peItem.Version} ({length} bytes)");
 
@@ -290,7 +303,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     }
 
                     await outputPaneWriter.WriteLineAsync($"Deploying {peCollection.Count:N0} assemblies to device... Total size in bytes is {totalSizeOfAssemblies}.");
-                           
+
                     MessageCentre.InternalErrorWriteLine($"Deploying {peCollection.Count:N0} assemblies to device");
 
                     // need to keep a copy of the deployment blob for the second attempt (if needed)
@@ -323,7 +336,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                             // can't skip erase as we just did that
                             // no need to reboot device
                             if (!device.DebugEngine.DeploymentExecute(
-                                assemblyCopy, 
+                                assemblyCopy,
                                 false,
                                 false,
                                 progressIndicator,
@@ -370,12 +383,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             }
             catch (Exception ex)
             {
-                if(needsToCloseMessageOutput)
+                if (needsToCloseMessageOutput)
                 {
                     MessageCentre.InternalErrorWriteAndCloseMessage("");
                 }
 
-                MessageCentre.InternalErrorWriteLine($"Unhandled exception with deployment provider:"  +
+                MessageCentre.InternalErrorWriteLine($"Unhandled exception with deployment provider:" +
                     $"{Environment.NewLine} {ex.Message} " +
                     $"{Environment.NewLine} {ex.InnerException} " +
                     $"{Environment.NewLine} {ex.StackTrace}");
@@ -403,7 +416,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 using (FileStream fs = File.Open(peItem.Path, FileMode.Open, FileAccess.Read))
                 {
                     CLRCapabilities.NativeAssemblyProperties nativeAssembly;
-                    
+
                     // read the PE checksum from the byte array at position 0x14
                     byte[] buffer = new byte[4];
                     fs.Position = 0x14;
