@@ -27,7 +27,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 if (_debugClient == null)
                 {
                     // grab and parse COM port list
-                    List<string> PortList = new List<string>();
+                    List<string> serialPortList = new List<string>();
                     
                     // need to wrap the processing in a try/catch to deal with bad user input/format
                     try
@@ -35,7 +35,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         // grab and parse COM port list
                         if (!string.IsNullOrEmpty(NanoFrameworkPackage.SettingPortBlackList))
                         {
-                            PortList.AddRange(NanoFrameworkPackage.SettingPortBlackList.Split(';'));
+                            serialPortList.AddRange(NanoFrameworkPackage.SettingPortBlackList.Split(';'));
                         }
                     }
                     catch
@@ -43,15 +43,17 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         // don't care about bad user input/format/etc 
                     }
 
-                    // create serial instance WITHOUT app associated because we don't care of app life cycle in VS extension
-                    // pass the user preference about starting the device watchers, or not
-                    PortBase serialDebug = PortBase.CreateInstanceForSerial(!NanoFrameworkPackage.OptionDisableDeviceWatchers, PortList);
-                    
-                    // create network instance
-                    PortBase networkDebug = PortBase.CreateInstanceForNetwork();
+                    // create serial instance with device watchers stopped
+                    PortBase serialDebug = PortBase.CreateInstanceForSerial(false, serialPortList);
 
-                    // create debugger client from both ports
-                    _debugClient = PortBase.CreateInstanceForComposite(new[] { serialDebug, networkDebug });
+                    // create network instance with device watchers stopped
+                    PortBase networkDebug = PortBase.CreateInstanceForNetwork(false);
+
+                    // create composite client with all ports
+                    // start device watcher (or not) according to current user option
+                    _debugClient = PortBase.CreateInstanceForComposite(
+                        new[] { serialDebug, networkDebug },
+                        !NanoFrameworkPackage.OptionDisableDeviceWatchers);
                 }
 
                 return _debugClient;
