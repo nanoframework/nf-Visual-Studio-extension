@@ -56,7 +56,8 @@ jobs:
           ($commit.files.filename -like "*Tools.Parser*") -Or
           ($commit.files.filename -like "*Tools.BuildTasks-2017*") -Or
           ($commit.files.filename -like "*Tools.BuildTasks*") -Or
-          ($commit.files.filename -like "*vs-extension.shared*")
+          ($commit.files.filename -like "*vs-extension.shared*") -Or
+          ($commit.files.filename -like "*azure-pipelines.yml")
         )
       {
           # global changes, build both
@@ -259,28 +260,6 @@ jobs:
       )
     displayName: Upload vsix to Open VSIX Gallery
 
-  - powershell: |
-      # get subject and commit message for commit
-      $commitMessage = git log --format='%B' -1
-
-      # need to flatten message by removing new lines
-      $commitMessage = $commitMessage -replace "`r`n", " "
-
-      if($commitMessage -like "*PUBLISH_RELEASE*")
-      {
-        # set variable
-        Write-Host "$("##vso[task.setvariable variable=RELEASE_DRAFT]")false"
-        Write-Host "Release draft: FALSE"
-      }
-      else
-      {
-        # set variable
-        Write-Host "$("##vso[task.setvariable variable=RELEASE_DRAFT]")true"
-        Write-Host "Release draft: TRUE"
-      }
-
-    displayName: set release draft var
-
   # create or update GitHub release
   - task: GithubRelease@1
     condition: >-
@@ -293,11 +272,11 @@ jobs:
     inputs:
       gitHubConnection: 'github.com_nano-$(System.TeamProject)'
       tagSource: userSpecifiedTag
-      tag: v$(BUILD_VERSION)
-      title: '.NET nanoFramework VS Extension v$(BUILD_VERSION)'
+      tag: v$(VS2019_Build.BUILD_VERSION)
+      title: '.NET nanoFramework VS Extension v$(VS2019_Build.BUILD_VERSION)'
       releaseNotesSource: inline
-      releaseNotesInline: 'Check the [changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/blob/$(Build.SourceBranchName)/CHANGELOG-VS2019.md).<br><br><h4>Install from nanoFramework Open VSIX Gallery development feed</h4><br>The following Visual Studio Extensions are available for install from this release<br><br>:package: [nanoFramework VS2019 Extension](https://marketplace.visualstudio.com/items?itemName=nanoframework.nanoFramework-VS2019-Extension)'
-      assets: '$(Build.ArtifactStagingDirectory)\*.vsix'
+      releaseNotesInline: 'Check the [changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/blob/$(Build.SourceBranchName)/CHANGELOG-VS2019.md).<br><br><h4>Install from Open VSIX Gallery development feed.</h4><br>The following Visual Studio Extension is available for install from this release:<br><br>:package: [nanoFramework VS2019 Extension](http://vsixgallery.com/extension/455f2be5-bb07-451e-b351-a9faf3018dc9)'
+      assets: '$(Build.ArtifactStagingDirectory)/**/*.vsix'
       assetUploadMode: replace
       isPreRelease: true
       isDraft: true
@@ -320,11 +299,11 @@ jobs:
       action: edit
       gitHubConnection: 'github.com_nano-$(System.TeamProject)'
       tagSource: userSpecifiedTag
-      tag: v$(BUILD_VERSION)
-      title: '.NET nanoFramework VS Extension v$(BUILD_VERSION)'
+      tag: v$(VS2019_Build.BUILD_VERSION)
+      title: '.NET nanoFramework VS Extension v$(VS2019_Build.BUILD_VERSION)'
       releaseNotesSource: inline
-      releaseNotesInline: 'Check the [changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/blob/$(Build.SourceBranchName)/CHANGELOG-VS2019.md).<br><br><h4>Install from nanoFramework Open VSIX Gallery development feed</h4><br>The following Visual Studio Extensions are available for install from this release<br><br>:package: [nanoFramework VS2019 Extension](http://vsixgallery.com/extension/455f2be5-bb07-451e-b351-a9faf3018dc9)'
-      assets: '$(Build.ArtifactStagingDirectory)\*.vsix'
+      releaseNotesInline: 'Check the [changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/blob/$(Build.SourceBranchName)/CHANGELOG-VS2019.md).<br><br><h4>Install from Visual Studio Marketplace.</h4><br>The following Visual Studio Extension is available for install from this release:<br><br>:package: [.NET nanoFramework VS2019 Extension](https://marketplace.visualstudio.com/items?itemName=nanoframework.nanoFramework-VS2019-Extension)'
+      assets: '$(Build.ArtifactStagingDirectory)/**/*.vsix'
       assetUploadMode: replace
       isPreRelease: false
       addChangeLog: false
@@ -382,6 +361,8 @@ jobs:
       msbuildArgs: '/p:PublicRelease=true'
       configuration: '$(buildConfiguration)'
       maximumCpuCount: true
+      msbuildArchitecture: 'x64'
+      platform: 'x64'
 
   # we don't have tests (yet)
   # - task: VSTest@2
@@ -473,28 +454,6 @@ jobs:
       )
     displayName: Upload vsix to Open VSIX Gallery
 
-  - powershell: |
-      # get subject and commit message for commit
-      $commitMessage = git log --format='%B' -1
-
-      # need to flatten message by removing new lines
-      $commitMessage = $commitMessage -replace "`r`n", " "
-
-      if($commitMessage -like "*PUBLISH_RELEASE*")
-      {
-        # set variable
-        Write-Host "$("##vso[task.setvariable variable=RELEASE_DRAFT]")false"
-        Write-Host "Release draft: FALSE"
-      }
-      else
-      {
-        # set variable
-        Write-Host "$("##vso[task.setvariable variable=RELEASE_DRAFT]")true"
-        Write-Host "Release draft: TRUE"
-      }
-
-    displayName: set release draft var
-
   # create or update GitHub release
   - task: GithubRelease@1
     condition: >-
@@ -507,11 +466,11 @@ jobs:
     inputs:
       gitHubConnection: 'github.com_nano-$(System.TeamProject)'
       tagSource: userSpecifiedTag
-      tag: v$(BUILD_VERSION)
-      title: '.NET nanoFramework VS Extension v$(BUILD_VERSION)'
+      tag: v$(VS2022_Build.BUILD_VERSION)
+      title: '.NET nanoFramework VS Extension v$(VS2022_Build.BUILD_VERSION)'
       releaseNotesSource: inline
-      releaseNotesInline: 'Check the [changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/blob/$(Build.SourceBranchName)/CHANGELOG-VS2022.md).<br><br><h4>Install from nanoFramework Open VSIX Gallery development feed</h4><br>The following Visual Studio Extensions are available for install from this release<br><br>:package: [nanoFramework VS2022 Extension](https://marketplace.visualstudio.com/items?itemName=nanoframework.nanoFramework-VS2022-Extension)'
-      assets: '$(Build.ArtifactStagingDirectory)\*.vsix'
+      releaseNotesInline: 'Check the [changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/blob/$(Build.SourceBranchName)/CHANGELOG-VS2022.md).<br><br><h4>Install from Open VSIX Gallery development feed.</h4><br>The following Visual Studio Extension is available for install from this release:<br><br>:package: [.NET nanoFramework VS2022 Extension](http://vsixgallery.com/extension/bf694e17-fa5f-4877-9317-6d3664b2689a)'
+      assets: '$(Build.ArtifactStagingDirectory)/**/*.vsix'
       assetUploadMode: replace
       isDraft: true
       isPreRelease: true
@@ -534,11 +493,11 @@ jobs:
       action: edit
       gitHubConnection: 'github.com_nano-$(System.TeamProject)'
       tagSource: userSpecifiedTag
-      tag: v$(BUILD_VERSION)
-      title: '.NET nanoFramework VS Extension v$(BUILD_VERSION)'
+      tag: v$(VS2022_Build.BUILD_VERSION)
+      title: '.NET nanoFramework VS Extension v$(VS2022_Build.BUILD_VERSION)'
       releaseNotesSource: inline
-      releaseNotesInline: 'Check the [changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/blob/$(Build.SourceBranchName)/CHANGELOG-VS2022.md).<br><br><h4>Install from nanoFramework Open VSIX Gallery development feed</h4><br>The following Visual Studio Extensions are available for install from this release<br><br>:package: [nanoFramework VS2022 Extension](http://vsixgallery.com/extension/bf694e17-fa5f-4877-9317-6d3664b2689a)'
-      assets: '$(Build.ArtifactStagingDirectory)\*.vsix'
+      releaseNotesInline: 'Check the [changelog](https://github.com/nanoframework/nf-Visual-Studio-extension/blob/$(Build.SourceBranchName)/CHANGELOG-VS2022.md).<br><br><h4>Install from Visual Studio Marketplace.</h4><br>The following Visual Studio Extension is available for install from this release:<br><br>:package: [.NET nanoFramework VS2022 Extension](https://marketplace.visualstudio.com/items?itemName=nanoframework.nanoFramework-VS2022-Extension)'
+      assets: '$(Build.ArtifactStagingDirectory)/**/*.vsix'
       assetUploadMode: replace
       isPreRelease: false
       addChangeLog: false
