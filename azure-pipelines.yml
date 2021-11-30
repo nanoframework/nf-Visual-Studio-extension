@@ -511,8 +511,10 @@ jobs:
   condition: >-
     and(
       succeeded('Get_Build_Options'),
-      succeeded('VS2019'),
-      succeeded('VS2022'),
+      or(
+        succeeded('VS2019'),
+        succeeded('VS2022')
+      ),
       eq(variables['System.PullRequest.PullRequestId'], '')
     )
 
