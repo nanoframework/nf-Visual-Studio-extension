@@ -130,7 +130,7 @@ jobs:
 
   variables:
     DOTNET_NOLOGO: true
-    solution: 'nanoFramework.Tools.VisualStudio.sln'
+    solution: 'VisualStudio.Extension-2019/VisualStudio.Extension-vs2019.csproj'
     buildConfiguration: 'Release'
 
   steps:
@@ -166,6 +166,7 @@ jobs:
       solution: '$(solution)'
       msbuildArgs: '/p:PublicRelease=true'
       configuration: '$(buildConfiguration)'
+      maximumCpuCount: true
 
   # we don't have tests (yet)
   # - task: VSTest@2
@@ -344,7 +345,7 @@ jobs:
 
   variables:
     DOTNET_NOLOGO: true
-    solution: 'nanoFramework.Tools.VisualStudio.sln'
+    solution: 'VisualStudio.Extension-2022/VisualStudio.Extension-vs2022.csproj'
     buildConfiguration: 'Release'
 
   steps:
@@ -380,6 +381,7 @@ jobs:
       solution: '$(solution)'
       msbuildArgs: '/p:PublicRelease=true'
       configuration: '$(buildConfiguration)'
+      maximumCpuCount: true
 
   # we don't have tests (yet)
   # - task: VSTest@2
