@@ -34,7 +34,15 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         /// <summary>
         /// Command menu group (command set GUID).
         /// </summary>
+        /////////////////////////////////////////////
+        // this GUID is coming from the .vsct file //
+        /////////////////////////////////////////////
+#if DEV17
+        public static readonly Guid CommandSet = new Guid("63a515b6-b822-40f8-942e-ee3f8290a1c0");
+#elif DEV16
         public static readonly Guid CommandSet = new Guid("c975c4ec-f229-45dd-b681-e42815641675");
+#else
+#endif
 
         private ViewModelLocator ViewModelLocator;
 
@@ -44,7 +52,15 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         private readonly AsyncPackage package;
 
         // command set Guids
-        public const string guidDeviceExplorerCmdSet = "DF641D51-1E8C-48E4-B549-CC6BCA9BDE19";  // this GUID is coming from the .vsct file  
+        /////////////////////////////////////////////
+        // this GUID is coming from the .vsct file //
+        /////////////////////////////////////////////
+#if DEV17
+        public const string guidDeviceExplorerCmdSet = "62f05d80-2da6-4de1-ba71-c4c37369b8c7";
+#elif DEV16
+        public const string guidDeviceExplorerCmdSet = "DF641D51-1E8C-48E4-B549-CC6BCA9BDE19";
+#else
+#endif
 
         public const int DeviceExplorerToolbarID = 0x1000;
 
@@ -266,7 +282,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
               });
         }
 
-        #region Command button handlers
+#region Command button handlers
 
         /// <summary>
         /// Handler for PingDeviceCommand
@@ -978,7 +994,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         }
 
 
-    #endregion
+#endregion
 
         public static void UpdateShowInternalErrorsButton(bool value)
         {
@@ -999,7 +1015,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             Instance.MenuCommandService.FindCommand(GenerateCommandID(RescanDevicesCommandID)).Enabled = !value;
         }
 
-        #region MVVM messaging handlers
+#region MVVM messaging handlers
 
         private async Task SelectedNanoDeviceHasChangedHandlerAsync()
         {
@@ -1041,10 +1057,10 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             });
         }
 
-        #endregion
+#endregion
 
 
-        #region tool and status bar update and general managers
+#region tool and status bar update and general managers
 
         private async Task RefreshToolbarButtonsAsync()
         {
@@ -1179,10 +1195,10 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             });
         }
 
-        #endregion
+#endregion
 
 
-        #region helper methods and utilities
+#region helper methods and utilities
 
         /// <summary>
         /// Generates a <see cref="CommandID"/> specific for the Device Explorer menugroup
@@ -1194,6 +1210,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             return new CommandID(new Guid(guidDeviceExplorerCmdSet), commandID);
         }
 
-        #endregion
+#endregion
     }
 }
