@@ -216,7 +216,7 @@
 				<CommandFlag>IconIsMoniker</CommandFlag>
 				<Strings>
 					<CommandName>DisableDeviceWatchersCommand</CommandName>
-					<ButtonText>Disable Device Watchers</ButtonText>
+					<ButtonText>Enable/Disable Device Watchers</ButtonText>
 				</Strings>
 			</Button>
 
