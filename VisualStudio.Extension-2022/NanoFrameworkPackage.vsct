@@ -260,7 +260,7 @@
 
 	<Symbols>
 		<!-- This is the package guid. -->
-		<GuidSymbol name="guidNanoFrameworkPackage" value="{c72d2e12-4593-421e-9ced-5ce21fe0aeb4}" />
+		<GuidSymbol name="guidNanoFrameworkPackage" value="{1b4aea27-9d6e-46a4-9868-f2d9a052c821}" />
 
 		<!-- This is the guid used to group the commands together -->
 		<GuidSymbol name="guidNanoDebugPackageCmdSet" value="{6A0F19B1-00EF-4215-BD7B-29DEB4425F7C}">
@@ -269,12 +269,12 @@
 		</GuidSymbol>
 
 		<!-- This is the guid used to group the menu commands together -->
-		<GuidSymbol name="guidNanoFrameworkPackageCmdSet" value="{c975c4ec-f229-45dd-b681-e42815641675}">
+		<GuidSymbol name="guidNanoFrameworkPackageCmdSet" value="{63a515b6-b822-40f8-942e-ee3f8290a1c0}">
 			<IDSymbol name="DeviceExplorerCommandId" value="0x0100" />
 		</GuidSymbol>
 
 		<!-- This is the guid used to group the Device Explorer Toolwindow menu commands together -->
-		<GuidSymbol name="guidDeviceExplorerCmdSet" value="{DF641D51-1E8C-48E4-B549-CC6BCA9BDE19}">
+		<GuidSymbol name="guidDeviceExplorerCmdSet" value="{62f05d80-2da6-4de1-ba71-c4c37369b8c7}">
 			<IDSymbol name="DeviceExplorerToolbarID" value="0x1000" />
 			<IDSymbol name="DeviceExplorerToolbarGroupID" value="0x1001" />
 			<IDSymbol name="DeviceExplorerToolbarGroup2ID" value="0x1002" />

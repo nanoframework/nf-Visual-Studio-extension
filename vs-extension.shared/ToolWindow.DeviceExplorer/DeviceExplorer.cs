@@ -22,7 +22,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension
     /// implementation of the IVsUIElementPane interface.
     /// </para>
     /// </remarks>
+#if DEV17
+    [Guid("CCD64499-4029-4B29-9518-00E9B10C876E")]
+#elif DEV16
     [Guid("65ff0124-880b-4bf4-9441-08a10b4e4c06")]
+#else
+#endif
     public class DeviceExplorer : ToolWindowPane
     {
         internal DeviceExplorerControl control;
