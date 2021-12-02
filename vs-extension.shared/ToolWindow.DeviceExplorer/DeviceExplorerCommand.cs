@@ -5,10 +5,7 @@
 
 using GalaSoft.MvvmLight.Ioc;
 using GalaSoft.MvvmLight.Messaging;
-using Microsoft;
-using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell;
-using Microsoft.VisualStudio.Shell.Interop;
 using nanoFramework.Tools.Debugger;
 using nanoFramework.Tools.Debugger.Extensions;
 using nanoFramework.Tools.Debugger.WireProtocol;
@@ -16,7 +13,7 @@ using nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel;
 using System;
 using System.ComponentModel.Design;
 using System.Text;
-using System.Threading;
+using System.Windows;
 using Task = System.Threading.Tasks.Task;
 
 namespace nanoFramework.Tools.VisualStudio.Extension
@@ -268,21 +265,21 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             _ = package.JoinableTaskFactory.RunAsync(async delegate
                 {
 
-                  // Get the instance number 0 of this tool window. This window is single instance so this instance
-                  // is actually the only one.
-                  // The last flag is set to true so that if the tool window does not exists it will be created.
-                  ToolWindowPane toolWindow = await package.ShowToolWindowAsync(typeof(DeviceExplorer), 0, true, package.DisposalToken);
+                    // Get the instance number 0 of this tool window. This window is single instance so this instance
+                    // is actually the only one.
+                    // The last flag is set to true so that if the tool window does not exists it will be created.
+                    ToolWindowPane toolWindow = await package.ShowToolWindowAsync(typeof(DeviceExplorer), 0, true, package.DisposalToken);
                     if ((null == toolWindow) || (null == toolWindow.Frame))
                     {
                         throw new NotSupportedException("Cannot create nanoFramework Device Explorer tool window.");
                     }
 
-                  //IVsWindowFrame windowFrame = (IVsWindowFrame)toolWindow.Frame;
-                  //ErrorHandler.ThrowOnFailure(windowFrame.Show());
-              });
+                    //IVsWindowFrame windowFrame = (IVsWindowFrame)toolWindow.Frame;
+                    //ErrorHandler.ThrowOnFailure(windowFrame.Show());
+                });
         }
 
-#region Command button handlers
+        #region Command button handlers
 
         /// <summary>
         /// Handler for PingDeviceCommand
@@ -822,7 +819,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                             }
 
                             MessageCentre.OutputMessage($"Sending reboot command to {previousSelectedDeviceDescription}.");
- 
+
                             NanoDeviceCommService.Device.DebugEngine.RebootDevice(rebootOption);
 
                             // yield to give the UI thread a chance to respond to user input
@@ -941,12 +938,19 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                 MessageCentre.OutputMessage(Environment.NewLine);
                 MessageCentre.OutputMessage("*******************************************************************************");
-                MessageCentre.OutputMessage("** Device Watchers are DISABLED. Won't be able to connect to any nanoDevice. **");
+                MessageCentre.OutputMessage("** Device Watchers are DISABLED. You won't be able to connect to any nanoDevice. **");
                 MessageCentre.OutputMessage("*******************************************************************************");
                 MessageCentre.OutputMessage(Environment.NewLine);
 
                 // set rescan devices button to disabled state
                 MenuCommandService.FindCommand(GenerateCommandID(RescanDevicesCommandID)).Enabled = false;
+
+                // alert user with message box to be perfectly clear on what has changed
+                MessageBox.Show(
+                    "Device Watchers are DISABLED. You won't be able to connect to any nanoDevice.",
+                    ".NET nanoFramework Device Explorer",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Warning);
             }
 
             // toggle button checked state
@@ -994,7 +998,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         }
 
 
-#endregion
+        #endregion
 
         public static void UpdateShowInternalErrorsButton(bool value)
         {
@@ -1015,7 +1019,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             Instance.MenuCommandService.FindCommand(GenerateCommandID(RescanDevicesCommandID)).Enabled = !value;
         }
 
-#region MVVM messaging handlers
+        #region MVVM messaging handlers
 
         private async Task SelectedNanoDeviceHasChangedHandlerAsync()
         {
@@ -1057,10 +1061,10 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             });
         }
 
-#endregion
+        #endregion
 
 
-#region tool and status bar update and general managers
+        #region tool and status bar update and general managers
 
         private async Task RefreshToolbarButtonsAsync()
         {
@@ -1195,10 +1199,10 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             });
         }
 
-#endregion
+        #endregion
 
 
-#region helper methods and utilities
+        #region helper methods and utilities
 
         /// <summary>
         /// Generates a <see cref="CommandID"/> specific for the Device Explorer menugroup
@@ -1210,6 +1214,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             return new CommandID(new Guid(guidDeviceExplorerCmdSet), commandID);
         }
 
-#endregion
+        #endregion
     }
 }
