@@ -67,7 +67,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)NanoDeviceCommService\INanoDeviceCommService.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)NanoDeviceCommService\NanoDeviceCommService.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)NanoDeviceCommService\SNanoDeviceCommService.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)NanoFrameworkMonikers.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ProjectSystem\GlobalPropertiesProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ProjectSystem\NanoCSharpProjectConfigured.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ProjectSystem\NanoCSharpProjectUnconfigured.cs" />

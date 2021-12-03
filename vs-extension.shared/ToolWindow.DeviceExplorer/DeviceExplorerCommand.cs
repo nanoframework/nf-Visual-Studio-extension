@@ -85,7 +85,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         OleMenuCommandService MenuCommandService;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="DisableDeviceWatchersHandler"/> class.
+        /// Initializes a new instance of the <see cref="DeviceExplorerCommand"/> class.
         /// Adds our command handlers for menu (commands must exist in the command table file)
         /// </summary>
         /// <param name="package">Owner package, not null.</param>
