@@ -238,27 +238,28 @@ jobs:
 
   # upload extension to Open VSIX Gallery (only possible if this is not a PR from a fork)
   - task: PowerShell@2
-    inputs:
-        targetType: 'inline'
-        script: |
-
-          $artifactsCollection = @("./*VS2019.Extension.vsix") | %{ Get-ChildItem -File . -Filter $_ -Recurse}
-
-          (new-object Net.WebClient).DownloadString("https://raw.github.com/madskristensen/ExtensionScripts/master/AppVeyor/vsix.ps1") | iex
-
-          foreach($file in $artifactsCollection)
-          {
-              "Uploading VSIX package to Open VSIX Gallery..." | Write-Host
-
-              Vsix-PublishToGallery $file
-          }
+    displayName: Upload vsix to Open VSIX Gallery
     condition: >-
       and(
         succeeded(),
         ne(variables['system.pullrequest.isfork'], true),
         eq(variables['System.PullRequest.PullRequestId'], '')
       )
-    displayName: Upload vsix to Open VSIX Gallery
+    continueOnError: true
+    inputs:
+      targetType: 'inline'
+      script: |
+
+        $artifactsCollection = @("./*VS2019.Extension.vsix") | %{ Get-ChildItem -File . -Filter $_ -Recurse}
+
+        (new-object Net.WebClient).DownloadString("https://raw.github.com/madskristensen/ExtensionScripts/master/AppVeyor/vsix.ps1") | iex
+
+        foreach($file in $artifactsCollection)
+        {
+            "Uploading VSIX package to Open VSIX Gallery..." | Write-Host
+
+            Vsix-PublishToGallery $file
+        }
 
   # create or update GitHub release
   - task: GithubRelease@1
@@ -432,27 +433,28 @@ jobs:
 
   # upload extension to Open VSIX Gallery (only possible if this is not a PR from a fork)
   - task: PowerShell@2
-    inputs:
-        targetType: 'inline'
-        script: |
-
-          $artifactsCollection = @("./*VS2022.Extension.vsix") | %{ Get-ChildItem -File . -Filter $_ -Recurse}
-
-          (new-object Net.WebClient).DownloadString("https://raw.github.com/madskristensen/ExtensionScripts/master/AppVeyor/vsix.ps1") | iex
-
-          foreach($file in $artifactsCollection)
-          {
-              "Uploading VSIX package to Open VSIX Gallery..." | Write-Host
-
-              Vsix-PublishToGallery $file
-          }
+    displayName: Upload vsix to Open VSIX Gallery
     condition: >-
       and(
         succeeded(),
         ne(variables['system.pullrequest.isfork'], true),
         eq(variables['System.PullRequest.PullRequestId'], '')
       )
-    displayName: Upload vsix to Open VSIX Gallery
+    continueOnError: true
+    inputs:
+      targetType: 'inline'
+      script: |
+
+        $artifactsCollection = @("./*VS2022.Extension.vsix") | %{ Get-ChildItem -File . -Filter $_ -Recurse}
+
+        (new-object Net.WebClient).DownloadString("https://raw.github.com/madskristensen/ExtensionScripts/master/AppVeyor/vsix.ps1") | iex
+
+        foreach($file in $artifactsCollection)
+        {
+            "Uploading VSIX package to Open VSIX Gallery..." | Write-Host
+
+            Vsix-PublishToGallery $file
+        }
 
   # create or update GitHub release
   - task: GithubRelease@1
