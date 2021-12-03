@@ -2103,7 +2103,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             {
                 var writeMemory = Engine.WriteMemory((uint)address, buffer);
 
-                if (writeMemory.Success)
+                if (writeMemory == AccessMemoryErrorCodes.NoError)
                 {
                     written = size;
                 }
