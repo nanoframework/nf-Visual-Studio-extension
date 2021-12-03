@@ -36,8 +36,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     return;
                 }
 
-                propertyValues.Icon = NanoFrameworkMonikers.NanoFrameworkProject.ToProjectSystemType();
-                propertyValues.ExpandedIcon = NanoFrameworkMonikers.NanoFrameworkProject.ToProjectSystemType();
+                propertyValues.Icon = NanoFrameworkMoniker.NanoFrameworkProject.ToProjectSystemType();
+                propertyValues.ExpandedIcon = NanoFrameworkMoniker.NanoFrameworkProject.ToProjectSystemType();
             }
         }
     }

@@ -8,19 +8,14 @@ using Microsoft.VisualStudio.Imaging.Interop;
 
 namespace nanoFramework.Tools.VisualStudio.Extension
 {
-    public static class NanoFrameworkMonikers
+    public static class NanoFrameworkMoniker
     {
         // GUID matching the NanoFrameworkCatalog
 
         ////////////////////////////////////////////////////////
         // this GUID is coming from NanoFrameworkMoniker.vsct //
         ////////////////////////////////////////////////////////
-#if DEV17
-        private static readonly Guid ManifestGuid = new Guid("23cf437f-5e0e-4b0c-8aa4-ceec5b5f8679");
-#elif DEV16
         private static readonly Guid ManifestGuid = new Guid("6CBBCC35-4BB4-4110-AFFF-9BAEF4DAA4A7");
-#else
-#endif
 
         public static ImageMoniker NanoFramework
         {

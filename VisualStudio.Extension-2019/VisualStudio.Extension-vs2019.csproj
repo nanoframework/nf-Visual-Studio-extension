@@ -69,6 +69,11 @@
     <Compile Include="..\Tools.BuildTasks-2017\ProcessResourceFiles.cs">
       <Link>ResXFileCodeGenerator\ProcessResourceFiles.cs</Link>
     </Compile>
+    <Compile Include="NanoFrameworkMoniker.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>NanoFrameworkMoniker.vsct</DependentUpon>
+    </Compile>
     <Compile Include="NanoFrameworkPackage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Resources\ResourceStrings.Designer.cs">

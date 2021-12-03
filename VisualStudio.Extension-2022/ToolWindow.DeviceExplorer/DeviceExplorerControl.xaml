@@ -109,7 +109,7 @@
                         </Grid.ColumnDefinitions>
 
                         <imaging:CrispImage Grid.Row="0" Grid.Column="0" Width="32" Height="32" HorizontalAlignment="Left" Margin="0" Focusable="False" 
-                                            Moniker="{x:Static nfCatalog:NanoFrameworkMonikers.NanoFramework}" 
+                                            Moniker="{x:Static nfCatalog:NanoFrameworkMoniker.NanoFramework}" 
                                             theming:ImageThemingUtilities.ImageBackgroundColor="{Binding Background, ElementName=BackgroundInvert, Converter={StaticResource BrushToColorConverter}}" />
 
                         <StackPanel Grid.Row="0" Grid.Column="1"  HorizontalAlignment="Left" Orientation="Vertical">

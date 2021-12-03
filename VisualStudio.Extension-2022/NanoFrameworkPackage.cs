@@ -29,7 +29,7 @@ using Task = System.Threading.Tasks.Task;
                                 displayProjectFileExtensions: ".NET nanoFramework Project Files (*.nfproj);*.nfproj",
                                 defaultProjectExtension: NanoCSharpProjectUnconfigured.ProjectExtension,
                                 language: NanoCSharpProjectUnconfigured.Language,
-                                resourcePackageGuid: NanoFrameworkPackage.PackageGuid,
+                                resourcePackageGuid: NanoFrameworkPackage.PackageGuidString,
                                 PossibleProjectExtensions = NanoCSharpProjectUnconfigured.ProjectExtension,
                                 Capabilities = NanoCSharpProjectUnconfigured.UniqueCapability
                                 )]
@@ -62,7 +62,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
     [ProvideToolWindow(typeof(DeviceExplorer), Style = VsDockStyle.Tabbed, Window = "3ae79031-e1bc-11d0-8f78-00a0c9110057")]
     // register nanoDevice communication service
     [ProvideService((typeof(NanoDeviceCommService)), IsAsyncQueryable = true)]
-    [Guid(NanoFrameworkPackage.PackageGuid)]
+    [Guid(PackageGuidString)]
     [ProvideObject(typeof(CorDebug))]
     [ProvideDebugEngine("Managed", typeof(CorDebug), CorDebug.EngineId, setNextStatement: true, hitCountBp: true)]
     [ProvideDebugPortSupplier(".NET nanoFramework Port Supplier", typeof(DebugPortSupplier), DebugPortSupplier.PortSupplierId)]
@@ -83,7 +83,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         ////////////////////////////////////////////////////////
         // this GUID is coming from NanoFrameworkPackage.vsct //
         ////////////////////////////////////////////////////////
-        public const string PackageGuid = "1b4aea27-9d6e-46a4-9868-f2d9a052c821";
+        public const string PackageGuidString = "1b4aea27-9d6e-46a4-9868-f2d9a052c821";
 
         /// <summary>
         /// Path for nanoFramework Extension directory

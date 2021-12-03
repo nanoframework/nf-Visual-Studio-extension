@@ -45,7 +45,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             control = new DeviceExplorerControl();
             base.Content = control;
 
-            BitmapImageMoniker = NanoFrameworkMonikers.NanoFramework;
+            BitmapImageMoniker = NanoFrameworkMoniker.NanoFramework;
 
             // set the toolbar for this control
             ToolBar = new CommandID(new Guid(DeviceExplorerCommand.guidDeviceExplorerCmdSet), DeviceExplorerCommand.DeviceExplorerToolbarID);
