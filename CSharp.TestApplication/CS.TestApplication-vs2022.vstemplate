@@ -24,8 +24,8 @@
   </WizardExtension>
   <WizardData>
     <packages repository="extension" repositoryId="bf694e17-fa5f-4877-9317-6d3664b2689a">
-      <package id="nanoFramework.CoreLibrary" version="1.10.5"/>
-      <package id="nanoFramework.TestFramework" version="1.0.157"/>
+      <package id="nanoFramework.CoreLibrary" version="1.11.7"/>
+      <package id="nanoFramework.TestFramework" version="1.0.166"/>
     </packages>
   </WizardData>
 </VSTemplate>
