@@ -364,6 +364,15 @@
           "VSSDK.TemplateWizardInterface": "12.0.4"
         }
       },
+      "PropertyChanged.Fody": {
+        "type": "Direct",
+        "requested": "[2.6.1, )",
+        "resolved": "2.6.1",
+        "contentHash": "dCMGDjA7ahlpCIfvPxwXB6KIIeYtc2qALk69p22HQwgzKJQG25l87l5skk5ZBV5/B/z3dQZBVZkdJZbvtEXuAg==",
+        "dependencies": {
+          "Fody": "4.2.1"
+        }
+      },
       "PropertyChanging.Fody": {
         "type": "Direct",
         "requested": "[1.29.3, )",
@@ -1976,14 +1985,6 @@
         "type": "Transitive",
         "resolved": "1.1.1",
         "contentHash": "1MUQLiSo4KDkQe6nzQRhIU05lm9jlexX5BVsbuw0SL82ynZ+GzAHQxJVDPVBboxV37Po3SG077aX8DuSy8TkaA=="
-      },
-      "PropertyChanged.Fody": {
-        "type": "Transitive",
-        "resolved": "2.6.1",
-        "contentHash": "dCMGDjA7ahlpCIfvPxwXB6KIIeYtc2qALk69p22HQwgzKJQG25l87l5skk5ZBV5/B/z3dQZBVZkdJZbvtEXuAg==",
-        "dependencies": {
-          "Fody": "4.2.1"
-        }
       },
       "System.Buffers": {
         "type": "Transitive",
