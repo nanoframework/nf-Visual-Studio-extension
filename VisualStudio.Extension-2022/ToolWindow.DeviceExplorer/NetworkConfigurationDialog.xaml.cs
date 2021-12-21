@@ -99,6 +99,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             // clear CA root certificate
             DeviceExplorerViewModel.CaCertificateBundle = null;
 
+            // clear device certificate
+            DeviceExplorerViewModel.DeviceCertificate = null;
+
             // set focus on cancel button
             CancelButton.Focus();
         }
