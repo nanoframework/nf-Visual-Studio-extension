@@ -345,13 +345,22 @@
           "Microsoft.VisualStudio.TemplateWizardInterface": "17.0.0-previews-1-31321-016"
         }
       },
+      "PropertyChanged.Fody": {
+        "type": "Direct",
+        "requested": "[2.6.1, )",
+        "resolved": "2.6.1",
+        "contentHash": "dCMGDjA7ahlpCIfvPxwXB6KIIeYtc2qALk69p22HQwgzKJQG25l87l5skk5ZBV5/B/z3dQZBVZkdJZbvtEXuAg==",
+        "dependencies": {
+          "Fody": "4.2.1"
+        }
+      },
       "PropertyChanging.Fody": {
         "type": "Direct",
-        "requested": "[1.30.2, )",
-        "resolved": "1.30.2",
-        "contentHash": "EbfAnxhL6lpag4YQnRWwcNgQGDBFgI5PCqlgc4nrJIVgaFH9rRcq6y29ntMS3H2NIrW9ifZphfZI9UqRWVE7Qg==",
+        "requested": "[1.29.3, )",
+        "resolved": "1.29.3",
+        "contentHash": "F8rEt0XkdPgwwjqtDAaVy/hjvbYm84v5Hrm/HEfNN+nb1MzLCEvRcYYi23wx3DSDbvj8U+XYiNKDWf8pQ2IW6w==",
         "dependencies": {
-          "Fody": "6.4.0"
+          "Fody": "3.2.9"
         }
       },
       "stdole": {
@@ -574,8 +583,8 @@
       },
       "Fody": {
         "type": "Transitive",
-        "resolved": "6.4.0",
-        "contentHash": "5cgK5htSklGmBTR8Bj/xvTGrxTINj18QY9S1rAu1G5QX9NAzK9lAB0TugUPdeSGmktW82R3gMj2NNnTgicMwsg=="
+        "resolved": "4.2.1",
+        "contentHash": "46t+e1eESclH4TkfqUEYAgZ1+ZbXSFS7GqSKvtcw6u2yT05heDKdzj1r3YA/6FCZM4uB4z7qRW9V+gBsCilonQ=="
       },
       "Humanizer.Core": {
         "type": "Transitive",
@@ -1712,14 +1721,6 @@
         "type": "Transitive",
         "resolved": "1.1.1",
         "contentHash": "1MUQLiSo4KDkQe6nzQRhIU05lm9jlexX5BVsbuw0SL82ynZ+GzAHQxJVDPVBboxV37Po3SG077aX8DuSy8TkaA=="
-      },
-      "PropertyChanged.Fody": {
-        "type": "Transitive",
-        "resolved": "2.6.1",
-        "contentHash": "dCMGDjA7ahlpCIfvPxwXB6KIIeYtc2qALk69p22HQwgzKJQG25l87l5skk5ZBV5/B/z3dQZBVZkdJZbvtEXuAg==",
-        "dependencies": {
-          "Fody": "4.2.1"
-        }
       },
       "System.Buffers": {
         "type": "Transitive",
