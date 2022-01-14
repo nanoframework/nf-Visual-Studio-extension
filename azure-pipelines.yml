@@ -507,7 +507,6 @@ jobs:
 #################################
 - job: Generate_Changelog
   dependsOn:
-  - Get_Build_Options
   - VS2019
   - VS2022
   condition: >-
@@ -546,7 +545,7 @@ jobs:
       )
     displayName: Setup Ruby
     inputs:
-      versionSpec: '= 2.7'
+      versionSpec: '= 3.0' 
       addToPath: true
 
   # install github_changelog_generator
@@ -709,3 +708,32 @@ jobs:
 
             git -c http.extraheader="AUTHORIZATION: $auth" push origin "HEAD:$(Build.SourceBranchName)"
         }
+
+##################################
+# report build failure to Discord
+- job: Report_Build_Failure
+
+  dependsOn:
+  - VS2019
+  - VS2022
+  condition: >-
+    or(
+      failed('VS2019'),
+      failed('VS2022')
+    )
+
+  pool:
+    vmImage: 'windows-2019'
+
+  steps:
+
+  - checkout: self
+    fetchDepth: 1
+
+  # step from template @ nf-tools repo
+  # report error
+  - template: azure-pipelines-templates/discord-webhook-task.yml@templates  
+    parameters:
+      status: 'failure'
+      webhookUrl: '$(DiscordWebhook)'
+      message: ''
