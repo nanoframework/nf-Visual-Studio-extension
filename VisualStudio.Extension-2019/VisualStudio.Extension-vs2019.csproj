@@ -41,7 +41,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;DEV16</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;DEV16;NETFRAMEWORK;</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <DeployExtension>True</DeployExtension>
@@ -55,7 +55,7 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE;DEV16</DefineConstants>
+    <DefineConstants>TRACE;DEV16;NETFRAMEWORK;</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <DeployExtension>false</DeployExtension>
@@ -66,8 +66,11 @@
     <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="..\Tools.BuildTasks-2017\ProcessResourceFiles.cs">
+    <Compile Include="..\Tools.BuildTasks\ProcessResourceFiles.cs">
       <Link>ResXFileCodeGenerator\ProcessResourceFiles.cs</Link>
+    </Compile>
+    <Compile Include="..\Tools.BuildTasks\Utilities\DebuggerHelper.cs">
+      <Link>ResXFileCodeGenerator\DebuggerHelper.cs</Link>
     </Compile>
     <Compile Include="NanoFrameworkMoniker.cs">
       <AutoGen>True</AutoGen>
@@ -258,13 +261,6 @@
       <IncludeOutputGroupsInVSIX>TemplateProjectOutputGroup%3b</IncludeOutputGroupsInVSIX>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
       <VSIXSubPath>ProjectTemplates</VSIXSubPath>
-    </ProjectReference>
-    <ProjectReference Include="..\Tools.BuildTasks\Tools.BuildTasks.csproj">
-      <Project>{552C2500-2C53-4148-A422-0ED983EF135D}</Project>
-      <Name>Tools.BuildTasks</Name>
-      <InstallRoot>MSBuild</InstallRoot>
-      <VSIXSubPath>nanoFramework\v1.0\</VSIXSubPath>
-      <IncludeOutputGroupsInVSIX>BuiltProjectOutputGroup</IncludeOutputGroupsInVSIX>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
@@ -553,6 +549,9 @@
     </PackageReference>
     <PackageReference Include="PropertyChanging.Fody">
       <Version>1.29.3</Version>
+    </PackageReference>
+    <PackageReference Include="SixLabors.ImageSharp">
+      <Version>1.0.4</Version>
     </PackageReference>
     <PackageReference Include="stdole">
       <Version>16.10.31320.204</Version>

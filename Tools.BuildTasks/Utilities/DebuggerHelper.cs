@@ -33,13 +33,13 @@ namespace nanoFramework.Tools.Utilities
                     );
 
                 // wait N seconds for debugger to attach
-                while (!Debugger.IsAttached && waitForDebugToAttach.TotalSeconds > 0)
+                while (!System.Diagnostics.Debugger.IsAttached && waitForDebugToAttach.TotalSeconds > 0)
                 {
                     Thread.Sleep(1000);
                     waitForDebugToAttach -= TimeSpan.FromSeconds(1);
                 }
 
-                Debugger.Break();
+                System.Diagnostics.Debugger.Break();
             }
 #endif
         }

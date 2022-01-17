@@ -11,15 +11,19 @@ using System.CodeDom;
 using System.CodeDom.Compiler;
 using System.Collections;
 using System.Diagnostics;
-using System.Drawing;
-using System.Drawing.Imaging;
 using System.Globalization;
 using System.IO;
 using System.Reflection;
-using System.Resources;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Xml;
+using SixLabors.ImageSharp;
+
+#if DEV16 || DEV17
+using System.Resources;
+#else
+using System.Resources.NetStandard;
+#endif
 
 namespace nanoFramework.Tools
 {
@@ -32,7 +36,7 @@ namespace nanoFramework.Tools
     internal sealed class ProcessResourceFiles : MarshalByRefObject
     {
 
-        #region fields
+#region fields
         /// <summary>
         /// Resource list (used to preserve resource ordering, primarily for easier testing)
         /// </summary>
@@ -109,7 +113,7 @@ namespace nanoFramework.Tools
         private ITaskItem _inTaskItem;
         private ITaskItem _outTaskItem;
 
-        #endregion
+#endregion
 
         /// <summary>
         /// Process all files.
@@ -145,7 +149,7 @@ namespace nanoFramework.Tools
             _outTaskItem = outTaskItem;
         }
 
-        #region Code from ResGen.EXE
+#region Code from ResGen.EXE
         /// <summary>
         /// Read all resources from a file and write to a new file in the chosen format
         /// </summary>
@@ -349,10 +353,12 @@ namespace nanoFramework.Tools
                     }
                     // ReadResources closes the reader for us
                     ReadResources(resXReader, filename);
+                    var resReader = new System.Resources.ResourceReader(filename);
+       
                     break;
 
                 case Format.Binary:
-                    ReadResources(new ResourceReader(filename), filename); // closes reader for us
+                    ReadResources(new System.Resources.ResourceReader(filename), filename); // closes reader for us
                     break;
                 case Format.NanoResources:
                     Debug.Fail("Unknown format " + format.ToString());
@@ -384,7 +390,7 @@ namespace nanoFramework.Tools
                     break;
 
                 case Format.Binary:
-                    WriteResources(new ResourceWriter(filename)); // closes writer for us
+                    WriteResources(new System.Resources.ResourceWriter(filename)); // closes writer for us
                     break;
 
                 case Format.NanoResources:
@@ -670,7 +676,7 @@ namespace nanoFramework.Tools
         /// </summary>
         /// <param name="reader">Appropriate IResourceReader</param>
         /// <param name="fileName">Filename, for error messages</param>
-        private void ReadResources(IResourceReader reader, String fileName)
+        private void ReadResources(System.Resources.IResourceReader reader, String fileName)
         {
             using (reader)
             {
@@ -769,7 +775,7 @@ namespace nanoFramework.Tools
         /// </summary>
         /// <remarks>Closes writer automatically</remarks>
         /// <param name="writer">Appropriate IResourceWriter</param>
-        private void WriteResources(IResourceWriter writer)
+        private void WriteResources(System.Resources.IResourceWriter writer)
         {
             try
             {
@@ -892,8 +898,8 @@ namespace nanoFramework.Tools
             public static Entry CreateEntry(string name, object value, string defaultNamespace, string defaultDeclaringClass)
             {
                 string stringValue = value as string;
-                Bitmap bitmapValue = value as Bitmap;
-                Icon iconValue = value as Icon;
+                Image bitmapValue = value as Image;
+                //Icon iconValue = value as Icon;
                 byte[] rawValue = value as byte[];
 
                 Entry entry = null;
@@ -905,38 +911,40 @@ namespace nanoFramework.Tools
                 else if (bitmapValue != null)
                 {
                     // validate supported BMP formats
-                    if (
-                        bitmapValue.RawFormat.Equals(ImageFormat.Jpeg) ||
-                        bitmapValue.RawFormat.Equals(ImageFormat.Gif) ||
-                        bitmapValue.RawFormat.Equals(ImageFormat.Bmp))
-                    {
-                        entry = new BitmapEntry(name, bitmapValue);
-                    }
-                    else
+                    // TODO
+                    //if (
+                    //    bitmapValue.Metadata.RawFormat.Equals(ImageFormat.Jpeg) ||
+                    //    bitmapValue.RawFormat.Equals(ImageFormat.Gif) ||
+                    //    bitmapValue.RawFormat.Equals(ImageFormat.Bmp))
+                    //{
+                    //    entry = new BitmapEntry(name, bitmapValue);
+                    //}
+                    //else
                     {
                         // BMP format not supported 
                         // read raw content so it can be saved as a binary entry resource (byte[])
                         using (MemoryStream stream = new MemoryStream())
                         {
-                            bitmapValue.Save(stream, bitmapValue.RawFormat);
+                            bitmapValue.Save(stream, new SixLabors.ImageSharp.Formats.Bmp.BmpEncoder());
                             stream.Capacity = (int)stream.Length;
 
                             entry = new BinaryEntry(name, stream.GetBuffer());
                         }
                     }
                 }
-                else if (iconValue != null)
-                {
-                    // this is an ICO, treat as a binary resource (byte[])
-                    using (MemoryStream stream = new MemoryStream())
-                    {
-                        // save to rawValue as byte[]
-                        iconValue.Save(stream);
-                        stream.Capacity = (int)stream.Length;
+                // TODO
+                //else if (iconValue != null)
+                //{
+                //    // this is an ICO, treat as a binary resource (byte[])
+                //    using (MemoryStream stream = new MemoryStream())
+                //    {
+                //        // save to rawValue as byte[]
+                //        iconValue.Save(stream);
+                //        stream.Capacity = (int)stream.Length;
 
-                        entry = new BinaryEntry(name, stream.GetBuffer());
-                    }
-                }
+                //        entry = new BinaryEntry(name, stream.GetBuffer());
+                //    }
+                //}
 
                 if (rawValue != null)
                 {
@@ -1091,7 +1099,7 @@ namespace nanoFramework.Tools
                 set { field = value; }
             }
 
-            #region IComparable Members
+#region IComparable Members
 
             int IComparable.CompareTo(object obj)
             {
@@ -1105,7 +1113,7 @@ namespace nanoFramework.Tools
                 return Id.CompareTo(entry.Id);
             }
 
-            #endregion
+#endregion
 
             public virtual byte ResourceType
             {
@@ -1154,13 +1162,13 @@ namespace nanoFramework.Tools
 
         private class BitmapEntry : Entry
         {
-            public BitmapEntry(string name, System.Drawing.Bitmap value) : base(name, value)
+            public BitmapEntry(string name, Image value) : base(name, value)
             {
             }
 
-            private System.Drawing.Bitmap BitmapValue
+            private Image BitmapValue
             {
-                get { return Value as System.Drawing.Bitmap; }
+                get { return Value as Image; }
             }
 
             public override byte ResourceType
@@ -1314,161 +1322,166 @@ namespace nanoFramework.Tools
                 }
             }
 
-            private byte[] GetBitmapDataBmp(Bitmap bitmap, out NanoResourceFile.CLR_GFX_BitmapDescription bitmapDescription)
-            {
-                //issue warning for formats that we lose information?
-                //other formats that we need to support??
+            // TODO
+            //private byte[] GetBitmapDataBmp(Bitmap bitmap, out NanoResourceFile.CLR_GFX_BitmapDescription bitmapDescription)
+            //{
+            //    //issue warning for formats that we lose information?
+            //    //other formats that we need to support??
 
-                byte bitsPerPixel = 24;
-                BitmapData bitmapData = null;
-                Rectangle rect = new Rectangle(0, 0, bitmap.Width, bitmap.Height);
-                PixelFormat formatDst = bitmap.PixelFormat;
-                byte[] data = null;
+            //    byte bitsPerPixel = 24;
+            //    BitmapData bitmapData = null;
+            //    Rectangle rect = new Rectangle(0, 0, bitmap.Width, bitmap.Height);
+            //    PixelFormat formatDst = bitmap.PixelFormat;
+            //    byte[] data = null;
 
-                switch (bitmap.PixelFormat)
-                {
-                    case PixelFormat.Format1bppIndexed:
-                        bitsPerPixel = 1;
-                        formatDst = PixelFormat.Format1bppIndexed;
-                        break;
-                    // Anything more than 16bpp will fall through to 16bpp
-                    case PixelFormat.Format8bppIndexed:
-                    case PixelFormat.Format24bppRgb:
-                    case PixelFormat.Format32bppRgb:
-                    case PixelFormat.Format48bppRgb:
-                    case PixelFormat.Format16bppRgb555:
-                    case PixelFormat.Format16bppRgb565:
-                        bitsPerPixel = 16;
-                        formatDst = PixelFormat.Format16bppRgb565;
-                        break;
-                    default:
-                        throw new NotSupportedException($"PixelFormat ({bitmap.PixelFormat.ToString()}) of '{Name}' resource not supported. Only 1bpp and 16bpp.");
-                }
+            //    switch (bitmap.PixelFormat)
+            //    {
+            //        case PixelFormat.Format1bppIndexed:
+            //            bitsPerPixel = 1;
+            //            formatDst = PixelFormat.Format1bppIndexed;
+            //            break;
+            //        // Anything more than 16bpp will fall through to 16bpp
+            //        case PixelFormat.Format8bppIndexed:
+            //        case PixelFormat.Format24bppRgb:
+            //        case PixelFormat.Format32bppRgb:
+            //        case PixelFormat.Format48bppRgb:
+            //        case PixelFormat.Format16bppRgb555:
+            //        case PixelFormat.Format16bppRgb565:
+            //            bitsPerPixel = 16;
+            //            formatDst = PixelFormat.Format16bppRgb565;
+            //            break;
+            //        default:
+            //            throw new NotSupportedException($"PixelFormat ({bitmap.PixelFormat.ToString()}) of '{Name}' resource not supported. Only 1bpp and 16bpp.");
+            //    }
 
-                //turn bitmap data into a form we can use.
+            //    //turn bitmap data into a form we can use.
 
-                if (formatDst != bitmap.PixelFormat)
-                {
-                    // need to copy the Bitmap in order to access it, otherwise it will throw an exception
-                    using (Bitmap bmpCopy = new Bitmap(bitmap))
-                    using (Bitmap targetBmp = bmpCopy.Clone(rect, formatDst))
-                    {
-                        bitmap = new Bitmap(targetBmp);
-                    }
-                }
+            //    if (formatDst != bitmap.PixelFormat)
+            //    {
+            //        // need to copy the Bitmap in order to access it, otherwise it will throw an exception
+            //        using (Bitmap bmpCopy = new Bitmap(bitmap))
+            //        using (Bitmap targetBmp = bmpCopy.Clone(rect, formatDst))
+            //        {
+            //            bitmap = new Bitmap(targetBmp);
+            //        }
+            //    }
 
-                try
-                {
-                    bitmapData = bitmap.LockBits(rect, ImageLockMode.ReadOnly, formatDst);
+            //    try
+            //    {
+            //        bitmapData = bitmap.LockBits(rect, ImageLockMode.ReadOnly, formatDst);
 
-                    IntPtr p = bitmapData.Scan0;
-                    data = new byte[bitmapData.Stride * bitmap.Height];
+            //        IntPtr p = bitmapData.Scan0;
+            //        data = new byte[bitmapData.Stride * bitmap.Height];
 
-                    System.Runtime.InteropServices.Marshal.Copy(bitmapData.Scan0, data, 0, data.Length);
+            //        System.Runtime.InteropServices.Marshal.Copy(bitmapData.Scan0, data, 0, data.Length);
 
-                    if (bitsPerPixel == 1)
-                    {
-                        //special case for 1pp with index 0 equals white???!!!???
-                        if (bitmap.Palette.Entries[0].GetBrightness() < 0.5)
-                        {
-                            for (int i = 0; i < data.Length; i++)
-                            {
-                                data[i] = (byte)~data[i];
-                            }
-                        }
+            //        if (bitsPerPixel == 1)
+            //        {
+            //            //special case for 1pp with index 0 equals white???!!!???
+            //            if (bitmap.Palette.Entries[0].GetBrightness() < 0.5)
+            //            {
+            //                for (int i = 0; i < data.Length; i++)
+            //                {
+            //                    data[i] = (byte)~data[i];
+            //                }
+            //            }
 
-                        //special case for 1pp need to flip orientation??
-                        //for some stupid reason, 1bpp is flipped compared to windows!!
-                        Adjust1bppOrientation(data);
-                    }
-                }
-                finally
-                {
-                    if (bitmapData != null)
-                    {
-                        bitmap.UnlockBits(bitmapData);
-                    }
-                }
+            //            //special case for 1pp need to flip orientation??
+            //            //for some stupid reason, 1bpp is flipped compared to windows!!
+            //            Adjust1bppOrientation(data);
+            //        }
+            //    }
+            //    finally
+            //    {
+            //        if (bitmapData != null)
+            //        {
+            //            bitmap.UnlockBits(bitmapData);
+            //        }
+            //    }
 
-                bitmapDescription = new NanoResourceFile.CLR_GFX_BitmapDescription((ushort)bitmap.Width, (ushort)bitmap.Height, 0, bitsPerPixel, NanoResourceFile.CLR_GFX_BitmapDescription.c_TypeBitmap);
+            //    bitmapDescription = new NanoResourceFile.CLR_GFX_BitmapDescription((ushort)bitmap.Width, (ushort)bitmap.Height, 0, bitsPerPixel, NanoResourceFile.CLR_GFX_BitmapDescription.c_TypeBitmap);
 
-                if (bitsPerPixel == 1)
-                {
-                    //test compression;
-                    Compress1bpp(bitmapDescription, ref data);
-                }
+            //    if (bitsPerPixel == 1)
+            //    {
+            //        //test compression;
+            //        Compress1bpp(bitmapDescription, ref data);
+            //    }
 
-                return data;
-            }
+            //    return data;
+            //}
 
-            private byte[] GetBitmapDataRaw(Bitmap bitmap, out NanoResourceFile.CLR_GFX_BitmapDescription bitmapDescription, byte type)
-            {
-                bitmapDescription = new NanoResourceFile.CLR_GFX_BitmapDescription((ushort)bitmap.Width, (ushort)bitmap.Height, 0, 1, type);
+            //private byte[] GetBitmapDataRaw(Bitmap bitmap, out NanoResourceFile.CLR_GFX_BitmapDescription bitmapDescription, byte type)
+            //{
+            //    bitmapDescription = new NanoResourceFile.CLR_GFX_BitmapDescription((ushort)bitmap.Width, (ushort)bitmap.Height, 0, 1, type);
 
-                MemoryStream stream = new MemoryStream();
+            //    MemoryStream stream = new MemoryStream();
 
-                // need to copy the Bitmap in order to access it, otherwise it will throw an exception
-                using (Bitmap bmpCopy = new Bitmap(bitmap))
-                {
-                    bmpCopy.Save(stream, bitmap.RawFormat);
-                }
+            //    // need to copy the Bitmap in order to access it, otherwise it will throw an exception
+            //    using (Bitmap bmpCopy = new Bitmap(bitmap))
+            //    {
+            //        bmpCopy.Save(stream, bitmap.RawFormat);
+            //    }
 
-                stream.Capacity = (int)stream.Length;
-                return stream.GetBuffer();
-            }
+            //    stream.Capacity = (int)stream.Length;
+            //    return stream.GetBuffer();
+            //}
 
-            private byte[] GetBitmapDataJpeg(Bitmap bitmap, out NanoResourceFile.CLR_GFX_BitmapDescription bitmapDescription)
-            {
-                return GetBitmapDataRaw(bitmap, out bitmapDescription, NanoResourceFile.CLR_GFX_BitmapDescription.c_TypeJpeg);
-            }
+            //private byte[] GetBitmapDataJpeg(Bitmap bitmap, out NanoResourceFile.CLR_GFX_BitmapDescription bitmapDescription)
+            //{
+            //    return GetBitmapDataRaw(bitmap, out bitmapDescription, NanoResourceFile.CLR_GFX_BitmapDescription.c_TypeJpeg);
+            //}
 
-            private byte[] GetBitmapDataGif(Bitmap bitmap, out NanoResourceFile.CLR_GFX_BitmapDescription bitmapDescription)
-            {
-                return GetBitmapDataRaw(bitmap, out bitmapDescription, NanoResourceFile.CLR_GFX_BitmapDescription.c_TypeGif);
-            }
+            //private byte[] GetBitmapDataGif(Bitmap bitmap, out NanoResourceFile.CLR_GFX_BitmapDescription bitmapDescription)
+            //{
+            //    return GetBitmapDataRaw(bitmap, out bitmapDescription, NanoResourceFile.CLR_GFX_BitmapDescription.c_TypeGif);
+            //}
 
-            private byte[] GetBitmapData(Bitmap bitmap, out NanoResourceFile.CLR_GFX_BitmapDescription bitmapDescription)
-            {
-                byte[] data = null;
+            //private byte[] GetBitmapData(Image bitmap, out NanoResourceFile.CLR_GFX_BitmapDescription bitmapDescription)
+            //{
+            //    Image.Load(bitmap.CloneAs<TPixel>);
 
-                if (bitmap.Width > 0xFFFF || bitmap.Height > 0xFFFF)
-                {
-                    throw new ArgumentException("bitmap dimensions out of range");
-                }
+            //    SixLabors.ImageSharp.Formats.IImageFormat format = Image.DetectFormat(bitmap.Metadata);
+                
 
-                if (bitmap.RawFormat.Equals(ImageFormat.Jpeg))
-                {
-                    data = GetBitmapDataJpeg(bitmap, out bitmapDescription);
-                }
-                else if (bitmap.RawFormat.Equals(ImageFormat.Gif))
-                {
-                    data = GetBitmapDataGif(bitmap, out bitmapDescription);
-                }
-                else if (bitmap.RawFormat.Equals(ImageFormat.Bmp))
-                {
-                    data = GetBitmapDataBmp(bitmap, out bitmapDescription);
-                }
-                else
-                {
-                    throw new NotSupportedException(string.Format("Bitmap imageFormat not supported '{0}'", bitmap.RawFormat.Guid.ToString()));
-                }
+            //    byte[] data = null;
 
-                return data;
-            }
+            //    if (bitmap.Width > 0xFFFF || bitmap.Height > 0xFFFF)
+            //    {
+            //        throw new ArgumentException("bitmap dimensions out of range");
+            //    }
+
+            //    if (bitmap.RawFormat.Equals(ImageFormat.Jpeg))
+            //    {
+            //        data = GetBitmapDataJpeg(bitmap, out bitmapDescription);
+            //    }
+            //    else if (bitmap.RawFormat.Equals(ImageFormat.Gif))
+            //    {
+            //        data = GetBitmapDataGif(bitmap, out bitmapDescription);
+            //    }
+            //    else if (bitmap.RawFormat.Equals(ImageFormat.Bmp))
+            //    {
+            //        data = GetBitmapDataBmp(bitmap, out bitmapDescription);
+            //    }
+            //    else
+            //    {
+            //        throw new NotSupportedException(string.Format("Bitmap imageFormat not supported '{0}'", bitmap.RawFormat.Guid.ToString()));
+            //    }
+
+            //    return data;
+            //}
 
             public override byte[] GenerateResourceData()
             {
-                Bitmap bitmap = BitmapValue;
-
                 NanoResourceFile.CLR_GFX_BitmapDescription bitmapDescription;
 
-                byte[] data = GetBitmapData(bitmap, out bitmapDescription);
+                // TODO
+                //byte[] data = GetBitmapData(BitmapValue, out bitmapDescription);
 
                 MemoryStream stream = new MemoryStream();
                 BinaryWriter writer = new BinaryWriter(stream);
 
-                bitmapDescription.Serialize(writer);
-                writer.Write(data);
+                //bitmapDescription.Serialize(writer);
+                //writer.Write(data);
 
                 stream.Capacity = (int)stream.Length;
                 return stream.GetBuffer();
@@ -1682,7 +1695,7 @@ namespace nanoFramework.Tools
             }
         }
 
-        #endregion // Code from ResGen.EXE
+#endregion // Code from ResGen.EXE
 
         internal class NanoResourceFile
         {
@@ -1781,7 +1794,7 @@ namespace nanoFramework.Tools
                 }
             }
 
-            #region Records
+#region Records
 
             public class Header
             {
@@ -1957,10 +1970,10 @@ namespace nanoFramework.Tools
                     m_type = reader.ReadByte();
                 }
             }
-            #endregion
+#endregion
         }
 
-        internal class NanoResourceWriter : IResourceWriter
+        internal class NanoResourceWriter : System.Resources.IResourceWriter
         {
             string fileName;
             ArrayList resources;
@@ -1982,29 +1995,29 @@ namespace nanoFramework.Tools
                 resources.Add(entry);
             }
 
-            #region IResourceWriter Members
+#region IResourceWriter Members
 
-            void IResourceWriter.AddResource(string name, byte[] value)
+            void System.Resources.IResourceWriter.AddResource(string name, byte[] value)
             {
                 Add(name, value);
             }
 
-            void IResourceWriter.AddResource(string name, object value)
+            void System.Resources.IResourceWriter.AddResource(string name, object value)
             {
                 Add(name, value);
             }
 
-            void IResourceWriter.AddResource(string name, string value)
+            void System.Resources.IResourceWriter.AddResource(string name, string value)
             {
                 Add(name, value);
             }
 
-            void IResourceWriter.Close()
+            void System.Resources.IResourceWriter.Close()
             {
                 ((IDisposable)this).Dispose();
             }
 
-            void IResourceWriter.Generate()
+            void System.Resources.IResourceWriter.Generate()
             {
                 //PrepareToGenerate();
                 ProcessResourceFiles.EnsureResourcesIds(resources);
@@ -2030,51 +2043,51 @@ namespace nanoFramework.Tools
                 }
             }
 
-            #endregion
+#endregion
 
-            #region IDisposable Members
+#region IDisposable Members
 
             void IDisposable.Dispose()
             {
             }
 
-            #endregion
+#endregion
         }
 
-        public class NanoResourceReader : IResourceReader
+        public class NanoResourceReader : System.Resources.IResourceReader
         {
 
-            #region IResourceReader Members
+#region IResourceReader Members
 
-            void IResourceReader.Close()
+            void System.Resources.IResourceReader.Close()
             {
                 throw new NotImplementedException();
             }
 
-            IDictionaryEnumerator IResourceReader.GetEnumerator()
+            IDictionaryEnumerator System.Resources.IResourceReader.GetEnumerator()
             {
                 throw new NotImplementedException();
             }
 
-            #endregion
+#endregion
 
-            #region IEnumerable Members
+#region IEnumerable Members
 
             IEnumerator IEnumerable.GetEnumerator()
             {
                 throw new NotImplementedException();
             }
 
-            #endregion
+#endregion
 
-            #region IDisposable Members
+#region IDisposable Members
 
             void IDisposable.Dispose()
             {
                 throw new NotImplementedException();
             }
 
-            #endregion
+#endregion
         }
     }
 
