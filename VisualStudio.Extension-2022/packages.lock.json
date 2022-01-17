@@ -315,12 +315,15 @@
       },
       "nanoFramework.Tools.MetadataProcessor.MsBuildTask": {
         "type": "Direct",
-        "requested": "[2.35.10, )",
-        "resolved": "2.35.10",
-        "contentHash": "lcn9TmNRtiXZCDUK3CqVYJ4GOo2y8tJxfjTBlpT94rjhe6QdeIFLBzsnSgPL/+cSl8wRFCmTg0uiSsNOZNXT9w==",
+        "requested": "[3.0.2, )",
+        "resolved": "3.0.2",
+        "contentHash": "45P0E0SITDNDE4YFB9t2AuXdCzWxp+vUdmde3PDVjI5OYdY0CuNWB7K9TcFwxTgfZYa/7e1wuI+tO0sWrO8SGQ==",
         "dependencies": {
+          "Microsoft.Build.Framework": "15.4.8",
+          "Microsoft.Build.Utilities.Core": "15.4.8",
           "Mono.Cecil": "0.11.4",
-          "mustache-sharp": "1.0.0"
+          "mustache-sharp": "1.0.0",
+          "nanoFramework.Tools.MetadataProcessor.Core": "1.0.0"
         }
       },
       "Nerdbank.GitVersioning": {
