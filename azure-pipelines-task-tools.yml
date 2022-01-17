@@ -34,7 +34,6 @@ steps:
 
 - task: UseDotNet@2
   displayName: Install .NET 6.0 SDK
-  condition: eq(variables['UPDATE_DEPENDENTS'], 'false')
   inputs:
     packageType: sdk
     version: 6.x
