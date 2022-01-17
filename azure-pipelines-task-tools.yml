@@ -32,6 +32,13 @@ steps:
   inputs:
     versionSpec: '>=5.10.0'
 
+- task: UseDotNet@2
+  displayName: Install .NET 6.0 SDK
+  condition: eq(variables['UPDATE_DEPENDENTS'], 'false')
+  inputs:
+    packageType: sdk
+    version: 6.x
+
 - task: DotNetCoreCLI@2  
   displayName: Install NBGV tool
   condition: succeeded()
