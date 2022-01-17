@@ -1,0 +1,116 @@
+trigger:
+  branches:
+    include: 
+    - main
+    - develop
+    - release-*
+  paths:
+    inlude:
+    - Tools.BuildTasks
+  tags:
+    include:
+    - refs/tags/v*
+
+# PR always trigger build
+pr:
+  autoCancel: true
+
+pool:
+  vmImage: 'windows-2019'
+
+variables:
+  DOTNET_NOLOGO: true
+
+steps:
+
+- checkout: self
+  persistCredentials: true
+
+- task: NuGetToolInstaller@1
+  condition: succeeded()
+  displayName: 'Install specific version of NuGet'
+  inputs:
+    versionSpec: '>=5.10.0'
+
+- task: DotNetCoreCLI@2  
+  displayName: Install NBGV tool
+  condition: succeeded()
+  inputs:
+    command: custom
+    custom: tool
+    arguments: install -g nbgv
+
+- task: DotNetCoreCLI@2
+  displayName: Restore NuGet packages
+  condition: succeeded()
+  inputs:
+    command: restore
+    verbosityRestore: minimal
+    projects: Tools.BuildTasks/Tools.BuildTasks.csproj
+    feedsToUse: config
+    nugetConfigPath: NuGet.Config
+
+- script: dotnet build Tools.BuildTasks.csproj -c 'Release' -p:Configuration=Release -p:Platform="Any CPU" -p:PublicRelease=true --no-restore /t:build,pack
+  displayName: Build NuGet package
+  condition: succeeded()
+  workingDirectory: '$(System.DefaultWorkingDirectory)/Tools.BuildTasks'
+
+- task: CopyFiles@1
+  condition: succeeded()
+  displayName: Collecting deployable artifacts
+  inputs:
+    sourceFolder: $(Agent.BuildDirectory)
+    Contents: |
+      **\nanoFramework.Tools.BuildTasks*.nupkg
+    TargetFolder: '$(Build.ArtifactStagingDirectory)'
+    flattenFolders: true
+
+- task: DotNetCoreCLI@2
+  displayName: Install SignTool tool
+  condition: succeeded()
+  inputs:
+    command: custom
+    custom: tool
+    arguments: install --tool-path . SignClient
+
+- pwsh: |
+    .\SignClient "Sign" `
+    --baseDirectory "$(Build.ArtifactStagingDirectory)" `
+    --input "**/*.nupkg" `
+    --config "$(Build.Repository.LocalPath)\config\SignClient.json" `
+    --filelist "$(Build.Repository.LocalPath)\config\filelist.txt" `
+    --user "$(SignClientUser)" `
+    --secret '$(SignClientSecret)' `
+    --name ".NET nanoFramework Tools.BuildTasks" `
+    --description ".NET nanoFramework Tools.BuildTasks" `
+    --descriptionUrl "https://github.com/$env:Build_Repository_Name"
+  displayName: Sign packages
+  continueOnError: true
+  condition: succeeded()
+
+# publish artifacts
+- task: PublishBuildArtifacts@1
+  condition: succeeded()
+  displayName: Publish deployables artifacts
+  inputs:
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+    ArtifactName: deployables
+    ArtifactType: Container
+
+# push NuGet packages to NuGet
+- task: NuGetCommand@2
+  displayName: Push NuGet packages to NuGet
+  condition: >-
+    and(
+      succeeded(),
+      eq(variables['System.PullRequest.PullRequestId'], ''),
+      not(startsWith(variables['Build.SourceBranch'], 'refs/tags/v'))
+    )
+  continueOnError: true
+  inputs:
+    command: push
+    nuGetFeedType: external
+    packagesToPush: '$(Build.ArtifactStagingDirectory)/*.nupkg'
+    allowPackageConflicts: true
+    includeSymbols: true
+    publishFeedCredentials: 'NuGet-$(System.TeamProject)'

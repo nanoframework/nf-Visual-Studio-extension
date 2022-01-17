@@ -487,7 +487,7 @@ namespace nanoFramework.Tools
                 ArrayList retVal = new ArrayList();
 
 #if !EVERETT_BUILD
-                using (ResXResourceReader resxReader = new ResXResourceReader(filename))
+                using (System.Resources.NetStandard.ResXResourceReader resxReader = new System.Resources.NetStandard.ResXResourceReader(filename))
                 {
                     // Tell the reader to return ResXDataNode's instead of the object type
                     // the resource becomes at runtime so we can figure out which files
@@ -508,9 +508,9 @@ namespace nanoFramework.Tools
 
                     foreach (DictionaryEntry dictEntry in resxReader)
                     {
-                        if (dictEntry.Value is ResXDataNode)
+                        if (dictEntry.Value is System.Resources.NetStandard.ResXDataNode)
                         {
-                            ResXFileRef resxFileRef = ((ResXDataNode)dictEntry.Value).FileRef;
+                            System.Resources.NetStandard.ResXFileRef resxFileRef = ((System.Resources.NetStandard.ResXDataNode)dictEntry.Value).FileRef;
                             if (resxFileRef != null)
                                 retVal.Add(resxFileRef.FileName);
                         }
@@ -695,11 +695,11 @@ namespace nanoFramework.Tools
 
                     ProcessResourceFiles process = null;
 
+                    // TODO
+#if NET472
                     try
                     {
-                        appDomain = AppDomain.CreateDomain
-                        (
-                            "generateResourceAppDomain",
+                        appDomain = AppDomain.CreateDomain("generateResourceAppDomain",
                             null,
                             AppDomain.CurrentDomain.SetupInformation
                         );
@@ -732,6 +732,7 @@ namespace nanoFramework.Tools
                             AppDomain.Unload(appDomain);
                         }
                     }
+#endif
                 }
 
                 // And now we serialize the cache to save our resgen linked file resolution for later use.
