@@ -10,7 +10,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension
     using nanoFramework.Tools.Debugger;
     using nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel;
     using System;
-    using System.Threading;
     using System.Windows.Controls;
 
     /// <summary>
@@ -104,7 +103,11 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     // need to disable the event handler otherwise it will mess the selection
                     deviceTreeView.SelectedItemChanged -= DevicesTreeView_SelectedItemChanged;
 
-                    deviceItem.IsSelected = true;
+
+                    if (deviceItem != null)
+                    {
+                        deviceItem.IsSelected = true;
+                    }
 
                     // enabled it back
                     deviceTreeView.SelectedItemChanged += DevicesTreeView_SelectedItemChanged;
