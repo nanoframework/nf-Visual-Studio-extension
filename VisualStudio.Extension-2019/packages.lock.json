@@ -323,16 +323,6 @@
           "System.ValueTuple": "4.5.0"
         }
       },
-      "nanoFramework.Tools.MetadataProcessor.Core": {
-        "type": "Direct",
-        "requested": "[2.31.3, )",
-        "resolved": "2.31.3",
-        "contentHash": "sOzVxNepnIXCGCSJs3YzE0OS3R3+L/vbEW2YK86/GEn4vqE+0bNyfJX+Onpu2k6P4/mV7D86iemB2Qrp1uszNg==",
-        "dependencies": {
-          "Mono.Cecil": "0.11.3",
-          "mustache-sharp": "1.0.0"
-        }
-      },
       "nanoFramework.Tools.MetadataProcessor.MsBuildTask": {
         "type": "Direct",
         "requested": "[3.0.6, )",
@@ -1948,16 +1938,6 @@
         "type": "Transitive",
         "resolved": "12.0.0",
         "contentHash": "HeuaZh8+wNVdwx7VF8guFGH2Z2zH+FYxWBsRNp+FjjlmrhCfM7GUQV5azaTv/bN5TPaK8ALJoP9UX5o1FB5k1A=="
-      },
-      "Mono.Cecil": {
-        "type": "Transitive",
-        "resolved": "0.11.3",
-        "contentHash": "DNYE+io5XfEE8+E+5padThTPHJARJHbz1mhbhMPNrrWGKVKKqj/KEeLvbawAmbIcT73NuxLV7itHZaYCZcVWGg=="
-      },
-      "mustache-sharp": {
-        "type": "Transitive",
-        "resolved": "1.0.0",
-        "contentHash": "+RTxWGLH5p0ibl7XDbb8pOznAdqwxH3zic40eL1gq5xl8jZt3CFc04KSLLFWM3PgvlTzfbzDJfjzF7rCglqGAA=="
       },
       "Nerdbank.Streams": {
         "type": "Transitive",
