@@ -341,6 +341,7 @@
     <ResolveReferencesDependsOn>$(ResolveReferencesDependsOn);ResolveRuntimeDependencies;</ResolveReferencesDependsOn>
     <BuildingProject Condition=" '$(BuildingProject)'=='' " >false</BuildingProject>
     <BuildSilently Condition=" '$(BuildSilently)'=='' " >!$(BuildingProject)</BuildSilently>
+    <NFMDP_GENERATE_STUBS>true</NFMDP_GENERATE_STUBS>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(NF_IsCoreLibrary)' == 'True'" >
@@ -469,7 +470,7 @@
         GenerateDependency="$(NFMDP_STUB_GenerateDependency)"
         CreateDatabase="@(NFMDP_STUB_CreateDatabase)"
         CreateDatabaseFile="$(NFMDP_STUB_CreateDatabaseFile)"
-        LoadHints="@(NFMDP_PE_LoadHints)"
+        LoadHints="@(ReferencePath);@(ReferenceDependencyPaths);@(ReferenceSatellitePaths)"
         IgnoreAssembly="@(NFMDP_STUB_IgnoreAssembly)"
         ExcludeClassByName="@(NFMDP_PE_ExcludeClassByName)"
         Condition="'$(NFMDP_GENERATE_STUBS)' == 'true'">
@@ -542,7 +543,7 @@
         CreateDatabase="@(NFMDP_DAT_CreateDatabase)"
         CreateDatabaseFile="$(NFMDP_DAT_CreateDatabaseFile)"
         Resolve="$(NFMDP_DAT_Resolve)"
-        LoadHints="@(NFMDP_DAT_LoadHints)"
+        LoadHints="@(ReferencePath);@(ReferenceDependencyPaths);@(ReferenceSatellitePaths)"
         IgnoreAssembly="@(NFMDP_DAT_IgnoreAssembly)"
         Load="@(NFMDP_DAT_Load)"
         LoadDatabase="@(NFMDP_DAT_LoadDatabase)"
