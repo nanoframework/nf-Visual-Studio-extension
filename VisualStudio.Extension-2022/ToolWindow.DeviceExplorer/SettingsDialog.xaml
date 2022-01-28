@@ -92,7 +92,7 @@
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
 
-                        <Label Grid.Row="0" HorizontalAlignment="Left" Content="COM port black list:" ToolTip="Semicolon separated list of COM ports to exclude when searching for nanoDevices." Margin="-7,0,0,0" />
+                        <Label Grid.Row="0" HorizontalAlignment="Left" Content="COM port exclusion list:" ToolTip="Semicolon separated list of COM ports to exclude when searching for nanoDevices." Margin="-7,0,0,0" />
                         <TextBox x:Name="PortBlackList" Grid.Row="1" Margin="0,0,0,0" HorizontalAlignment="Stretch" LostFocus="PortBlackList_LostFocus" />
 
                     </Grid>
