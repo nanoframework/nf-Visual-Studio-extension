@@ -4,7 +4,7 @@
 
 -----
 
-### Welcome to the .NET **nanoFramework** Visual Studio extension repository!
+# Welcome to the .NET **nanoFramework** Visual Studio extension repository!
 
 This repo contains .NET **nanoFramework** Visual Studio extension and associated tools.
 
@@ -28,6 +28,14 @@ Join our Discord community [here](https://discord.gg/gCyBu8T).
 
 In case you want to be in the bleeding edge of technology and use the new stuff (or interested in trying out preview versions and provide valuable feedback) you can do that by adding the Open VSIX Gallery feed to your Visual Studio configuration. Please follow the instructions [here](http://vsixgallery.com/guide/feed/) on how to add the feed to your Visual Studio instance.
 This is the feed URL: `http://vsixgallery.com/feed/author/nanoframework/`.
+
+This is the experience you'll have when installing the extension:
+
+![Installing](./docs/images/getting-started-extension-installation.gif)
+
+And when creating your first project:
+
+![Installing](./docs/images/getting-started-first-project.gif)
 
 ## Developing for the Visual Studio extension
 
