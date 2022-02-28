@@ -384,21 +384,22 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     // only query device if it's different 
                     if (descriptionBackup.GetHashCode() != ViewModelLocator.DeviceExplorer.LastDeviceConnectedHash)
                     {
-                        // keep device description hash code to avoid get info twice
-                        ViewModelLocator.DeviceExplorer.LastDeviceConnectedHash = descriptionBackup.GetHashCode();
-
                         // check if debugger engine exists
                         if (NanoDeviceCommService.Device.DebugEngine == null)
                         {
                             NanoDeviceCommService.Device.CreateDebugEngine();
                         }
 
-
                         // connect to the device
                         if (NanoDeviceCommService.Device.DebugEngine.Connect(
                             false,
                             true))
                         {
+                            // keep device description hash code to avoid get info twice
+                            ViewModelLocator.DeviceExplorer.LastDeviceConnectedHash = descriptionBackup.GetHashCode();
+                            // also store connection source
+                            ViewModelLocator.DeviceExplorer.LastDeviceConnectionSource = NanoDeviceCommService.Device.DebugEngine.ConnectionSource;
+
                             // check that we are in CLR
                             if (NanoDeviceCommService.Device.DebugEngine.IsConnectedTonanoCLR)
                             {
@@ -490,8 +491,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                             return;
                         }
                     }
+                    else
+                    {
 
-                    if (NanoDeviceCommService.Device.DebugEngine.IsConnectedTonanoCLR)
+                    }
+
+                    if (ViewModelLocator.DeviceExplorer.LastDeviceConnectionSource == ConnectionSource.nanoCLR)
                     {
                         // CLR, output full details
                         MessageCentre.OutputMessage(string.Empty);
@@ -513,7 +518,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         MessageCentre.OutputMessage(ViewModelLocator.DeviceExplorer.DeviceDeploymentMap.ToString());
                         MessageCentre.OutputMessage(string.Empty);
                     }
-                    else
+                    else if (ViewModelLocator.DeviceExplorer.LastDeviceConnectionSource == ConnectionSource.nanoBooter)
                     {
                         // booter, can only output minimal details
 
@@ -521,6 +526,10 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         MessageCentre.OutputMessage(string.Empty);
                         MessageCentre.OutputMessage("Target Information");
                         MessageCentre.OutputMessage(ViewModelLocator.DeviceExplorer.TargetInfo.ToString());
+                    }
+                    else
+                    {
+                        // shouldn't get here...
                     }
                 }
                 catch
