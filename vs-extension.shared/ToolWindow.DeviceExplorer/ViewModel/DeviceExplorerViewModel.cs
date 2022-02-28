@@ -42,6 +42,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
 
         // for serial devices we wait 10 seconds for the device to be available again
         private const int SerialDeviceReconnectMaximumAttempts = 4 * 10;
+        private ConnectionSource _lastDeviceConnectionSource;
 
         // keep this here otherwise Fody won't be able to properly implement INotifyPropertyChanging
 #pragma warning disable 67
@@ -304,6 +305,29 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
         /// used to prevent repeated retrieval of device capabilities after connection
         /// </summary>
         public int LastDeviceConnectedHash { get; set; }
+
+        /// <summary>
+        /// used to store connection information about a previously connect device
+        /// </summary>
+        public ConnectionSource LastDeviceConnectionSource 
+        { 
+            get
+            {
+                if (LastDeviceConnectedHash != 0)
+                {
+                    return _lastDeviceConnectionSource;
+                }
+                else
+                {
+                    return ConnectionSource.Unknown;
+                }
+            }
+
+            set
+            {
+                _lastDeviceConnectionSource = value;
+            }
+        }
 
         #endregion
 
