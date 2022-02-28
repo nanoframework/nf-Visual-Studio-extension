@@ -16,7 +16,7 @@ pr:
   autoCancel: true
 
 pool:
-  vmImage: 'windows-2019'
+  vmImage: 'windows-latest'
 
 variables:
   DOTNET_NOLOGO: true
@@ -37,14 +37,6 @@ steps:
   inputs:
     packageType: sdk
     version: 6.x
-
-- task: DotNetCoreCLI@2  
-  displayName: Install NBGV tool
-  condition: succeeded()
-  inputs:
-    command: custom
-    custom: tool
-    arguments: install -g nbgv
 
 - task: DotNetCoreCLI@2
   displayName: Restore NuGet packages

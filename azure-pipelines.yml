@@ -136,7 +136,7 @@ jobs:
   - Get_Build_Options
 
   pool:
-    vmImage: 'windows-2019'
+    vmImage: 'windows-latest'
 
   variables:
     DOTNET_NOLOGO: true
@@ -153,14 +153,6 @@ jobs:
       git config --global user.email 'nanoframework@outlook.com'
       git config --global user.name 'nfbot'
     displayName: Setup git identity
-
-  - task: DotNetCoreCLI@2  
-    displayName: Install NBGV tool
-    condition: succeeded()
-    inputs:
-      command: custom
-      custom: tool
-      arguments: install -g nbgv
     
   - template: azure-pipelines-templates/install-nuget.yml@templates
 
@@ -330,7 +322,7 @@ jobs:
   - Get_Build_Options
 
   pool:
-    vmImage: 'windows-2022'
+    vmImage: 'windows-latest'
 
   variables:
     DOTNET_NOLOGO: true
@@ -347,14 +339,6 @@ jobs:
       git config --global user.email 'nanoframework@outlook.com'
       git config --global user.name 'nfbot'
     displayName: Setup git identity
-
-  - task: DotNetCoreCLI@2  
-    displayName: Install NBGV tool
-    condition: succeeded()
-    inputs:
-      command: custom
-      custom: tool
-      arguments: install -g nbgv
 
   - template: azure-pipelines-templates/install-nuget.yml@templates
 
@@ -732,7 +716,7 @@ jobs:
     )
 
   pool:
-    vmImage: 'windows-2019'
+    vmImage: 'windows-latest'
 
   steps:
 
