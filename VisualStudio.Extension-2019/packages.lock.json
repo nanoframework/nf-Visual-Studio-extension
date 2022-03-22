@@ -311,11 +311,11 @@
       },
       "nanoFramework.Tools.Debugger.Net": {
         "type": "Direct",
-        "requested": "[2.2.1-preview.2, )",
-        "resolved": "2.2.1-preview.2",
-        "contentHash": "Xh1H+tpPpBm01ILNsylNRO9NrMZl2676dfcB32oc7dW9s1oO9ChgtLRGKpLckBlmUaPrGXMVZ4WNfhYhXxUEHQ==",
+        "requested": "[2.2.1-preview.10, )",
+        "resolved": "2.2.1-preview.10",
+        "contentHash": "x6PqZje50ZcxLOr1reUbDmeHCyQJLDaAPLITpgnPhu6iJgJIUkNTJAWPINwpeeJmcFgxhW+mILTIO8jBajAZ0w==",
         "dependencies": {
-          "Polly": "7.2.2",
+          "Polly": "7.2.3",
           "Polly.Contrib.WaitAndRetry": "1.1.1",
           "PropertyChanged.Fody": "2.6.1",
           "System.IO.Ports": "6.0.0",
@@ -1954,8 +1954,8 @@
       },
       "Polly": {
         "type": "Transitive",
-        "resolved": "7.2.2",
-        "contentHash": "E6CeKyS513j7taKAq4q2MESDBvzuzWnR1rQ2Y2zqJvpiVtKMm699Aubb20MUPBDmb0Ov8PmcLHTCVFdCjoy2kA=="
+        "resolved": "7.2.3",
+        "contentHash": "DeCY0OFbNdNxsjntr1gTXHJ5pKUwYzp04Er2LLeN3g6pWhffsGuKVfMBLe1lw7x76HrPkLxKEFxBlpRxS2nDEQ=="
       },
       "Polly.Contrib.WaitAndRetry": {
         "type": "Transitive",
