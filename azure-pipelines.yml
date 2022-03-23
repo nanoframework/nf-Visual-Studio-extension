@@ -725,7 +725,7 @@ jobs:
 
   # step from template @ nf-tools repo
   # report error
-  - template: azure-pipelines-templates/discord-webhook-task.yml@templates  
+  - template: azure-pipelines-templates/discord-webhook.yml@templates  
     parameters:
       status: 'failure'
       webhookUrl: '$(DiscordWebhook)'
