@@ -117,7 +117,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             var networkConfigurationToSave = DeviceExplorerViewModel.DeviceNetworkConfiguration;
 
             // IPv4 address options
-            if(IPv4Automatic.IsChecked.GetValueOrDefault())
+            if (IPv4Automatic.IsChecked.GetValueOrDefault())
             {
                 // IPv4 from DHCP
                 networkConfigurationToSave.StartupAddressMode = AddressMode.DHCP;
@@ -139,7 +139,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             }
 
             // IPv4 DNS options
-            if(IPv4DnsAutomatic.IsChecked.GetValueOrDefault())
+            if (IPv4DnsAutomatic.IsChecked.GetValueOrDefault())
             {
                 // IPv4 DNS is automatic and provided by DHCP server
                 networkConfigurationToSave.AutomaticDNS = true;
@@ -190,61 +190,65 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             }
 
             // save network configuration to target
-            if (DeviceExplorerViewModel.SelectedDevice.DebugEngine.UpdateDeviceConfiguration(networkConfigurationToSave, 0))
+            var updateResult = DeviceExplorerViewModel.SelectedDevice.DebugEngine.UpdateDeviceConfiguration(networkConfigurationToSave, 0);
+
+            if (updateResult == Engine.UpdateDeviceResult.Sucess)
             {
                 if (DeviceExplorerViewModel.DeviceNetworkConfiguration.InterfaceType == NetworkInterfaceType.Wireless80211)
                 {
                     // save Wi-Fi profile to target
-                    if (DeviceExplorerViewModel.SelectedDevice.DebugEngine.UpdateDeviceConfiguration(DeviceExplorerViewModel.DeviceWireless80211Configuration, 0))
+                    updateResult = DeviceExplorerViewModel.SelectedDevice.DebugEngine.UpdateDeviceConfiguration(DeviceExplorerViewModel.DeviceWireless80211Configuration, 0);
+                }
+            }
+
+            if (updateResult != Engine.UpdateDeviceResult.Sucess)
+            {
+                // update failed
+                MessageCentre.OutputMessage($"Error updating {DeviceExplorerViewModel.SelectedDevice.Description} network configuration. Error: {updateResult}.");
+                MessageCentre.StopProgressMessage();
+
+                return;
+            }
+            else
+            {
+                // update of network config successful
+                MessageCentre.OutputMessage($"{DeviceExplorerViewModel.SelectedDevice.Description} network configuration updated.");
+
+                // is there a CA certificate bundle to upload?
+                if (DeviceExplorerViewModel.CaCertificateBundle != null)
+                {
+                    MessageCentre.StartProgressMessage($"Uploading Root CA file to {(DataContext as DeviceExplorerViewModel).SelectedDevice.Description}...");
+
+                    // save Root CA file to target
+                    // at position 0
+                    updateResult = DeviceExplorerViewModel.SelectedDevice.DebugEngine.UpdateDeviceConfiguration(DeviceExplorerViewModel.CaCertificateBundle, 0);
+
+                    if (updateResult != Engine.UpdateDeviceResult.Sucess)
                     {
-                        MessageCentre.OutputMessage($"{DeviceExplorerViewModel.SelectedDevice.Description} network configuration updated.");
-                    }
-                    else
-                    {
-                        MessageCentre.OutputMessage($"Error updating {DeviceExplorerViewModel.SelectedDevice.Description} network configuration.");
+                        MessageCentre.OutputMessage($"Error uploading Root CA file to {(DataContext as DeviceExplorerViewModel).SelectedDevice.Description}. Error: {updateResult}");
                         MessageCentre.StopProgressMessage();
 
                         return;
                     }
                 }
-            }
-            else
-            {
-                MessageCentre.OutputMessage($"Error updating {DeviceExplorerViewModel.SelectedDevice.Description} network configuration.");
-                MessageCentre.StopProgressMessage();
 
-                return;
-            }
-
-            // is there a CA certificate bundle to upload?
-            if(DeviceExplorerViewModel.CaCertificateBundle != null)
-            {
-                MessageCentre.StartProgressMessage($"Uploading Root CA file to {(DataContext as DeviceExplorerViewModel).SelectedDevice.Description}...");
-
-                // save Root CA file to target
-                // at position 0
-                if (!DeviceExplorerViewModel.SelectedDevice.DebugEngine.UpdateDeviceConfiguration(DeviceExplorerViewModel.CaCertificateBundle, 0))
+                // is there a device certificate to upload?
+                if (DeviceExplorerViewModel.DeviceCertificate != null)
                 {
-                    MessageCentre.OutputMessage($"Error uploading Root CA file to {(DataContext as DeviceExplorerViewModel).SelectedDevice.Description}.");
-                    MessageCentre.StopProgressMessage();
+                    MessageCentre.StartProgressMessage($"Uploading device certificate file to {(DataContext as DeviceExplorerViewModel).SelectedDevice.Description}...");
 
-                    return;
-                }
-            }
+                    // save device certificate file to target
+                    // at position 0
 
-            // is there a device certificate to upload?
-            if (DeviceExplorerViewModel.DeviceCertificate != null)
-            {
-                MessageCentre.StartProgressMessage($"Uploading device certificate file to {(DataContext as DeviceExplorerViewModel).SelectedDevice.Description}...");
+                    updateResult = DeviceExplorerViewModel.SelectedDevice.DebugEngine.UpdateDeviceConfiguration(DeviceExplorerViewModel.DeviceCertificate, 0);
 
-                // save device certificate file to target
-                // at position 0
-                if (!DeviceExplorerViewModel.SelectedDevice.DebugEngine.UpdateDeviceConfiguration(DeviceExplorerViewModel.DeviceCertificate, 0))
-                {
-                    MessageCentre.OutputMessage($"Error uploading device certificate file to {(DataContext as DeviceExplorerViewModel).SelectedDevice.Description}.");
-                    MessageCentre.StopProgressMessage();
+                    if (updateResult != Engine.UpdateDeviceResult.Sucess)
+                    {
+                        MessageCentre.OutputMessage($"Error uploading device certificate file to {(DataContext as DeviceExplorerViewModel).SelectedDevice.Description}. Error: {updateResult}");
+                        MessageCentre.StopProgressMessage();
 
-                    return;
+                        return;
+                    }
                 }
             }
 
@@ -288,7 +292,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     // store CA certificate
                     DeviceExplorerViewModel.CaCertificateBundle = rootCaFile;
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     MessageCentre.OutputMessage($"Error reading Root CA file: {ex.Message}");
 
@@ -344,7 +348,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     // store device certificate
                     DeviceExplorerViewModel.DeviceCertificate = deviceCertificateFile;
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     MessageCentre.OutputMessage($"Error reading device certificate file: {ex.Message}");
 
@@ -356,7 +360,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 // any other outcome from folder browser dialog doesn't require processing
             }
         }
-        
+
         private void ClearDeviceCertificate_Click(object sender, System.Windows.RoutedEventArgs e)
         {
             // store empty device certificate
