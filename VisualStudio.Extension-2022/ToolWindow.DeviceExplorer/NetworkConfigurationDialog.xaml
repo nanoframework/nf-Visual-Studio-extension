@@ -123,7 +123,7 @@
                     <!--MAC address-->
                     <Label Grid.Row="0" Grid.Column="0" HorizontalAlignment="Left" Content="MAC address:" Margin="-6,0,0,0" />
                     <xctk:MaskedTextBox Grid.Row="0" Grid.Column="1" HorizontalAlignment="Left" Height="23" Mask="AA\:AA\:AA\:AA\:AA\:AA" VerticalAlignment="Center" VerticalContentAlignment="Center" Width="120" Margin="0,3,0,0" x:Name="MACAddress"
-                                         Text="{Binding DeviceNetworkConfiguration.MacAddress, Converter={StaticResource MacAddressConverter}, ValidatesOnNotifyDataErrors=False}"/>
+                                         Text="{Binding DeviceNetworkConfiguration.MacAddress, Converter={StaticResource MacAddressConverter}, ValidatesOnNotifyDataErrors=False}" IsEnabled="{Binding CanChangeMacAddress}"/>
 
                     <!--Interface type-->
                     <Label Grid.Row="1" Grid.Column="0" HorizontalAlignment="Left" Content="Interface type:" Margin="-6,6,0,0" />

@@ -340,6 +340,30 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
         public DeviceConfiguration.X509CaRootBundleProperties CaCertificateBundle { get; set; }
         public DeviceConfiguration.X509DeviceCertificatesProperties DeviceCertificate { get; internal set; }
 
+        public bool CanChangeMacAddress
+        {
+
+            get
+            {
+                if (SelectedDevice is null)
+                {
+                    return false;
+                }
+                else
+                {
+                    if (SelectedDevice.DebugEngine != null &&
+                        !SelectedDevice.DebugEngine.Capabilities.IsUnknown)
+                    {
+                        return SelectedDevice.DebugEngine.Capabilities.CanChangeMacAddress;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+            }
+        }
+
         #endregion
 
         #region messaging tokens
