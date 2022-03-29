@@ -6,7 +6,7 @@ trigger:
     - release-*
   paths:
     include:
-    - Tools.BuildTasks
+    - Tools.BuildTasks-2019
   tags:
     include:
     - refs/tags/v*
@@ -44,14 +44,14 @@ steps:
   inputs:
     command: restore
     verbosityRestore: minimal
-    projects: Tools.BuildTasks/Tools.BuildTasks.csproj
+    projects: Tools.BuildTasks-2019/Tools.BuildTasks-2019.csproj
     feedsToUse: config
     nugetConfigPath: NuGet.Config
 
-- script: dotnet build Tools.BuildTasks.csproj -c 'Release' -p:Configuration=Release -p:Platform="Any CPU" -p:PublicRelease=true --no-restore /t:build,pack
+- script: dotnet build Tools.BuildTasks-2019.csproj -c 'Release' -p:Configuration=Release -p:Platform="Any CPU" -p:PublicRelease=true --no-restore /t:build,pack
   displayName: Build NuGet package
   condition: succeeded()
-  workingDirectory: '$(System.DefaultWorkingDirectory)/Tools.BuildTasks'
+  workingDirectory: '$(System.DefaultWorkingDirectory)/Tools.BuildTasks-2019'
 
 - task: CopyFiles@1
   condition: succeeded()
