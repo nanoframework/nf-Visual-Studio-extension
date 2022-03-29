@@ -39,6 +39,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 #elif DEV16
         public static readonly Guid CommandSet = new Guid("c975c4ec-f229-45dd-b681-e42815641675");
 #else
+    #error "Missing dev version constant. Maybe the platform is not correctly set? (x64 for VS2022 and AnyCPU for VS2019)."
 #endif
 
         private ViewModelLocator ViewModelLocator;
@@ -57,6 +58,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 #elif DEV16
         public const string guidDeviceExplorerCmdSet = "DF641D51-1E8C-48E4-B549-CC6BCA9BDE19";
 #else
+    #error "Missing dev version constant. Maybe the platform is not correctly set? (x64 for VS2022 and AnyCPU for VS2019)."
 #endif
 
         public const int DeviceExplorerToolbarID = 0x1000;

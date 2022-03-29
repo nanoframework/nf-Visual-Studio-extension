@@ -158,7 +158,7 @@ jobs:
 
   - task: NuGetCommand@2
     inputs:
-      restoreSolution: '$(solution)'
+      restoreSolution: 'nanoFramework.Tools.VisualStudio.sln'
       feedsToUse: config
       nugetConfigPath: NuGet.config
       verbosityRestore: quiet
@@ -344,7 +344,7 @@ jobs:
 
   - task: NuGetCommand@2
     inputs:
-      restoreSolution: '$(solution)'
+      restoreSolution: 'nanoFramework.Tools.VisualStudio.sln'
       feedsToUse: config
       nugetConfigPath: NuGet.config
       verbosityRestore: quiet
