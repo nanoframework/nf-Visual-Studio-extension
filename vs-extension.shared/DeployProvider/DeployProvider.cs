@@ -82,7 +82,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         {
             List<byte[]> assemblies = new List<byte[]>();
             string targetFlashDumpFileName = "";
-            int retryCount = 0;
 
             await Task.Yield();
 
@@ -104,7 +103,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             {
                 // This is not an executable project, it must be a referenced assembly
 
-                MessageCentre.InternalErrorWriteLine($"Skipping deploy for project '{projectResult.FullPath}' because it is not an executable project.");
+                MessageCentre.InternalErrorWriteLine($"Skipping deploy of project '{projectResult.FullPath}' because it is not an executable project.");
 
                 return;
             }
@@ -123,13 +122,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             NanoDeviceBase device = NanoDeviceCommService.Device;
 
             // user feedback
-            await outputPaneWriter.WriteLineAsync($"Getting things ready to deploy assemblies to nanoFramework device: {device.Description}.");
+            await outputPaneWriter.WriteLineAsync($"Getting things ready to deploy assemblies to .NET nanoFramework device: {device.Description}.");
 
             bool needsToCloseMessageOutput = false;
-
-            // device needs to be in 'initialized state' for a successful and correct deployment 
-            // meaning that is not running nor stopped
-            bool deviceIsInInitializeState = false;
 
             try
             {
@@ -146,7 +141,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 var logProgressIndicator = new Progress<string>(MessageCentre.InternalErrorWriteLine);
                 var progressIndicator = new Progress<MessageWithProgress>((m) => MessageCentre.StartMessageWithProgress(m));
 
-                MessageCentre.InternalErrorWrite("Connecting to debug engine...");
+                MessageCentre.InternalErrorWrite("Connecting to debugger engine...");
                 needsToCloseMessageOutput = true;
 
                 // connect to the device
@@ -231,7 +226,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         var decompiler = new CSharpDecompiler(assemblyPath, decompilerSettings);
                         var assemblyProperties = decompiler.DecompileModuleAndAssemblyAttributesToString();
 
-                        // read attributes using a Regex
+                        // read attributes using a RegEx
 
                         // AssemblyVersion
                         string pattern = @"(?<=AssemblyVersion\("")(.*)(?=\""\)])";
@@ -252,7 +247,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         assemblyList.Add(new DeploymentAssembly(assemblyPath, assemblyVersion, nativeVersion));
                     }
 
-                    // if there are referenced project, the assembly list contains repeated assemblies so need to use Linq Distinct()
+                    // if there are referenced projects, the assembly list contains repeated assemblies so need to use Linq Distinct()
                     // an IEqualityComparer is required implementing the proper comparison
                     List<DeploymentAssembly> distinctAssemblyList = assemblyList.Distinct(new DeploymentAssemblyDistinctEquality()).ToList();
 
@@ -333,7 +328,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                             // !! need to use the deployment blob copy
                             assemblyCopy = new List<byte[]>(assemblies);
 
-                            // can't skip erase as we just did that
+                            // can't skip erase
                             // no need to reboot device
                             if (!device.DebugEngine.DeploymentExecute(
                                 assemblyCopy,
@@ -362,7 +357,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     }
 
                     // deployment successful
-                    await outputPaneWriter.WriteLineAsync("Deployment successful.");
+                    await outputPaneWriter.WriteLineAsync("Deployment successful!");
 
                     // reset the hash for the connected device so the deployment information can be refreshed
                     _viewModelLocator.DeviceExplorer.LastDeviceConnectedHash = 0;
@@ -403,11 +398,15 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             }
         }
 
-        private async System.Threading.Tasks.Task<string> CheckNativeAssembliesAvailabilityAsync(List<CLRCapabilities.NativeAssemblyProperties> nativeAssemblies, List<DeploymentAssembly> peCollection)
+        private async System.Threading.Tasks.Task<string> CheckNativeAssembliesAvailabilityAsync(
+            List<CLRCapabilities.NativeAssemblyProperties> nativeAssemblies,
+            List<DeploymentAssembly> peCollection)
         {
             string errorMessage = string.Empty;
-            string wrongAssemblies = string.Empty;
-            string missingAssemblies = string.Empty;
+            string wrongAssemblies = "The connected target has the wrong version for the following assembly(ies):" + Environment.NewLine + Environment.NewLine;
+            string missingAssemblies = "The connected target does not have support for the following assembly(ies):" + Environment.NewLine + Environment.NewLine;
+            int wrongAssembliesCount = 0;
+            int missingAssembliesCount = 0;
 
             // loop through each PE to deploy...
             foreach (var peItem in peCollection)
@@ -430,34 +429,35 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         continue;
                     }
 
-                    // try to find a native assembly matching the checksum for this PE
-                    if (nativeAssemblies.Exists(a => a.Checksum == nativeMethodsChecksum))
-                    {
-                        nativeAssembly = nativeAssemblies.Find(a => a.Checksum == nativeMethodsChecksum);
+                    // try to find a native assembly...
+                    nativeAssembly = nativeAssemblies.Find(a => a.Name == Path.GetFileNameWithoutExtension(peItem.Path));
 
-                        // now check the native version against the requested version on the PE
-                        if (nativeAssembly.Version.ToString(4) == peItem.NativeVersion)
+                    if (nativeAssembly.Name != null)
+                    {
+                        // matching the checksum and version for this PE
+                        if (nativeAssembly.Checksum == nativeMethodsChecksum
+                            && nativeAssembly.Version.ToString(4) == peItem.NativeVersion)
                         {
                             // we are good with this one
                             continue;
                         }
 
-                        // no suitable native assembly found build a (hopefully) helpful message to the developer
-                        wrongAssemblies += $"Couldn't find a valid native assembly required by {Path.GetFileNameWithoutExtension(peItem.Path)} v{peItem.Version}, checksum 0x{nativeMethodsChecksum:X8}." + Environment.NewLine +
-                                        $"This project is referencing {Path.GetFileNameWithoutExtension(peItem.Path)} NuGet package requiring native v{peItem.NativeVersion}." + Environment.NewLine +
-                                        $"The connected target has v{nativeAssembly.Version.ToString(4)}." + Environment.NewLine;
+                        wrongAssembliesCount++;
 
-                        MessageCentre.InternalErrorWriteLine($"Couldn't find a valid native assembly required by {Path.GetFileNameWithoutExtension(peItem.Path)} v{peItem.Version}, checksum 0x{nativeMethodsChecksum:X8}");
-                        MessageCentre.InternalErrorWriteLine($"The connected target has v{nativeAssembly.Version.ToString(4)}");
+                        // no suitable native assembly found build a (hopefully) helpful message to the developer
+                        wrongAssemblies += $"    '{Path.GetFileNameWithoutExtension(peItem.Path)}' requires native v{peItem.NativeVersion}, checksum 0x{nativeMethodsChecksum:X8}." + Environment.NewLine +
+                                        $"    Connected target has v{nativeAssembly.Version.ToString(4)}, checksum 0x{nativeAssembly.Checksum:X8}." + Environment.NewLine + Environment.NewLine;
+
+                        MessageCentre.InternalErrorWriteLine($"Version mismatch for {Path.GetFileNameWithoutExtension(peItem.Path)}. Need v{peItem.Version}, checksum 0x{nativeMethodsChecksum:X8}.");
+                        MessageCentre.InternalErrorWriteLine($"The connected target has v{nativeAssembly.Version.ToString(4)}, checksum 0x{nativeAssembly.Checksum:X8}.");
                     }
                     else
                     {
-                        // no suitable native assembly found build a (hopefully) helpful message to the developer
-                        missingAssemblies += $"Couldn't find a valid native assembly required by {Path.GetFileNameWithoutExtension(peItem.Path)} v{peItem.Version}, checksum 0x{nativeMethodsChecksum.ToString("X8")}." + Environment.NewLine +
-                                        $"This project is referencing {Path.GetFileNameWithoutExtension(peItem.Path)} NuGet package requiring native v{peItem.NativeVersion}." + Environment.NewLine +
-                                        $"The connected target does not have support for {Path.GetFileNameWithoutExtension(peItem.Path)}." + Environment.NewLine;
+                        missingAssembliesCount++;
 
-                        MessageCentre.InternalErrorWriteLine($"Couldn't find a valid native assembly required by {Path.GetFileNameWithoutExtension(peItem.Path)} v{peItem.Version}, checksum 0x{nativeMethodsChecksum:X8}");
+                        // no suitable native assembly found build a (hopefully) helpful message to the developer
+                        missingAssemblies += $"    '{Path.GetFileNameWithoutExtension(peItem.Path)}'" + Environment.NewLine;
+
                         MessageCentre.InternalErrorWriteLine($"The connected target does not have support for {Path.GetFileNameWithoutExtension(peItem.Path)}.");
                     }
                 }
@@ -467,11 +467,11 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 !string.IsNullOrEmpty(missingAssemblies))
             {
                 // init error message
-                errorMessage = "Deploy failed." + Environment.NewLine +
-                                "***************************************" + Environment.NewLine;
+                errorMessage = "Deploy failed." + Environment.NewLine + Environment.NewLine +
+                                "***************************************************************************" + Environment.NewLine + Environment.NewLine;
             }
 
-            if (!string.IsNullOrEmpty(wrongAssemblies))
+            if (wrongAssembliesCount > 0)
             {
                 errorMessage += wrongAssemblies;
                 errorMessage += $"Please check: " + Environment.NewLine +
@@ -479,23 +479,21 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                                $"  2) if the project is referring the appropriate version of the NuGet package." + Environment.NewLine;
             }
 
-            if (!string.IsNullOrEmpty(missingAssemblies))
+            if (missingAssembliesCount > 0)
             {
-                errorMessage += missingAssemblies;
-                errorMessage += "Please check: " + Environment.NewLine +
+                errorMessage += Environment.NewLine + missingAssemblies;
+                errorMessage += Environment.NewLine + "Please check: " + Environment.NewLine +
                                     "  1) if the target is running the most updated image." + Environment.NewLine +
                                     "  2) if the target image was built to include support for all referenced assemblies." + Environment.NewLine;
             }
-
 
             // close error message, if needed
             if (!string.IsNullOrEmpty(errorMessage))
             {
                 errorMessage += "" + Environment.NewLine;
-                errorMessage += "If the target is running a PREVIEW version the projects have to reference PREVIEW NuGet packages." + Environment.NewLine;
-                errorMessage += "Check the Visual Studio FAQ here: https://docs.nanoframework.net/content/faq/working-with-vs-extension.html" + Environment.NewLine;
+                errorMessage += "Our Visual Studio FAQ has a troubleshooting guide: https://docs.nanoframework.net/content/faq/working-with-vs-extension.html" + Environment.NewLine;
                 errorMessage += "" + Environment.NewLine;
-                errorMessage += "***************************************";
+                errorMessage += "***************************************************************************" + Environment.NewLine;
             }
 
             return errorMessage;
