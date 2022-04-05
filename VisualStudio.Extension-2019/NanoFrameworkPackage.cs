@@ -483,11 +483,10 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         private int LaunchNanoDebug(uint nCmdExecOpt, IntPtr pvaIn, IntPtr pvaOut)
         {
-            int hr;
             string executable = string.Empty;
             string options = string.Empty;
 
-            var dummyWait = LaunchDebugTargetAsync(executable, options);
+            _ = LaunchDebugTargetAsync(executable, options);
 
             return 0;
         }
