@@ -504,12 +504,9 @@ jobs:
   - VS2022
   condition: >-
     and(
-      succeeded('Get_Build_Options'),
-      or(
-        succeeded('VS2019'),
-        succeeded('VS2022')
-      ),
-      eq(variables['System.PullRequest.PullRequestId'], '')
+      startsWith(variables['Build.SourceBranch'], 'refs/tags/v'),
+      succeeded('VS2019'),
+      succeeded('VS2022')
     )
 
   variables:
@@ -541,6 +538,16 @@ jobs:
       versionSpec: '= 3.0' 
       addToPath: true
 
+  # Cache change log cache files
+  - task: Cache@2
+    displayName: Cache change log cache files
+    inputs:
+      key: 'changeLogCacheFiles'
+      restoreKeys: 1_0
+      path: |
+        $(AGENT.TEMPDIRECTORY)/github-changelog-logger.log
+        $(AGENT.TEMPDIRECTORY)/github-changelog-http-cache
+
   # install github_changelog_generator
   - powershell: |
         gem install github_changelog_generator --quiet --no-document
@@ -554,16 +561,7 @@ jobs:
     condition: >-
       and(
         succeeded(),
-        eq(variables['System.PullRequest.PullRequestId'], ''),
-        not(startsWith(variables['Build.SourceBranch'], 'refs/tags/v2019')),
-        or(
-          eq(variables['Build.SourceBranchName'], 'main'),
-          contains(variables['Build.SourceBranchName'], 'release')
-        ),
-        or(
-          eq(variables['GO_BuildVS2019'], true),
-          eq(variables['BUILD_VS2019'], 'true')
-        )
+        startsWith(variables['Build.SourceBranch'], 'refs/tags/v2019')
       )
     displayName: Generate VS2019 change log
 
@@ -574,76 +572,11 @@ jobs:
     condition: >-
       and(
         succeeded(),
-        eq(variables['System.PullRequest.PullRequestId'], ''),
-        not(startsWith(variables['Build.SourceBranch'], 'refs/tags/v2022')),
-        or(
-          eq(variables['Build.SourceBranchName'], 'main'),
-          contains(variables['Build.SourceBranchName'], 'release')
-        ),
-        or(
-          eq(variables['GO_BuildVS202'], true),
-          eq(variables['BUILD_VS2022'], 'true')
-        )
-      )
-    displayName: Generate VS2022 change log
-
-  # generate VS2019 change log including future version
-  - powershell: |
-      # need to call it passing both cache options with full path otherwise it won't work
-      github_changelog_generator --token $(GitHubToken) --cache-log  $env:AGENT_TEMPDIRECTORY\github-changelog-logger.log --cache-file $env:AGENT_TEMPDIRECTORY\github-changelog-http-cache --since-tag v1.1.0.101-VS2019 --future-release v$(MY_VS2019_VERSION) --output CHANGELOG-VS2019.md
-    condition: >-
-      and(
-        succeeded(),
-        eq(variables['System.PullRequest.PullRequestId'], ''),
-        startsWith(variables['Build.SourceBranch'], 'refs/tags/v2019'),
-        not(
-          or(
-            eq(variables['Build.SourceBranchName'], 'main'),
-            contains(variables['Build.SourceBranchName'], 'release')
-          )
-        ),
-        or(
-          eq(variables['GO_BuildVS2019'], true),
-          eq(variables['BUILD_VS2019'], 'true'),
-          startsWith(variables['Build.SourceBranch'], 'refs/tags/v2019')
-        )
-      )
-    displayName: Generate VS2019 change log
-
-  # generate VS2022 change log including future version
-  - powershell: |
-      # need to call it passing both cache options with full path otherwise it won't work
-      github_changelog_generator --token $(GitHubToken) --cache-log  $env:AGENT_TEMPDIRECTORY\github-changelog-logger.log --cache-file $env:AGENT_TEMPDIRECTORY\github-changelog-http-cache --since-tag v2019.8.0.7 --future-release v$(MY_VS2022_VERSION) --output CHANGELOG-VS2022.md
-    condition: >-
-      and(
-        succeeded(),
-        eq(variables['System.PullRequest.PullRequestId'], ''),
-        startsWith(variables['Build.SourceBranch'], 'refs/tags/v2022'),
-        not(
-          or(
-            eq(variables['Build.SourceBranchName'], 'main'),
-            contains(variables['Build.SourceBranchName'], 'release')
-          )
-        ),
-        or(
-          eq(variables['GO_BuildVS202'], true),
-          eq(variables['BUILD_VS2022'], 'true'),
-          startsWith(variables['Build.SourceBranch'], 'refs/tags/v2022')
-        )
+        startsWith(variables['Build.SourceBranch'], 'refs/tags/v2022')
       )
     displayName: Generate VS2022 change log
 
   # copy change logs to artifacts directory
-  - task: CopyFiles@2
-    condition: succeeded()
-    displayName: Copy Changelogs
-    inputs:
-      SourceFolder: '$(System.DefaultWorkingDirectory)'
-      Contents: |
-        'CHANGELOG-VS2019.md'
-        'CHANGELOG-VS2022.md'
-      TargetFolder: '$(Build.ArtifactStagingDirectory)'
-
   - task: CopyFiles@1
     condition: succeeded()
     displayName: Collecting deployable artifacts
@@ -657,7 +590,7 @@ jobs:
 
   # publish artifacts (only possible if this is not a PR originated on a fork)
   - task: PublishBuildArtifacts@1
-    condition: and( succeeded(), ne(variables['system.pullrequest.isfork'], true) )
+    condition: succeeded()
     displayName: Publish deployables artifacts
     inputs:
       PathtoPublish: '$(Build.ArtifactStagingDirectory)'
@@ -676,8 +609,11 @@ jobs:
 
         # check if there is anything to commit
         $anythingToCommit = git status --porcelain
+        
         if($anythingToCommit -ne $null)
         {
+            Write-Host "Committing changelogs"
+
             git commit -m "Update CHANGELOGs" -m"***NO_CI***"
         }
 
@@ -690,8 +626,11 @@ jobs:
       script: |
         # check if there is anything to push
         $anythingToPush = git log --branches --not --remotes
+
         if($anythingToPush -ne $null)
         {
+            Write-Host "Pushing changelogs"
+
             git config user.email 'nanoframework@outlook.com'
             git config user.name 'nfbot'
 
