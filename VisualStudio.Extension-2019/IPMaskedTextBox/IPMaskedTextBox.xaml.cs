@@ -21,6 +21,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
     /// </summary>
     public partial class IPMaskedTextBox : UserControl
     {
+        private static readonly IPAddress EmptyIPAddress = new IPAddress(0x0);
+
         #region class variables and properties
 
         #region public variables and properties
@@ -47,7 +49,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         {
             address = value;
 
-            if (address != IPAddress.None)
+            if (address != EmptyIPAddress)
             {
                 var addressBytes = address.GetAddressBytes();
 
