@@ -176,7 +176,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     var newMACAddressArray = newMACAddress.Split(':');
                     var dummyMacAddress = newMACAddressArray.Select(a => byte.Parse(a, System.Globalization.NumberStyles.HexNumber)).ToArray();
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     // error parsing MAC address field
                     throw new Exception("Invalid MAC address format. Check value.");
