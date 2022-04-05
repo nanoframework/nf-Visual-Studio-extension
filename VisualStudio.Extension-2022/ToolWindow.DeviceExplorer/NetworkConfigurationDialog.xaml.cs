@@ -19,7 +19,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
     /// </summary>
     public partial class NetworkConfigurationDialog : DialogWindow
     {
-        private static IPAddress _InvalidIPv4 = new IPAddress(0x0);
+        private static readonly IPAddress EmptyIPAddress = new IPAddress(0x0);
+        private static readonly IPAddress DefaultMaskIPv4 = new IPAddress(new byte[] { 255, 255, 255, 0 });
+
         private DeviceExplorerViewModel DeviceExplorerViewModel => DataContext as DeviceExplorerViewModel;
 
         public NetworkConfigurationDialog(string helpTopic) : base(helpTopic)
@@ -54,17 +56,17 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             {
                 IPv4Automatic.IsChecked = true;
 
-                IPv4Address.SetAddress(IPAddress.None);
-                IPv4NetMask.SetAddress(IPAddress.None);
-                IPv4GatewayAddress.SetAddress(IPAddress.None);
+                IPv4Address.SetAddress(EmptyIPAddress);
+                IPv4NetMask.SetAddress(DefaultMaskIPv4);
+                IPv4GatewayAddress.SetAddress(EmptyIPAddress);
             }
             else
             {
                 IPv4Manual.IsChecked = true;
 
-                IPv4Address.SetAddress(networkConfiguration.IPv4Address ?? IPAddress.None);
-                IPv4NetMask.SetAddress(networkConfiguration.IPv4NetMask ?? IPAddress.None);
-                IPv4GatewayAddress.SetAddress(networkConfiguration.IPv4GatewayAddress ?? IPAddress.None);
+                IPv4Address.SetAddress(networkConfiguration.IPv4Address ?? EmptyIPAddress);
+                IPv4NetMask.SetAddress(networkConfiguration.IPv4NetMask ?? DefaultMaskIPv4);
+                IPv4GatewayAddress.SetAddress(networkConfiguration.IPv4GatewayAddress ?? EmptyIPAddress);
             }
 
             // DNS is automatic?
@@ -72,15 +74,15 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             {
                 IPv4DnsAutomatic.IsChecked = true;
 
-                IPv4Dns1Address.SetAddress(IPAddress.None);
-                IPv4Dns2Address.SetAddress(IPAddress.None);
+                IPv4Dns1Address.SetAddress(EmptyIPAddress);
+                IPv4Dns2Address.SetAddress(EmptyIPAddress);
             }
             else
             {
                 IPv4DnsManual.IsChecked = true;
 
-                IPv4Dns1Address.SetAddress(networkConfiguration.IPv4DNSAddress1 ?? IPAddress.None);
-                IPv4Dns2Address.SetAddress(networkConfiguration.IPv4DNSAddress2 ?? IPAddress.None);
+                IPv4Dns1Address.SetAddress(networkConfiguration.IPv4DNSAddress1 ?? EmptyIPAddress);
+                IPv4Dns2Address.SetAddress(networkConfiguration.IPv4DNSAddress2 ?? EmptyIPAddress);
             }
 
             // wireless configuration/properties
@@ -123,9 +125,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 networkConfigurationToSave.StartupAddressMode = AddressMode.DHCP;
 
                 // clear remaining options
-                networkConfigurationToSave.IPv4Address = IPAddress.None;
-                networkConfigurationToSave.IPv4NetMask = IPAddress.None;
-                networkConfigurationToSave.IPv4GatewayAddress = IPAddress.None;
+                networkConfigurationToSave.IPv4Address = EmptyIPAddress;
+                networkConfigurationToSave.IPv4NetMask = DefaultMaskIPv4;
+                networkConfigurationToSave.IPv4GatewayAddress = EmptyIPAddress;
             }
             else
             {
@@ -145,8 +147,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 networkConfigurationToSave.AutomaticDNS = true;
 
                 // clear DNS addresses
-                networkConfigurationToSave.IPv4DNSAddress1 = IPAddress.None;
-                networkConfigurationToSave.IPv4DNSAddress2 = IPAddress.None;
+                networkConfigurationToSave.IPv4DNSAddress1 = EmptyIPAddress;
+                networkConfigurationToSave.IPv4DNSAddress2 = EmptyIPAddress;
             }
             else
             {
@@ -159,23 +161,26 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
             // IPv6 options are not being handled for now
             // FIXME
-            networkConfigurationToSave.IPv6Address = IPAddress.None;
-            networkConfigurationToSave.IPv6NetMask = IPAddress.None;
-            networkConfigurationToSave.IPv6GatewayAddress = IPAddress.None;
-            networkConfigurationToSave.IPv6DNSAddress1 = IPAddress.None;
-            networkConfigurationToSave.IPv6DNSAddress2 = IPAddress.None;
+            networkConfigurationToSave.IPv6Address = EmptyIPAddress;
+            networkConfigurationToSave.IPv6NetMask = EmptyIPAddress;
+            networkConfigurationToSave.IPv6GatewayAddress = EmptyIPAddress;
+            networkConfigurationToSave.IPv6DNSAddress1 = EmptyIPAddress;
+            networkConfigurationToSave.IPv6DNSAddress2 = EmptyIPAddress;
 
-            // check MAC address
-            try
+            // process MAC address, if that can be updated
+            if (DeviceExplorerViewModel.CanChangeMacAddress)
             {
-                var newMACAddress = MACAddress.Text;
-                var newMACAddressArray = newMACAddress.Split(':');
-                var dummyMacAddress = newMACAddressArray.Select(a => byte.Parse(a, System.Globalization.NumberStyles.HexNumber)).ToArray();
-            }
-            catch (Exception ex)
-            {
-                // error parsing MAC address field
-                throw new Exception("Invalid MAC address format. Check value.");
+                try
+                {
+                    var newMACAddress = MACAddress.Text;
+                    var newMACAddressArray = newMACAddress.Split(':');
+                    var dummyMacAddress = newMACAddressArray.Select(a => byte.Parse(a, System.Globalization.NumberStyles.HexNumber)).ToArray();
+                }
+                catch (Exception ex)
+                {
+                    // error parsing MAC address field
+                    throw new Exception("Invalid MAC address format. Check value.");
+                }
             }
 
             // Wi-Fi config
