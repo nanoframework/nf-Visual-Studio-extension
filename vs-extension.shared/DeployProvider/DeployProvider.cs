@@ -463,8 +463,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 }
             }
 
-            if (!string.IsNullOrEmpty(wrongAssemblies) ||
-                !string.IsNullOrEmpty(missingAssemblies))
+            if (wrongAssembliesCount > 0 ||
+                missingAssembliesCount > 0)
             {
                 // init error message
                 errorMessage = "Deploy failed." + Environment.NewLine + Environment.NewLine +
