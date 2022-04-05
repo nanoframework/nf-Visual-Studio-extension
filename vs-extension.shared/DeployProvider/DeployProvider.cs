@@ -10,9 +10,6 @@ using Microsoft.VisualStudio.ProjectSystem;
 using Microsoft.VisualStudio.ProjectSystem.Build;
 using Microsoft.VisualStudio.Shell;
 using nanoFramework.Tools.Debugger;
-using nanoFramework.Tools.Debugger.Extensions;
-using nanoFramework.Tools.VisualStudio.Extension.Resources;
-using System.Reflection;
 using nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel;
 using System;
 using System.Collections.Generic;
@@ -20,10 +17,8 @@ using System.ComponentModel.Composition;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
-using System.Windows;
 using Task = System.Threading.Tasks.Task;
 
 namespace nanoFramework.Tools.VisualStudio.Extension
@@ -32,17 +27,28 @@ namespace nanoFramework.Tools.VisualStudio.Extension
     [AppliesTo(NanoCSharpProjectUnconfigured.UniqueCapability)]
     internal class DeployProvider : IDeployProvider
     {
-        // number of retries when performing a deploy operation
-        private const int _numberOfRetries = 5;
-
-        // timeout when performing a deploy operation
-        private const int _timeoutMiliseconds = 1000;
-
         private static ViewModelLocator _viewModelLocator;
 
         private static Package _package;
 
-        private static AssemblyInformationalVersionAttribute _informationalVersionAttribute;
+        private static string _informationalVersionAttributeStore;
+
+        private static string ExtensionInformationalVersion
+        {
+            get
+            {
+                if (_informationalVersionAttributeStore == null)
+                {
+                    // get details about assembly
+                    _informationalVersionAttributeStore = (Attribute.GetCustomAttribute(
+                        Assembly.GetExecutingAssembly(),
+                        typeof(AssemblyInformationalVersionAttribute))
+                        as AssemblyInformationalVersionAttribute).InformationalVersion;
+                }
+
+                return _informationalVersionAttributeStore;
+            }
+        }
 
         /// <summary>
         /// Gets the service provider from the owner package.
@@ -70,12 +76,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         {
             _package = package;
             _viewModelLocator = vmLocator;
-
-            // get details about assembly
-            _informationalVersionAttribute = Attribute.GetCustomAttribute(
-                Assembly.GetExecutingAssembly(),
-                typeof(AssemblyInformationalVersionAttribute))
-                as AssemblyInformationalVersionAttribute;
         }
 
         public async Task DeployAsync(CancellationToken cancellationToken, TextWriter outputPaneWriter)
@@ -86,7 +86,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             await Task.Yield();
 
             // output information about assembly running this to help debugging
-            MessageCentre.InternalErrorWriteLine($"Starting deployment transaction from v{_informationalVersionAttribute.InformationalVersion}");
+            MessageCentre.InternalErrorWriteLine($"Starting deployment transaction from v{ExtensionInformationalVersion}");
 
             //... we need to access the project name using reflection (step by step)
             // get type for ConfiguredProject
