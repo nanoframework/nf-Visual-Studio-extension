@@ -180,6 +180,7 @@
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
     <VSCTCompile Include="NanoFrameworkPackage.vsct">
+      <DependentUpon>MainPackage.tt</DependentUpon>
       <ResourceName>Menus.ctmenu</ResourceName>
       <SubType>Designer</SubType>
     </VSCTCompile>
