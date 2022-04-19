@@ -306,7 +306,7 @@
         "type": "Direct",
         "requested": "[1.12.0, )",
         "resolved": "1.12.0",
-        "contentHash": "qQrFNXmJiStMC4VXk5cVMOJp23/qlT9FW5i9i+igwQVwraQTtvpkam8yK1hj992jqrbjoCIFZP4Hw9E8H0pB7w=="
+        "contentHash": "ls2oi2tgc511yCRrbBOD3KjS9AL4mIWwEs6/g3DuLhGpALhla/g1Dr9qry69M3NwEWEY3rSolxIiwueeqepckQ=="
       },
       "nanoFramework.TestFramework": {
         "type": "Direct",
@@ -316,9 +316,9 @@
       },
       "nanoFramework.Tools.Debugger.Net": {
         "type": "Direct",
-        "requested": "[2.2.1-preview.18, )",
-        "resolved": "2.2.1-preview.18",
-        "contentHash": "bbYCJ3q1X+l5pSH3DLCqgfrV5WtJFnbMCMAUZtRDnU8fKckhm7jv+ZVfwTnCc8v0hy7LRWsHQ50XkLFuzPS/uQ==",
+        "requested": "[2.3.4, )",
+        "resolved": "2.3.4",
+        "contentHash": "M+Iuc1dyzZSs3X2P1Ad5U6OmPOleZ3tl3w2Rvp39VYL9QL7HVHr/tCoT35k+5NRlGnZktVQ7rH0cMZfoLN0Tdw==",
         "dependencies": {
           "Polly": "7.2.3",
           "Polly.Contrib.WaitAndRetry": "1.1.1",
