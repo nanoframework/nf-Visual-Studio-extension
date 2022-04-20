@@ -422,6 +422,8 @@
     </PropertyGroup>
 
     <Message Text="Distilling assemblies to nanoCLR PE files (no stubs)..." Condition="'$(NFMDP_GENERATE_STUBS)' == 'false'" />
+    
+    <!-- Report MDP overriden if that's the case-->
     <Message Importance="high" Text="Metadata processor location overriden with: $(NF_MDP_MSBUILDTASK_PATH)" Condition="'$(NF_MDP_MSBUILDTASK_PATH)' != ''" />
 
     <!-- Compile to PE -->
@@ -569,6 +571,7 @@
     <!--GitHub Actions-->
     <WriteLinesToFile File="$(GITHUB_ENV)" Lines="NF_NATIVE_ASSEMBLY_CHECKSUM=$(NativeChecksum)" Condition="'$(GITHUB_ACTIONS)' == 'True' and '$(NativeChecksum)' != '' and '$(NativeChecksum)' != '0x00000000'" />
     
+    <!-- Report MDP overriden if that's the case-->
     <Message Importance="high" Text="Metadata processor location overriden with: $(NF_MDP_MSBUILDTASK_PATH)" Condition="'$(NF_MDP_MSBUILDTASK_PATH)' != ''" />
 
   </Target>
