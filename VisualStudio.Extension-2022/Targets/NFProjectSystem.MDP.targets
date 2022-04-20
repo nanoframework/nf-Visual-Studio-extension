@@ -246,8 +246,13 @@
 
     <CallTarget Targets="NanoGenerateBinaryOutput"/>
 
-    <!--Output native checksum to Azure Pipelines var (only usefull on Azure)-->
-    <Message Text="##vso[task.setvariable variable=NATIVE_ASSEMBLY_CHECKSUM;]$(NativeChecksum)" Condition="'$(TF_BUILD)' == 'True' and '$(NativeChecksum)' != '' and '$(NativeChecksum)' != '0x00000000'" />
+    <!--Output native checksum to pipeline-->
+    <!--Azure Pipelines-->
+    <Message Text="##vso[task.setvariable variable=NF_NATIVE_ASSEMBLY_CHECKSUM;]$(NativeChecksum)" Condition="'$(TF_BUILD)' == 'True' and '$(NativeChecksum)' != '' and '$(NativeChecksum)' != '0x00000000'" />
+    <!--GitHub Actions-->
+    <WriteLinesToFile File="$(GITHUB_ENV)" Lines="NF_NATIVE_ASSEMBLY_CHECKSUM=$(NativeChecksum)" Condition="'$(GITHUB_ACTIONS)' == 'True' and '$(NativeChecksum)' != '' and '$(NativeChecksum)' != '0x00000000'" />
+
+    <!-- Report MDP overriden if that's the case-->
     <Message Importance="high" Text="Metadata processor location overriden with: $(NF_MDP_MSBUILDTASK_PATH)" Condition="'$(NF_MDP_MSBUILDTASK_PATH)' != ''" />
 
   </Target>
@@ -445,10 +450,14 @@
       <Output TaskParameter="NativeChecksum" PropertyName="NativeChecksum" />
     </MetaDataProcessorTask>
 
-    <!--Output native checksum to Azure Pipelines var (only usefull on Azure)-->
-    <Message Text="##vso[task.setvariable variable=NATIVE_ASSEMBLY_CHECKSUM;]$(NativeChecksum)" Condition="'$(TF_BUILD)' == 'True' and '$(NativeChecksum)' != '' and '$(NativeChecksum)' != '0x00000000'" />
+    <!--Output native checksum to pipeline-->
+    <!--Azure Pipelines-->
+    <Message Text="##vso[task.setvariable variable=NF_NATIVE_ASSEMBLY_CHECKSUM;]$(NativeChecksum)" Condition="'$(TF_BUILD)' == 'True' and '$(NativeChecksum)' != '' and '$(NativeChecksum)' != '0x00000000'" />
+    <!--GitHub Actions-->
+    <WriteLinesToFile File="$(GITHUB_ENV)" Lines="NF_NATIVE_ASSEMBLY_CHECKSUM=$(NativeChecksum)" Condition="'$(GITHUB_ACTIONS)' == 'True' and '$(NativeChecksum)' != '' and '$(NativeChecksum)' != '0x00000000'" />
 
     <Message Text="Distilling assemblies to nanoCLR PE files along with stubs and skeleton files..." Condition="'$(NFMDP_GENERATE_STUBS)' == 'true'"/>
+
     <!-- Create STUB file -->
     <MetaDataProcessorTask
         Verbose="$(NFMDP_PE_Verbose)"
@@ -478,8 +487,11 @@
       <Output TaskParameter="NativeChecksum" PropertyName="NativeChecksum" />
     </MetaDataProcessorTask>
 
-    <!--Output native checksum to Azure Pipelines var (only usefull on Azure)-->
-    <Message Text="##vso[task.setvariable variable=NATIVE_ASSEMBLY_CHECKSUM;]$(NativeChecksum)" Condition="'$(TF_BUILD)' == 'True' and '$(NativeChecksum)' != '' and '$(NativeChecksum)' != '0x00000000'" />
+    <!--Output native checksum to pipeline-->
+    <!--Azure Pipelines-->
+    <Message Text="##vso[task.setvariable variable=NF_NATIVE_ASSEMBLY_CHECKSUM;]$(NativeChecksum)" Condition="'$(TF_BUILD)' == 'True' and '$(NativeChecksum)' != '' and '$(NativeChecksum)' != '0x00000000'" />
+    <!--GitHub Actions-->
+    <WriteLinesToFile File="$(GITHUB_ENV)" Lines="NF_NATIVE_ASSEMBLY_CHECKSUM=$(NativeChecksum)" Condition="'$(GITHUB_ACTIONS)' == 'True' and '$(NativeChecksum)' != '' and '$(NativeChecksum)' != '0x00000000'" />
 
     <!-- Copy files (dll, pe, pdb and pdbx) to ouput directory -->
     <CallTarget Targets="CopyFilesToOutputDirectory" />
@@ -552,8 +564,12 @@
       <Output TaskParameter="NativeChecksum" PropertyName="NativeChecksum" />
     </MetaDataProcessorTask>
 
-    <!--Output native checksum to Azure Pipelines var (only usefull on Azure)-->
-    <Message Text="##vso[task.setvariable variable=NATIVE_ASSEMBLY_CHECKSUM;]$(NativeChecksum)" Condition="'$(TF_BUILD)' == 'True' and '$(NativeChecksum)' != '' and '$(NativeChecksum)' != '0x00000000'" />
+    <!--Output native checksum to pipeline-->
+    <!--Azure Pipelines-->
+    <Message Text="##vso[task.setvariable variable=NF_NATIVE_ASSEMBLY_CHECKSUM;]$(NativeChecksum)" Condition="'$(TF_BUILD)' == 'True' and '$(NativeChecksum)' != '' and '$(NativeChecksum)' != '0x00000000'" />
+    <!--GitHub Actions-->
+    <WriteLinesToFile File="$(GITHUB_ENV)" Lines="NF_NATIVE_ASSEMBLY_CHECKSUM=$(NativeChecksum)" Condition="'$(GITHUB_ACTIONS)' == 'True' and '$(NativeChecksum)' != '' and '$(NativeChecksum)' != '0x00000000'" />
+
     <Message Importance="high" Text="Metadata processor location overriden with: $(NF_MDP_MSBUILDTASK_PATH)" Condition="'$(NF_MDP_MSBUILDTASK_PATH)' != ''" />
 
   </Target>
