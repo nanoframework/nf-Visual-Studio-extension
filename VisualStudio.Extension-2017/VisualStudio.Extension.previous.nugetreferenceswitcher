@@ -1,2 +1,0 @@
-nanoFramework.Tools.DebugLibrary.Net	../../nf-debugger/source/nanoFramework.Tools.DebugLibrary.Net/nanoFramework.Tools.DebugLibrary.Net.csproj	../packages/nanoFramework.Tools.Debugger.Net.1.7.3-preview.14/lib/net461/nanoFramework.Tools.Debugger.dll
-nanoFramework.Tools.MetadataProcessor.Core	../../metadata-processor/source/MetadataProcessor.Core/MetadataProcessor.Core.csproj	../packages/nanoFramework.Tools.MetadataProcessor.Core.2.22.7/lib/net461/nanoFramework.Tools.MetadataProcessor.Core.dll
