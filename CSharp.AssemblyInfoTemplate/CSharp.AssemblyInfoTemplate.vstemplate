@@ -3,7 +3,7 @@
   <TemplateData>
     <!--<Name Package="{FAE04EC1-301F-11d3-BF4B-00C04F79EFBC}" ID="2405" />-->
     <!--<Description Package="{FAE04EC1-301F-11d3-BF4B-00C04F79EFBC}" ID="2406" />-->
-    <Name>Assembly Information File (nanoFramework)</Name>
+    <Name>Assembly Information File (.NET nanoFramework)</Name>
     <Description>A file containing general assembly information for a .NET nanoFramework project.</Description>
     <AppliesTo>CSharp</AppliesTo>
     <Icon>CSAssemblyInfoFile.ico</Icon>

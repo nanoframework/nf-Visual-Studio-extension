@@ -3,7 +3,7 @@
   <TemplateData>
     <!--<Name Package="{FAE04EC1-301F-11d3-BF4B-00C04F79EFBC}" ID="2245" />-->
     <!--<Description Package="{FAE04EC1-301F-11d3-BF4B-00C04F79EFBC}" ID="2262" />-->
-    <Name>Class definition (nanoFramework)</Name>
+    <Name>Class definition (.NET nanoFramework)</Name>
     <Description>An empty .NET nanoFramework class definition.</Description>
     <AppliesTo>CSharp</AppliesTo>
     <TemplateID>2202056b-59a6-4362-b498-df418a940084</TemplateID>

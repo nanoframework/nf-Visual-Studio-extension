@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <VSTemplate Version="3.0.0" Type="Project" xmlns="http://schemas.microsoft.com/developer/vstemplate/2005" xmlns:sdk="http://schemas.microsoft.com/developer/vstemplate-sdkextension/2010">
   <TemplateData>
-    <Name>Class Library (nanoFramework)</Name>
+    <Name>Class Library (.NET nanoFramework)</Name>
     <Description>A project for a .NET nanoFramework class library (DLL) to be used in other projects.</Description>
     <Icon>CSLibrary.ico</Icon>
     <ProjectType>CSharp</ProjectType>
