@@ -4,72 +4,75 @@
     ".NETFramework,Version=v4.7.2": {
       "Extended.Wpf.Toolkit": {
         "type": "Direct",
-        "requested": "[4.0.2, )",
-        "resolved": "4.0.2",
-        "contentHash": "GH6WXqrNUl+EQtxNGuB0ccJF1K7af0o0oq8J5mMW30AcNLeq+wpryjxONRhmaEJP5vX3KYI/bcQo7qKAp9uTLg=="
+        "requested": "[4.3.0, )",
+        "resolved": "4.3.0",
+        "contentHash": "leG4va9wdAk0R92UoycOwacWGPvgdWpNkfezAojkfjg+zxJlvRXUS4hR/urPVzX2dRZh8c7UxmdBIOW7O6N+OA=="
       },
       "Humanizer": {
         "type": "Direct",
-        "requested": "[2.8.26, )",
-        "resolved": "2.8.26",
-        "contentHash": "H3cpUH68mjNX/aNL71IdPcex2rPgwZMN28qg62nbDgCvS9jsNC1Zi78p5qs4/tepamMu96D/vvDZxtw8+LMk6g==",
+        "requested": "[2.14.1, )",
+        "resolved": "2.14.1",
+        "contentHash": "/FUTD3cEceAAmJSCPN9+J+VhGwmL/C12jvwlyM1DFXShEMsBzvLzLqSrJ2rb+k/W2znKw7JyflZgZpyE+tI7lA==",
         "dependencies": {
-          "Humanizer.Core.af": "2.8.26",
-          "Humanizer.Core.ar": "2.8.26",
-          "Humanizer.Core.az": "2.8.26",
-          "Humanizer.Core.bg": "2.8.26",
-          "Humanizer.Core.bn-BD": "2.8.26",
-          "Humanizer.Core.cs": "2.8.26",
-          "Humanizer.Core.da": "2.8.26",
-          "Humanizer.Core.de": "2.8.26",
-          "Humanizer.Core.el": "2.8.26",
-          "Humanizer.Core.es": "2.8.26",
-          "Humanizer.Core.fa": "2.8.26",
-          "Humanizer.Core.fi-FI": "2.8.26",
-          "Humanizer.Core.fr": "2.8.26",
-          "Humanizer.Core.fr-BE": "2.8.26",
-          "Humanizer.Core.he": "2.8.26",
-          "Humanizer.Core.hr": "2.8.26",
-          "Humanizer.Core.hu": "2.8.26",
-          "Humanizer.Core.hy": "2.8.26",
-          "Humanizer.Core.id": "2.8.26",
-          "Humanizer.Core.it": "2.8.26",
-          "Humanizer.Core.ja": "2.8.26",
-          "Humanizer.Core.lv": "2.8.26",
-          "Humanizer.Core.ms-MY": "2.8.26",
-          "Humanizer.Core.mt": "2.8.26",
-          "Humanizer.Core.nb": "2.8.26",
-          "Humanizer.Core.nb-NO": "2.8.26",
-          "Humanizer.Core.nl": "2.8.26",
-          "Humanizer.Core.pl": "2.8.26",
-          "Humanizer.Core.pt": "2.8.26",
-          "Humanizer.Core.ro": "2.8.26",
-          "Humanizer.Core.ru": "2.8.26",
-          "Humanizer.Core.sk": "2.8.26",
-          "Humanizer.Core.sl": "2.8.26",
-          "Humanizer.Core.sr": "2.8.26",
-          "Humanizer.Core.sr-Latn": "2.8.26",
-          "Humanizer.Core.sv": "2.8.26",
-          "Humanizer.Core.tr": "2.8.26",
-          "Humanizer.Core.uk": "2.8.26",
-          "Humanizer.Core.uz-Cyrl-UZ": "2.8.26",
-          "Humanizer.Core.uz-Latn-UZ": "2.8.26",
-          "Humanizer.Core.vi": "2.8.26",
-          "Humanizer.Core.zh-CN": "2.8.26",
-          "Humanizer.Core.zh-Hans": "2.8.26",
-          "Humanizer.Core.zh-Hant": "2.8.26"
+          "Humanizer.Core.af": "2.14.1",
+          "Humanizer.Core.ar": "2.14.1",
+          "Humanizer.Core.az": "2.14.1",
+          "Humanizer.Core.bg": "2.14.1",
+          "Humanizer.Core.bn-BD": "2.14.1",
+          "Humanizer.Core.cs": "2.14.1",
+          "Humanizer.Core.da": "2.14.1",
+          "Humanizer.Core.de": "2.14.1",
+          "Humanizer.Core.el": "2.14.1",
+          "Humanizer.Core.es": "2.14.1",
+          "Humanizer.Core.fa": "2.14.1",
+          "Humanizer.Core.fi-FI": "2.14.1",
+          "Humanizer.Core.fr": "2.14.1",
+          "Humanizer.Core.fr-BE": "2.14.1",
+          "Humanizer.Core.he": "2.14.1",
+          "Humanizer.Core.hr": "2.14.1",
+          "Humanizer.Core.hu": "2.14.1",
+          "Humanizer.Core.hy": "2.14.1",
+          "Humanizer.Core.id": "2.14.1",
+          "Humanizer.Core.is": "2.14.1",
+          "Humanizer.Core.it": "2.14.1",
+          "Humanizer.Core.ja": "2.14.1",
+          "Humanizer.Core.ko-KR": "2.14.1",
+          "Humanizer.Core.ku": "2.14.1",
+          "Humanizer.Core.lv": "2.14.1",
+          "Humanizer.Core.ms-MY": "2.14.1",
+          "Humanizer.Core.mt": "2.14.1",
+          "Humanizer.Core.nb": "2.14.1",
+          "Humanizer.Core.nb-NO": "2.14.1",
+          "Humanizer.Core.nl": "2.14.1",
+          "Humanizer.Core.pl": "2.14.1",
+          "Humanizer.Core.pt": "2.14.1",
+          "Humanizer.Core.ro": "2.14.1",
+          "Humanizer.Core.ru": "2.14.1",
+          "Humanizer.Core.sk": "2.14.1",
+          "Humanizer.Core.sl": "2.14.1",
+          "Humanizer.Core.sr": "2.14.1",
+          "Humanizer.Core.sr-Latn": "2.14.1",
+          "Humanizer.Core.sv": "2.14.1",
+          "Humanizer.Core.th-TH": "2.14.1",
+          "Humanizer.Core.tr": "2.14.1",
+          "Humanizer.Core.uk": "2.14.1",
+          "Humanizer.Core.uz-Cyrl-UZ": "2.14.1",
+          "Humanizer.Core.uz-Latn-UZ": "2.14.1",
+          "Humanizer.Core.vi": "2.14.1",
+          "Humanizer.Core.zh-CN": "2.14.1",
+          "Humanizer.Core.zh-Hans": "2.14.1",
+          "Humanizer.Core.zh-Hant": "2.14.1"
         }
       },
       "ICSharpCode.Decompiler": {
         "type": "Direct",
-        "requested": "[6.2.1.6137, )",
-        "resolved": "6.2.1.6137",
-        "contentHash": "df4wXwGd5OQTKr/8z1u4YfGy/LvLwD9871NwcbDUKYczgl6mFbOxJyxqq1m+76hNSTU3+I63E4a30nlC1ijFoQ==",
+        "requested": "[7.2.1.6856, )",
+        "resolved": "7.2.1.6856",
+        "contentHash": "0YtLSmDhFJb79+K4c/unBWT5ZHu9ov++k0gCfxIB6+uM/n5TEYjZMKSiEQDB6FeaeLPmduxB3SYxasLIDjuhEQ==",
         "dependencies": {
-          "Humanizer.Core": "2.2.0",
-          "System.Collections.Immutable": "1.5.0",
-          "System.Reflection.Metadata": "1.6.0",
-          "System.ValueTuple": "4.3.0"
+          "Microsoft.Win32.Registry": "5.0.0",
+          "System.Collections.Immutable": "5.0.0",
+          "System.Reflection.Metadata": "5.0.0"
         }
       },
       "MessagePack": {
@@ -90,11 +93,11 @@
       },
       "Microsoft.Build": {
         "type": "Direct",
-        "requested": "[16.10.0, )",
-        "resolved": "16.10.0",
-        "contentHash": "ugn2Mk+4Cw8l5MOqNW6xmj2NR/jMWsNdTdyFoOkkGqxR2zB5tJINlRzOydCJNL0HN7E1Y6ErKwdiT+Bn3tpbDQ==",
+        "requested": "[16.11.0, )",
+        "resolved": "16.11.0",
+        "contentHash": "azKjcFDIGgyVWRtSSYr/Zb42xV1F0iyQyjOzdpg34UEz7HFvGJl7av7HZrNSaQ2hCqqdgfU+e9gTzguJywBofA==",
         "dependencies": {
-          "Microsoft.Build.Framework": "16.10.0",
+          "Microsoft.Build.Framework": "16.11.0",
           "Microsoft.NET.StringTools": "1.0.0",
           "Microsoft.VisualStudio.Setup.Configuration.Interop": "1.16.30",
           "System.Collections.Immutable": "5.0.0",
@@ -289,9 +292,9 @@
       },
       "Microsoft.VSSDK.BuildTools": {
         "type": "Direct",
-        "requested": "[16.10.1055, )",
-        "resolved": "16.10.1055",
-        "contentHash": "WeH7ApuZDMl95hVxOGPthL5Rsz2HmCf30fLwIKxyefqUkl3Lzu86WnZ8dJ6jYcJhCKDsXCqf6UGan+/DbvuILQ==",
+        "requested": "[16.11.35, )",
+        "resolved": "16.11.35",
+        "contentHash": "CwQvIcdwRhu4VD3LsmkKMjH2uyZcxD46y16zKfY83ez92FwnHJfRvMgOJa+mK/WpIEM/lbo9ZXkqD+FPPn2+cA==",
         "dependencies": {
           "Microsoft.VisualStudio.SDK.Analyzers": "15.8.33"
         }
@@ -364,9 +367,9 @@
       },
       "NuGet.VisualStudio": {
         "type": "Direct",
-        "requested": "[5.10.0, )",
-        "resolved": "5.10.0",
-        "contentHash": "0fSEZ4YHKDbPdNEMbAr58a7j+b4XfCR7eeaXNQ9Q+kmV/158K3Yn7YPM6Ezy0BOfdObYnuVV5xwnwjvo0aR4yg==",
+        "requested": "[5.11.0, )",
+        "resolved": "5.11.0",
+        "contentHash": "xyYXPxWdMFlZqxnmP2LxLPn+zLNb0VeNKOKCSeBQdJt/v5HakOygHtmbzfEE0Rfj4sGo0/Y/Sp+So4SSG3jALQ==",
         "dependencies": {
           "VSSDK.TemplateWizardInterface": "12.0.4"
         }
@@ -615,359 +618,391 @@
       },
       "Humanizer.Core": {
         "type": "Transitive",
-        "resolved": "2.8.26",
-        "contentHash": "OiKusGL20vby4uDEswj2IgkdchC1yQ6rwbIkZDVBPIR6al2b7n3pC91elBul9q33KaBgRKhbZH3+2Ur4fnWx2A=="
+        "resolved": "2.14.1",
+        "contentHash": "lQKvtaTDOXnoVJ20ibTuSIOf2i0uO0MPbDhd1jm238I+U/2ZnRENj0cktKZhtchBMtCUSRQ5v4xBCUbKNmyVMw=="
       },
       "Humanizer.Core.af": {
         "type": "Transitive",
-        "resolved": "2.8.26",
-        "contentHash": "LBnfRApQtRIwXja5NB8e1wSm50YJ321HN4D5m4p0BGBwukI25Ir50aKCFD6w6rLxZoffrlSENk2a2e5mPq6xFw==",
+        "resolved": "2.14.1",
+        "contentHash": "BoQHyu5le+xxKOw+/AUM7CLXneM/Bh3++0qh1u0+D95n6f9eGt9kNc8LcAHLIOwId7Sd5hiAaaav0Nimj3peNw==",
         "dependencies": {
-          "Humanizer.Core": "[2.8.26]"
+          "Humanizer.Core": "[2.14.1]"
         }
       },
       "Humanizer.Core.ar": {
         "type": "Transitive",
-        "resolved": "2.8.26",
-        "contentHash": "JWsG652NiW1bNWcmAwbV08BDA6yYHxL14cJOFGPiDLRbtVfT5/VMUf+s5PI1Sa7pR06MpiAJ91C7xWTC+PlS9g==",
+        "resolved": "2.14.1",
+        "contentHash": "3d1V10LDtmqg5bZjWkA/EkmGFeSfNBcyCH+TiHcHP+HGQQmRq3eBaLcLnOJbVQVn3Z6Ak8GOte4RX4kVCxQlFA==",
         "dependencies": {
-          "Humanizer.Core": "[2.8.26]"
+          "Humanizer.Core": "[2.14.1]"
         }
       },
       "Humanizer.Core.az": {
         "type": "Transitive",
-        "resolved": "2.8.26",
-        "contentHash": "QfEYPlN9PcKpsQ3tgD54z6MZpd2mr7EreUyhHjY5bXdyjLJDwJPMqnmvBY+8a1JpyNx4VcbIWmDR9frlxBH8iw==",
+        "resolved": "2.14.1",
+        "contentHash": "8Z/tp9PdHr/K2Stve2Qs/7uqWPWLUK9D8sOZDNzyv42e20bSoJkHFn7SFoxhmaoVLJwku2jp6P7HuwrfkrP18Q==",
         "dependencies": {
-          "Humanizer.Core": "[2.8.26]"
+          "Humanizer.Core": "[2.14.1]"
         }
       },
       "Humanizer.Core.bg": {
         "type": "Transitive",
-        "resolved": "2.8.26",
-        "contentHash": "h3DOjiPeIqXRm4s7HzapEKGxvDsi/sMCkAEaNV7/JaT2SVqyyL0TfsTqGtmw6bzD3JvFV4pYDoeXVxMWZiEycg==",
+        "resolved": "2.14.1",
+        "contentHash": "S+hIEHicrOcbV2TBtyoPp1AVIGsBzlarOGThhQYCnP6QzEYo/5imtok6LMmhZeTnBFoKhM8yJqRfvJ5yqVQKSQ==",
         "dependencies": {
-          "Humanizer.Core": "[2.8.26]"
+          "Humanizer.Core": "[2.14.1]"
         }
       },
       "Humanizer.Core.bn-BD": {
         "type": "Transitive",
-        "resolved": "2.8.26",
-        "contentHash": "h4gm8E/bkn+q8npv1RAI2PMvgriz/Au3uT8dfuCIi41bNACDDa+mvfRdAdIZGIpg/EgG5oa0yea/59G/0Tf6zA==",
+        "resolved": "2.14.1",
+        "contentHash": "U3bfj90tnUDRKlL1ZFlzhCHoVgpTcqUlTQxjvGCaFKb+734TTu3nkHUWVZltA1E/swTvimo/aXLtkxnLFrc0EQ==",
         "dependencies": {
-          "Humanizer.Core": "[2.8.26]"
+          "Humanizer.Core": "[2.14.1]"
         }
       },
       "Humanizer.Core.cs": {
         "type": "Transitive",
-        "resolved": "2.8.26",
-        "contentHash": "I4FiX5509V1oRaIX59iTBq03n1K4LXuGlli4UJpxIHvF+XGCLOZJdK+v5UQJhS3as82sDwv3ky9vZmWiqMxVpA==",
+        "resolved": "2.14.1",
+        "contentHash": "jWrQkiCTy3L2u1T86cFkgijX6k7hoB0pdcFMWYaSZnm6rvG/XJE40tfhYyKhYYgIc1x9P2GO5AC7xXvFnFdqMQ==",
         "dependencies": {
-          "Humanizer.Core": "[2.8.26]"
+          "Humanizer.Core": "[2.14.1]"
         }
       },
       "Humanizer.Core.da": {
         "type": "Transitive",
-        "resolved": "2.8.26",
-        "contentHash": "w68W4EGG8fPTPrJgH4my1aDBEs+czfaYig8QnWQlR2SXJ9QGxWTyXxdwDpwQCSYzcreBycqP0cnYrJG+HKWkPw==",
+        "resolved": "2.14.1",
+        "contentHash": "5o0rJyE/2wWUUphC79rgYDnif/21MKTTx9LIzRVz9cjCIVFrJ2bDyR2gapvI9D6fjoyvD1NAfkN18SHBsO8S9g==",
         "dependencies": {
-          "Humanizer.Core": "[2.8.26]"
+          "Humanizer.Core": "[2.14.1]"
         }
       },
       "Humanizer.Core.de": {
         "type": "Transitive",
-        "resolved": "2.8.26",
-        "contentHash": "04zhjjtsFIS20cnvYhgSMKH8nk2caCXl8hz9n5AzrpB8c2t0IRngUTx+YFGH7OMFm+3TO6tOSwaehDhLSba2Zw==",
+        "resolved": "2.14.1",
+        "contentHash": "9JD/p+rqjb8f5RdZ3aEJqbjMYkbk4VFii2QDnnOdNo6ywEfg/A5YeOQ55CaBJmy7KvV4tOK4+qHJnX/tg3Z54A==",
         "dependencies": {
-          "Humanizer.Core": "[2.8.26]"
+          "Humanizer.Core": "[2.14.1]"
         }
       },
       "Humanizer.Core.el": {
         "type": "Transitive",
-        "resolved": "2.8.26",
-        "contentHash": "dM3E70HV5BXc/+NKD5qsvJDNL/+wSdkuNMjrkO0fvLWXWWh88RSIzZX8ItuNpv6A1yM+SAfGalUMoqzERdTQvw==",
+        "resolved": "2.14.1",
+        "contentHash": "Xmv6sTL5mqjOWGGpqY7bvbfK5RngaUHSa8fYDGSLyxY9mGdNbDcasnRnMOvi0SxJS9gAqBCn21Xi90n2SHZbFA==",
         "dependencies": {
-          "Humanizer.Core": "[2.8.26]"
+          "Humanizer.Core": "[2.14.1]"
         }
       },
       "Humanizer.Core.es": {
         "type": "Transitive",
-        "resolved": "2.8.26",
-        "contentHash": "TKVXaxACAQthcTRK96Ie7aIc2ZNfhoH3iWZEZuVEb/rS8H0GFKVIwQ0x0RIONultAbJSN171MsehWBskaw/oNw==",
+        "resolved": "2.14.1",
+        "contentHash": "e//OIAeMB7pjBV1HqqI4pM2Bcw3Jwgpyz9G5Fi4c+RJvhqFwztoWxW57PzTnNJE2lbhGGLQZihFZjsbTUsbczA==",
         "dependencies": {
-          "Humanizer.Core": "[2.8.26]"
+          "Humanizer.Core": "[2.14.1]"
         }
       },
       "Humanizer.Core.fa": {
         "type": "Transitive",
-        "resolved": "2.8.26",
-        "contentHash": "WTcXRJ534ZTYF7Q8qixWkul25VUpr3eb9vCk/NsCXT3xPj547mPAq9ADqmTQUu3tH3LxnSW1wHFj3AvqoEKZUQ==",
+        "resolved": "2.14.1",
+        "contentHash": "nzDOj1x0NgjXMjsQxrET21t1FbdoRYujzbmZoR8u8ou5CBWY1UNca0j6n/PEJR/iUbt4IxstpszRy41wL/BrpA==",
         "dependencies": {
-          "Humanizer.Core": "[2.8.26]"
+          "Humanizer.Core": "[2.14.1]"
         }
       },
       "Humanizer.Core.fi-FI": {
         "type": "Transitive",
-        "resolved": "2.8.26",
-        "contentHash": "iQV2SSDaYe7G0fy6PKLga15/RoN+aOa9EYmK/oCUbND/m9+CV+elhdA0NU9egsBirfoaTGiRJA7pk/USl1+buQ==",
+        "resolved": "2.14.1",
+        "contentHash": "Vnxxx4LUhp3AzowYi6lZLAA9Lh8UqkdwRh4IE2qDXiVpbo08rSbokATaEzFS+o+/jCNZBmoyyyph3vgmcSzhhQ==",
         "dependencies": {
-          "Humanizer.Core": "[2.8.26]"
+          "Humanizer.Core": "[2.14.1]"
         }
       },
       "Humanizer.Core.fr": {
         "type": "Transitive",
-        "resolved": "2.8.26",
-        "contentHash": "C6T50DDWZo22UCFFzDl4lmaJZ/vLUOaPUWb0lWAM9+fWMVgUedGLzWaaSxYauYctFm4xO5spUpnZEeHF9/PNFQ==",
+        "resolved": "2.14.1",
+        "contentHash": "2p4g0BYNzFS3u9SOIDByp2VClYKO0K1ecDV4BkB9EYdEPWfFODYnF+8CH8LpUrpxL2TuWo2fiFx/4Jcmrnkbpg==",
         "dependencies": {
-          "Humanizer.Core": "[2.8.26]"
+          "Humanizer.Core": "[2.14.1]"
         }
       },
       "Humanizer.Core.fr-BE": {
         "type": "Transitive",
-        "resolved": "2.8.26",
-        "contentHash": "UNsNDS90e7oT7DCGoiR507Z/XYwwkk8q2ctf3kYO6ukTXZQIj+UZYMYn1hfMxq/wFk4lP45rGe7MeKIRXVFixA==",
+        "resolved": "2.14.1",
+        "contentHash": "o6R3SerxCRn5Ij8nCihDNMGXlaJ/1AqefteAssgmU2qXYlSAGdhxmnrQAXZUDlE4YWt/XQ6VkNLtH7oMqsSPFQ==",
         "dependencies": {
-          "Humanizer.Core": "[2.8.26]"
+          "Humanizer.Core": "[2.14.1]"
         }
       },
       "Humanizer.Core.he": {
         "type": "Transitive",
-        "resolved": "2.8.26",
-        "contentHash": "Y4VizFW2TJA0EzLksVAE6n7aQ4SDGH91x+8nxJoop3ApSjApZk9JX93FrVYe9QpDUewpQMB5fKUsbIpIg+iRbA==",
+        "resolved": "2.14.1",
+        "contentHash": "FPsAhy7Iw6hb+ZitLgYC26xNcgGAHXb0V823yFAzcyoL5ozM+DCJtYfDPYiOpsJhEZmKFTM9No0jUn1M89WGvg==",
         "dependencies": {
-          "Humanizer.Core": "[2.8.26]"
+          "Humanizer.Core": "[2.14.1]"
         }
       },
       "Humanizer.Core.hr": {
         "type": "Transitive",
-        "resolved": "2.8.26",
-        "contentHash": "BoPl7HfK8Zp16qd4sYb1LH84Rf2kvVMX/9MCXNOUMHGJumW3hjCE4G0w7M9LrEJWTOCDhB4FmLPgEYQ/x17I9Q==",
+        "resolved": "2.14.1",
+        "contentHash": "chnaD89yOlST142AMkAKLuzRcV5df3yyhDyRU5rypDiqrq2HN8y1UR3h1IicEAEtXLoOEQyjSAkAQ6QuXkn7aw==",
         "dependencies": {
-          "Humanizer.Core": "[2.8.26]"
+          "Humanizer.Core": "[2.14.1]"
         }
       },
       "Humanizer.Core.hu": {
         "type": "Transitive",
-        "resolved": "2.8.26",
-        "contentHash": "Tj5QAC5YLJx17azE4HB8iTalPw56KvwgkD7RL9QwpQ7UucmdJzMzGKdR2ToZzV4H0ntmw3XAUCbteT5rdhJOkA==",
+        "resolved": "2.14.1",
+        "contentHash": "hAfnaoF9LTGU/CmFdbnvugN4tIs8ppevVMe3e5bD24+tuKsggMc5hYta9aiydI8JH9JnuVmxvNI4DJee1tK05A==",
         "dependencies": {
-          "Humanizer.Core": "[2.8.26]"
+          "Humanizer.Core": "[2.14.1]"
         }
       },
       "Humanizer.Core.hy": {
         "type": "Transitive",
-        "resolved": "2.8.26",
-        "contentHash": "EEd0AQbTJc6omVFRe1uepG/eoDsCfG3tSOUabY+NeSC00kADqRqMRotiNEruJIhsTs5q/5sdxYKxlOdTbtWDfg==",
+        "resolved": "2.14.1",
+        "contentHash": "sVIKxOiSBUb4gStRHo9XwwAg9w7TNvAXbjy176gyTtaTiZkcjr9aCPziUlYAF07oNz6SdwdC2mwJBGgvZ0Sl2g==",
         "dependencies": {
-          "Humanizer.Core": "[2.8.26]"
+          "Humanizer.Core": "[2.14.1]"
         }
       },
       "Humanizer.Core.id": {
         "type": "Transitive",
-        "resolved": "2.8.26",
-        "contentHash": "0p/sPtC7d2QQ1uSF6v4g7jNq1d255EkRdM96g7vB3MpoEH1Rph7xn8NJqI8WQf2KNP5VerOJtBN800ijwrg3tg==",
+        "resolved": "2.14.1",
+        "contentHash": "4Zl3GTvk3a49Ia/WDNQ97eCupjjQRs2iCIZEQdmkiqyaLWttfb+cYXDMGthP42nufUL0SRsvBctN67oSpnXtsg==",
         "dependencies": {
-          "Humanizer.Core": "[2.8.26]"
+          "Humanizer.Core": "[2.14.1]"
+        }
+      },
+      "Humanizer.Core.is": {
+        "type": "Transitive",
+        "resolved": "2.14.1",
+        "contentHash": "R67A9j/nNgcWzU7gZy1AJ07ABSLvogRbqOWvfRDn4q6hNdbg/mjGjZBp4qCTPnB2mHQQTCKo3oeCUayBCNIBCw==",
+        "dependencies": {
+          "Humanizer.Core": "[2.14.1]"
         }
       },
       "Humanizer.Core.it": {
         "type": "Transitive",
-        "resolved": "2.8.26",
-        "contentHash": "IU7TCUMbqNUjFnIkZ5ntCDj4p5ZzSExjcScoZQfE++S12qI/PDuDj6E9oSSpcqwLl6qj48Uf4AF4wnERkXNifw==",
+        "resolved": "2.14.1",
+        "contentHash": "jYxGeN4XIKHVND02FZ+Woir3CUTyBhLsqxu9iqR/9BISArkMf1Px6i5pRZnvq4fc5Zn1qw71GKKoCaHDJBsLFw==",
         "dependencies": {
-          "Humanizer.Core": "[2.8.26]"
+          "Humanizer.Core": "[2.14.1]"
         }
       },
       "Humanizer.Core.ja": {
         "type": "Transitive",
-        "resolved": "2.8.26",
-        "contentHash": "U6YRaaoaISYnKlEqWfnxEc9YmzKldNJF6gM56Z0epFn7orfl/xUwI6T1TL6MsZvPPYsq9ffXRLzgeqBh+ABgwA==",
+        "resolved": "2.14.1",
+        "contentHash": "TM3ablFNoYx4cYJybmRgpDioHpiKSD7q0QtMrmpsqwtiiEsdW5zz/q4PolwAczFnvrKpN6nBXdjnPPKVet93ng==",
         "dependencies": {
-          "Humanizer.Core": "[2.8.26]"
+          "Humanizer.Core": "[2.14.1]"
+        }
+      },
+      "Humanizer.Core.ko-KR": {
+        "type": "Transitive",
+        "resolved": "2.14.1",
+        "contentHash": "CtvwvK941k/U0r8PGdEuBEMdW6jv/rBiA9tUhakC7Zd2rA/HCnDcbr1DiNZ+/tRshnhzxy/qwmpY8h4qcAYCtQ==",
+        "dependencies": {
+          "Humanizer.Core": "[2.14.1]"
+        }
+      },
+      "Humanizer.Core.ku": {
+        "type": "Transitive",
+        "resolved": "2.14.1",
+        "contentHash": "vHmzXcVMe+LNrF9txpdHzpG7XJX65SiN9GQd/Zkt6gsGIIEeECHrkwCN5Jnlkddw2M/b0HS4SNxdR1GrSn7uCA==",
+        "dependencies": {
+          "Humanizer.Core": "[2.14.1]"
         }
       },
       "Humanizer.Core.lv": {
         "type": "Transitive",
-        "resolved": "2.8.26",
-        "contentHash": "Ad67YT9iUW9MFPtRThK0ADufGspEj8u/7k7yuxq2UV/Jd3p30HJTjPytcFJCe0KSN13bVuS1Bnve1DJiFjpwJQ==",
+        "resolved": "2.14.1",
+        "contentHash": "E1/KUVnYBS1bdOTMNDD7LV/jdoZv/fbWTLPtvwdMtSdqLyRTllv6PGM9xVQoFDYlpvVGtEl/09glCojPHw8ffA==",
         "dependencies": {
-          "Humanizer.Core": "[2.8.26]"
+          "Humanizer.Core": "[2.14.1]"
         }
       },
       "Humanizer.Core.ms-MY": {
         "type": "Transitive",
-        "resolved": "2.8.26",
-        "contentHash": "Fel3GH3ouwFdieFHueCjZqgb1ESUfwHNdJjswXQvyMT0bjRetZpfqpV8elGvbIf3+twyJhOGaueE8G8uF4Ysow==",
+        "resolved": "2.14.1",
+        "contentHash": "vX8oq9HnYmAF7bek4aGgGFJficHDRTLgp/EOiPv9mBZq0i4SA96qVMYSjJ2YTaxs7Eljqit7pfpE2nmBhY5Fnw==",
         "dependencies": {
-          "Humanizer.Core": "[2.8.26]"
+          "Humanizer.Core": "[2.14.1]"
         }
       },
       "Humanizer.Core.mt": {
         "type": "Transitive",
-        "resolved": "2.8.26",
-        "contentHash": "2gaeXAWe2P+V1ZWn3rd5FpbWHj9R2Ul6vwxhlgjLtB3p/z7tNsN2f8ZKnzmmLbOaUvPu+oUwJz6rXt0fhKKtuA==",
+        "resolved": "2.14.1",
+        "contentHash": "pEgTBzUI9hzemF7xrIZigl44LidTUhNu4x/P6M9sAwZjkUF0mMkbpxKkaasOql7lLafKrnszs0xFfaxQyzeuZQ==",
         "dependencies": {
-          "Humanizer.Core": "[2.8.26]"
+          "Humanizer.Core": "[2.14.1]"
         }
       },
       "Humanizer.Core.nb": {
         "type": "Transitive",
-        "resolved": "2.8.26",
-        "contentHash": "QwW9sl6kpp2bjLQpLw+rMh4DTLKfxfkwxngT5Lm3xw/VLqLW3/vgZjEndfLJ/jzLNosE/HHYqJM6LobjR+na9g==",
+        "resolved": "2.14.1",
+        "contentHash": "mbs3m6JJq53ssLqVPxNfqSdTxAcZN3njlG8yhJVx83XVedpTe1ECK9aCa8FKVOXv93Gl+yRHF82Hw9T9LWv2hw==",
         "dependencies": {
-          "Humanizer.Core": "[2.8.26]"
+          "Humanizer.Core": "[2.14.1]"
         }
       },
       "Humanizer.Core.nb-NO": {
         "type": "Transitive",
-        "resolved": "2.8.26",
-        "contentHash": "PUy92OIR+C7x+/2RUWFsCvq1QBMEPZqRF4xV5q7BY4gM3Cjg+jiY0FUgQ8Xz0vNsO0zumo6vyri6QxOduHEFcg==",
+        "resolved": "2.14.1",
+        "contentHash": "AsJxrrVYmIMbKDGe8W6Z6//wKv9dhWH7RsTcEHSr4tQt/80pcNvLi0hgD3fqfTtg0tWKtgch2cLf4prorEV+5A==",
         "dependencies": {
-          "Humanizer.Core": "[2.8.26]"
+          "Humanizer.Core": "[2.14.1]"
         }
       },
       "Humanizer.Core.nl": {
         "type": "Transitive",
-        "resolved": "2.8.26",
-        "contentHash": "q5oLx13KRjjFxNkYA8NIzFYG4YDUtiRByfa9cs5Pbc77X2I9gg2u7QWW5CC5dDA/Nfdf8lSdRuBjFPG9Vvv7lQ==",
+        "resolved": "2.14.1",
+        "contentHash": "24b0OUdzJxfoqiHPCtYnR5Y4l/s4Oh7KW7uDp+qX25NMAHLCGog2eRfA7p2kRJp8LvnynwwQxm2p534V9m55wQ==",
         "dependencies": {
-          "Humanizer.Core": "[2.8.26]"
+          "Humanizer.Core": "[2.14.1]"
         }
       },
       "Humanizer.Core.pl": {
         "type": "Transitive",
-        "resolved": "2.8.26",
-        "contentHash": "8dD/QvbVUeGMX89LVLc+KmjBrsajcUU5xtkfN3ZzNQQun5Gr4seUuajaQHQRoon2QFOWGrsVNX4FS5U6+MUKvQ==",
+        "resolved": "2.14.1",
+        "contentHash": "17mJNYaBssENVZyQHduiq+bvdXS0nhZJGEXtPKoMhKv3GD//WO0mEfd9wjEBsWCSmWI7bjRqhCidxzN+YtJmsg==",
         "dependencies": {
-          "Humanizer.Core": "[2.8.26]"
+          "Humanizer.Core": "[2.14.1]"
         }
       },
       "Humanizer.Core.pt": {
         "type": "Transitive",
-        "resolved": "2.8.26",
-        "contentHash": "xg+Hw/JQj+A2kmqDR2a0Y3bQdTNVBv72zActiWPtevZnx+SCbfDTEAnmsgjB5J+xvrAyznZldiRaB0nIrHclXg==",
+        "resolved": "2.14.1",
+        "contentHash": "8HB8qavcVp2la1GJX6t+G9nDYtylPKzyhxr9LAooIei9MnQvNsjEiIE4QvHoeDZ4weuQ9CsPg1c211XUMVEZ4A==",
         "dependencies": {
-          "Humanizer.Core": "[2.8.26]"
+          "Humanizer.Core": "[2.14.1]"
         }
       },
       "Humanizer.Core.ro": {
         "type": "Transitive",
-        "resolved": "2.8.26",
-        "contentHash": "rKFMZfPqmmuCv3zXjySr3Lpznz0zGptJwVhBQ+pdQ7MhBn0Ep9jLtdN2XfB6Fx1gvE3v8ssco5wTJvFfSLt6ww==",
+        "resolved": "2.14.1",
+        "contentHash": "psXNOcA6R8fSHoQYhpBTtTTYiOk8OBoN3PKCEDgsJKIyeY5xuK81IBdGi77qGZMu/OwBRQjQCBMtPJb0f4O1+A==",
         "dependencies": {
-          "Humanizer.Core": "[2.8.26]"
+          "Humanizer.Core": "[2.14.1]"
         }
       },
       "Humanizer.Core.ru": {
         "type": "Transitive",
-        "resolved": "2.8.26",
-        "contentHash": "M9gNDrOoajmq9bqWYyiLShEVqeYJdcASJx/VpJ0axC2QIjNSf9F58KBT/g7KP8nHkSNq824Dqwg42+sGTTn6qA==",
+        "resolved": "2.14.1",
+        "contentHash": "zm245xUWrajSN2t9H7BTf84/2APbUkKlUJpcdgsvTdAysr1ag9fi1APu6JEok39RRBXDfNRVZHawQ/U8X0pSvQ==",
         "dependencies": {
-          "Humanizer.Core": "[2.8.26]"
+          "Humanizer.Core": "[2.14.1]"
         }
       },
       "Humanizer.Core.sk": {
         "type": "Transitive",
-        "resolved": "2.8.26",
-        "contentHash": "/uR1q/xId7kxKptWTlSO5g/aKKtTOPXD9kXETF8f0vo/JDDy4zit6Ar1mYI2/IEU3Xvgu911HNfAiykKf7oRqA==",
+        "resolved": "2.14.1",
+        "contentHash": "Ncw24Vf3ioRnbU4MsMFHafkyYi8JOnTqvK741GftlQvAbULBoTz2+e7JByOaasqeSi0KfTXeegJO+5Wk1c0Mbw==",
         "dependencies": {
-          "Humanizer.Core": "[2.8.26]"
+          "Humanizer.Core": "[2.14.1]"
         }
       },
       "Humanizer.Core.sl": {
         "type": "Transitive",
-        "resolved": "2.8.26",
-        "contentHash": "1cf0NM1Y0gk+cpEHFGqqBQf7vzjThgTZ9hb9wEsDPU6ju/fjt94iFq7WuwzC8RdE3AcVkD+YwXtJ49dSAxOyvA==",
+        "resolved": "2.14.1",
+        "contentHash": "l8sUy4ciAIbVThWNL0atzTS2HWtv8qJrsGWNlqrEKmPwA4SdKolSqnTes9V89fyZTc2Q43jK8fgzVE2C7t009A==",
         "dependencies": {
-          "Humanizer.Core": "[2.8.26]"
+          "Humanizer.Core": "[2.14.1]"
         }
       },
       "Humanizer.Core.sr": {
         "type": "Transitive",
-        "resolved": "2.8.26",
-        "contentHash": "WFQubduvKIggZz6dZJcml9FPRkMmdPvg+1FiyEt4WZsrdhNvwBq0oYf5rZzXZ/gnt/NXcZMlfcYBd1j7NIpSHw==",
+        "resolved": "2.14.1",
+        "contentHash": "rnNvhpkOrWEymy7R/MiFv7uef8YO5HuXDyvojZ7JpijHWA5dXuVXooCOiA/3E93fYa3pxDuG2OQe4M/olXbQ7w==",
         "dependencies": {
-          "Humanizer.Core": "[2.8.26]"
+          "Humanizer.Core": "[2.14.1]"
         }
       },
       "Humanizer.Core.sr-Latn": {
         "type": "Transitive",
-        "resolved": "2.8.26",
-        "contentHash": "LoXshAPmfemoF0KFgBkrNCAUaC6Z6sHhOvELPkwYeAh0RY51hUUJYmcwTROQ9NjBxK7CzDFqOuihrJwMsEYcwQ==",
+        "resolved": "2.14.1",
+        "contentHash": "nuy/ykpk974F8ItoQMS00kJPr2dFNjOSjgzCwfysbu7+gjqHmbLcYs7G4kshLwdA4AsVncxp99LYeJgoh1JF5g==",
         "dependencies": {
-          "Humanizer.Core": "[2.8.26]"
+          "Humanizer.Core": "[2.14.1]"
         }
       },
       "Humanizer.Core.sv": {
         "type": "Transitive",
-        "resolved": "2.8.26",
-        "contentHash": "jiLM80PPN58O7b91C8kLPvwHVwB4DPq8+YnL3AF5FbOiAxs+ZRXa4vOQd808oM9i6VYFVDEFWOwpBjTPrzC7ew==",
+        "resolved": "2.14.1",
+        "contentHash": "E53+tpAG0RCp+cSSI7TfBPC+NnsEqUuoSV0sU+rWRXWr9MbRWx1+Zj02XMojqjGzHjjOrBFBBio6m74seFl0AA==",
         "dependencies": {
-          "Humanizer.Core": "[2.8.26]"
+          "Humanizer.Core": "[2.14.1]"
+        }
+      },
+      "Humanizer.Core.th-TH": {
+        "type": "Transitive",
+        "resolved": "2.14.1",
+        "contentHash": "eSevlJtvs1r4vQarNPfZ2kKDp/xMhuD00tVVzRXkSh1IAZbBJI/x2ydxUOwfK9bEwEp+YjvL1Djx2+kw7ziu7g==",
+        "dependencies": {
+          "Humanizer.Core": "[2.14.1]"
         }
       },
       "Humanizer.Core.tr": {
         "type": "Transitive",
-        "resolved": "2.8.26",
-        "contentHash": "LoIKprqDWlDZ5MXQEtgbUZB4DBNUKFKZpXRXtN1Z2QMRtwxp2JnjXMWrtNH3IvvVSbUNTrxFxjX1+Cl407zaUw==",
+        "resolved": "2.14.1",
+        "contentHash": "rQ8N+o7yFcFqdbtu1mmbrXFi8TQ+uy+fVH9OPI0CI3Cu1om5hUU/GOMC3hXsTCI6d79y4XX+0HbnD7FT5khegA==",
         "dependencies": {
-          "Humanizer.Core": "[2.8.26]"
+          "Humanizer.Core": "[2.14.1]"
         }
       },
       "Humanizer.Core.uk": {
         "type": "Transitive",
-        "resolved": "2.8.26",
-        "contentHash": "p/zAOo/X7ztphRzpzDkiGg6SmbCRz4rPxh0aukdyuNftbjgI/jtNdH2rfrYc+395SBcBzMFyb87ZPO9gT02zqw==",
+        "resolved": "2.14.1",
+        "contentHash": "2uEfujwXKNm6bdpukaLtEJD+04uUtQD65nSGCetA1fYNizItEaIBUboNfr3GzJxSMQotNwGVM3+nSn8jTd0VSg==",
         "dependencies": {
-          "Humanizer.Core": "[2.8.26]"
+          "Humanizer.Core": "[2.14.1]"
         }
       },
       "Humanizer.Core.uz-Cyrl-UZ": {
         "type": "Transitive",
-        "resolved": "2.8.26",
-        "contentHash": "kIqd9NkwBh4uQRoEvQTpEOy950PR1/AmPCTiL3hOwQ6oXNlQT9O8rwN11R0ENXBSGUz1YJ3BsmXSytUJpxNHKw==",
+        "resolved": "2.14.1",
+        "contentHash": "TD3ME2sprAvFqk9tkWrvSKx5XxEMlAn1sjk+cYClSWZlIMhQQ2Bp/w0VjX1Kc5oeKjxRAnR7vFcLUFLiZIDk9Q==",
         "dependencies": {
-          "Humanizer.Core": "[2.8.26]"
+          "Humanizer.Core": "[2.14.1]"
         }
       },
       "Humanizer.Core.uz-Latn-UZ": {
         "type": "Transitive",
-        "resolved": "2.8.26",
-        "contentHash": "vEl/JGMH4VphWIY+dQf06LD0OjusQWqsxw5/VBSFNOtlIqs0BeOAZ0uwPVBmXi4sCD8vZ40JqbjelDJO8b3uaA==",
+        "resolved": "2.14.1",
+        "contentHash": "/kHAoF4g0GahnugZiEMpaHlxb+W6jCEbWIdsq9/I1k48ULOsl/J0pxZj93lXC3omGzVF1BTVIeAtv5fW06Phsg==",
         "dependencies": {
-          "Humanizer.Core": "[2.8.26]"
+          "Humanizer.Core": "[2.14.1]"
         }
       },
       "Humanizer.Core.vi": {
         "type": "Transitive",
-        "resolved": "2.8.26",
-        "contentHash": "mJcoFA67j31kGCmBreBMkJSnL5JiI2OtaFI8IZDLquhRjqS7pcyxyEr9OyERqBqUEb/l+xu4e0yhwNwoYBQElQ==",
+        "resolved": "2.14.1",
+        "contentHash": "rsQNh9rmHMBtnsUUlJbShMsIMGflZtPmrMM6JNDw20nhsvqfrdcoDD8cMnLAbuSovtc3dP+swRmLQzKmXDTVPA==",
         "dependencies": {
-          "Humanizer.Core": "[2.8.26]"
+          "Humanizer.Core": "[2.14.1]"
         }
       },
       "Humanizer.Core.zh-CN": {
         "type": "Transitive",
-        "resolved": "2.8.26",
-        "contentHash": "0OTtAzh/9OWooK6qjYWjIXSI1wqpUDtskrAx46hRaQOpfdgVo/edBXMBZe4mWMO/zvFw1jnWao7Ejok7J0H4jw==",
+        "resolved": "2.14.1",
+        "contentHash": "uH2dWhrgugkCjDmduLdAFO9w1Mo0q07EuvM0QiIZCVm6FMCu/lGv2fpMu4GX+4HLZ6h5T2Pg9FIdDLCPN2a67w==",
         "dependencies": {
-          "Humanizer.Core": "[2.8.26]"
+          "Humanizer.Core": "[2.14.1]"
         }
       },
       "Humanizer.Core.zh-Hans": {
         "type": "Transitive",
-        "resolved": "2.8.26",
-        "contentHash": "9YY8T7NEOHeHz+KABqkhHf3of9kFCkD9LwKwipKdXqHSq8DUaPrbZmtVe82TYUf7waW2oP0PrQf2OOBzrtMQMw==",
+        "resolved": "2.14.1",
+        "contentHash": "WH6IhJ8V1UBG7rZXQk3dZUoP2gsi8a0WkL8xL0sN6WGiv695s8nVcmab9tWz20ySQbuzp0UkSxUQFi5jJHIpOQ==",
         "dependencies": {
-          "Humanizer.Core": "[2.8.26]"
+          "Humanizer.Core": "[2.14.1]"
         }
       },
       "Humanizer.Core.zh-Hant": {
         "type": "Transitive",
-        "resolved": "2.8.26",
-        "contentHash": "eSwxx5F5L8Wmg+zdoNgrJwodqEo5CC9IpCYHXK6lCWRXPqmVzKNtVRO1mAEyVNBllcysZUkjzS6E6zuWo1rJ0Q==",
+        "resolved": "2.14.1",
+        "contentHash": "VIXB7HCUC34OoaGnO3HJVtSv2/wljPhjV7eKH4+TFPgQdJj2lvHNKY41Dtg0Bphu7X5UaXFR4zrYYyo+GNOjbA==",
         "dependencies": {
-          "Humanizer.Core": "[2.8.26]"
+          "Humanizer.Core": "[2.14.1]"
         }
       },
       "MessagePack.Annotations": {
@@ -2097,10 +2132,10 @@
       },
       "System.Reflection.Metadata": {
         "type": "Transitive",
-        "resolved": "1.6.0",
-        "contentHash": "COC1aiAJjCoA5GBF+QKL2uLqEBew4JsCkQmoHKbN3TlOZKa2fKLz5CpiRQKDz0RsAOEGsVKqOD5bomsXq/4STQ==",
+        "resolved": "5.0.0",
+        "contentHash": "5NecZgXktdGg34rh1OenY1rFNDCI8xSjFr+Z4OU4cU06AQHUdRnIIEeWENu3Wl4YowbzkymAIMvi3WyK9U53pQ==",
         "dependencies": {
-          "System.Collections.Immutable": "1.5.0"
+          "System.Collections.Immutable": "5.0.0"
         }
       },
       "System.Reflection.TypeExtensions": {
@@ -2353,8 +2388,10 @@
         "type": "Project",
         "dependencies": {
           "Microsoft.Build.Framework": "16.11.0",
-          "Microsoft.Build.Utilities.Core": "16.11.0",
-          "Microsoft.VisualStudio.SDK.Analyzers": "16.7.9"
+          "Microsoft.Build.Utilities.Core": "16.11.0"
+        }
+      }
+    },
         }
       }
     }
