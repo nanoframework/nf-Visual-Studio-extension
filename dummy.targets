@@ -1,0 +1,4 @@
+<Project>
+  <Target Name="BuiltProjectOutputGroupDependencies" />
+  <Target Name="DebugSymbolsProjectOutputGroup" />
+</Project>
