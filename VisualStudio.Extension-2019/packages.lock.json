@@ -349,9 +349,9 @@
       },
       "nanoFramework.Tools.MetadataProcessor.MsBuildTask": {
         "type": "Direct",
-        "requested": "[3.0.20, )",
-        "resolved": "3.0.20",
-        "contentHash": "E8J8v+JrYj6I8Nuz53CIRiHlry7AamaHQv0vU9naOq04l9GMHlczaGmBVTH++Rcs3gAYHs/Akt8LHEPotsBKIQ=="
+        "requested": "[3.0.25, )",
+        "resolved": "3.0.25",
+        "contentHash": "rqW9PdzAjazz6r41ifGR6Xsn388sUWbLfUjtIj/b4+HtUw6kV9wQuacULeHlzkktWEVRU2vwC7vfgVpbcHesAw=="
       },
       "Nerdbank.GitVersioning": {
         "type": "Direct",
@@ -2389,9 +2389,6 @@
         "dependencies": {
           "Microsoft.Build.Framework": "16.11.0",
           "Microsoft.Build.Utilities.Core": "16.11.0"
-        }
-      }
-    },
         }
       }
     }
