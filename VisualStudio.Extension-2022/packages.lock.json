@@ -333,9 +333,9 @@
       },
       "nanoFramework.Tools.MetadataProcessor.MsBuildTask": {
         "type": "Direct",
-        "requested": "[3.0.20, )",
-        "resolved": "3.0.20",
-        "contentHash": "E8J8v+JrYj6I8Nuz53CIRiHlry7AamaHQv0vU9naOq04l9GMHlczaGmBVTH++Rcs3gAYHs/Akt8LHEPotsBKIQ=="
+        "requested": "[3.0.25, )",
+        "resolved": "3.0.25",
+        "contentHash": "rqW9PdzAjazz6r41ifGR6Xsn388sUWbLfUjtIj/b4+HtUw6kV9wQuacULeHlzkktWEVRU2vwC7vfgVpbcHesAw=="
       },
       "Nerdbank.GitVersioning": {
         "type": "Direct",
@@ -1470,10 +1470,10 @@
       },
       "Microsoft.VisualStudio.TemplateWizardInterface": {
         "type": "Transitive",
-        "resolved": "17.1.0-preview-2-31918-073",
-        "contentHash": "3CMrXj1HR9YU6kvhWiZ07zfJJUTqGxV5v5iFzStMuw6JTbz7DZ8z1m6j/tHUMDDelDbUFAX1se8akjO1L5ysZw==",
+        "resolved": "17.1.32210.191",
+        "contentHash": "yE6gIuJhP2SEvKE9MErCJ4mA3wwysK0PiwfEO0sMYj7WBXizJDygtKz/qFSZhPEpbRF03YTLTgevAm0EUK7uDA==",
         "dependencies": {
-          "Microsoft.VisualStudio.Interop": "17.1.0-preview-2-31918-073"
+          "Microsoft.VisualStudio.Interop": "17.1.32210.191"
         }
       },
       "Microsoft.VisualStudio.Text.Data": {
