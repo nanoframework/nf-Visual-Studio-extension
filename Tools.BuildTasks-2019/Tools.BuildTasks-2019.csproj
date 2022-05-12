@@ -81,7 +81,7 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Nerdbank.GitVersioning">
-      <Version>3.5.103</Version>
+      <Version>3.5.104</Version>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
