@@ -1,5 +1,0 @@
-<Project>
-  <PropertyGroup>
-    <NBGV_PrivateP2PAuxTargets>$(MSBuildThisFileDirectory)dummy.targets</NBGV_PrivateP2PAuxTargets>
-  </PropertyGroup>
-</Project>
