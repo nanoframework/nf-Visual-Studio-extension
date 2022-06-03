@@ -553,6 +553,10 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
+    <PackageReference Include="nanoFramework.TestFramework" Version="1.0.207">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
     <PackageReference Include="nanoFramework.Tools.Debugger.Net" Version="2.3.7" />
     <PackageReference Include="nanoFramework.Tools.MetadataProcessor.MsBuildTask" Version="3.0.25" />
     <PackageReference Include="Nerdbank.GitVersioning">
