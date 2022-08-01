@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright (c) .NET Foundation and Contributors
 // See LICENSE file in the project root for full license information.
 //
@@ -9,10 +9,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+//using System.Diagnostics;
 
 namespace nanoFramework.Tools.VisualStudio.Extension
 {
-    public class NanoDeviceCommService : SNanoDeviceCommService, INanoDeviceCommService
+    public class NanoDeviceCommService : SNanoDeviceCommService, INanoDeviceCommService //TODO: should this be static??? so it cannot be "different" between multiple VS instances (that might be opened and fighting against each other)...?!
     {
         private Microsoft.VisualStudio.Shell.IAsyncServiceProvider _serviceProvider;
 
@@ -26,26 +27,38 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             {
                 if (_debugClient == null)
                 {
-                    // grab and parse COM port list
-                    List<string> serialPortList = new List<string>();
+                    // Add SerialPort Exclusion list to the debug server
+                    // i.e. COM1;COM2;
+                    List<string> serialPortExclusionList = new List<string>();
                     
                     // need to wrap the processing in a try/catch to deal with bad user input/format
                     try
                     {
-                        // grab and parse COM port list
+                        // Check and parse COM port list
                         if (!string.IsNullOrEmpty(NanoFrameworkPackage.SettingPortBlackList))
                         {
-                            serialPortList.AddRange(NanoFrameworkPackage.SettingPortBlackList.Split(';'));
+                            //TODO: Check what happens when there is only one entry that either contains, or does not contain a semicolon!
+                            //FIXME: (unit test) Should contain only the single element vs multiple.
+                            //TODO: Want to handle certain USB VID/PID as might not be a static port?!
+                            
+                            serialPortExclusionList.AddRange(NanoFrameworkPackage.SettingPortBlackList.Split(';').Trim(' '));
                         }
                     }
-                    catch
+                    catch (Exception ex)
                     {
-                        // don't care about bad user input/format/etc 
+                        // don't care about bad user input/format/etc
+                        // FIXME: should warn (at least in debug mode) otherwise user will be unaware!!!
+                        // or add unit tests to check invalid input results are easily handled.
+                        // Debug.WriteLine(ex);
                     }
 
+                    // FIXME: if serial debug enabled?!
+                    // FIXME: if USB composite (serial) device debug enabled?!
                     // create serial instance with device watchers stopped
-                    PortBase serialDebug = PortBase.CreateInstanceForSerial(false, serialPortList);
+                    PortBase serialDebug = PortBase.CreateInstanceForSerial(false, serialPortExclusionList);
 
+                    // FIXME: if network debug enabled?!
+                    // FIXME: comment out or add flag as this is not yet supported, and possbily adding delay?! 
                     // create network instance with device watchers stopped
                     PortBase networkDebug = PortBase.CreateInstanceForNetwork(false);
 
