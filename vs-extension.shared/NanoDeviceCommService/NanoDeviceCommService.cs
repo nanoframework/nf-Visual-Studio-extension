@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-//using System.Diagnostics;
+using System.Diagnostics;
 
 namespace nanoFramework.Tools.VisualStudio.Extension
 {
@@ -49,7 +49,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         // don't care about bad user input/format/etc
                         // FIXME: should warn (at least in debug mode) otherwise user will be unaware!!!
                         // or add unit tests to check invalid input results are easily handled.
-                        // Debug.WriteLine(ex);
+                        Debug.WriteLine(ex);
                     }
 
                     // FIXME: if serial debug enabled?!
