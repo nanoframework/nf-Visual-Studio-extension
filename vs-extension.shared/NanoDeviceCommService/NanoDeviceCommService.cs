@@ -37,16 +37,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         // Check and parse COM port list
                         if (!string.IsNullOrEmpty(NanoFrameworkPackage.SettingPortBlackList))
                         {
-                            //TODO: Check what happens when there is only one entry that either contains, or does not contain a semicolon!
-                            //FIXME: (unit test) Should contain only the single element vs multiple.
                             //TODO: Want to handle certain USB VID/PID as might not be a static port?!
-                            
-                            serialPortExclusionList.AddRange(
-                                NanoFrameworkPackage.SettingPortBlackList.Split(';')
+                            var exclusions = NanoFrameworkPackage.SettingPortBlackList.Split(';')
                                     .Select(p => p.Trim())
                                     .Where(p => !string.IsNullOrWhiteSpace(p))
                                     .ToArray();
-                                    );
+                            serialPortExclusionList.AddRange(exclusions);
                         }
                     }
                     catch (Exception ex)
