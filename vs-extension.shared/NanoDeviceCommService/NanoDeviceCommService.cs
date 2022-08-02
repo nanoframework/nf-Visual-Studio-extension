@@ -52,6 +52,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         // FIXME: should warn via messagebox otherwise user will be unaware!!!
                         // or add unit tests to check invalid input results are easily handled.
                         Debug.WriteLine(ex);
+                        //MessageCentre.OutputMessage(ex);
                     }
 
                     // FIXME: if serial debug enabled?!
