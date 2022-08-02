@@ -9,7 +9,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+#if DEBUG
 using System.Diagnostics;
+#endif
+
 
 namespace nanoFramework.Tools.VisualStudio.Extension
 {
@@ -44,14 +47,22 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                             serialPortExclusionList.AddRange(exclusions);
                         }
                     }
+#if DEBUG
                     catch (Exception ex)
                     {
+                        Debug.WriteLine(ex);
+                    }
+#else
+                    catch
+                    {
                         // don't care about bad user input/format/etc
+                        
                         // FIXME: should warn via messagebox otherwise user will be unaware!!!
                         // or add unit tests to check invalid input results are easily handled.
-                        Debug.WriteLine(ex);
-                        //MessageCentre.OutputMessage(ex);
+                        //MessageCentre.OutputMessage("Invalid exclusion list!");
                     }
+#endif
+
 
                     // create serial instance with device watchers stopped
                     PortBase serialDebug = PortBase.CreateInstanceForSerial(false, serialPortExclusionList);
