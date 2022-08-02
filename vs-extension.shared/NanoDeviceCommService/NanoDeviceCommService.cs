@@ -13,7 +13,7 @@ using System.Diagnostics;
 
 namespace nanoFramework.Tools.VisualStudio.Extension
 {
-    public class NanoDeviceCommService : SNanoDeviceCommService, INanoDeviceCommService //TODO: should this be static??? so it cannot be "different" between multiple VS instances (that might be opened and fighting against each other)...?!
+    public class NanoDeviceCommService : SNanoDeviceCommService, INanoDeviceCommService
     {
         private Microsoft.VisualStudio.Shell.IAsyncServiceProvider _serviceProvider;
 
@@ -37,8 +37,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         // Check and parse COM port list
                         if (!string.IsNullOrEmpty(NanoFrameworkPackage.SettingPortBlackList))
                         {
-                            // TODO: Needs to handle certain USB VID/PID as might not be a static port?!
-                            // TODO: May need to handle NetUSB exculusions.
                             var exclusions = NanoFrameworkPackage.SettingPortBlackList.Split(';')
                                     .Select(p => p.Trim())
                                     .Where(p => !string.IsNullOrWhiteSpace(p))
@@ -55,13 +53,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         //MessageCentre.OutputMessage(ex);
                     }
 
-                    // FIXME: if serial debug enabled?!
-                    // FIXME: if USB composite (serial) device debug enabled?!
                     // create serial instance with device watchers stopped
                     PortBase serialDebug = PortBase.CreateInstanceForSerial(false, serialPortExclusionList);
 
-                    // FIXME: if network debug enabled?!
-                    // FIXME: comment out or add flag as this is not yet supported, and possbily adding delay?! 
                     // create network instance with device watchers stopped
                     PortBase networkDebug = PortBase.CreateInstanceForNetwork(false);
 
