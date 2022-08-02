@@ -37,7 +37,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         // Check and parse COM port list
                         if (!string.IsNullOrEmpty(NanoFrameworkPackage.SettingPortBlackList))
                         {
-                            //TODO: Want to handle certain USB VID/PID as might not be a static port?!
+                            // TODO: Needs to handle certain USB VID/PID as might not be a static port?!
+                            // TODO: May need to handle NetUSB exculusions.
                             var exclusions = NanoFrameworkPackage.SettingPortBlackList.Split(';')
                                     .Select(p => p.Trim())
                                     .Where(p => !string.IsNullOrWhiteSpace(p))
@@ -48,7 +49,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     catch (Exception ex)
                     {
                         // don't care about bad user input/format/etc
-                        // FIXME: should warn (at least in debug mode) otherwise user will be unaware!!!
+                        // FIXME: should warn via messagebox otherwise user will be unaware!!!
                         // or add unit tests to check invalid input results are easily handled.
                         Debug.WriteLine(ex);
                     }
