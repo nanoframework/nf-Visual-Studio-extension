@@ -891,65 +891,79 @@ namespace nanoFramework.Tools
 
             public static Entry CreateEntry(string name, object value, string defaultNamespace, string defaultDeclaringClass)
             {
-                string stringValue = value as string;
-                Bitmap bitmapValue = value as Bitmap;
-                Icon iconValue = value as Icon;
-                byte[] rawValue = value as byte[];
 
                 Entry entry = null;
 
-                if (stringValue != null)
+                switch (value.GetType().Name)
                 {
-                    entry = new StringEntry(name, stringValue);
-                }
-                else if (bitmapValue != null)
-                {
-                    // validate supported BMP formats
-                    if (
-                        bitmapValue.RawFormat.Equals(ImageFormat.Jpeg) ||
-                        bitmapValue.RawFormat.Equals(ImageFormat.Gif) ||
-                        bitmapValue.RawFormat.Equals(ImageFormat.Bmp))
-                    {
-                        entry = new BitmapEntry(name, bitmapValue);
-                    }
-                    else
-                    {
-                        // BMP format not supported 
+                    case "String":
+                        entry = new StringEntry(name, value as string);
+                        break;
+
+                    case "Byte[]":
+                        byte[] rawValue = value as byte[];
+                        Bitmap bitmapImage = null;
+                        bool imageJPeg = false;
+                        bool imageGif = false;
+                        bool imageBmp = false;
+                        bool imageIcon = false;
+                        try
+                        {
+                            bitmapImage = Image.FromStream(new MemoryStream(rawValue)) as Bitmap;
+                            imageJPeg = bitmapImage.RawFormat.Equals(ImageFormat.Jpeg);
+                            imageGif = bitmapImage.RawFormat.Equals(ImageFormat.Gif);
+                            imageBmp = bitmapImage.RawFormat.Equals(ImageFormat.Bmp);
+                            imageIcon = bitmapImage.RawFormat.Equals(ImageFormat.Icon);
+                        }
+                        catch
+                        {
+                            // Ignore error if not a bitmap
+                        }
                         // read raw content so it can be saved as a binary entry resource (byte[])
-                        using (MemoryStream stream = new MemoryStream())
+                        if (imageJPeg || imageGif || imageBmp)
                         {
-                            bitmapValue.Save(stream, bitmapValue.RawFormat);
-                            stream.Capacity = (int)stream.Length;
-
-                            entry = new BinaryEntry(name, stream.GetBuffer());
+                            entry = new BitmapEntry(name, bitmapImage);
+    
                         }
-                    }
-                }
-                else if (iconValue != null)
-                {
-                    // this is an ICO, treat as a binary resource (byte[])
-                    using (MemoryStream stream = new MemoryStream())
-                    {
-                        // save to rawValue as byte[]
-                        iconValue.Save(stream);
-                        stream.Capacity = (int)stream.Length;
-
-                        entry = new BinaryEntry(name, stream.GetBuffer());
-                    }
-                }
-
-                if (rawValue != null)
-                {
-                    entry = NanoResourcesEntry.TryCreateNanoResourcesEntry(name, rawValue);
-
-                    if (entry == null)
-                    {
-                        // Create BinaryEntry
-                        using (var ms = new MemoryStream(rawValue))
+                        else if (imageIcon)
                         {
-                            entry = new BinaryEntry(name, rawValue);
+                            // this is an ICO, treat as a binary resource (byte[])
+                            using (MemoryStream stream = new MemoryStream())
+                            {
+                                // save to rawValue as byte[]
+                                bitmapImage.Save(stream, ImageFormat.Icon);
+                                stream.Capacity = (int)stream.Length;
+                                entry = new BinaryEntry(name, stream.GetBuffer());
+                            }
                         }
-                    }
+                        else if (rawValue != null)
+                        {
+                            // This code handles fonts which have a resource header starting with a Magic Number
+                            // followed by a number of resources, e.g. each font letter etc...
+                            entry = NanoResourcesEntry.TryCreateNanoResourcesEntry(name, rawValue);
+
+                            // If just a byte array, create a Binary Resource
+                            if (entry == null)
+                            {
+                                // Create BinaryEntry
+                                using (var ms = new MemoryStream(rawValue))
+                                {
+                                    entry = new BinaryEntry(name, rawValue);
+                                }
+                            }
+                        }
+                        break;
+
+                    case "MemoryStream":
+                        // Examples  - .wav
+                        // this is a binary resource
+                        MemoryStream msOther = (MemoryStream)value;
+                        byte[] memoryData = new byte[msOther.Length];
+                        msOther.Read(memoryData, 0, 0);
+                        entry = new BinaryEntry(name, memoryData);
+                        break;
+                    default:
+                        break;
                 }
 
                 if (entry == null)
@@ -1313,92 +1327,36 @@ namespace nanoFramework.Tools
                     bitmapDescription.m_flags |= NanoResourceFile.CLR_GFX_BitmapDescription.c_Compressed;
                 }
             }
-
             private byte[] GetBitmapDataBmp(Bitmap bitmap, out NanoResourceFile.CLR_GFX_BitmapDescription bitmapDescription)
             {
-                //issue warning for formats that we lose information?
-                //other formats that we need to support??
 
-                byte bitsPerPixel = 24;
-                BitmapData bitmapData = null;
-                Rectangle rect = new Rectangle(0, 0, bitmap.Width, bitmap.Height);
-                PixelFormat formatDst = bitmap.PixelFormat;
-                byte[] data = null;
-
-                switch (bitmap.PixelFormat)
-                {
-                    case PixelFormat.Format1bppIndexed:
-                        bitsPerPixel = 1;
-                        formatDst = PixelFormat.Format1bppIndexed;
-                        break;
-                    // Anything more than 16bpp will fall through to 16bpp
-                    case PixelFormat.Format8bppIndexed:
-                    case PixelFormat.Format24bppRgb:
-                    case PixelFormat.Format32bppRgb:
-                    case PixelFormat.Format48bppRgb:
-                    case PixelFormat.Format16bppRgb555:
-                    case PixelFormat.Format16bppRgb565:
-                        bitsPerPixel = 16;
-                        formatDst = PixelFormat.Format16bppRgb565;
-                        break;
-                    default:
-                        throw new NotSupportedException($"PixelFormat ({bitmap.PixelFormat.ToString()}) of '{Name}' resource not supported. Only 1bpp and 16bpp.");
-                }
-
-                //turn bitmap data into a form we can use.
-
-                if (formatDst != bitmap.PixelFormat)
-                {
-                    // need to copy the Bitmap in order to access it, otherwise it will throw an exception
-                    using (Bitmap bmpCopy = new Bitmap(bitmap))
-                    using (Bitmap targetBmp = bmpCopy.Clone(rect, formatDst))
-                    {
-                        bitmap = new Bitmap(targetBmp);
-                    }
-                }
 
                 try
                 {
-                    bitmapData = bitmap.LockBits(rect, ImageLockMode.ReadOnly, formatDst);
+                    byte bitsPerPixel = 16;
+                    Bitmap clone = new Bitmap(bitmap.Width, bitmap.Height, PixelFormat.Format16bppRgb565);
+                    using (Graphics gr = Graphics.FromImage(clone))
+                    {
+                        gr.DrawImageUnscaled(bitmap, 0, 0);
+                    }
 
-                    IntPtr p = bitmapData.Scan0;
-                    data = new byte[bitmapData.Stride * bitmap.Height];
+                    Rectangle rect = new Rectangle(0, 0, clone.Width, clone.Height);
+                    BitmapData bitmapData = clone.LockBits(rect, ImageLockMode.ReadOnly, PixelFormat.Format16bppRgb565);
+
+                    byte[] data = new byte[clone.Width * clone.Height * 2];
 
                     System.Runtime.InteropServices.Marshal.Copy(bitmapData.Scan0, data, 0, data.Length);
+                    clone.UnlockBits(bitmapData);
 
-                    if (bitsPerPixel == 1)
-                    {
-                        //special case for 1pp with index 0 equals white???!!!???
-                        if (bitmap.Palette.Entries[0].GetBrightness() < 0.5)
-                        {
-                            for (int i = 0; i < data.Length; i++)
-                            {
-                                data[i] = (byte)~data[i];
-                            }
-                        }
+                    bitmapDescription = new NanoResourceFile.CLR_GFX_BitmapDescription(
+                    (ushort)bitmap.Width, (ushort)bitmap.Height, 0, bitsPerPixel, NanoResourceFile.CLR_GFX_BitmapDescription.c_TypeBitmap);
 
-                        //special case for 1pp need to flip orientation??
-                        //for some stupid reason, 1bpp is flipped compared to windows!!
-                        Adjust1bppOrientation(data);
-                    }
+                    return data;
                 }
-                finally
+                catch
                 {
-                    if (bitmapData != null)
-                    {
-                        bitmap.UnlockBits(bitmapData);
-                    }
-                }
-
-                bitmapDescription = new NanoResourceFile.CLR_GFX_BitmapDescription((ushort)bitmap.Width, (ushort)bitmap.Height, 0, bitsPerPixel, NanoResourceFile.CLR_GFX_BitmapDescription.c_TypeBitmap);
-
-                if (bitsPerPixel == 1)
-                {
-                    //test compression;
-                    Compress1bpp(bitmapDescription, ref data);
-                }
-
-                return data;
+                    throw new NotSupportedException($"PixelFormat ({bitmap.PixelFormat.ToString()}) could not be converted to Format16bppRgb565.");
+                };
             }
 
             private byte[] GetBitmapDataRaw(Bitmap bitmap, out NanoResourceFile.CLR_GFX_BitmapDescription bitmapDescription, byte type)
@@ -1910,7 +1868,8 @@ namespace nanoFramework.Tools
                 public const byte c_UncompressedRunLength = 7;
                 public const byte c_CompressedRunOffset = c_UncompressedRunLength + 1;
 
-                // Note that these type definitions has to match the ones defined in Bitmap.BitmapImageType enum defined in Graphics.cs
+                // Note that these type definitions has to match the ones defined in
+                // Bitmap.BitmapImageType enum defined in Graphics.cs
                 public const byte c_TypeBitmap = 0;
                 public const byte c_TypeGif = 1;
                 public const byte c_TypeJpeg = 2;
