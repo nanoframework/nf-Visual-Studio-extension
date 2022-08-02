@@ -893,13 +893,13 @@ namespace nanoFramework.Tools
             {
 
                 Entry entry = null;
-                string nameOfResourceType = value.GetType().Name;
 
                 switch (value.GetType().Name)
                 {
                     case "String":
                         entry = new StringEntry(name, value as string);
                         break;
+
                     case "Byte[]":
                         byte[] rawValue = value as byte[];
                         Bitmap bitmapImage = null;
@@ -917,7 +917,8 @@ namespace nanoFramework.Tools
                         }
                         catch
                         {
-                        } // Ignore error if not a bitmap
+                            // Ignore error if not a bitmap
+                        }
                         // read raw content so it can be saved as a binary entry resource (byte[])
                         if (imageJPeg || imageGif || imageBmp)
                         {
@@ -952,6 +953,7 @@ namespace nanoFramework.Tools
                             }
                         }
                         break;
+
                     case "MemoryStream":
                         // Examples  - .wav
                         // this is a binary resource
@@ -1325,17 +1327,6 @@ namespace nanoFramework.Tools
                     bitmapDescription.m_flags |= NanoResourceFile.CLR_GFX_BitmapDescription.c_Compressed;
                 }
             }
-
-
-            //
-            //  TO BE CHECKED - Is this code required?
-            //  ----------------------
-            //  This code runs, but does not appear to be used by the metadata processor which has similiar processing code
-            //  in the file
-            //  "nanoBitmapProcessor.cs"
-            //  ----------------------
-            //  TO BE CHECKED
-
             private byte[] GetBitmapDataBmp(Bitmap bitmap, out NanoResourceFile.CLR_GFX_BitmapDescription bitmapDescription)
             {
 
@@ -1352,7 +1343,7 @@ namespace nanoFramework.Tools
                     Rectangle rect = new Rectangle(0, 0, clone.Width, clone.Height);
                     BitmapData bitmapData = clone.LockBits(rect, ImageLockMode.ReadOnly, PixelFormat.Format16bppRgb565);
 
-                    byte[] data = new byte[clone.Width * clone.Height * 2]; // 2 bytes per pixel
+                    byte[] data = new byte[clone.Width * clone.Height * 2];
 
                     System.Runtime.InteropServices.Marshal.Copy(bitmapData.Scan0, data, 0, data.Length);
                     clone.UnlockBits(bitmapData);
