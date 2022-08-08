@@ -538,16 +538,6 @@ jobs:
       versionSpec: '= 3.0' 
       addToPath: true
 
-  # Cache change log cache files
-  - task: Cache@2
-    displayName: Cache change log cache files
-    inputs:
-      key: 'changeLogCacheFiles'
-      restoreKeys: 1_0
-      path: |
-        $(AGENT.TEMPDIRECTORY)/github-changelog-logger.log
-        $(AGENT.TEMPDIRECTORY)/github-changelog-http-cache
-
   # install github_changelog_generator
   - powershell: |
         gem install github_changelog_generator --quiet --no-document
