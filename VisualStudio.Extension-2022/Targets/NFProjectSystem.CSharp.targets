@@ -127,6 +127,11 @@ from generating the TargetFrameworkMonikerAttribute file. All the rest (such as 
     <CompilerResponseFile Condition="'$(IsCoreAssembly)' == 'true'">$(ProjectDir)coreAssembly.rsp</CompilerResponseFile>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <CommandLineArgsForDesignTimeEvaluation>-langversion:$(LangVersion)</CommandLineArgsForDesignTimeEvaluation>
+    <CommandLineArgsForDesignTimeEvaluation Condition="'$(DefineConstants)' != ''">$(CommandLineArgsForDesignTimeEvaluation) -define:$(DefineConstants)</CommandLineArgsForDesignTimeEvaluation>
+  </PropertyGroup>
+
   <!-- Import MetaDataProcessor targets **AFTER** everything else-->
   <Import Project="$(MSBuildThisFileDirectory)\NFProjectSystem.MDP.targets" />
 

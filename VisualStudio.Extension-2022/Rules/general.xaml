@@ -43,4 +43,7 @@
 
     <StringProperty Name="SourceDirectory" Subtype="Folder"/>
 
+    <StringProperty Name="CommandLineArgsForDesignTimeEvaluation"
+                  Visible="False" />
+
 </Rule>
