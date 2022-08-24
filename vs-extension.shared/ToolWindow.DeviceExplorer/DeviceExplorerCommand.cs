@@ -948,9 +948,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 NanoDeviceCommService.DebugClient.NanoFrameworkDevices.CollectionChanged -= ViewModelLocator.DeviceExplorer.NanoFrameworkDevices_CollectionChanged;
 
                 MessageCentre.OutputMessage(Environment.NewLine);
-                MessageCentre.OutputMessage("*******************************************************************************");
+                MessageCentre.OutputMessage("***********************************************************************************");
                 MessageCentre.OutputMessage("** Device Watchers are DISABLED. You won't be able to connect to any nanoDevice. **");
-                MessageCentre.OutputMessage("*******************************************************************************");
+                MessageCentre.OutputMessage("***********************************************************************************");
                 MessageCentre.OutputMessage(Environment.NewLine);
 
                 // set rescan devices button to disabled state
