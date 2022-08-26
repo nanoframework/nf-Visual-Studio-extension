@@ -326,12 +326,13 @@
         "requested": "[1.12.0, )",
         "resolved": "1.12.0",
         "contentHash": "qQrFNXmJiStMC4VXk5cVMOJp23/qlT9FW5i9i+igwQVwraQTtvpkam8yK1hj992jqrbjoCIFZP4Hw9E8H0pB7w=="
+        "contentHash": "ls2oi2tgc511yCRrbBOD3KjS9AL4mIWwEs6/g3DuLhGpALhla/g1Dr9qry69M3NwEWEY3rSolxIiwueeqepckQ=="
       },
       "nanoFramework.TestFramework": {
         "type": "Direct",
-        "requested": "[1.0.205, )",
-        "resolved": "1.0.205",
-        "contentHash": "qwtORbzAqbauxF60hbzEMe6H1KjOz1ljqQk7gkDxzQDeTEVPGzp3ilc5tuUmezrlqcpFPeVRZo/prXbN1MMzrg=="
+        "requested": "[2.0.41, )",
+        "resolved": "2.0.41",
+        "contentHash": "sVfGK+C4S621g0roofxt8LAquXXDJBdQleft7pRooNhjf/AOofk884bBtDX7zIw3TiIEmAsjd6bVNS7aO31EVg=="
       },
       "nanoFramework.Tools.Debugger.Net": {
         "type": "Direct",

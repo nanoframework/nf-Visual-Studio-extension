@@ -308,9 +308,9 @@
       },
       "nanoFramework.TestFramework": {
         "type": "Direct",
-        "requested": "[1.0.205, )",
-        "resolved": "1.0.205",
-        "contentHash": "qwtORbzAqbauxF60hbzEMe6H1KjOz1ljqQk7gkDxzQDeTEVPGzp3ilc5tuUmezrlqcpFPeVRZo/prXbN1MMzrg=="
+        "requested": "[2.0.41, )",
+        "resolved": "2.0.41",
+        "contentHash": "sVfGK+C4S621g0roofxt8LAquXXDJBdQleft7pRooNhjf/AOofk884bBtDX7zIw3TiIEmAsjd6bVNS7aO31EVg=="
       },
       "nanoFramework.Tools.Debugger.Net": {
         "type": "Direct",
