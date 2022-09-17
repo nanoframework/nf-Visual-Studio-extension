@@ -906,35 +906,22 @@ namespace nanoFramework.Tools
                         bool imageJPeg = false;
                         bool imageGif = false;
                         bool imageBmp = false;
-                        bool imageIcon = false;
                         try
                         {
                             bitmapImage = Image.FromStream(new MemoryStream(rawValue)) as Bitmap;
                             imageJPeg = bitmapImage.RawFormat.Equals(ImageFormat.Jpeg);
                             imageGif = bitmapImage.RawFormat.Equals(ImageFormat.Gif);
                             imageBmp = bitmapImage.RawFormat.Equals(ImageFormat.Bmp);
-                            imageIcon = bitmapImage.RawFormat.Equals(ImageFormat.Icon);
                         }
                         catch
                         {
-                            // Ignore error if not a bitmap
+                            // Ignore error if not a known supported bitmap
                         }
                         // read raw content so it can be saved as a binary entry resource (byte[])
                         if (imageJPeg || imageGif || imageBmp)
                         {
                             entry = new BitmapEntry(name, bitmapImage);
     
-                        }
-                        else if (imageIcon)
-                        {
-                            // this is an ICO, treat as a binary resource (byte[])
-                            using (MemoryStream stream = new MemoryStream())
-                            {
-                                // save to rawValue as byte[]
-                                bitmapImage.Save(stream, ImageFormat.Icon);
-                                stream.Capacity = (int)stream.Length;
-                                entry = new BinaryEntry(name, stream.GetBuffer());
-                            }
                         }
                         else if (rawValue != null)
                         {
@@ -953,7 +940,6 @@ namespace nanoFramework.Tools
                             }
                         }
                         break;
-
                     case "MemoryStream":
                         // Examples  - .wav
                         // this is a binary resource
