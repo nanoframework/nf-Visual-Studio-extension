@@ -4,9 +4,13 @@
   <!-- Declares the MSBuild tasks that are provided by nanoFramework tools.
     The path is the current directory because we are using the Nuget package build directory to place all these.
   -->
-  <UsingTask TaskName="ResolveRuntimeDependenciesTask"    AssemblyFile="$(MSBuildThisFileDirectory)nanoFramework.Tools.BuildTasks.dll" />
-  <UsingTask TaskName="GenerateNanoResourceTask"          AssemblyFile="$(MSBuildThisFileDirectory)nanoFramework.Tools.BuildTasks.dll" />
-  <UsingTask TaskName="GenerateBinaryOutputTask"          AssemblyFile="$(MSBuildThisFileDirectory)nanoFramework.Tools.BuildTasks.dll" />
+  <!-- Allow overriding the path for nanoFramework MSBuildTasks if environment variable is set. -->
+  <UsingTask TaskName="ResolveRuntimeDependenciesTask"  Condition="'$(NF_MSBUILDTASK_PATH)' == ''" AssemblyFile="$(MSBuildThisFileDirectory)nanoFramework.Tools.BuildTasks.dll" />
+  <UsingTask TaskName="ResolveRuntimeDependenciesTask"  Condition="'$(NF_MSBUILDTASK_PATH)' != ''" AssemblyFile="$(NF_MSBUILDTASK_PATH)\nanoFramework.Tools.BuildTasks.dll" />
+  <UsingTask TaskName="GenerateNanoResourceTask"        Condition="'$(NF_MSBUILDTASK_PATH)' == ''" AssemblyFile="$(MSBuildThisFileDirectory)nanoFramework.Tools.BuildTasks.dll" />
+  <UsingTask TaskName="GenerateNanoResourceTask"        Condition="'$(NF_MSBUILDTASK_PATH)' != ''" AssemblyFile="$(NF_MSBUILDTASK_PATH)\nanoFramework.Tools.BuildTasks.dll" />
+  <UsingTask TaskName="GenerateBinaryOutputTask"        Condition="'$(NF_MSBUILDTASK_PATH)' == ''" AssemblyFile="$(MSBuildThisFileDirectory)nanoFramework.Tools.BuildTasks.dll" />
+  <UsingTask TaskName="GenerateBinaryOutputTask"        Condition="'$(NF_MSBUILDTASK_PATH)' != ''" AssemblyFile="$(NF_MSBUILDTASK_PATH)\nanoFramework.Tools.BuildTasks.dll"/>
 
   <!--MSBuild task for MDP-->
   <UsingTask TaskName="MetaDataProcessorTask" Condition="'$(NF_MDP_MSBUILDTASK_PATH)' == ''" AssemblyFile="$(MSBuildThisFileDirectory)nanoFramework.Tools.MetadataProcessor.MsBuildTask.dll" />
@@ -252,8 +256,8 @@
     <!--GitHub Actions-->
     <WriteLinesToFile File="$(GITHUB_ENV)" Lines="NF_NATIVE_ASSEMBLY_CHECKSUM=$(NativeChecksum)" Condition="'$(GITHUB_ACTIONS)' == 'True' and '$(NativeChecksum)' != '' and '$(NativeChecksum)' != '0x00000000'" />
 
-    <!-- Report MDP overriden if that's the case-->
-    <Message Importance="high" Text="Metadata processor location overriden with: $(NF_MDP_MSBUILDTASK_PATH)" Condition="'$(NF_MDP_MSBUILDTASK_PATH)' != ''" />
+    <!-- Report MDP overridden if that's the case-->
+    <Message Importance="high" Text="*** Metadata processor location overridden with: $(NF_MDP_MSBUILDTASK_PATH)" Condition="'$(NF_MDP_MSBUILDTASK_PATH)' != ''" />
 
   </Target>
 
@@ -263,6 +267,9 @@
     <ItemGroup>
       <NanoFramework_StartProgramItem Include="$(NanoFramework_StartProgram)" Condition=" '$(NanoFramework_StartProgram)' != '' " />
     </ItemGroup>
+
+    <!-- Report Build Task overridden if that's the case-->
+    <Message Importance="high" Text="*** .NET nanoFramework Build Task location overridden with: $(NF_MSBUILDTASK_PATH)" Condition="'$(NF_MSBUILDTASK_PATH)' != ''" />
 
     <PropertyGroup>
       <NanoFramework_DebugReferencesStateFile>$(IntermediateOutputPath)nanoFramework_DebugReferences.cache</NanoFramework_DebugReferencesStateFile>
@@ -424,8 +431,8 @@
 
     <Message Text="Distilling assemblies to nanoCLR PE files (no stubs)..." Condition="'$(NFMDP_GENERATE_STUBS)' == 'false'" />
     
-    <!-- Report MDP overriden if that's the case-->
-    <Message Importance="high" Text="Metadata processor location overriden with: $(NF_MDP_MSBUILDTASK_PATH)" Condition="'$(NF_MDP_MSBUILDTASK_PATH)' != ''" />
+    <!-- Report MDP overridden if that's the case-->
+    <Message Importance="high" Text="*** Metadata processor location overridden with: $(NF_MDP_MSBUILDTASK_PATH)" Condition="'$(NF_MDP_MSBUILDTASK_PATH)' != ''" />
 
     <!-- Compile to PE -->
     <MetaDataProcessorTask
@@ -572,8 +579,8 @@
     <!--GitHub Actions-->
     <WriteLinesToFile File="$(GITHUB_ENV)" Lines="NF_NATIVE_ASSEMBLY_CHECKSUM=$(NativeChecksum)" Condition="'$(GITHUB_ACTIONS)' == 'True' and '$(NativeChecksum)' != '' and '$(NativeChecksum)' != '0x00000000'" />
 
-    <!-- Report MDP overriden if that's the case-->
-    <Message Importance="high" Text="Metadata processor location overriden with: $(NF_MDP_MSBUILDTASK_PATH)" Condition="'$(NF_MDP_MSBUILDTASK_PATH)' != ''" />
+    <!-- Report MDP overridden if that's the case-->
+    <Message Importance="high" Text="*** Metadata processor location overridden with: $(NF_MDP_MSBUILDTASK_PATH)" Condition="'$(NF_MDP_MSBUILDTASK_PATH)' != ''" />
 
   </Target>
 
@@ -590,6 +597,9 @@
     <CreateProperty Value="$(IntermediateOutputPath)NanoCLR_DebugReferences.cache">
       <Output TaskParameter="Value" PropertyName="NanoCLR_DebugReferencesStateFile" />
     </CreateProperty>
+
+    <!-- Report Build Task overridden if that's the case-->
+    <Message Importance="high" Text="*** .NET nanoFramework Build Task location overridden with: $(NF_MSBUILDTASK_PATH)" Condition="'$(NF_MSBUILDTASK_PATH)' != ''" />
 
     <ResolveAssemblyReference
         Assemblies="@(Reference)"
@@ -685,6 +695,9 @@
           Condition="'@(EmbeddedResource)'!='' and '$(NF_IsCoreLibrary)' == 'True'"
           DependsOnTargets="$(NanoResourceGeneratorDependsOn)">
 
+    <!-- Report Build Task overridden if that's the case-->
+    <Message Importance="high" Text="*** .NET nanoFramework Build Task location overridden with: $(NF_MSBUILDTASK_PATH)" Condition="'$(NF_MSBUILDTASK_PATH)' != ''" />
+
     <GenerateNanoResourceTask
         Sources="@(EmbeddedResource)"
         Condition=" '%(EmbeddedResource.Type)' == 'Resx' and '%(EmbeddedResource.GenerateResource)' != 'false'"
@@ -726,6 +739,9 @@
           Condition="'@(EmbeddedResource)'!=''"
           DependsOnTargets="$(NanoResourceGeneratorDependsOn)">
 
+    <!-- Report Build Task overridden if that's the case-->
+    <Message Importance="high" Text="*** .NET nanoFramework Build Task location overridden with: $(NF_MSBUILDTASK_PATH)" Condition="'$(NF_MSBUILDTASK_PATH)' != ''" />
+
     <GenerateNanoResourceTask
         Sources="@(EmbeddedResource)"
         Condition=" '%(EmbeddedResource.Type)' == 'Resx' and '%(EmbeddedResource.GenerateResource)' != 'false'"
@@ -756,6 +772,9 @@
   </Target>
 
   <Target Name="NanoGenerateBinaryOutput">
+
+    <!-- Report Build Task overridden if that's the case-->
+    <Message Importance="high" Text="*** .NET nanoFramework Build Task location overridden with: $(NF_MSBUILDTASK_PATH)" Condition="'$(NF_MSBUILDTASK_PATH)' != ''" />
 
     <GenerateBinaryOutputTask
         AssemblyPE="$(NanoFramework_IntermediateAssembly).pe"
