@@ -325,7 +325,7 @@
         "type": "Direct",
         "requested": "[1.12.0, )",
         "resolved": "1.12.0",
-        "contentHash": "ls2oi2tgc511yCRrbBOD3KjS9AL4mIWwEs6/g3DuLhGpALhla/g1Dr9qry69M3NwEWEY3rSolxIiwueeqepckQ=="
+        "contentHash": "qQrFNXmJiStMC4VXk5cVMOJp23/qlT9FW5i9i+igwQVwraQTtvpkam8yK1hj992jqrbjoCIFZP4Hw9E8H0pB7w=="
       },
       "nanoFramework.TestFramework": {
         "type": "Direct",
