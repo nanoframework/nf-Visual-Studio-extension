@@ -6,6 +6,7 @@
 
 using Microsoft;
 using Microsoft.VisualStudio;
+using Microsoft.VisualStudio.OLE.Interop;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 using nanoFramework.Tools.Debugger;
@@ -20,11 +21,13 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         protected static readonly Guid s_InternalErrorsPaneGuid = Guid.NewGuid();
         protected static readonly Guid s_DeploymentMessagesPaneGuid = Guid.NewGuid();
         protected static readonly Guid s_FirmwareUpdatManagerPane = Guid.NewGuid();
+        protected static readonly Guid s_VirtualDevicePane = Guid.NewGuid();
 
         private static IVsOutputWindow _outputWindow;
         private static IVsOutputWindowPane _debugPane;
         private static IVsOutputWindowPane _nanoFrameworkMessagesPane;
         private static IVsOutputWindowPane _firmwareUpdatManager;
+        private static IVsOutputWindowPane _virtualDevice;
         private static IVsStatusbar _statusBar;
         private static string _paneName;
         private static uint progressCookie;
@@ -59,6 +62,11 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 tempId = s_FirmwareUpdatManagerPane;
                 _outputWindow.CreatePane(ref tempId, ".NET nanoFramework Firmware Update Manager", 1, 0);
                 _outputWindow.GetPane(ref tempId, out _firmwareUpdatManager);
+
+                // create virtual device manager pane
+                tempId = s_VirtualDevicePane;
+                _outputWindow.CreatePane(ref tempId, ".NET nanoFramework Virtual Device", 1, 0);
+                _outputWindow.GetPane(ref tempId, out _virtualDevice);
             });
         }
 
@@ -187,6 +195,20 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 false);
         }
 
+        /// <summary>
+        /// Write a message to the Virtual Device output pane.
+        /// </summary>
+        /// <param name="message">Message to be output.</param>
+        public static void OutputVirtualDeviceMessage(string message)
+        {
+            message += Environment.NewLine;
+
+            Message(
+                _virtualDevice,
+                message,
+                false);
+        }
+
         public static void ErrorMessageHandler(object sendingProcess, DataReceivedEventArgs outLine)
         {
             DebugMessage(outLine.Data);
@@ -222,7 +244,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                   await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
                 // stock general animation icon
-                object icon = (short)Constants.SBAI_General;
+                object icon = (short)Microsoft.VisualStudio.Shell.Interop.Constants.SBAI_General;
 
 
                 // Make sure the status bar is not frozen  
@@ -274,7 +296,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                   await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
                 // stock general animation icon
-                object icon = (short)Constants.SBAI_General;
+                object icon = (short)Microsoft.VisualStudio.Shell.Interop.Constants.SBAI_General;
 
                 // Make sure the status bar is not frozen  
                 _statusBar.IsFrozen(out int frozen);

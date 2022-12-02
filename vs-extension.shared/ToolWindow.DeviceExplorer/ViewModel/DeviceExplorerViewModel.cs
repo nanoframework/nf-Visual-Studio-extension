@@ -376,6 +376,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
             public static readonly string ForceSelectionOfNanoDevice = new Guid("{8F012794-BC66-429D-9F9D-A9B0F546D6B5}").ToString();
             public static readonly string LaunchFirmwareUpdateForNanoDevice = new Guid("{93822E8C-4A94-4573-AC4F-DEB7FA703933}").ToString();
             public static readonly string NanoDeviceHasDeparted = new Guid("{38429FA1-3C16-44C2-937E-227C20AC0342}").ToString();
+            public static readonly string VirtualDeviceOperationExecuting = new Guid("{B1B40C6E-5EE7-4A69-BB70-9A8663C928C1}").ToString();
         }
 
         #endregion
