@@ -12,7 +12,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         bool NanoClrInstalled { get; }
 
         bool VirtualDeviceIsRunning { get; }
-        
+
         Task InitVirtualDeviceAsync();
 
         void InstallNanoClrTool();

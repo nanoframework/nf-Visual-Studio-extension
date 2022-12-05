@@ -13,6 +13,7 @@ using nanoFramework.Tools.Debugger;
 using System;
 using System.Diagnostics;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace nanoFramework.Tools.VisualStudio.Extension
 {
@@ -32,21 +33,21 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         private static string _paneName;
         private static uint progressCookie;
 
-        public static async System.Threading.Tasks.Task InitializeAsync(AsyncPackage package, string name)
+        public static System.Threading.Tasks.Task InitializeAsync(AsyncPackage package, string name)
         {
-            // seems OK to call these API here without switching to the main thread as we are just getting the service not actually accessing the output window
+            return ThreadHelper.JoinableTaskFactory.RunAsync(async () =>
+            {
+                // seems OK to call these API here without switching to the main thread as we are just getting the service not actually accessing the output window
 #pragma warning disable VSTHRD010
-            _outputWindow = await package.GetServiceAsync(typeof(SVsOutputWindow)) as IVsOutputWindow;
-            Assumes.Present(_outputWindow);
+                _outputWindow = await package.GetServiceAsync(typeof(SVsOutputWindow)) as IVsOutputWindow;
+                Assumes.Present(_outputWindow);
 
-            _statusBar = await package.GetServiceAsync(typeof(SVsStatusbar)) as IVsStatusbar;
-            Assumes.Present(_statusBar);
+                _statusBar = await package.GetServiceAsync(typeof(SVsStatusbar)) as IVsStatusbar;
+                Assumes.Present(_statusBar);
 #pragma warning restore VSTHRD010
 
-            _paneName = name;
+                _paneName = name;
 
-            await ThreadHelper.JoinableTaskFactory.RunAsync(async () =>
-            {
                 await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
                 // get VS debug pane
@@ -67,7 +68,38 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 tempId = s_VirtualDevicePane;
                 _outputWindow.CreatePane(ref tempId, ".NET nanoFramework Virtual Device", 1, 0);
                 _outputWindow.GetPane(ref tempId, out _virtualDevice);
-            });
+
+                OutputWelcomeMessage();
+
+            }).Task;
+        }
+
+        private static void OutputWelcomeMessage()
+        {
+            // loaded 
+            OutputMessage($"** .NET nanoFramework extension v{NanoFrameworkPackage.NanoFrameworkExtensionVersion} loaded **");
+
+            // intro messages
+            OutputMessage("GitHub repo: https://github.com/nanoframework/Home");
+            OutputMessage("Report issues: https://github.com/nanoframework/Home/issues");
+            OutputMessage("Browse samples: https://github.com/nanoframework/samples");
+            OutputMessage("Join our Discord community: https://discord.gg/gCyBu8T");
+            OutputMessage("Join our Hackster.io platform: https://www.hackster.io/nanoframework");
+            OutputMessage("Follow us on Twitter: https://twitter.com/nanoframework");
+            OutputMessage("Follow our YouTube channel: https://www.youtube.com/c/nanoFramework");
+            OutputMessage("Star our GitHub repos: https://github.com/nanoframework/Home");
+            OutputMessage("Add a short review or rate the VS extension: https://marketplace.visualstudio.com/items?itemName=nanoframework.nanoFramework-VS2022-Extension");
+            OutputMessage(Environment.NewLine);
+
+            // check device watchers option
+            if (NanoFrameworkPackage.OptionDisableDeviceWatchers)
+            {
+                OutputMessage(Environment.NewLine);
+                OutputMessage("*******************************************************************************");
+                OutputMessage("** Device Watchers are DISABLED. Won't be able to connect to any nanoDevice. **");
+                OutputMessage("*******************************************************************************");
+                OutputMessage(Environment.NewLine);
+            }
         }
 
         /// <summary>
@@ -221,7 +253,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         {
             if (message == null)
             {
-                message = "[no message string provided to MessageCentre.Message()" + new StackTrace().ToString();
+                message = "[no message string provided to Message()" + new StackTrace().ToString();
             }
 
             _ = ThreadHelper.JoinableTaskFactory.RunAsync(async () =>

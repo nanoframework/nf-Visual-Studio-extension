@@ -139,7 +139,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
             Instance.ViewModelLocator = vmLocator;
 
-            var commService = await package.GetServiceAsync(typeof(NanoDeviceCommService)) ?? throw new ArgumentNullException(nameof(NanoDeviceCommService));
+            var commService = await package.GetServiceAsync(typeof(NanoDeviceCommService));
 
             Instance.NanoDeviceCommService = commService as INanoDeviceCommService;
 
