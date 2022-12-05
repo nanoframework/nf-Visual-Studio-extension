@@ -108,6 +108,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         private const string SETTINGS_PORT_BLACK_LIST_KEY = "PortBlackList";
         private const string SETTINGS_AUTO_UPDATE_ENABLE_KEY = "AutoUpdateEnable";
         private const string SETTINGS_ALLOW_PREVIEW_IMAGES_KEY = "IncludePrereleaseUpdates";
+        private const string SETTINGS_VIRTUAL_DEVICE_ENABLE_KEY = "VirtualDeviceEnable";
+        private const string SETTINGS_VIRTUAL_DEVICE_AUTO_UPDATE_NANOCLR_KEY = "VirtualDeviceAutoUpdateNanoCLR";
+        private const string SETTINGS_VIRTUAL_DEVICE_PORT = "VirtualDevicePort";
 
         private static bool? s_OptionShowInternalErrors;
         /// <summary>
@@ -334,6 +337,89 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 s_SettingIncludePrereleaseUpdates = value;
             }
         }
+      
+        private static bool? s_SettingVirtualDeviceAutoUpdateNanoClrImage = null;
+        /// <summary>
+        /// Setting to enable auto updating nanoCLR image for the virtual device.
+        /// The value is persisted per user
+        /// Default is <see langword="false"/>
+        /// </summary>
+        public static bool SettingVirtualDeviceAutoUpdateNanoClrImage
+        {
+            get
+            {
+                if (!s_SettingVirtualDeviceAutoUpdateNanoClrImage.HasValue)
+                {
+                    s_SettingVirtualDeviceAutoUpdateNanoClrImage = bool.Parse((string)s_instance.UserRegistryRoot.OpenSubKey(EXTENSION_SUBKEY).GetValue(SETTINGS_VIRTUAL_DEVICE_AUTO_UPDATE_NANOCLR_KEY, "True"));
+                }
+
+                return s_SettingVirtualDeviceAutoUpdateNanoClrImage.Value;
+
+            }
+            set
+            {
+                s_instance.UserRegistryRoot.OpenSubKey(EXTENSION_SUBKEY, true).SetValue(SETTINGS_VIRTUAL_DEVICE_AUTO_UPDATE_NANOCLR_KEY, value);
+                s_instance.UserRegistryRoot.OpenSubKey(EXTENSION_SUBKEY, true).Flush();
+
+                s_SettingVirtualDeviceAutoUpdateNanoClrImage = value;
+
+            }
+        }
+
+        private static bool? s_SettingVirtualDeviceEnable = null;
+        /// <summary>
+        /// Setting to enable the use of a virtual device running on the development machine as a command line interface (CLI)
+        /// The value is persisted per user
+        /// Default is <see langword="false"/>
+        /// </summary>
+        public static bool SettingVirtualDeviceEnable
+        {
+            get
+            {
+                if (!s_SettingVirtualDeviceEnable.HasValue)
+                {
+                    s_SettingVirtualDeviceEnable = bool.Parse((string)s_instance.UserRegistryRoot.OpenSubKey(EXTENSION_SUBKEY).GetValue(SETTINGS_VIRTUAL_DEVICE_ENABLE_KEY, "False"));
+                }
+
+                return s_SettingVirtualDeviceEnable.Value;
+
+            }
+            set
+            {
+                s_instance.UserRegistryRoot.OpenSubKey(EXTENSION_SUBKEY, true).SetValue(SETTINGS_VIRTUAL_DEVICE_ENABLE_KEY, value);
+                s_instance.UserRegistryRoot.OpenSubKey(EXTENSION_SUBKEY, true).Flush();
+
+                s_SettingVirtualDeviceEnable = value;
+
+            }
+        }
+
+        private static string s_SettingVirtualDevicePort = null;
+        /// <summary>
+        /// Setting to store COM port for the virtual device
+        /// The value is persisted per user.
+        /// Default is empty.
+        /// </summary>
+        public static string SettingVirtualDevicePort
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(s_SettingVirtualDevicePort))
+                {
+                    s_SettingVirtualDevicePort = (string)s_instance.UserRegistryRoot.OpenSubKey(EXTENSION_SUBKEY).GetValue(SETTINGS_VIRTUAL_DEVICE_PORT, string.Empty);
+                }
+
+                return s_SettingVirtualDevicePort;
+            }
+
+            set
+            {
+                s_instance.UserRegistryRoot.OpenSubKey(EXTENSION_SUBKEY, true).SetValue(SETTINGS_VIRTUAL_DEVICE_PORT, value);
+                s_instance.UserRegistryRoot.OpenSubKey(EXTENSION_SUBKEY, true).Flush();
+
+                s_SettingVirtualDevicePort = value;
+            }
+        }
 
         #endregion
 
@@ -342,6 +428,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         /// To be used by providers and other classes in the package.
         /// </summary>
         public static INanoDeviceCommService NanoDeviceCommService { get; private set; }
+
+        /// <summary>
+        /// Provides direct access to <see cref="IVirtualDeviceService"/> service.
+        /// To be used by providers and other classes in the package.
+        /// </summary>
+        internal static IVirtualDeviceService VirtualDeviceService { get; private set; }
 
         private static NanoFrameworkPackage s_instance { get; set; }
 
@@ -388,8 +480,11 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             await JoinableTaskFactory.SwitchToMainThreadAsync(cancellationToken);
 
             AddService(typeof(NanoDeviceCommService), CreateNanoDeviceCommServiceAsync);
+            AddService(typeof(VirtualDeviceService), CreateVirtualDeviceManagerServiceAsync);
 
             NanoDeviceCommService = await GetServiceAsync(typeof(NanoDeviceCommService)) as INanoDeviceCommService;
+            VirtualDeviceService = await GetServiceAsync(typeof(VirtualDeviceService)) as IVirtualDeviceService;
+            Assumes.Present(VirtualDeviceService);
 
             ViewModelLocator viewModelLocator = null;
 
@@ -416,6 +511,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             // Enable debugger UI context
             UIContext.FromUIContextGuid(CorDebug.EngineGuid).IsActive = true;
 
+            VirtualDeviceService.InitVirtualDeviceAsync().FireAndForget();
+
             OutputWelcomeMessage();
         }
 
@@ -429,6 +526,18 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             await System.Threading.Tasks.Task.Run(() =>
             {
                 service = new NanoDeviceCommService(this);
+            });
+
+            return service;
+        }
+
+        public async Task<object> CreateVirtualDeviceManagerServiceAsync(IAsyncServiceContainer container, CancellationToken cancellationToken, Type serviceType)
+        {
+            VirtualDeviceService service = null;
+
+            await System.Threading.Tasks.Task.Run(() =>
+            {
+                service = new VirtualDeviceService(this);
             });
 
             return service;

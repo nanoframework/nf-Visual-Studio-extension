@@ -5,7 +5,9 @@
 
 namespace nanoFramework.Tools.VisualStudio.Extension
 {
+    using GalaSoft.MvvmLight.Messaging;
     using Microsoft.VisualStudio.PlatformUI;
+    using nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel;
     using System.Collections.Generic;
     using System.Net;
     using System.Windows.Controls.Primitives;
@@ -16,6 +18,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
     /// </summary>
     public partial class SettingsDialog : DialogWindow
     {
+        private const string _stopVirtualDeviceLabel = "Stop Virtual Device";
+        private const string _startVirtualDeviceLabel = "Start Virtual Device";
         private static IPAddress _InvalidIPv4 = new IPAddress(0x0);
 
         public SettingsDialog(string helpTopic) : base(helpTopic)
@@ -36,11 +40,16 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         // init controls
         private void InitControls()
         {
+            Messenger.Default.Register<NotificationMessage>(this, DeviceExplorerViewModel.MessagingTokens.VirtualDeviceOperationExecuting, (message) => this.UpdateStartStopAvailability(message.Notification));
+
             // set controls according to stored preferences
             GenerateDeploymentImage.IsChecked = NanoFrameworkPackage.SettingGenerateDeploymentImage;
             IncludeConfigBlock.IsChecked = NanoFrameworkPackage.SettingIncludeConfigBlockInDeploymentImage;
             AutoUpdateEnable.IsChecked = NanoFrameworkPackage.SettingAutoUpdateEnable;
             IncludePrereleaseUpdates.IsChecked = NanoFrameworkPackage.SettingIncludePrereleaseUpdates;
+            EnableVirtualDevice.IsChecked = NanoFrameworkPackage.SettingVirtualDeviceEnable;
+            VirtualDeviceSerialPort.Text = NanoFrameworkPackage.SettingVirtualDevicePort;
+            AutoUpdateNanoClrImage.IsChecked = NanoFrameworkPackage.SettingVirtualDeviceAutoUpdateNanoClrImage;
 
             if (string.IsNullOrEmpty(NanoFrameworkPackage.SettingPathOfFlashDumpCache))
             {
@@ -56,12 +65,32 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
             PortBlackList.Text = NanoFrameworkPackage.SettingPortBlackList;
 
+            // update button content for start/stop device depending if it's running or not
+            if (EnableVirtualDevice.IsChecked.Value
+               && NanoFrameworkPackage.VirtualDeviceService.VirtualDeviceIsRunning)
+            {
+                StartStopDevice.Content = _stopVirtualDeviceLabel;
+            }
+
+            if (!string.IsNullOrEmpty(VirtualDeviceSerialPort.Text))
+            {
+                // if there is a COM port set, enable the text box only if it's not running
+                VirtualDeviceSerialPort.IsEnabled = !NanoFrameworkPackage.VirtualDeviceService.VirtualDeviceIsRunning;
+            }
+
+
             // OK to add event handlers to controls now
             StoreCacheToUserPath.Checked += StoreCacheLocationChanged_Checked;
             StoreCacheToUserPath.Unchecked += StoreCacheLocationChanged_Checked;
+            VirtualDeviceSerialPort.LostFocus += VirtualDeviceSerialPort_LostFocus;
 
             // set focus on close button
             CloseButton.Focus();
+        }
+
+        private void UpdateStartStopAvailability(string installCompleted)
+        {
+            StartStopDevice.IsEnabled = !bool.Parse(installCompleted);
         }
 
         private void CloseButton_Click(object sender, System.Windows.RoutedEventArgs e)
@@ -83,7 +112,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         private void StoreCacheLocationChanged_Checked(object sender, System.Windows.RoutedEventArgs e)
         {
-            if(StoreCacheToProjectOutputPath.IsChecked.GetValueOrDefault())
+            if (StoreCacheToProjectOutputPath.IsChecked.GetValueOrDefault())
             {
                 // cache location is project output
                 // save setting by clearing the path
@@ -161,6 +190,56 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         {
             // save new state
             NanoFrameworkPackage.SettingIncludePrereleaseUpdates = (sender as ToggleButton).IsChecked ?? false;
+        }
+
+        private void EnableVirtualSerialDevice_Checked(object sender, System.Windows.RoutedEventArgs e)
+        {
+            // save new state
+            NanoFrameworkPackage.SettingVirtualDeviceEnable = (sender as ToggleButton).IsChecked ?? false;
+
+            // install/update nanoclr tool
+            if (NanoFrameworkPackage.SettingVirtualDeviceEnable && !NanoFrameworkPackage.VirtualDeviceService.NanoClrInstalled)
+            {
+                NanoFrameworkPackage.VirtualDeviceService.InstallNanoClrTool();
+            }
+        }
+
+        private void VirtualDeviceSerialPort_LostFocus(object sender, System.Windows.RoutedEventArgs e)
+        {
+            // store updated setting
+            NanoFrameworkPackage.SettingVirtualDevicePort = VirtualDeviceSerialPort.Text;
+        }
+
+        private async void StartStopDevice_Click(object sender, System.Windows.RoutedEventArgs e)
+        {
+            if (NanoFrameworkPackage.VirtualDeviceService.VirtualDeviceIsRunning)
+            {
+                NanoFrameworkPackage.VirtualDeviceService.StopVirtualDevice();
+
+                StartStopDevice.Content = _startVirtualDeviceLabel;
+
+                VirtualDeviceSerialPort.IsEnabled = true;
+            }
+            else
+            {
+                if (await NanoFrameworkPackage.VirtualDeviceService.StartVirtualDeviceAsync(true))
+                {
+                    StartStopDevice.Content = _stopVirtualDeviceLabel;
+                    VirtualDeviceSerialPort.IsEnabled = false;
+
+                    // if this is the 1st run, update serial port name, if not already there
+                    if (string.IsNullOrEmpty(VirtualDeviceSerialPort.Text))
+                    {
+                        VirtualDeviceSerialPort.Text = NanoFrameworkPackage.SettingVirtualDevicePort;
+                    }
+                }
+            }
+        }
+
+        private void AutoUpdateNanoClrImage_Checked(object sender, System.Windows.RoutedEventArgs e)
+        {
+            // save new state
+            NanoFrameworkPackage.SettingVirtualDeviceAutoUpdateNanoClrImage = (sender as ToggleButton).IsChecked ?? false;
         }
     }
 }

@@ -89,5 +89,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Utilities\DeploymentImageGenerator.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utilities\EnumToItemsSource.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utilities\ReferenceCrawler.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)VirtualDeviceService\IVirtualDeviceService.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)VirtualDeviceService\VirtualDeviceService.cs" />
   </ItemGroup>
 </Project>

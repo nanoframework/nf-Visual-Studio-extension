@@ -50,10 +50,10 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     PortBase networkDebug = PortBase.CreateInstanceForNetwork(false);
 
                     // create composite client with all ports
-                    // start device watcher (or not) according to current user option
+                    // DO NOT start device watcher as this will happen after the virtual device is created (if required)
                     _debugClient = PortBase.CreateInstanceForComposite(
                         new[] { serialDebug, networkDebug },
-                        !NanoFrameworkPackage.OptionDisableDeviceWatchers);
+                        false);
                 }
 
                 return _debugClient;
