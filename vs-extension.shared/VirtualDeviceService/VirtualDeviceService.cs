@@ -22,6 +22,7 @@ using System.Security.Policy;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace nanoFramework.Tools.VisualStudio.Extension
 {
@@ -41,28 +42,32 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         public async System.Threading.Tasks.Task InitVirtualDeviceAsync()
         {
-            _nanoDeviceCommService = await _serviceProvider.GetServiceAsync(typeof(NanoDeviceCommService)) as INanoDeviceCommService;
-            Assumes.Present(_nanoDeviceCommService);
-
-            if (NanoFrameworkPackage.SettingVirtualDeviceEnable)
+            await System.Threading.Tasks.Task.Run(async () =>
             {
-                // take care of installing/updating nanoclr tool
-                InstallNanoClrTool();
+                _nanoDeviceCommService = await _serviceProvider.GetServiceAsync(typeof(NanoDeviceCommService)) as INanoDeviceCommService;
+                Assumes.Present(_nanoDeviceCommService);
 
-                if (NanoFrameworkPackage.SettingVirtualDeviceAutoUpdateNanoClrImage)
+                if (NanoFrameworkPackage.SettingVirtualDeviceEnable)
                 {
-                    // update nanoCLR image
-                    UpdateNanoClr();
+                    // take care of installing/updating nanoclr tool
+                    InstallNanoClrTool();
+
+                    if (NanoFrameworkPackage.SettingVirtualDeviceAutoUpdateNanoClrImage)
+                    {
+                        // update nanoCLR image
+                        UpdateNanoClr();
+                    }
+
+                    // start virtual device
+                    await StartVirtualDeviceAsync(false);
                 }
 
-                // start virtual device
-                await StartVirtualDeviceAsync(false);
-            }
-
-            if (!NanoFrameworkPackage.OptionDisableDeviceWatchers)
-            {
-                _nanoDeviceCommService.DebugClient.StartDeviceWatchers();
-            }
+                if (!NanoFrameworkPackage.OptionDisableDeviceWatchers)
+                {
+                    _nanoDeviceCommService.DebugClient.StartDeviceWatchers();
+                }
+               
+            });
         }
 
         public void InstallNanoClrTool()

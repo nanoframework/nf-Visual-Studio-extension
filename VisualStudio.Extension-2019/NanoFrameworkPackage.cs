@@ -396,6 +396,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         }
 
         private static string s_SettingVirtualDevicePort = null;
+        private static INanoDeviceCommService _nanoDeviceCommService;
+        private static IVirtualDeviceService _virtualDeviceService;
+
         /// <summary>
         /// Setting to store COM port for the virtual device
         /// The value is persisted per user.
@@ -428,13 +431,41 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         /// Provides direct access to <see cref="INanoDeviceCommService"/> service.
         /// To be used by providers and other classes in the package.
         /// </summary>
-        public static INanoDeviceCommService NanoDeviceCommService { get; private set; }
+        public static INanoDeviceCommService NanoDeviceCommService
+        {
+            get
+            {
+                if (_nanoDeviceCommService is null)
+                {
+                    _nanoDeviceCommService = ThreadHelper.JoinableTaskFactory.Run(async delegate
+                    {
+                        return await s_instance.GetServiceAsync(typeof(NanoDeviceCommService)) as INanoDeviceCommService;
+                    });
+                }
+
+                return _nanoDeviceCommService;
+            }
+        }
 
         /// <summary>
         /// Provides direct access to <see cref="IVirtualDeviceService"/> service.
         /// To be used by providers and other classes in the package.
         /// </summary>
-        internal static IVirtualDeviceService VirtualDeviceService { get; private set; }
+        internal static IVirtualDeviceService VirtualDeviceService
+        {
+            get
+            {
+                if (_virtualDeviceService is null)
+                {
+                    _virtualDeviceService = ThreadHelper.JoinableTaskFactory.Run(async delegate
+                    {
+                        return await s_instance.GetServiceAsync(typeof(VirtualDeviceService)) as IVirtualDeviceService;
+                    });
+                }
+
+                return _virtualDeviceService;
+            }
+        }
 
         private static NanoFrameworkPackage s_instance { get; set; }
 
@@ -450,12 +481,19 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         /// </summary>
         public NanoFrameworkPackage()
         {
-
             // fill the property holding the extension install directory
             var assembly = GetType().Assembly;
-            if (assembly.Location == null) throw new Exception("Could not get assembly location!");
+            if (assembly.Location == null)
+            {
+                throw new FileNotFoundException("Could not find location of VS extension assembly!");
+            }
+
             var info = new FileInfo(assembly.Location).Directory;
-            if (info == null) throw new Exception("Could not get assembly directory!");
+            if (info == null)
+            {
+                throw new FileNotFoundException("Could not find directory location of VS extension assembly!");
+            }
+
             NanoFrameworkExtensionDirectory = info.FullName;
 
             // fill the property of the DLL version
@@ -475,16 +513,11 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         /// <returns>A task representing the async work of package initialization, or an already completed task if there is none. Do not return null from this method.</returns>
         protected override async Task InitializeAsync(CancellationToken cancellationToken, IProgress<ServiceProgressData> progress)
         {
-            // make sure "our" key exists and it's writeable
+            // make sure "our" key exists and it's writable
             s_instance.UserRegistryRoot.CreateSubKey(EXTENSION_SUBKEY, true);
 
-            await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
-
             AddService(typeof(NanoDeviceCommService), CreateNanoDeviceCommServiceAsync);
-
-            NanoDeviceCommService = await GetServiceAsync(typeof(NanoDeviceCommService)) as INanoDeviceCommService;
-            VirtualDeviceService = await GetServiceAsync(typeof(VirtualDeviceService)) as IVirtualDeviceService;
-            Assumes.Present(VirtualDeviceService);
+            AddService(typeof(VirtualDeviceService), CreateVirtualDeviceManagerServiceAsync);
 
             ViewModelLocator viewModelLocator = null;
 
@@ -504,16 +537,14 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
             await MessageCentre.InitializeAsync(this, ".NET nanoFramework Extension");
 
-            await DeviceExplorerCommand.InitializeAsync(this, viewModelLocator);
             DeployProvider.Initialize(this, viewModelLocator);
             UpdateManager.Initialize(this, viewModelLocator);
 
             // Enable debugger UI context
             UIContext.FromUIContextGuid(CorDebug.EngineGuid).IsActive = true;
 
-            VirtualDeviceService.InitVirtualDeviceAsync().FireAndForget();
-
-            OutputWelcomeMessage();
+            await DeviceExplorerCommand.InitializeAsync(this, viewModelLocator);
+            await VirtualDeviceService.InitVirtualDeviceAsync();
         }
 
         #endregion
@@ -531,50 +562,16 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             return service;
         }
 
-        private void OutputWelcomeMessage()
+        public async Task<object> CreateVirtualDeviceManagerServiceAsync(IAsyncServiceContainer container, CancellationToken cancellationToken, Type serviceType)
         {
-            _ = System.Threading.Tasks.Task.Run(async () =>
-              {
-                  // schedule this to wait a few seconds (allowing VS to load) before doing it's thing
-                  await System.Threading.Tasks.Task.Delay(5000);
+            VirtualDeviceService service = null;
 
-                  // loaded 
-                  MessageCentre.OutputMessage($"** .NET nanoFramework extension v{NanoFrameworkExtensionVersion.ToString()} loaded **");
+            await System.Threading.Tasks.Task.Run(() =>
+            {
+                service = new VirtualDeviceService(this);
+            });
 
-                  // intro messages
-                  MessageCentre.OutputMessage("GitHub repo: https://github.com/nanoframework/Home");
-                  MessageCentre.OutputMessage("Report issues: https://github.com/nanoframework/Home/issues");
-                  MessageCentre.OutputMessage("Browse samples: https://github.com/nanoframework/samples");
-                  MessageCentre.OutputMessage("Join our Discord community: https://discord.gg/gCyBu8T");
-                  MessageCentre.OutputMessage("Join our Hackster.io platform: https://www.hackster.io/nanoframework");
-                  MessageCentre.OutputMessage("Follow us on Twitter: https://twitter.com/nanoframework");
-                  MessageCentre.OutputMessage("Follow our YouTube channel: https://www.youtube.com/c/nanoFramework");
-                  MessageCentre.OutputMessage("Star our GitHub repos: https://github.com/nanoframework/Home");
-                  MessageCentre.OutputMessage("Add a short review or rate the VS extension: https://marketplace.visualstudio.com/items?itemName=nanoframework.nanoFramework-VS2019-Extension");
-                  MessageCentre.OutputMessage(Environment.NewLine);
-
-                  // check Windows version
-                  if (Environment.OSVersion.Version < new Version(6, 2, 9200, 0))
-                  {
-                      // this is running on a Windows version lower than Windows 10
-                      MessageCentre.OutputMessage(Environment.NewLine);
-                      MessageCentre.OutputMessage("*************************************************************************");
-                      MessageCentre.OutputMessage("** Seems that you are running this on a Window version earlier than 10 **");
-                      MessageCentre.OutputMessage("** .NET nanoFramework debug engine component requires Windows 10       **");
-                      MessageCentre.OutputMessage("*************************************************************************");
-                      MessageCentre.OutputMessage(Environment.NewLine);
-                  }
-
-                  // check device watchers option
-                  if (OptionDisableDeviceWatchers)
-                  {
-                      MessageCentre.OutputMessage(Environment.NewLine);
-                      MessageCentre.OutputMessage("*******************************************************************************");
-                      MessageCentre.OutputMessage("** Device Watchers are DISABLED. Won't be able to connect to any nanoDevice. **");
-                      MessageCentre.OutputMessage("*******************************************************************************");
-                      MessageCentre.OutputMessage(Environment.NewLine);
-                  }
-              });
+            return service;
         }
 
         private int LaunchNanoDebug(uint nCmdExecOpt, IntPtr pvaIn, IntPtr pvaOut)
