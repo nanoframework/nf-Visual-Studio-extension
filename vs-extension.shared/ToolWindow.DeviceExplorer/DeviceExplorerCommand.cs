@@ -714,6 +714,21 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                             // need to switch to UI main thread
                             await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
+                            if (networkConfigurations.Count == 0
+                               && wirellesConfigurations.Count == 0)
+                            {
+                                // no network configuration available: device doesn't have network capabilities
+
+                                _ = MessageBox.Show(
+                                   "Connected nanoDevice doesn't have network capabilities. Can't open Network Configuration dialog.",
+                                   ".NET nanoFramework Device Explorer",
+                                   MessageBoxButton.OK,
+                                   MessageBoxImage.Error);
+
+                                // done here
+                                return;
+                            }
+
                             // show network configuration dialogue
                             var networkConfigDialog = new NetworkConfigurationDialog
                             {
