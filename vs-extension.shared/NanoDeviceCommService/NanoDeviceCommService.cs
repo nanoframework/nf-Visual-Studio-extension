@@ -28,7 +28,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 {
                     // grab and parse COM port list
                     List<string> serialPortList = new List<string>();
-                    
+
                     // need to wrap the processing in a try/catch to deal with bad user input/format
                     try
                     {
@@ -50,10 +50,10 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     PortBase networkDebug = PortBase.CreateInstanceForNetwork(false);
 
                     // create composite client with all ports
-                    // DO NOT start device watcher as this will happen after the virtual device is created (if required)
+                    // OK to start device watchers, if setting is enabled
                     _debugClient = PortBase.CreateInstanceForComposite(
                         new[] { serialDebug, networkDebug },
-                        false);
+                        !NanoFrameworkPackage.OptionDisableDeviceWatchers);
                 }
 
                 return _debugClient;
