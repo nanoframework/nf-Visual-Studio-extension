@@ -37,6 +37,7 @@ steps:
   inputs:
     packageType: sdk
     version: 6.x
+    performMultiLevelLookup: true
 
 - task: DotNetCoreCLI@2
   displayName: Restore NuGet packages
