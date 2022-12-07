@@ -161,7 +161,7 @@
                         </Grid>
                     </GroupBox>
 
-                    <CheckBox x:Name="EnableVirtualDevice"  Grid.Row="0" Margin="10,2,-10,0" Content="Enable Virtual Device"  Height="16" VerticalAlignment="Top" Checked="EnableVirtualSerialDevice_Checked" Unchecked="EnableVirtualSerialDevice_Checked"/>
+                    <CheckBox x:Name="EnableVirtualDevice"  Grid.Row="0" Margin="10,2,-10,0" Content="Enable Virtual Device"  Height="16" VerticalAlignment="Top"/>
 
                 </Grid>
             </TabItem>

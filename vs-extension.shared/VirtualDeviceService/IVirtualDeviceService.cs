@@ -9,9 +9,11 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 {
     internal interface IVirtualDeviceService
     {
-        bool NanoClrInstalled { get; }
+        bool NanoClrIsInstalled { get; }
 
         bool VirtualDeviceIsRunning { get; }
+
+        bool CanStartVirtualDevice { get; }
 
         Task InitVirtualDeviceAsync();
 

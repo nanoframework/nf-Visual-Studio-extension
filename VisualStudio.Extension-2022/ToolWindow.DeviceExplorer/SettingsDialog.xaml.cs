@@ -10,6 +10,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
     using nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel;
     using System.Collections.Generic;
     using System.Net;
+    using System.Threading.Tasks;
     using System.Windows.Controls.Primitives;
     using System.Windows.Forms;
 
@@ -67,10 +68,15 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
             // update button content for start/stop device depending if it's running or not
             if (EnableVirtualDevice.IsChecked.Value
+               && NanoFrameworkPackage.VirtualDeviceService.CanStartVirtualDevice
                && NanoFrameworkPackage.VirtualDeviceService.VirtualDeviceIsRunning)
             {
                 StartStopDevice.Content = _stopVirtualDeviceLabel;
             }
+
+            // enable start/stop button if possible
+            StartStopDevice.IsEnabled = NanoFrameworkPackage.VirtualDeviceService.NanoClrIsInstalled
+                                        && NanoFrameworkPackage.VirtualDeviceService.CanStartVirtualDevice;
 
             if (!string.IsNullOrEmpty(VirtualDeviceSerialPort.Text))
             {
@@ -78,11 +84,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 VirtualDeviceSerialPort.IsEnabled = !NanoFrameworkPackage.VirtualDeviceService.VirtualDeviceIsRunning;
             }
 
-
             // OK to add event handlers to controls now
             StoreCacheToUserPath.Checked += StoreCacheLocationChanged_Checked;
             StoreCacheToUserPath.Unchecked += StoreCacheLocationChanged_Checked;
             VirtualDeviceSerialPort.LostFocus += VirtualDeviceSerialPort_LostFocus;
+            EnableVirtualDevice.Checked += EnableVirtualSerialDevice_Checked;
+            EnableVirtualDevice.Unchecked += EnableVirtualSerialDevice_Checked;
 
             // set focus on close button
             CloseButton.Focus();
@@ -90,7 +97,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         private void UpdateStartStopAvailability(string installCompleted)
         {
-            StartStopDevice.IsEnabled = !bool.Parse(installCompleted);
+            StartStopDevice.IsEnabled = !bool.Parse(installCompleted)
+                                        && NanoFrameworkPackage.VirtualDeviceService.NanoClrIsInstalled
+                                        && NanoFrameworkPackage.VirtualDeviceService.CanStartVirtualDevice;
         }
 
         private void CloseButton_Click(object sender, System.Windows.RoutedEventArgs e)
@@ -192,15 +201,21 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             NanoFrameworkPackage.SettingIncludePrereleaseUpdates = (sender as ToggleButton).IsChecked ?? false;
         }
 
-        private void EnableVirtualSerialDevice_Checked(object sender, System.Windows.RoutedEventArgs e)
+        private async void EnableVirtualSerialDevice_Checked(object sender, System.Windows.RoutedEventArgs e)
         {
             // save new state
             NanoFrameworkPackage.SettingVirtualDeviceEnable = (sender as ToggleButton).IsChecked ?? false;
 
             // install/update nanoclr tool
-            if (NanoFrameworkPackage.SettingVirtualDeviceEnable && !NanoFrameworkPackage.VirtualDeviceService.NanoClrInstalled)
+            if (NanoFrameworkPackage.SettingVirtualDeviceEnable && !NanoFrameworkPackage.VirtualDeviceService.NanoClrIsInstalled)
             {
-                NanoFrameworkPackage.VirtualDeviceService.InstallNanoClrTool();
+                // yield to give the UI thread a chance to respond to user input
+                await Task.Yield();
+
+                await Task.Run(async delegate
+                {
+                    NanoFrameworkPackage.VirtualDeviceService.InstallNanoClrTool();
+                });
             }
         }
 
@@ -212,28 +227,34 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         private async void StartStopDevice_Click(object sender, System.Windows.RoutedEventArgs e)
         {
-            if (NanoFrameworkPackage.VirtualDeviceService.VirtualDeviceIsRunning)
-            {
-                NanoFrameworkPackage.VirtualDeviceService.StopVirtualDevice();
+            // yield to give the UI thread a chance to respond to user input
+            await Task.Yield();
 
-                StartStopDevice.Content = _startVirtualDeviceLabel;
-
-                VirtualDeviceSerialPort.IsEnabled = true;
-            }
-            else
+            await Task.Run(async delegate
             {
-                if (await NanoFrameworkPackage.VirtualDeviceService.StartVirtualDeviceAsync(true))
+                if (NanoFrameworkPackage.VirtualDeviceService.VirtualDeviceIsRunning)
                 {
-                    StartStopDevice.Content = _stopVirtualDeviceLabel;
-                    VirtualDeviceSerialPort.IsEnabled = false;
+                    NanoFrameworkPackage.VirtualDeviceService.StopVirtualDevice();
 
-                    // if this is the 1st run, update serial port name, if not already there
-                    if (string.IsNullOrEmpty(VirtualDeviceSerialPort.Text))
+                    StartStopDevice.Content = _startVirtualDeviceLabel;
+
+                    VirtualDeviceSerialPort.IsEnabled = true;
+                }
+                else
+                {
+                    if (await NanoFrameworkPackage.VirtualDeviceService.StartVirtualDeviceAsync(true))
                     {
-                        VirtualDeviceSerialPort.Text = NanoFrameworkPackage.SettingVirtualDevicePort;
+                        StartStopDevice.Content = _stopVirtualDeviceLabel;
+                        VirtualDeviceSerialPort.IsEnabled = false;
+
+                        // if this is the 1st run, update serial port name, if not already there
+                        if (string.IsNullOrEmpty(VirtualDeviceSerialPort.Text))
+                        {
+                            VirtualDeviceSerialPort.Text = NanoFrameworkPackage.SettingVirtualDevicePort;
+                        }
                     }
                 }
-            }
+            });
         }
 
         private void AutoUpdateNanoClrImage_Checked(object sender, System.Windows.RoutedEventArgs e)
