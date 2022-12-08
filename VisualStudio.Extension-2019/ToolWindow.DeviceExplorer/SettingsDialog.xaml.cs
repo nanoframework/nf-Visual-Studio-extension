@@ -7,10 +7,10 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 {
     using GalaSoft.MvvmLight.Messaging;
     using Microsoft.VisualStudio.PlatformUI;
+    using Microsoft.VisualStudio.Shell;
     using nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel;
     using System.Collections.Generic;
     using System.Net;
-    using System.Threading.Tasks;
     using System.Windows.Controls.Primitives;
     using System.Windows.Forms;
 
@@ -41,7 +41,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         // init controls
         private void InitControls()
         {
-            Messenger.Default.Register<NotificationMessage>(this, DeviceExplorerViewModel.MessagingTokens.VirtualDeviceOperationExecuting, (message) => this.UpdateStartStopAvailability(message.Notification));
+            Messenger.Default.Register<NotificationMessage>(this, DeviceExplorerViewModel.MessagingTokens.VirtualDeviceOperationExecuting, (message) => this.UpdateStartStopAvailabilityAsync(message.Notification).ConfigureAwait(false));
 
             // set controls according to stored preferences
             GenerateDeploymentImage.IsChecked = NanoFrameworkPackage.SettingGenerateDeploymentImage;
@@ -95,8 +95,10 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             CloseButton.Focus();
         }
 
-        private void UpdateStartStopAvailability(string installCompleted)
+        private async System.Threading.Tasks.Task UpdateStartStopAvailabilityAsync(string installCompleted)
         {
+            await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+
             StartStopDevice.IsEnabled = !bool.Parse(installCompleted)
                                         && NanoFrameworkPackage.VirtualDeviceService.NanoClrIsInstalled
                                         && NanoFrameworkPackage.VirtualDeviceService.CanStartVirtualDevice;
@@ -210,9 +212,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             if (NanoFrameworkPackage.SettingVirtualDeviceEnable && !NanoFrameworkPackage.VirtualDeviceService.NanoClrIsInstalled)
             {
                 // yield to give the UI thread a chance to respond to user input
-                await Task.Yield();
+                await System.Threading.Tasks.Task.Yield();
 
-                await Task.Run(async delegate
+                await System.Threading.Tasks.Task.Run(() =>
                 {
                     NanoFrameworkPackage.VirtualDeviceService.InstallNanoClrTool();
                 });
@@ -228,10 +230,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         private async void StartStopDevice_Click(object sender, System.Windows.RoutedEventArgs e)
         {
             // yield to give the UI thread a chance to respond to user input
-            await Task.Yield();
+            await System.Threading.Tasks.Task.Yield();
 
-            await Task.Run(async delegate
+            await System.Threading.Tasks.Task.Run(async () =>
             {
+                await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+
                 if (NanoFrameworkPackage.VirtualDeviceService.VirtualDeviceIsRunning)
                 {
                     NanoFrameworkPackage.VirtualDeviceService.StopVirtualDevice();

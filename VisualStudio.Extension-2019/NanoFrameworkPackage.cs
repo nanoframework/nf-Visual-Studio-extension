@@ -544,7 +544,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             UIContext.FromUIContextGuid(CorDebug.EngineGuid).IsActive = true;
 
             await DeviceExplorerCommand.InitializeAsync(this, viewModelLocator);
-            await VirtualDeviceService.InitVirtualDeviceAsync();
+            VirtualDeviceService.InitVirtualDeviceAsync().FireAndForget();
         }
 
         #endregion
