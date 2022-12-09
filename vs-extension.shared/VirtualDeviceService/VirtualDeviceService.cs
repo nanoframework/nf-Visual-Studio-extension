@@ -72,17 +72,17 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                 if (NanoFrameworkPackage.SettingVirtualDeviceEnable)
                 {
+                    // wait a little bit to allow other services to load
+                    await System.Threading.Tasks.Task.Delay(5_000);
+
                     // take care of installing/updating nanoclr tool
                     InstallNanoClrTool();
 
-                    if (NanoClrIsInstalled)
+                    if (NanoClrIsInstalled
+                        && NanoFrameworkPackage.SettingVirtualDeviceAutoUpdateNanoClrImage)
                     {
-
-                        if (NanoFrameworkPackage.SettingVirtualDeviceAutoUpdateNanoClrImage)
-                        {
-                            // update nanoCLR image
-                            UpdateNanoClr();
-                        }
+                        // update nanoCLR image
+                        UpdateNanoClr();
                     }
 
                     // start virtual device
@@ -93,7 +93,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 {
                     _nanoDeviceCommService.DebugClient.ReScanDevices();
                 }
-
             });
         }
 
