@@ -225,39 +225,70 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             }
         }
 
-        public void StopVirtualDevice()
+        public void StopVirtualDevice(bool shutdownProcessing = false)
         {
             if (_nanoClrProcess != null)
             {
-                MessageCentre.InternalErrorWriteLine($"VirtualDevice: Attempting to stop virtual device");
-
-                try
+                ThreadHelper.JoinableTaskFactory.Run(async delegate
                 {
-                    _nanoClrProcess.Exited -= VirtualDeviceProcess_Exited;
+                    await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync(CancellationToken.None);
 
-                    // kill process
-                    _nanoClrProcess.Kill();
+                    if (shutdownProcessing)
+                    {
+                        // call from VS shutdown handler
+                        // just kill process
 
-                    // output message to pane
-                    MessageCentre.OutputVirtualDeviceMessage("");
-                    MessageCentre.OutputVirtualDeviceMessage("");
-                    MessageCentre.OutputVirtualDeviceMessage("**********************************");
-                    MessageCentre.OutputVirtualDeviceMessage("*** Virtual nanoDevice stopped ***");
-                    MessageCentre.OutputVirtualDeviceMessage("**********************************");
-                    MessageCentre.OutputVirtualDeviceMessage("");
-                    MessageCentre.OutputVirtualDeviceMessage("");
+                        try
+                        {
+                            _nanoClrProcess.EnableRaisingEvents = false;
+                            _nanoClrProcess.Exited -= VirtualDeviceProcess_Exited;
+                            _nanoClrProcess.OutputDataReceived -= nanoClrProcess_OutputDataReceived;
 
-                    // rescan devices
-                    _nanoDeviceCommService.DebugClient.ReScanDevices();
-                }
-                catch
-                {
-                    // catch all, don't bother
-                }
+                            // send Ctrl+C escape
+                            _nanoClrProcess.StandardInput.Write("\x3");
 
-                MessageCentre.InternalErrorWriteLine($"VirtualDevice: Virtual device stopped");
+                            // kill process
+                            _nanoClrProcess.Kill();
+                        }
+                        catch
+                        {
+                            // no need to process anything as VS is exiting
+                        }
+                    }
+                    else
+                    {
+                        MessageCentre.InternalErrorWriteLine($"VirtualDevice: Attempting to stop virtual device");
 
-                _nanoClrProcess = null;
+                        try
+                        {
+                            _nanoClrProcess.OutputDataReceived -= nanoClrProcess_OutputDataReceived;
+                            _nanoClrProcess.Exited -= VirtualDeviceProcess_Exited;
+
+                            // kill process
+                            _nanoClrProcess.Kill();
+
+                            // output message to pane
+                            MessageCentre.OutputVirtualDeviceMessage("");
+                            MessageCentre.OutputVirtualDeviceMessage("");
+                            MessageCentre.OutputVirtualDeviceMessage("**********************************");
+                            MessageCentre.OutputVirtualDeviceMessage("*** Virtual nanoDevice stopped ***");
+                            MessageCentre.OutputVirtualDeviceMessage("**********************************");
+                            MessageCentre.OutputVirtualDeviceMessage("");
+                            MessageCentre.OutputVirtualDeviceMessage("");
+
+                            // rescan devices
+                            _nanoDeviceCommService.DebugClient.ReScanDevices();
+                        }
+                        catch(Exception ex)
+                        {
+                            // catch all, don't bother
+                        }
+
+                        MessageCentre.InternalErrorWriteLine($"VirtualDevice: Virtual device stopped");
+
+                        _nanoClrProcess = null;
+                    }
+                });
             }
             else
             {
@@ -280,6 +311,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             {
                 // this shouldn't happen, still...
 
+                _nanoClrProcess.OutputDataReceived -= nanoClrProcess_OutputDataReceived;
                 _nanoClrProcess.Exited -= VirtualDeviceProcess_Exited;
 
                 _nanoClrProcess.Kill();
@@ -461,6 +493,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         private void VirtualDeviceProcess_Exited(object sender, EventArgs e)
         {
+            _nanoClrProcess.OutputDataReceived -= nanoClrProcess_OutputDataReceived;
+            _nanoClrProcess.Exited -= VirtualDeviceProcess_Exited;
+
             _nanoClrProcess = null;
         }
 
