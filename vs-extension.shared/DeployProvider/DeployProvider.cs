@@ -144,6 +144,14 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 MessageCentre.InternalErrorWrite("Connecting to debugger engine...");
                 needsToCloseMessageOutput = true;
 
+                // if this is a serial virtual device, ping to check if it's responsive
+                if (device.Description.StartsWith("Virtual nanoDevice @ COM")
+                    && device.Ping() != Debugger.WireProtocol.ConnectionSource.nanoCLR)
+                {
+                    // doesn't seem to be... better try to launch it
+                    await NanoFrameworkPackage.VirtualDeviceService.StartVirtualDeviceAsync(false);
+                }
+
                 // connect to the device
                 if (device.DebugEngine.Connect(false, true))
                 {

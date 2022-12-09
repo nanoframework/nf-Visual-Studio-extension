@@ -604,6 +604,18 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             debugger.LaunchDebugTargets4(1, debugTargets, processInfo);
         }
 
+        protected override int QueryClose(out bool canClose)
+        {
+            var res = base.QueryClose(out canClose);
+
+            if (canClose)
+            {
+                VirtualDeviceService?.StopVirtualDevice(true);
+            }
+
+            return res;
+        }
+
         #region IOleCommandTarget Members
 
         int Microsoft.VisualStudio.OLE.Interop.IOleCommandTarget.Exec(ref Guid cmdGroup, uint nCmdID, uint nCmdExecOpt, IntPtr pvaIn, IntPtr pvaOut)

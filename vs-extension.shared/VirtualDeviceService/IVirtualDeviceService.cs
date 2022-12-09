@@ -25,7 +25,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         bool CreateVirtualSerialPort(string portName, out string executionLog);
 
-        void StopVirtualDevice();
+        void StopVirtualDevice(bool shutdownProcessing = false);
 
         Task<bool> StartVirtualDeviceAsync(bool rescanDevices);
     }

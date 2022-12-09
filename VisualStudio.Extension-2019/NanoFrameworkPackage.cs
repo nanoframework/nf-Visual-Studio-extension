@@ -5,6 +5,7 @@
 
 using GalaSoft.MvvmLight.Ioc;
 using Microsoft;
+using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.ProjectSystem.VS;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
@@ -603,6 +604,18 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             VsDebugTargetProcessInfo[] processInfo = new VsDebugTargetProcessInfo[debugTargets.Length];
 
             debugger.LaunchDebugTargets4(1, debugTargets, processInfo);
+        }
+
+        protected override int QueryClose(out bool canClose)
+        {
+            var res = base.QueryClose(out canClose);
+
+            if (canClose)
+            {
+                VirtualDeviceService?.StopVirtualDevice(true);
+            }
+
+            return res;
         }
 
         #region IOleCommandTarget Members
