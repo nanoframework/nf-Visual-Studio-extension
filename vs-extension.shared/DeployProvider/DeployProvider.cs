@@ -145,7 +145,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 needsToCloseMessageOutput = true;
 
                 // if this is a serial virtual device, ping to check if it's responsive
-                if (device.Description.StartsWith("Virtual nanoDevice @ COM")
+                // this will happen in case the virtual device setting is ON
+                if (NanoFrameworkPackage.SettingVirtualDeviceEnable
+                    && device.Description.StartsWith("Virtual nanoDevice @ COM")
                     && device.Ping() != Debugger.WireProtocol.ConnectionSource.nanoCLR)
                 {
                     // doesn't seem to be... better try to launch it

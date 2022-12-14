@@ -122,7 +122,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                         if (regexResult.Success)
                         {
-                            MessageCentre.InternalErrorWriteLine($"VirtualDevice: Install/update successful v{regexResult.Groups["version"].Value}");
+                            MessageCentre.InternalErrorWriteLine($"VirtualDevice: Install/update successful. Running v{regexResult.Groups["version"].Value}");
+                            MessageCentre.OutputVirtualDeviceMessage($"Running nanoclr v{regexResult.Groups["version"].Value}");
                         }
 
                         NanoClrIsInstalled = true;
@@ -375,7 +376,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 _nanoClrProcess = new Process();
 
                 _nanoClrProcess.StartInfo.FileName = "nanoclr";
-                _nanoClrProcess.StartInfo.Arguments = $"run --serialport {NanoFrameworkPackage.SettingVirtualDevicePort} --monitorparentpid {Process.GetCurrentProcess().Id}";
+                _nanoClrProcess.StartInfo.Arguments = $"run --serialport {NanoFrameworkPackage.SettingVirtualDevicePort} --waitfordebugger --monitorparentpid {Process.GetCurrentProcess().Id}";
                 _nanoClrProcess.StartInfo.UseShellExecute = false;
                 _nanoClrProcess.StartInfo.CreateNoWindow = true;
                 _nanoClrProcess.StartInfo.RedirectStandardOutput = true;
