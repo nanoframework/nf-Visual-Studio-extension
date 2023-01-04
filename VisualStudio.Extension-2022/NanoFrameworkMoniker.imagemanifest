@@ -3,7 +3,7 @@
                            xmlns:xsd="http://www.w3.org/2001/XMLSchema"
                            xmlns="http://schemas.microsoft.com/VisualStudio/ImageManifestSchema/2014">
   <Symbols>
-    <String Name="Resources" Value="/nanoFramework.Tools.VS2022.Extension;Component/Resources" />
+    <String Name="Resources" Value="/nanoFramework.Tools.VS2022.Extension;v|%CurrentProject%;GetBuildVersion|;c78be3280fbde583;Component/Resources" />
     <Guid Name="NanoFrameworkCatalog" Value="{23cf437f-5e0e-4b0c-8aa4-ceec5b5f8679}" />
     <ID Name="DeviceConnected" Value="20" />
     <ID Name="DeviceDisconnected" Value="30" />
