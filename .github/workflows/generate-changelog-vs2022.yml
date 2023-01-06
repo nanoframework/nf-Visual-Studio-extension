@@ -24,7 +24,6 @@ jobs:
         with:
           configuration: '.github/.changelog-config-vs2022.json'
           outputFile: 'CHANGELOG-VS2022.md'
-          fromTag: 'v1.1.0.101-VS2019'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -35,4 +34,4 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
           TAG_NAME: ${{steps.build_changelog.outputs.toTag}}
         with:
-          body: ${{ steps.gh_changelog.outputs.changelog }}
+          body: ${{ steps.build_changelog.outputs.changelog }}
