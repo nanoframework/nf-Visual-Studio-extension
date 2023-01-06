@@ -1,0 +1,55 @@
+{
+    "categories": [
+        {
+            "title": "## New Features and enhancements",
+            "labels": [
+                "Type: enhancement",
+                "VS2019"
+            ],
+            "exhaustive": true
+        },
+        {
+            "title": "## Bug Fixes",
+            "labels": [
+                "Type: bug",
+                "VS2019"
+            ],
+            "exhaustive": true
+        },
+        {
+            "title": "## Documentation",
+            "labels": [
+                "Type: documentation",
+                "VS2019"
+            ],
+            "exhaustive": true
+        },
+        {
+            "title": "## ⚠️ Breaking Changes",
+            "labels": [
+                "Breaking-Change",
+                "VS2019"
+            ],
+            "exhaustive": true
+        },
+        {
+            "title": "## Updated dependencies and other chores",
+            "labels": [
+                "Type: dependencies",
+                "VS2019"
+            ],
+            "exhaustive": true
+        }
+    ],
+    "sort": "ASC",
+    "template": "${{CHANGELOG}}\n\nFull Changelog: ${{RELEASE_DIFF}}\n\n##Install from Visual Studio Marketplace\nThe following Visual Studio Extension is available for install from this release:\n\n:package: [.NET nanoFramework VS2019 Extension](https://marketplace.visualstudio.com/items?itemName=nanoframework.nanoFramework-VS2019-Extension)",
+    "pr_template": "- ${{TITLE}} by [${{AUTHOR}}](https://github.com/${{AUTHOR}}) in #${{NUMBER}}",
+    "empty_template": "- no changes",
+    "max_tags_to_fetch": 200,
+    "max_pull_requests": 200,
+    "tag_resolver": {
+        "filter": {
+            "pattern": "v2019.(.+)"
+        }
+    }
+}
