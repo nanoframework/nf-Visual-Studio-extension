@@ -42,14 +42,15 @@
         }
     ],
     "sort": "ASC",
-    "template": "${{CHANGELOG}}\n\nFull Changelog: ${{RELEASE_DIFF}}\n\n##Install from Visual Studio Marketplace\nThe following Visual Studio Extension is available for install from this release:\n\n:package: [.NET nanoFramework VS2022 Extension](https://marketplace.visualstudio.com/items?itemName=nanoframework.nanoFramework-VS2022-Extension)",
+    "template": "${{CHANGELOG}}\n\nFull Changelog: ${{RELEASE_DIFF}}\n\n<h4>Install from Visual Studio Marketplace</h4>\nThe following Visual Studio Extension is available for install from this release:\n\n:package: [.NET nanoFramework VS2022 Extension](https://marketplace.visualstudio.com/items?itemName=nanoframework.nanoFramework-VS2022-Extension)",
     "pr_template": "- ${{TITLE}} by [${{AUTHOR}}](https://github.com/${{AUTHOR}}) in #${{NUMBER}}",
     "empty_template": "- no changes",
     "max_tags_to_fetch": 200,
     "max_pull_requests": 200,
     "tag_resolver": {
+        "method": "sort",
         "filter": {
-            "pattern": "v2019.(.+)"
+            "pattern": "v2022.(.+)"
         }
     }
 }

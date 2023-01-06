@@ -20,12 +20,20 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Get previous release
+        id: previous_release
+        run: |
+          $tags=git tag --sort=committerdate --list v2022*
+          $previousTag = $tags[$tags.Count - 2]
+          echo "PREVIOUS_TAG=$previousTag" >> $env:GITHUB_ENV
+        shell: pwsh
+
       - name: Build Changelog
         id: build_changelog
         uses: mikepenz/release-changelog-builder-action@v3
         with:
           configuration: '.github/.changelog-config-vs2022.json'
-          outputFile: 'CHANGELOG-VS2022.md'
+          fromTag: ${{ env.PREVIOUS_TAG }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
