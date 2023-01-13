@@ -37,8 +37,6 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>nanoFramework.Tools.VisualStudio.Extension</RootNamespace>
     <AssemblyName>nanoFramework.Tools.VS2022.Extension</AssemblyName>
-    <SignAssembly>True</SignAssembly>
-    <AssemblyOriginatorKeyFile>Key.snk</AssemblyOriginatorKeyFile>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <GeneratePkgDefFile>true</GeneratePkgDefFile>
     <UseCodebase>true</UseCodebase>
@@ -130,12 +128,12 @@
     <Resource Include="Resources\DeviceErase.16.16.png" />
     <Resource Include="Resources\NetworkConfig.16.16.png" />
     <Resource Include="Resources\DisableDeviceWatchers.16.16.png" />
-    <Content Include="Resources\nF-logo-128.png">
+    <Content Include="Resources\nF_logo_128.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
     <Resource Include="Resources\ShowInternalErrors.16.16.png" />
-    <Content Include="Resources\nF-logo-32.png">
+    <Content Include="Resources\nF_logo_32.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
@@ -202,7 +200,6 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
-    <None Include="Key.snk" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Microsoft.CSharp" />
