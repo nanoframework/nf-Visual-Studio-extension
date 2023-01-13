@@ -130,12 +130,12 @@
     <Resource Include="Resources\DeviceErase.16.16.png" />
     <Resource Include="Resources\NetworkConfig.16.16.png" />
     <Resource Include="Resources\DisableDeviceWatchers.16.16.png" />
-    <Content Include="Resources\nF-logo-128.png">
+    <Content Include="Resources\nF_logo_128.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
     <Resource Include="Resources\ShowInternalErrors.16.16.png" />
-    <Content Include="Resources\nF-logo-32.png">
+    <Content Include="Resources\nF_logo_32.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>

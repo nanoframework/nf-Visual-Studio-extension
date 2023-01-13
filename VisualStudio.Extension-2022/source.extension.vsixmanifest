@@ -8,7 +8,7 @@
         <License>license.txt</License>
         <GettingStartedGuide>https://docs.nanoframework.net/content/getting-started-guides/getting-started-managed.html</GettingStartedGuide>
         <ReleaseNotes>https://github.com/nanoframework/nf-Visual-Studio-extension/releases/tag/v|%CurrentProject%;GetBuildVersion|</ReleaseNotes>
-        <Icon>Resources\nF-logo-128.png</Icon>
+        <Icon>Resources\nF_logo_128.png</Icon>
         <Tags>nanoFramework;netnf;netmf;MicroFramework;C#;productivity;microcontroller;I2C;PWM;Serial;SPI;IoT;STM32;ESP32;Cortex-M</Tags>
         <Preview>true</Preview>
     </Metadata>
