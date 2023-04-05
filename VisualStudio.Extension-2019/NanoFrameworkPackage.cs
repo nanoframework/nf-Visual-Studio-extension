@@ -3,9 +3,7 @@
 // See LICENSE file in the project root for full license information.
 //
 
-using GalaSoft.MvvmLight.Ioc;
 using Microsoft;
-using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.ProjectSystem.VS;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;

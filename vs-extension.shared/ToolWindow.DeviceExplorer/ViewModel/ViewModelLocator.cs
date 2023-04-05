@@ -3,8 +3,6 @@
 // See LICENSE file in the project root for full license information.
 //
 
-using GalaSoft.MvvmLight.Ioc;
-
 namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
 {
     /// <summary>
@@ -18,17 +16,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
         /// </summary>
         public ViewModelLocator()
         {
-            ////if (ViewModelBase.IsInDesignModeStatic)
-            ////{
-            ////    // Create design time view services and models
-            ////    SimpleIoc.Default.Register<IDataService, DesignDataService>();
-            ////}
-            ////else
-            ////{
-            ////    // Create run time view services and models
-            ////    SimpleIoc.Default.Register<IDataService, DataService>();
-            ////}
-
             SimpleIoc.Default.Register<DeviceExplorerViewModel>();
         }
 

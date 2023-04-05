@@ -3,8 +3,7 @@
 // See LICENSE file in the project root for full license information.
 //
 
-using GalaSoft.MvvmLight;
-using GalaSoft.MvvmLight.Messaging;
+using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.VisualStudio.Shell;
 using nanoFramework.Tools.Debugger;
 using nanoFramework.Tools.Debugger.WireProtocol;
@@ -14,11 +13,8 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
-using System.Net;
-using System.Runtime.CompilerServices;
 using System.Text;
-using System.Threading;
-using Task = System.Threading.Tasks.Task;
+using CommunityToolkit.Mvvm.Messaging;
 
 namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
 {
@@ -31,11 +27,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
     /// <para>
     /// You can also use Blend to data bind with the tool's support.
     /// </para>
-    /// <para>
-    /// See http://www.galasoft.ch/mvvm
-    /// </para>
     /// </summary>
-    public class DeviceExplorerViewModel : ViewModelBase, INotifyPropertyChanging
+    public class DeviceExplorerViewModel : ObservableRecipient, INotifyPropertyChanging
     {
         public const int WRITE_TO_OUTPUT_TOKEN = 1;
         public const int SELECTED_NULL_TOKEN = 2;
@@ -61,16 +54,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
         /// </summary>
         public Package Package { get; set; }
 
-        /// <summary>
-        /// Gets the service provider from the owner package.
-        /// </summary>
-        private IServiceProvider _serviceProvider
-        {
-            get
-            {
-                return Package;
-            }
-        }
 
         public INanoDeviceCommService NanoDeviceCommService { private get; set; }
 
@@ -79,20 +62,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
         /// </summary>
         public DeviceExplorerViewModel()
         {
-            if (IsInDesignMode)
-            {
-                // Code runs in Blend --> create design time data.
-                AvailableDevices = new ObservableCollection<NanoDeviceBase>();
-
-                //AvailableDevices.Add(new NanoDevice<NanoSerialDevice>() { Description = "Awesome nanodevice1" });
-                //AvailableDevices.Add(new NanoDevice<NanoSerialDevice>() { Description = "Awesome nanodevice2" });
-            }
-            else
-            {
-                // Code runs "for real"
-                AvailableDevices = new ObservableCollection<NanoDeviceBase>();
-            }
-
+            AvailableDevices = new ObservableCollection<NanoDeviceBase>();
             SelectedDevice = null;
         }
 
@@ -122,18 +92,18 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
             // save status
             _deviceEnumerationCompleted = true;
 
-            SelectedTransportType = Debugger.WireProtocol.TransportType.Serial;
+            SelectedTransportType = TransportType.Serial;
 
             UpdateAvailableDevices();
 
-            MessengerInstance.Send(new NotificationMessage(""), MessagingTokens.NanoDevicesDeviceEnumerationCompleted);
+            Messenger.Send(new NotificationMessage(""), MessagingTokens.NanoDevicesDeviceEnumerationCompleted);
         }
 
         private void UpdateAvailableDevices()
         {
             switch (SelectedTransportType)
             {
-                case Debugger.WireProtocol.TransportType.Serial:
+                case TransportType.Serial:
                     AvailableDevices = new ObservableCollection<NanoDeviceBase>(NanoDeviceCommService.DebugClient.NanoFrameworkDevices);
 
                     // add handler, but make sure we aren't adding another one so remove it first
@@ -141,12 +111,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
                     NanoDeviceCommService.DebugClient.NanoFrameworkDevices.CollectionChanged += NanoFrameworkDevices_CollectionChanged;
                     break;
 
-                case Debugger.WireProtocol.TransportType.Usb:
+                case TransportType.Usb:
                     //AvailableDevices = new ObservableCollection<NanoDeviceBase>(UsbDebugService.NanoFrameworkDevices);
                     //NanoDeviceCommService.NanoFrameworkDevicesCollectionChanged += NanoDeviceCommService_NanoFrameworkDevicesCollectionChanged;
                     break;
 
-                case Debugger.WireProtocol.TransportType.TcpIp:
+                case TransportType.TcpIp:
                     // TODO
                     //await Task.Delay(2500);
                     //    AvailableDevices = new ObservableCollection<NanoDeviceBase>();
@@ -170,7 +140,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
                 // launch firmware update task
                 foreach (var d in AvailableDevices)
                 {
-                    MessengerInstance.Send(new NotificationMessage(d.ConnectionId.ToString()), MessagingTokens.LaunchFirmwareUpdateForNanoDevice);
+                    Messenger.Send(new NotificationMessage(d.ConnectionId.ToString()), MessagingTokens.LaunchFirmwareUpdateForNanoDevice);
                 }
             }
         }
@@ -184,7 +154,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
                 //    AvailableDevices = new ObservableCollection<NanoDeviceBase>(UsbDebugService.NanoFrameworkDevices);
                 //    break;
 
-                case Debugger.WireProtocol.TransportType.Serial:
+                case TransportType.Serial:
                     AvailableDevices = new ObservableCollection<NanoDeviceBase>(NanoDeviceCommService.DebugClient.NanoFrameworkDevices);
                     break;
 
@@ -193,14 +163,14 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
                     break;
             }
 
-            MessengerInstance.Send(new NotificationMessage(""), MessagingTokens.NanoDevicesCollectionHasChanged);
+            Messenger.Send(new NotificationMessage(""), MessagingTokens.NanoDevicesCollectionHasChanged);
 
             // launch update for arriving devices, if any
             if (e.NewItems != null)
             {
                 foreach (var d in e.NewItems)
                 {
-                    MessengerInstance.Send(new NotificationMessage((d as NanoDeviceBase).ConnectionId.ToString()), MessagingTokens.LaunchFirmwareUpdateForNanoDevice);
+                    Messenger.Send(new NotificationMessage((d as NanoDeviceBase).ConnectionId.ToString()), MessagingTokens.LaunchFirmwareUpdateForNanoDevice);
                 }
             }
 
@@ -209,7 +179,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
             {
                 foreach (var d in e.OldItems)
                 {
-                    MessengerInstance.Send(new NotificationMessage((d as NanoDeviceBase).ConnectionId.ToString()), MessagingTokens.NanoDeviceHasDeparted);
+                    Messenger.Send(new NotificationMessage((d as NanoDeviceBase).ConnectionId.ToString()), MessagingTokens.NanoDeviceHasDeparted);
                 }
             }
 
@@ -256,13 +226,13 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
             SelectedDevice = nanoDevice;
 
             // request forced selection of device in UI
-            _ = Task.Run(() => { MessengerInstance.Send(new NotificationMessage(""), MessagingTokens.ForceSelectionOfNanoDevice); });
+            _ = Task.Run(() => { Messenger.Send(new NotificationMessage(""), MessagingTokens.ForceSelectionOfNanoDevice); });
         }
 
         public void ForceNanoDeviceSelection()
         {
             // request forced selection of device in UI
-            _ = Task.Run(() => { MessengerInstance.Send(new NotificationMessage(""), MessagingTokens.ForceSelectionOfNanoDevice); });
+            _ = Task.Run(() => { Messenger.Send(new NotificationMessage(""), MessagingTokens.ForceSelectionOfNanoDevice); });
         }
 
         public void OnSelectedDeviceChanged()
@@ -271,7 +241,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
             LastDeviceConnectedHash = 0;
 
             // signal event that the selected device has changed
-            MessengerInstance.Send(new NotificationMessage(""), MessagingTokens.SelectedNanoDeviceHasChanged);
+            Messenger.Send(new NotificationMessage(""), MessagingTokens.SelectedNanoDeviceHasChanged);
         }
 
 

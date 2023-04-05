@@ -5,24 +5,13 @@
 
 using CliWrap;
 using CliWrap.Buffered;
-using GalaSoft.MvvmLight.Messaging;
-using Humanizer;
 using Microsoft;
-using Microsoft.VisualStudio.RpcContracts.Commands;
 using Microsoft.VisualStudio.Shell;
-using Microsoft.VisualStudio.Threading;
-using Mono.Cecil.Cil;
 using nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO.Packaging;
-using System.Management.Instrumentation;
-using System.Security.Policy;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace nanoFramework.Tools.VisualStudio.Extension
 {
@@ -33,7 +22,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         // taken from E9008 @ nanoclr
         private const int NanoClrErrorUnknowErrorStartingInstance = 9008;
 
-        private readonly Microsoft.VisualStudio.Shell.IAsyncServiceProvider _serviceProvider;
+        private readonly IAsyncServiceProvider _serviceProvider;
         private Process _nanoClrProcess = null;
         private INanoDeviceCommService _nanoDeviceCommService;
 
@@ -105,7 +94,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 .WithValidation(CommandResultValidation.None);
 
             // signal install/update ongoing
-            Messenger.Default.Send(new NotificationMessage(true.ToString()), DeviceExplorerViewModel.MessagingTokens.VirtualDeviceOperationExecuting);
+            Messenger.Send(new NotificationMessage(true.ToString()), DeviceExplorerViewModel.MessagingTokens.VirtualDeviceOperationExecuting);
 
             // setup cancellation token with a timeout of 1 minute
             using (var cts = new CancellationTokenSource())
@@ -280,7 +269,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                             // rescan devices
                             _nanoDeviceCommService.DebugClient.ReScanDevices();
                         }
-                        catch(Exception ex)
+                        catch(Exception)
                         {
                             // catch all, don't bother
                         }
@@ -304,7 +293,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync(CancellationToken.None);
 
             // signal start operation
-            Messenger.Default.Send(new NotificationMessage(true.ToString()), DeviceExplorerViewModel.MessagingTokens.VirtualDeviceOperationExecuting);
+            Messenger.Send(new NotificationMessage(true.ToString()), DeviceExplorerViewModel.MessagingTokens.VirtualDeviceOperationExecuting);
 
             MessageCentre.InternalErrorWriteLine($"VirtualDevice: Attempting to start virtual device");
 
@@ -474,7 +463,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             finally
             {
                 // signal start operation completed
-                Messenger.Default.Send(new NotificationMessage(false.ToString()), DeviceExplorerViewModel.MessagingTokens.VirtualDeviceOperationExecuting);
+                Messenger.Send(new NotificationMessage(false.ToString()), DeviceExplorerViewModel.MessagingTokens.VirtualDeviceOperationExecuting);
 
                 // rescan devices, if start was successful and this wasn't requested to skip
                 if (_nanoClrProcess != null

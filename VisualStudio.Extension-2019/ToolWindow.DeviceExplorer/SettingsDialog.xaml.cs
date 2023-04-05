@@ -5,7 +5,6 @@
 
 namespace nanoFramework.Tools.VisualStudio.Extension
 {
-    using GalaSoft.MvvmLight.Messaging;
     using Microsoft.VisualStudio.PlatformUI;
     using Microsoft.VisualStudio.Shell;
     using nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel;
