@@ -12,11 +12,12 @@ using System;
 using System.Collections.Concurrent;
 using System.Linq;
 using System.Threading.Tasks;
+using vs_extension.shared.Messages;
 using Task = System.Threading.Tasks.Task;
 
 namespace nanoFramework.Tools.VisualStudio.Extension.AutomaticUpdates
 {
-    public class UpdateManager
+    public class UpdateManager : IRecipient<NanoDeviceHasConnectedMessage>, IRecipient<NanoDeviceHasDepartedMessage>
     {
         private static UpdateManager s_instance;
         private ViewModelLocator ViewModelLocator;
@@ -39,8 +40,18 @@ namespace nanoFramework.Tools.VisualStudio.Extension.AutomaticUpdates
                 ViewModelLocator = vmLocator
             };
 
-            Messenger.Default.Register<NotificationMessage>(s_instance, DeviceExplorerViewModel.MessagingTokens.LaunchFirmwareUpdateForNanoDevice, (message) => s_instance.LaunchUpdate(message.Notification));
-            Messenger.Default.Register<NotificationMessage>(s_instance, DeviceExplorerViewModel.MessagingTokens.NanoDeviceHasDeparted, (message) => s_instance.ProcessNanoDeviceDeparture(message.Notification));
+            WeakReferenceMessenger.Default.Register<NanoDeviceHasConnectedMessage>(s_instance);
+            WeakReferenceMessenger.Default.Register<NanoDeviceHasDepartedMessage>(s_instance);
+        }
+
+        public void Receive(NanoDeviceHasDepartedMessage message)
+        {
+            s_instance.ProcessNanoDeviceDeparture(message.DeviceId);
+        }
+
+        public void Receive(NanoDeviceHasConnectedMessage message)
+        {
+            s_instance.LaunchUpdate(message.DeviceId);
         }
 
         private void ProcessNanoDeviceDeparture(string deviceId)

@@ -5,6 +5,7 @@
 
 using CliWrap;
 using CliWrap.Buffered;
+using CommunityToolkit.Mvvm.Messaging;
 using Microsoft;
 using Microsoft.VisualStudio.Shell;
 using nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel;
@@ -12,6 +13,7 @@ using System;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
 using System.Threading;
+using vs_extension.shared.Messages;
 
 namespace nanoFramework.Tools.VisualStudio.Extension
 {
@@ -94,7 +96,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 .WithValidation(CommandResultValidation.None);
 
             // signal install/update ongoing
-            Messenger.Send(new NotificationMessage(true.ToString()), DeviceExplorerViewModel.MessagingTokens.VirtualDeviceOperationExecuting);
+            WeakReferenceMessenger.Default.Send(new VirtualDeviceOperationExecutingMessage(true));
 
             // setup cancellation token with a timeout of 1 minute
             using (var cts = new CancellationTokenSource())
@@ -129,7 +131,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 });
 
                 // signal install/update completed
-                Messenger.Default.Send(new NotificationMessage(false.ToString()), DeviceExplorerViewModel.MessagingTokens.VirtualDeviceOperationExecuting);
+                WeakReferenceMessenger.Default.Send(new VirtualDeviceOperationExecutingMessage(false));
             }
         }
 
@@ -293,7 +295,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync(CancellationToken.None);
 
             // signal start operation
-            Messenger.Send(new NotificationMessage(true.ToString()), DeviceExplorerViewModel.MessagingTokens.VirtualDeviceOperationExecuting);
+            WeakReferenceMessenger.Default.Send(new VirtualDeviceOperationExecutingMessage(true));
 
             MessageCentre.InternalErrorWriteLine($"VirtualDevice: Attempting to start virtual device");
 
@@ -463,7 +465,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             finally
             {
                 // signal start operation completed
-                Messenger.Send(new NotificationMessage(false.ToString()), DeviceExplorerViewModel.MessagingTokens.VirtualDeviceOperationExecuting);
+                WeakReferenceMessenger.Default.Send(new VirtualDeviceOperationExecutingMessage(false));
 
                 // rescan devices, if start was successful and this wasn't requested to skip
                 if (_nanoClrProcess != null

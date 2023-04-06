@@ -5,21 +5,21 @@
 
 namespace nanoFramework.Tools.VisualStudio.Extension
 {
-    using GalaSoft.MvvmLight.Messaging;
+    using CommunityToolkit.Mvvm.Messaging;
     using Microsoft.VisualStudio.PlatformUI;
     using Microsoft.VisualStudio.Shell;
-    using Microsoft.VisualStudio.Threading;
     using nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel;
     using System.Collections.Generic;
     using System.Net;
     using System.Threading.Tasks;
     using System.Windows.Controls.Primitives;
     using System.Windows.Forms;
+    using vs_extension.shared.Messages;
 
     /// <summary>
     /// Interaction logic for DeviceExplorerControl.
     /// </summary>
-    public partial class SettingsDialog : DialogWindow
+    public partial class SettingsDialog : DialogWindow, IRecipient<VirtualDeviceOperationExecutingMessage>
     {
         private const string _stopVirtualDeviceLabel = "Stop Virtual Device";
         private const string _startVirtualDeviceLabel = "Start Virtual Device";
@@ -43,7 +43,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         // init controls
         private void InitControls()
         {
-            Messenger.Default.Register<NotificationMessage>(this, DeviceExplorerViewModel.MessagingTokens.VirtualDeviceOperationExecuting, (message) => this.UpdateStartStopAvailabilityAsync(message.Notification).ConfigureAwait(false));
+            WeakReferenceMessenger.Default.Register<VirtualDeviceOperationExecutingMessage>(this);
 
             // set controls according to stored preferences
             GenerateDeploymentImage.IsChecked = NanoFrameworkPackage.SettingGenerateDeploymentImage;
@@ -97,11 +97,11 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             CloseButton.Focus();
         }
 
-        private async Task UpdateStartStopAvailabilityAsync(string installCompleted)
+        private async Task UpdateStartStopAvailabilityAsync(bool installCompleted)
         {
             await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
-            StartStopDevice.IsEnabled = !bool.Parse(installCompleted)
+            StartStopDevice.IsEnabled = !installCompleted
                                         && NanoFrameworkPackage.VirtualDeviceService.NanoClrIsInstalled
                                         && NanoFrameworkPackage.VirtualDeviceService.CanStartVirtualDevice;
         }
@@ -267,6 +267,11 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         {
             // save new state
             NanoFrameworkPackage.SettingVirtualDeviceAutoUpdateNanoClrImage = (sender as ToggleButton).IsChecked ?? false;
+        }
+
+        public void Receive(VirtualDeviceOperationExecutingMessage message)
+        {
+            UpdateStartStopAvailabilityAsync(message.InstallCompleted).ConfigureAwait(false);
         }
     }
 }

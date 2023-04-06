@@ -15,6 +15,8 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using CommunityToolkit.Mvvm.Messaging;
+using Task = System.Threading.Tasks.Task;
+using vs_extension.shared.Messages;
 
 namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
 {
@@ -96,7 +98,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
 
             UpdateAvailableDevices();
 
-            Messenger.Send(new NotificationMessage(""), MessagingTokens.NanoDevicesDeviceEnumerationCompleted);
+            WeakReferenceMessenger.Default.Send(new NanoDevicesDeviceEnumerationCompletedMessage());
         }
 
         private void UpdateAvailableDevices()
@@ -140,7 +142,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
                 // launch firmware update task
                 foreach (var d in AvailableDevices)
                 {
-                    Messenger.Send(new NotificationMessage(d.ConnectionId.ToString()), MessagingTokens.LaunchFirmwareUpdateForNanoDevice);
+                    WeakReferenceMessenger.Default.Send(new NanoDeviceHasConnectedMessage(d.ConnectionId.ToString()));
                 }
             }
         }
@@ -163,14 +165,14 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
                     break;
             }
 
-            Messenger.Send(new NotificationMessage(""), MessagingTokens.NanoDevicesCollectionHasChanged);
+            WeakReferenceMessenger.Default.Send(new SelectedNanoDeviceHasChangedMessage());
 
             // launch update for arriving devices, if any
             if (e.NewItems != null)
             {
                 foreach (var d in e.NewItems)
                 {
-                    Messenger.Send(new NotificationMessage((d as NanoDeviceBase).ConnectionId.ToString()), MessagingTokens.LaunchFirmwareUpdateForNanoDevice);
+                    WeakReferenceMessenger.Default.Send(new NanoDeviceHasConnectedMessage((d as NanoDeviceBase).ConnectionId.ToString()));
                 }
             }
 
@@ -179,7 +181,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
             {
                 foreach (var d in e.OldItems)
                 {
-                    Messenger.Send(new NotificationMessage((d as NanoDeviceBase).ConnectionId.ToString()), MessagingTokens.NanoDeviceHasDeparted);
+                    WeakReferenceMessenger.Default.Send(new NanoDeviceHasDepartedMessage((d as NanoDeviceBase).ConnectionId.ToString()));
                 }
             }
 
@@ -226,13 +228,13 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
             SelectedDevice = nanoDevice;
 
             // request forced selection of device in UI
-            _ = Task.Run(() => { Messenger.Send(new NotificationMessage(""), MessagingTokens.ForceSelectionOfNanoDevice); });
+            _ = Task.Run(() => { WeakReferenceMessenger.Default.Send(new ForceSelectionOfNanoDeviceMessage()); });
         }
 
         public void ForceNanoDeviceSelection()
         {
             // request forced selection of device in UI
-            _ = Task.Run(() => { Messenger.Send(new NotificationMessage(""), MessagingTokens.ForceSelectionOfNanoDevice); });
+            _ = Task.Run(() => { WeakReferenceMessenger.Default.Send(new ForceSelectionOfNanoDeviceMessage()); });
         }
 
         public void OnSelectedDeviceChanged()
@@ -241,7 +243,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
             LastDeviceConnectedHash = 0;
 
             // signal event that the selected device has changed
-            Messenger.Send(new NotificationMessage(""), MessagingTokens.SelectedNanoDeviceHasChanged);
+            WeakReferenceMessenger.Default.Send(new SelectedNanoDeviceHasChangedMessage());
         }
 
 
@@ -332,21 +334,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
                     }
                 }
             }
-        }
-
-        #endregion
-
-        #region messaging tokens
-
-        public static class MessagingTokens
-        {
-            public static readonly string SelectedNanoDeviceHasChanged = new Guid("{C3173983-A19A-49DD-A4BD-F25D360F7334}").ToString();
-            public static readonly string NanoDevicesCollectionHasChanged = new Guid("{3E8906F9-F68A-45B7-A0CE-6D42BDB22455}").ToString();
-            public static readonly string NanoDevicesDeviceEnumerationCompleted = new Guid("{347E2874-212C-4BC8-BB38-16E91FFCAB32}").ToString();
-            public static readonly string ForceSelectionOfNanoDevice = new Guid("{8F012794-BC66-429D-9F9D-A9B0F546D6B5}").ToString();
-            public static readonly string LaunchFirmwareUpdateForNanoDevice = new Guid("{93822E8C-4A94-4573-AC4F-DEB7FA703933}").ToString();
-            public static readonly string NanoDeviceHasDeparted = new Guid("{38429FA1-3C16-44C2-937E-227C20AC0342}").ToString();
-            public static readonly string VirtualDeviceOperationExecuting = new Guid("{B1B40C6E-5EE7-4A69-BB70-9A8663C928C1}").ToString();
         }
 
         #endregion
