@@ -3,6 +3,7 @@
 // See LICENSE file in the project root for full license information.
 //
 
+using CommunityToolkit.Mvvm.DependencyInjection;
 using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.VisualStudio.Shell;
 using nanoFramework.Tools.Debugger;
@@ -145,7 +146,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
             await Instance.CreateToolbarHandlersAsync();
 
-            SimpleIoc.Default.GetInstance<DeviceExplorerViewModel>().NanoDeviceCommService = Instance.NanoDeviceCommService;
+            Ioc.Default.GetRequiredService<DeviceExplorerViewModel>().NanoDeviceCommService = Instance.NanoDeviceCommService;
 
             // setup message listeners to be notified of events occurring in the View Model
             WeakReferenceMessenger.Default.Register<SelectedNanoDeviceHasChangedMessage>(Instance);

@@ -3,6 +3,9 @@
 // See LICENSE file in the project root for full license information.
 //
 
+using CommunityToolkit.Mvvm.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
+
 namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
 {
     /// <summary>
@@ -16,20 +19,18 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
         /// </summary>
         public ViewModelLocator()
         {
-            SimpleIoc.Default.Register<DeviceExplorerViewModel>();
+            var serviceCollection = new ServiceCollection();
+            serviceCollection.AddSingleton<DeviceExplorerViewModel>();
+
+            Ioc.Default.ConfigureServices(serviceCollection.BuildServiceProvider());
         }
 
         public DeviceExplorerViewModel DeviceExplorer
         {
             get
             {
-                return SimpleIoc.Default.GetInstance<DeviceExplorerViewModel>();
+                return Ioc.Default.GetRequiredService<DeviceExplorerViewModel>();
             }
-        }
-
-        public static void Cleanup()
-        {
-            // TODO Clear the ViewModels
         }
     }
 }
