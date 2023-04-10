@@ -142,7 +142,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
                 // launch firmware update task
                 foreach (var d in AvailableDevices)
                 {
-                    WeakReferenceMessenger.Default.Send(new NanoDeviceHasConnectedMessage(d.ConnectionId.ToString()));
+                    WeakReferenceMessenger.Default.Send(new NanoDeviceIsConnectedMessage(d.ConnectionId.ToString()));
                 }
             }
         }
@@ -172,7 +172,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
             {
                 foreach (var d in e.NewItems)
                 {
-                    WeakReferenceMessenger.Default.Send(new NanoDeviceHasConnectedMessage((d as NanoDeviceBase).ConnectionId.ToString()));
+                    WeakReferenceMessenger.Default.Send(new NanoDeviceIsConnectedMessage((d as NanoDeviceBase).ConnectionId.ToString()));
                 }
             }
 

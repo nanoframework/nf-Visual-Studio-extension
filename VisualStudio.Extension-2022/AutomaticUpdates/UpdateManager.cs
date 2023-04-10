@@ -17,7 +17,7 @@ using Task = System.Threading.Tasks.Task;
 
 namespace nanoFramework.Tools.VisualStudio.Extension.AutomaticUpdates
 {
-    public class UpdateManager : IRecipient<NanoDeviceHasConnectedMessage>, IRecipient<NanoDeviceHasDepartedMessage>
+    public class UpdateManager : IRecipient<NanoDeviceIsConnectedMessage>, IRecipient<NanoDeviceHasDepartedMessage>
     {
         private static UpdateManager s_instance;
         private ViewModelLocator ViewModelLocator;
