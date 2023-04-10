@@ -8,13 +8,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension
     using CommunityToolkit.Mvvm.Messaging;
     using Microsoft.VisualStudio.PlatformUI;
     using Microsoft.VisualStudio.Shell;
-    using nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel;
+    using nanoFramework.Tools.VisualStudio.Extension.Messages;
     using System.Collections.Generic;
     using System.Net;
     using System.Threading.Tasks;
     using System.Windows.Controls.Primitives;
     using System.Windows.Forms;
-    using vs_extension.shared.Messages;
 
     /// <summary>
     /// Interaction logic for DeviceExplorerControl.

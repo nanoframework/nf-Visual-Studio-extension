@@ -8,12 +8,11 @@ using CliWrap.Buffered;
 using CommunityToolkit.Mvvm.Messaging;
 using Microsoft;
 using Microsoft.VisualStudio.Shell;
-using nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel;
+using nanoFramework.Tools.VisualStudio.Extension.Messages;
 using System;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
 using System.Threading;
-using vs_extension.shared.Messages;
 
 namespace nanoFramework.Tools.VisualStudio.Extension
 {

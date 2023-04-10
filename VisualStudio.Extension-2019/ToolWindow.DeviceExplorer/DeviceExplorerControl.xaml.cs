@@ -8,10 +8,10 @@ namespace nanoFramework.Tools.VisualStudio.Extension
     using CommunityToolkit.Mvvm.Messaging;
     using Microsoft.VisualStudio.Shell;
     using nanoFramework.Tools.Debugger;
+    using nanoFramework.Tools.VisualStudio.Extension.Messages;
     using nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel;
     using System;
     using System.Windows.Controls;
-    using vs_extension.shared.Messages;
 
     /// <summary>
     /// Interaction logic for DeviceExplorerControl.

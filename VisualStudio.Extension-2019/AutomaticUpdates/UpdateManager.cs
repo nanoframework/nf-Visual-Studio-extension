@@ -7,12 +7,12 @@ using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.VisualStudio.Shell;
 using nanoFramework.Tools.Debugger;
 using nanoFramework.Tools.VisualStudio.Extension.FirmwareUpdate;
+using nanoFramework.Tools.VisualStudio.Extension.Messages;
 using nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel;
 using System;
 using System.Collections.Concurrent;
 using System.Linq;
 using System.Threading.Tasks;
-using vs_extension.shared.Messages;
 using Task = System.Threading.Tasks.Task;
 
 namespace nanoFramework.Tools.VisualStudio.Extension.AutomaticUpdates

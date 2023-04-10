@@ -6,7 +6,7 @@ using System.Text;
 // See LICENSE file in the project root for full license information.
 //
 
-namespace vs_extension.shared.Messages
+namespace nanoFramework.Tools.VisualStudio.Extension.Messages
 {
     public sealed class VirtualDeviceOperationExecutingMessage
     {

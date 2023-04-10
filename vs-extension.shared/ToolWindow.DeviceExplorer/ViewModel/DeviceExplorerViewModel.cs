@@ -4,9 +4,11 @@
 //
 
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.VisualStudio.Shell;
 using nanoFramework.Tools.Debugger;
 using nanoFramework.Tools.Debugger.WireProtocol;
+using nanoFramework.Tools.VisualStudio.Extension.Messages;
 using PropertyChanged;
 using System;
 using System.Collections.Generic;
@@ -14,9 +16,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
-using CommunityToolkit.Mvvm.Messaging;
 using Task = System.Threading.Tasks.Task;
-using vs_extension.shared.Messages;
 
 namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
 {

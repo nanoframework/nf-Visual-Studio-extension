@@ -9,12 +9,12 @@ using Microsoft.VisualStudio.Shell;
 using nanoFramework.Tools.Debugger;
 using nanoFramework.Tools.Debugger.Extensions;
 using nanoFramework.Tools.Debugger.WireProtocol;
+using nanoFramework.Tools.VisualStudio.Extension.Messages;
 using nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel;
 using System;
 using System.ComponentModel.Design;
 using System.Text;
 using System.Windows;
-using vs_extension.shared.Messages;
 using Task = System.Threading.Tasks.Task;
 
 namespace nanoFramework.Tools.VisualStudio.Extension
