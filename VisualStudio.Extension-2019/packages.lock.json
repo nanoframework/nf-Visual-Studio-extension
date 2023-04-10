@@ -2449,6 +2449,24 @@
           "VSSDK.IDE.12": "[12.0.4, 13.0.0)"
         }
       },
+      "csharp.assemblyinfotemplate": {
+        "type": "Project"
+      },
+      "csharp.blankapplication-vs2019": {
+        "type": "Project"
+      },
+      "csharp.classlibrary-vs2019": {
+        "type": "Project"
+      },
+      "csharp.classtemplate": {
+        "type": "Project"
+      },
+      "csharp.resourcetemplate": {
+        "type": "Project"
+      },
+      "csharp.testapplication-vs2019": {
+        "type": "Project"
+      },
       "nanoFramework.Tools.BuildTasks": {
         "type": "Project",
         "dependencies": {
