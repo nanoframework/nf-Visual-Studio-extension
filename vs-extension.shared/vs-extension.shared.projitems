@@ -65,7 +65,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Extensions\VersionExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)MessageCentre\MessageCentre.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Messages\ForceSelectionOfNanoDeviceMessage.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Messages\NanoDeviceHasConnectedMessage.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Messages\NanoDeviceIsConnectedMessage.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Messages\NanoDeviceHasDepartedMessage.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Messages\NanoDevicesCollectionHasChangedMessage.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Messages\NanoDevicesDeviceEnumerationCompletedMessage.cs" />
