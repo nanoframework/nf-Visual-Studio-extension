@@ -1,31 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="$(VisualStudioVersion)" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <MinimumVisualStudioVersion>17.0</MinimumVisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
     <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
-  </PropertyGroup>
-  <PropertyGroup>
-    <VsixType>v3</VsixType>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\x64\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;DEV17;</DefineConstants>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <DebugType>full</DebugType>
-    <PlatformTarget>x64</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
-    <OutputPath>bin\x64\Release\</OutputPath>
-    <DefineConstants>TRACE;DEV17;</DefineConstants>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <Optimize>true</Optimize>
-    <DebugType>pdbonly</DebugType>
-    <PlatformTarget>x64</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <DeployExtension>False</DeployExtension>
   </PropertyGroup>
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -39,6 +17,7 @@
     <RootNamespace>nanoFramework.Tools.VisualStudio.Extension</RootNamespace>
     <AssemblyName>nanoFramework.Tools.VS2022.Extension</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <LangVersion>latest</LangVersion>
     <GeneratePkgDefFile>true</GeneratePkgDefFile>
     <UseCodebase>true</UseCodebase>
     <IncludeAssemblyInVSIXContainer>true</IncludeAssemblyInVSIXContainer>
@@ -51,12 +30,34 @@
     <StartArguments>/rootSuffix Exp</StartArguments>
     <NF_Build_VS2022>True</NF_Build_VS2022>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x64\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;DEV17;</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <DeployExtension>True</DeployExtension>
+    <CreateVsixContainer>True</CreateVsixContainer>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <OutputPath>bin\x64\Release\</OutputPath>
+    <DefineConstants>TRACE;DEV17;</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <DeployExtension>False</DeployExtension>
+    <CreateVsixContainer>False</CreateVsixContainer>
+  </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;DEV17;</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <DeployExtension>True</DeployExtension>
@@ -70,15 +71,16 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
+    <DefineConstants>TRACE;DEV17;</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DeployExtension>false</DeployExtension>
-    <CreateVsixContainer>True</CreateVsixContainer>
+    <CreateVsixContainer>False</CreateVsixContainer>
     <CodeAnalysisRuleSet>
     </CodeAnalysisRuleSet>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <PlatformTarget>x86</PlatformTarget>
+    <DeployExtension>False</DeployExtension>
+    <DeployExtension>False</DeployExtension>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="..\Tools.BuildTasks-2019\ProcessResourceFiles.cs">
@@ -141,7 +143,7 @@
     <Resource Include="Resources\Reboot.16.16.png" />
     <None Include="packages.lock.json" />
     <None Include="source.extension.vsixmanifest">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <SubType>Designer</SubType>
     </None>
     <Resource Include="Resources\RescanDevices.16.16.png" />
     <Resource Include="Resources\Settings.16.16.png" />
@@ -182,7 +184,6 @@
       <ResourceName>Menus.ctmenu</ResourceName>
       <SubType>Designer</SubType>
     </VSCTCompile>
-    <None Include="app.config" />
     <Content Include="Targets\NFProjectSystem.props">
       <SubType>Designer</SubType>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -496,6 +497,9 @@
     <PackageReference Include="CommunityToolkit.Mvvm">
       <Version>8.1.0</Version>
     </PackageReference>
+    <PackageReference Include="CommunityToolkit.Mvvm">
+      <Version>8.0.0</Version>
+    </PackageReference>
     <PackageReference Include="EnvDTE80">
       <Version>17.5.33428.366</Version>
     </PackageReference>
@@ -509,7 +513,7 @@
       <Version>7.2.1.6856</Version>
     </PackageReference>
     <PackageReference Include="MessagePack">
-      <Version>2.4.35</Version>
+      <Version>2.5.108</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.Build">
       <Version>17.5.0</Version>
@@ -529,13 +533,16 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.Extensions.DependencyInjection">
-      <Version>7.0.0</Version>
+      <Version>6.0.1</Version>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions">
+      <Version>6.0.0</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.VisualStudio.Composition">
       <Version>17.4.16</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.VisualStudio.Debugger.Engine">
-      <Version>17.0.2012801</Version>
+      <Version>17.0.3041101</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.VisualStudio.ProjectSystem">
       <Version>17.2.402-pre</Version>
@@ -583,7 +590,7 @@
       <Version>17.5.33428.366</Version>
     </PackageReference>
     <PackageReference Include="StreamJsonRpc">
-      <Version>2.9.85</Version>
+      <Version>2.14.24</Version>
     </PackageReference>
     <PackageReference Include="System.Collections">
       <Version>4.3.0</Version>
@@ -592,7 +599,7 @@
       <Version>4.3.0</Version>
     </PackageReference>
     <PackageReference Include="System.Composition">
-      <Version>6.0.0</Version>
+      <Version>7.0.0</Version>
     </PackageReference>
     <PackageReference Include="System.Console">
       <Version>4.3.1</Version>
@@ -601,7 +608,7 @@
       <Version>4.3.0</Version>
     </PackageReference>
     <PackageReference Include="System.Diagnostics.DiagnosticSource">
-      <Version>6.0.0</Version>
+      <Version>7.0.2</Version>
     </PackageReference>
     <PackageReference Include="System.Diagnostics.Tracing">
       <Version>4.3.0</Version>
@@ -652,7 +659,7 @@
   </ItemGroup>
   <Import Project="..\vs-extension.shared\vs-extension.shared.projitems" Label="Shared" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Import Project="$(VSToolsPath)\VSSDK\Microsoft.VsSDK.targets" Condition="'$(VSToolsPath)' != '' AND Exists('$(VSToolsPath)\VSSDK\Microsoft.VsSDK.targets')" />
+  <Import Project="$(VSToolsPath)\VSSDK\Microsoft.VsSDK.targets" Condition="'$(VSToolsPath)' != ''" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
