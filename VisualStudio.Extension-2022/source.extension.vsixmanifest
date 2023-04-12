@@ -13,7 +13,7 @@
         <Preview>true</Preview>
     </Metadata>
     <Installation AllUsers="true">
-        <InstallationTarget Id="Microsoft.VisualStudio.Community" Version="[17.3,18.0)">
+        <InstallationTarget Id="Microsoft.VisualStudio.Community" Version="[17.5,18.0)">
             <ProductArchitecture>amd64</ProductArchitecture>
         </InstallationTarget>
     </Installation>

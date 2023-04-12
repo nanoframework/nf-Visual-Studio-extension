@@ -9,7 +9,6 @@ using Microsoft.VisualStudio.Shell;
 using nanoFramework.Tools.Debugger;
 using nanoFramework.Tools.Debugger.WireProtocol;
 using nanoFramework.Tools.VisualStudio.Extension.Messages;
-using PropertyChanged;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -20,7 +19,6 @@ using Task = System.Threading.Tasks.Task;
 
 namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
 {
-    [AddINotifyPropertyChangedInterface]
     /// <summary>
     /// This class contains properties that the main View can data bind to.
     /// <para>
@@ -38,11 +36,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
         // for serial devices we wait 10 seconds for the device to be available again
         private const int SerialDeviceReconnectMaximumAttempts = 4 * 10;
         private ConnectionSource _lastDeviceConnectionSource;
-
-        // keep this here otherwise Fody won't be able to properly implement INotifyPropertyChanging
-#pragma warning disable 67
-        public event PropertyChangingEventHandler PropertyChanging;
-#pragma warning restore 67
 
         private bool _deviceEnumerationCompleted { get; set; }
 

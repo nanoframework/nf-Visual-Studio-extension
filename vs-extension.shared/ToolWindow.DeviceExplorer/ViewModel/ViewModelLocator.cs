@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright (c) .NET Foundation and Contributors
 // See LICENSE file in the project root for full license information.
 //
@@ -19,10 +19,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
         /// </summary>
         public ViewModelLocator()
         {
-            var serviceCollection = new ServiceCollection();
-            serviceCollection.AddSingleton<DeviceExplorerViewModel>();
-
-            Ioc.Default.ConfigureServices(serviceCollection.BuildServiceProvider());
+            Ioc.Default.ConfigureServices(new ServiceCollection()
+                .AddSingleton<DeviceExplorerViewModel>()
+                .BuildServiceProvider());
         }
 
         public DeviceExplorerViewModel DeviceExplorer
