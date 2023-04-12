@@ -2108,6 +2108,24 @@
           "Microsoft.VisualStudio.Interop": "17.3.32804.24"
         }
       },
+      "csharp.assemblyinfotemplate": {
+        "type": "Project"
+      },
+      "csharp.blankapplication-vs2022": {
+        "type": "Project"
+      },
+      "csharp.classlibrary-vs2022": {
+        "type": "Project"
+      },
+      "csharp.classtemplate": {
+        "type": "Project"
+      },
+      "csharp.resourcetemplate": {
+        "type": "Project"
+      },
+      "csharp.testapplication-vs2022": {
+        "type": "Project"
+      },
       "nanoFramework.Tools.BuildTasks": {
         "type": "Project",
         "dependencies": {
