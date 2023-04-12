@@ -3,21 +3,21 @@
 // See LICENSE file in the project root for full license information.
 //
 
-using GalaSoft.MvvmLight.Messaging;
+using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.VisualStudio.Shell;
 using nanoFramework.Tools.Debugger;
 using nanoFramework.Tools.VisualStudio.Extension.FirmwareUpdate;
+using nanoFramework.Tools.VisualStudio.Extension.Messages;
 using nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel;
 using System;
 using System.Collections.Concurrent;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Task = System.Threading.Tasks.Task;
 
 namespace nanoFramework.Tools.VisualStudio.Extension.AutomaticUpdates
 {
-    public class UpdateManager
+    public class UpdateManager : IRecipient<NanoDeviceIsConnectedMessage>, IRecipient<NanoDeviceHasDepartedMessage>
     {
         private static UpdateManager s_instance;
         private ViewModelLocator ViewModelLocator;
@@ -32,7 +32,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.AutomaticUpdates
         }
 
         public static void Initialize(
-            AsyncPackage package, 
+            AsyncPackage package,
             ViewModelLocator vmLocator)
         {
             s_instance = new UpdateManager(package)
@@ -40,8 +40,18 @@ namespace nanoFramework.Tools.VisualStudio.Extension.AutomaticUpdates
                 ViewModelLocator = vmLocator
             };
 
-            Messenger.Default.Register<NotificationMessage>(s_instance, DeviceExplorerViewModel.MessagingTokens.LaunchFirmwareUpdateForNanoDevice, (message) => s_instance.LaunchUpdate(message.Notification));
-            Messenger.Default.Register<NotificationMessage>(s_instance, DeviceExplorerViewModel.MessagingTokens.NanoDeviceHasDeparted, (message) => s_instance.ProcessNanoDeviceDeparture(message.Notification));
+            WeakReferenceMessenger.Default.Register<NanoDeviceIsConnectedMessage>(s_instance);
+            WeakReferenceMessenger.Default.Register<NanoDeviceHasDepartedMessage>(s_instance);
+        }
+
+        public void Receive(NanoDeviceHasDepartedMessage message)
+        {
+            s_instance.ProcessNanoDeviceDeparture(message.DeviceId);
+        }
+
+        public void Receive(NanoDeviceIsConnectedMessage message)
+        {
+            s_instance.LaunchUpdate(message.DeviceId);
         }
 
         private void ProcessNanoDeviceDeparture(string deviceId)
@@ -159,7 +169,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.AutomaticUpdates
                                 Version currentClrVersion = null;
 
                                 // try to store CLR version
-                                if(nanoDevice.DebugEngine.IsConnectedTonanoCLR)
+                                if (nanoDevice.DebugEngine.IsConnectedTonanoCLR)
                                 {
                                     if (nanoDevice.DeviceInfo.Valid)
                                     {
@@ -206,7 +216,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.AutomaticUpdates
                                     }
 
                                     // check if the device is still there
-                                    if(ViewModelLocator.DeviceExplorer.AvailableDevices.FirstOrDefault(d => d.DeviceUniqueId == deviceUniqueId) == null)
+                                    if (ViewModelLocator.DeviceExplorer.AvailableDevices.FirstOrDefault(d => d.DeviceUniqueId == deviceUniqueId) == null)
                                     {
 #if DEBUG
                                         Console.WriteLine($"[Automatic Updates] {nanoDevice.TargetName} is not available anymore.");
@@ -351,7 +361,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.AutomaticUpdates
         }
 
         internal static async Task<FirmwarePackage> GetFirmwarePackageAsync(
-            string targetName, 
+            string targetName,
             string platformName)
         {
             if (platformName.StartsWith("STM32"))

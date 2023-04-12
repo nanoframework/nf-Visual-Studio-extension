@@ -5,9 +5,10 @@
 
 namespace nanoFramework.Tools.VisualStudio.Extension
 {
-    using GalaSoft.MvvmLight.Messaging;
+    using CommunityToolkit.Mvvm.Messaging;
     using Microsoft.VisualStudio.Shell;
     using nanoFramework.Tools.Debugger;
+    using nanoFramework.Tools.VisualStudio.Extension.Messages;
     using nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel;
     using System;
     using System.Windows.Controls;
@@ -15,7 +16,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
     /// <summary>
     /// Interaction logic for DeviceExplorerControl.
     /// </summary>
-    public partial class DeviceExplorerControl : UserControl
+    public partial class DeviceExplorerControl : UserControl, IRecipient<ForceSelectionOfNanoDeviceMessage>
     {
         // strongly-typed view models enable x:bind
         public DeviceExplorerViewModel ViewModel => DataContext as DeviceExplorerViewModel;
@@ -30,7 +31,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             Loaded += DeviceExplorerControl_Loaded;
 
             deviceTreeView.SelectedItemChanged += DevicesTreeView_SelectedItemChanged;
-            Messenger.Default.Register<NotificationMessage>(this, DeviceExplorerViewModel.MessagingTokens.ForceSelectionOfNanoDevice, (message) => ForceSelectionOfNanoDeviceHandlerAsync().ConfigureAwait(false));
+            WeakReferenceMessenger.Default.Register<ForceSelectionOfNanoDeviceMessage>(this);
         }
 
         private void DeviceExplorerControl_Loaded(object sender, System.Windows.RoutedEventArgs e)
@@ -119,7 +120,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             }
             while (tryCount-- > 0);
 
-            Messenger.Default.Send(new NotificationMessage(""), DeviceExplorerViewModel.MessagingTokens.SelectedNanoDeviceHasChanged);
+            WeakReferenceMessenger.Default.Send(new SelectedNanoDeviceHasChangedMessage());
 
             // force redrawing to show selection
             deviceTreeView.InvalidateVisual();
@@ -127,6 +128,11 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             deviceTreeView.InvalidateVisual();
         }
 
+
+        public void Receive(ForceSelectionOfNanoDeviceMessage message)
+        {
+            ForceSelectionOfNanoDeviceHandlerAsync().ConfigureAwait(false);
+        }
         #endregion
     }
 }
