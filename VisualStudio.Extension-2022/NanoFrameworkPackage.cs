@@ -33,8 +33,7 @@ using Task = System.Threading.Tasks.Task;
                                 PossibleProjectExtensions = NanoCSharpProjectUnconfigured.ProjectExtension,
                                 Capabilities = NanoCSharpProjectUnconfigured.UniqueCapability
                                 )]
-[assembly: ProvideCodeBase(CodeBase = "$PackageFolder$\\nanoFramework.Tools.VS2022.Extension.dll")]
-[assembly: ProvideCodeBase(CodeBase = "$PackageFolder$\\CommunityToolkit.Mvvm.dll")]
+
 namespace nanoFramework.Tools.VisualStudio.Extension
 {
     /// <summary>
