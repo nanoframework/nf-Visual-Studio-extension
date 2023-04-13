@@ -68,6 +68,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
     [ProvideDebugPortSupplier(".NET nanoFramework Port Supplier", typeof(DebugPortSupplier), DebugPortSupplier.PortSupplierId)]
     // register code generator for resources
     [ProvideObject(typeof(nFResXFileCodeGenerator))]
+    [ProvideService(typeof(NanoDeviceCommService), IsAsyncQueryable = true)]
+    [ProvideService(typeof(VirtualDeviceService), IsAsyncQueryable = true)]
     [ProvideCodeGenerator(typeof(nFResXFileCodeGenerator), nFResXFileCodeGenerator.Name, nFResXFileCodeGenerator.Description, true, ProjectSystem = ProvideCodeGeneratorAttribute.CSharpProjectGuid)]
     public sealed class NanoFrameworkPackage : AsyncPackage, Microsoft.VisualStudio.OLE.Interop.IOleCommandTarget
     {
