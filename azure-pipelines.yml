@@ -58,13 +58,9 @@ jobs:
           ($commit.files.filename -like "*CSharp.ClassLibrary*") -Or
           ($commit.files.filename -like "*CSharp.ClassTemplate*") -Or
           ($commit.files.filename -like "*CSharp.ResourceTemplate*") -Or
-          ($commit.files.filename -like "*Tools.BuildTasks*") -Or
+          ($commit.files.filename -like "*CSharp.TestApplication*") -Or
           ($commit.files.filename -like "*Tools.BuildTasks-2019*") -Or
-          ($commit.files.filename -like "*Tools.CorHelper*") -Or
-          ($commit.files.filename -like "*Tools.MetaDataProcessor*") -Or
-          ($commit.files.filename -like "*Tools.Parser*") -Or
-          ($commit.files.filename -like "*Tools.BuildTasks-2017*") -Or
-          ($commit.files.filename -like "*Tools.BuildTasks*") -Or
+          ($commit.files.filename -like "*Tools.BuildTasks-2022*") -Or
           ($commit.files.filename -like "*vs-extension.shared*") -Or
           ($commit.files.filename -like "*azure-pipelines.yml")
         )
@@ -83,9 +79,8 @@ jobs:
         }
         if( $commit.files.filename -like "*VisualStudio.Extension-2019/*" )
         {
-          # changes here only impact VS2022 and VS2019
+          # changes here only impact VS2019
           echo "##vso[task.setvariable variable=BUILD_VS2019;isOutput=true]true"
-          echo "##vso[task.setvariable variable=BUILD_VS2022;isOutput=true]true"
         }
         if( $commit.files.filename -like "*VisualStudio.Extension-2022/*" )
         {
