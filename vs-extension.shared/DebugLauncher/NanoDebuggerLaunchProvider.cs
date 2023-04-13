@@ -3,7 +3,7 @@
 // See LICENSE file in the project root for full license information.
 //
 
-using CommunityToolkit.Mvvm.DependencyInjection;
+using GalaSoft.MvvmLight.Ioc;
 using Microsoft.VisualStudio.ProjectSystem;
 using Microsoft.VisualStudio.ProjectSystem.Debug;
 using Microsoft.VisualStudio.ProjectSystem.VS.Debug;
@@ -45,13 +45,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             // output information about assembly running this to help debugging
             MessageCentre.InternalErrorWriteLine($"Launching debugger provider from v{_informationalVersionAttribute.InformationalVersion}");
 
-            var deviceExplorerViewModel = Ioc.Default.GetRequiredService<DeviceExplorerViewModel>();
-            if (deviceExplorerViewModel.SelectedDevice != null)
+            if (SimpleIoc.Default.GetInstance<DeviceExplorerViewModel>().SelectedDevice != null)
             {
-                var deployDeviceName = deviceExplorerViewModel.SelectedDevice.Description;
+                var deployDeviceName = SimpleIoc.Default.GetInstance<DeviceExplorerViewModel>().SelectedDevice.Description;
 
                 // get device
-                var device = deviceExplorerViewModel.SelectedDevice;
+                var device = SimpleIoc.Default.GetInstance<DeviceExplorerViewModel>().SelectedDevice;
 
                 // check for debug engine
                 if (device.DebugEngine == null)
