@@ -3,13 +3,12 @@
 // See LICENSE file in the project root for full license information.
 //
 
-using CommunityToolkit.Mvvm.DependencyInjection;
-using CommunityToolkit.Mvvm.Messaging;
+using GalaSoft.MvvmLight.Ioc;
+using GalaSoft.MvvmLight.Messaging;
 using Microsoft.VisualStudio.Shell;
 using nanoFramework.Tools.Debugger;
 using nanoFramework.Tools.Debugger.Extensions;
 using nanoFramework.Tools.Debugger.WireProtocol;
-using nanoFramework.Tools.VisualStudio.Extension.Messages;
 using nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel;
 using System;
 using System.ComponentModel.Design;
@@ -22,7 +21,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
     /// <summary>
     /// Command handler
     /// </summary>
-    internal sealed class DeviceExplorerCommand : IRecipient<SelectedNanoDeviceHasChangedMessage>, IRecipient<NanoDevicesCollectionHasChangedMessage>, IRecipient<NanoDevicesDeviceEnumerationCompletedMessage>
+    internal sealed class DeviceExplorerCommand
     {
         /// <summary>
         /// Command ID.
@@ -116,7 +115,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         /// <summary>
         /// Gets the service provider from the owner package.
         /// </summary>
-        private IAsyncServiceProvider ServiceProvider
+        private Microsoft.VisualStudio.Shell.IAsyncServiceProvider ServiceProvider
         {
             get
             {
@@ -146,12 +145,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
             await Instance.CreateToolbarHandlersAsync();
 
-            Ioc.Default.GetRequiredService<DeviceExplorerViewModel>().NanoDeviceCommService = Instance.NanoDeviceCommService;
+            SimpleIoc.Default.GetInstance<DeviceExplorerViewModel>().NanoDeviceCommService = Instance.NanoDeviceCommService;
 
             // setup message listeners to be notified of events occurring in the View Model
-            WeakReferenceMessenger.Default.Register<SelectedNanoDeviceHasChangedMessage>(Instance);
-            WeakReferenceMessenger.Default.Register<NanoDevicesCollectionHasChangedMessage>(Instance);
-            WeakReferenceMessenger.Default.Register<NanoDevicesDeviceEnumerationCompletedMessage>(Instance);
+            Messenger.Default.Register<NotificationMessage>(Instance, DeviceExplorerViewModel.MessagingTokens.SelectedNanoDeviceHasChanged, (message) => Instance.SelectedNanoDeviceHasChangedHandlerAsync().ConfigureAwait(false));
+            Messenger.Default.Register<NotificationMessage>(Instance, DeviceExplorerViewModel.MessagingTokens.NanoDevicesCollectionHasChanged, (message) => Instance.NanoDevicesCollectionChangedHandlerAsync().ConfigureAwait(false));
+            Messenger.Default.Register<NotificationMessage>(Instance, DeviceExplorerViewModel.MessagingTokens.NanoDevicesDeviceEnumerationCompleted, (message) => Instance.NanoDevicesDeviceEnumerationCompletedHandlerAsync().ConfigureAwait(false));
         }
 
         private async Task CreateToolbarHandlersAsync()
@@ -1240,21 +1239,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         {
             return new CommandID(new Guid(guidDeviceExplorerCmdSet), commandID);
         }
+
         #endregion
-
-        public void Receive(SelectedNanoDeviceHasChangedMessage message)
-        {
-            SelectedNanoDeviceHasChangedHandlerAsync().ConfigureAwait(false);
-        }
-
-        public void Receive(NanoDevicesCollectionHasChangedMessage message)
-        {
-            NanoDevicesCollectionChangedHandlerAsync().ConfigureAwait(false);
-        }
-
-        public void Receive(NanoDevicesDeviceEnumerationCompletedMessage message)
-        {
-            NanoDevicesDeviceEnumerationCompletedHandlerAsync().ConfigureAwait(false);
-        }
     }
 }

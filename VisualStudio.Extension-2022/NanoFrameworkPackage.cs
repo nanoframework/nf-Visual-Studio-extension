@@ -3,7 +3,7 @@
 // See LICENSE file in the project root for full license information.
 //
 
-using CommunityToolkit.Mvvm.DependencyInjection;
+using GalaSoft.MvvmLight.Ioc;
 using Microsoft;
 using Microsoft.VisualStudio.ProjectSystem.VS;
 using Microsoft.VisualStudio.Shell;
@@ -532,7 +532,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 Application.Current.Resources.Add("Locator", viewModelLocator);
             }
 
-            Ioc.Default.GetRequiredService<DeviceExplorerViewModel>().Package = this;
+            SimpleIoc.Default.GetInstance<DeviceExplorerViewModel>().Package = this;
 
             await MessageCentre.InitializeAsync(this, ".NET nanoFramework Extension");
 

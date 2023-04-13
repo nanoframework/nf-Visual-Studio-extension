@@ -491,12 +491,6 @@
     <PackageReference Include="CliWrap">
       <Version>3.5.0</Version>
     </PackageReference>
-    <PackageReference Include="CommunityToolkit.Mvvm">
-      <Version>8.0.0</Version>
-    </PackageReference>
-    <PackageReference Include="CommunityToolkit.Mvvm">
-      <Version>8.0.0</Version>
-    </PackageReference>
     <PackageReference Include="EnvDTE80">
       <Version>17.5.33428.366</Version>
     </PackageReference>
@@ -532,10 +526,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection">
-      <Version>6.0.1</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions">
+    <PackageReference Include="Microsoft.Extensions.Options">
       <Version>6.0.0</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.VisualStudio.Composition">
@@ -559,6 +550,9 @@
     <PackageReference Include="Microsoft.Win32.Registry">
       <Version>5.0.0</Version>
     </PackageReference>
+    <PackageReference Include="MvvmLightLibsStd10">
+      <Version>5.4.1.1</Version>
+    </PackageReference>
     <PackageReference Include="nanoFramework.CoreLibrary" GeneratePathProperty="true">
       <Version>1.14.2</Version>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -567,7 +561,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="nanoFramework.Tools.Debugger.Net" Version="2.4.17" />
+    <PackageReference Include="nanoFramework.Tools.Debugger.Net" Version="2.4.16" />
     <PackageReference Include="nanoFramework.Tools.MetadataProcessor.MsBuildTask" Version="3.0.32" />
     <PackageReference Include="Nerdbank.GitVersioning">
       <Version>3.5.119</Version>
