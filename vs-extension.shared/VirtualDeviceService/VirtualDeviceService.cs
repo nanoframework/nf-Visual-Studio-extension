@@ -381,6 +381,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 _nanoClrProcess.StartInfo.UseShellExecute = false;
                 _nanoClrProcess.StartInfo.CreateNoWindow = true;
                 _nanoClrProcess.StartInfo.RedirectStandardOutput = true;
+                _nanoClrProcess.StartInfo.RedirectStandardInput = true;
                 _nanoClrProcess.StartInfo.RedirectStandardError = true;
                 _nanoClrProcess.OutputDataReceived += nanoClrProcess_OutputDataReceived;
                 _nanoClrProcess.EnableRaisingEvents = true;
