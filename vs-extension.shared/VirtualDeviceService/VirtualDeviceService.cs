@@ -87,12 +87,13 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                     // start virtual device
                     await StartVirtualDeviceAsync(false);
+
+                    if (!NanoFrameworkPackage.OptionDisableDeviceWatchers)
+                    {
+                        _nanoDeviceCommService.DebugClient.ReScanDevices();
+                    }
                 }
 
-                if (!NanoFrameworkPackage.OptionDisableDeviceWatchers)
-                {
-                    _nanoDeviceCommService.DebugClient.ReScanDevices();
-                }
             });
         }
 
