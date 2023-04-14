@@ -6,23 +6,16 @@
 using CliWrap;
 using CliWrap.Buffered;
 using GalaSoft.MvvmLight.Messaging;
-using Humanizer;
 using Microsoft;
-using Microsoft.VisualStudio.RpcContracts.Commands;
 using Microsoft.VisualStudio.Shell;
-using Microsoft.VisualStudio.Threading;
-using Mono.Cecil.Cil;
 using nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel;
+using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
-using System.IO.Packaging;
-using System.Management.Instrumentation;
-using System.Security.Policy;
-using System.Text;
+using System.Net.Http;
 using System.Text.RegularExpressions;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace nanoFramework.Tools.VisualStudio.Extension
 {
@@ -33,7 +26,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         // taken from E9008 @ nanoclr
         private const int NanoClrErrorUnknowErrorStartingInstance = 9008;
 
-        private readonly Microsoft.VisualStudio.Shell.IAsyncServiceProvider _serviceProvider;
+        private readonly IAsyncServiceProvider _serviceProvider;
         private Process _nanoClrProcess = null;
         private INanoDeviceCommService _nanoDeviceCommService;
 
@@ -87,12 +80,13 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                     // start virtual device
                     await StartVirtualDeviceAsync(false);
+
+                    if (!NanoFrameworkPackage.OptionDisableDeviceWatchers)
+                    {
+                        _nanoDeviceCommService.DebugClient.ReScanDevices();
+                    }
                 }
 
-                if (!NanoFrameworkPackage.OptionDisableDeviceWatchers)
-                {
-                    _nanoDeviceCommService.DebugClient.ReScanDevices();
-                }
             });
         }
 
@@ -100,33 +94,92 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         {
             MessageCentre.InternalErrorWriteLine($"VirtualDevice: Install/upate nanoclr tool");
 
-            var cmd = Cli.Wrap("dotnet")
-                .WithArguments("tool update -g nanoclr")
-                .WithValidation(CommandResultValidation.None);
-
             // signal install/update ongoing
             Messenger.Default.Send(new NotificationMessage(true.ToString()), DeviceExplorerViewModel.MessagingTokens.VirtualDeviceOperationExecuting);
 
-            // setup cancellation token with a timeout of 1 minute
-            using (var cts = new CancellationTokenSource())
-            {
-                cts.CancelAfter(TimeSpan.FromMinutes(1));
 
-                ThreadHelper.JoinableTaskFactory.Run(async delegate
+            // get installed tool version (if installed)
+            var cmd = Cli.Wrap("nanoclr")
+                .WithArguments("--help")
+                .WithValidation(CommandResultValidation.None);
+
+            bool performInstallUpdate = false;
+
+            // setup cancellation token with a timeout of 10 seconds
+            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(10));
+
+            ThreadHelper.JoinableTaskFactory.Run(async delegate
+            {
+                try
                 {
                     var cliResult = await cmd.ExecuteBufferedAsync(cts.Token);
 
                     if (cliResult.ExitCode == 0)
                     {
-                        var regexResult = Regex.Match(cliResult.StandardOutput, @"((?>\(version ')(?'version'\d+\.\d+\.\d+)(?>'\)))");
+                        var regexResult = Regex.Match(cliResult.StandardOutput, @"(?'version'\d+\.\d+\.\d+)", RegexOptions.RightToLeft);
+
+                        if (regexResult.Success)
+                        {
+                            MessageCentre.InternalErrorWriteLine($"VirtualDevice: Running v{regexResult.Groups["version"].Value}");
+                            MessageCentre.OutputVirtualDeviceMessage($"Running nanoclr v{regexResult.Groups["version"].Value}");
+
+                            // compose version
+                            Version installedVersion = new Version(regexResult.Groups[1].Value);
+
+                            NanoClrIsInstalled = true;
+
+                            // check latest version
+                            var httpClient = new HttpClient();
+                            var response = await httpClient.GetAsync("https://api.nuget.org/v3-flatcontainer/nanoclr/index.json");
+                            response.EnsureSuccessStatusCode();
+                            var responseContent = await response.Content.ReadAsStringAsync();
+                            var package = JsonConvert.DeserializeObject<NuGetPackage>(responseContent);
+                            Version latestPackageVersion = new Version(package.Versions[package.Versions.Length - 1]);
+
+                            // check if we are running the latest one
+                            if (latestPackageVersion > installedVersion)
+                            {
+                                // need to update
+                                performInstallUpdate = true;
+                            }
+                        }
+                        else
+                        {
+                            // something wrong with the output, can't proceed
+                            MessageCentre.InternalErrorWriteLine("VirtualDevice: Failed to parse current nanoCLR CLI version");
+                        }
+                    }
+                }
+                catch (Win32Exception)
+                {
+                    // nanoclr doesn't seem to be installed
+                    performInstallUpdate = true;
+                    NanoClrIsInstalled = false;
+                }
+            });
+
+            if (performInstallUpdate)
+            {
+                cmd = Cli.Wrap("dotnet")
+                    .WithArguments("tool update -g nanoclr")
+                    .WithValidation(CommandResultValidation.None);
+
+                // setup cancellation token with a timeout of 1 minute
+                using var cts1 = new CancellationTokenSource(TimeSpan.FromMinutes(1));
+
+                ThreadHelper.JoinableTaskFactory.Run(async delegate
+                {
+                    var cliResult = await cmd.ExecuteBufferedAsync(cts1.Token);
+
+                    if (cliResult.ExitCode == 0)
+                    {
+                        var regexResult = Regex.Match(cliResult.StandardOutput, @"((?>version ')(?'version'\d+\.\d+\.\d+)(?>'))", RegexOptions.RightToLeft);
 
                         if (regexResult.Success)
                         {
                             MessageCentre.InternalErrorWriteLine($"VirtualDevice: Install/update successful. Running v{regexResult.Groups["version"].Value}");
                             MessageCentre.OutputVirtualDeviceMessage($"Running nanoclr v{regexResult.Groups["version"].Value}");
                         }
-
-                        NanoClrIsInstalled = true;
                     }
                     else
                     {
@@ -138,10 +191,10 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         NanoClrIsInstalled = false;
                     }
                 });
-
-                // signal install/update completed
-                Messenger.Default.Send(new NotificationMessage(false.ToString()), DeviceExplorerViewModel.MessagingTokens.VirtualDeviceOperationExecuting);
             }
+
+            // signal install/update completed
+            Messenger.Default.Send(new NotificationMessage(false.ToString()), DeviceExplorerViewModel.MessagingTokens.VirtualDeviceOperationExecuting);
         }
 
         public void UpdateNanoClr()
@@ -151,31 +204,28 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 .WithValidation(CommandResultValidation.None);
 
             // setup cancellation token with a timeout of 1 minute
-            using (var cts = new CancellationTokenSource())
+            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(20));
+
+            ThreadHelper.JoinableTaskFactory.Run(async delegate
             {
-                cts.CancelAfter(TimeSpan.FromSeconds(20));
+                var cliResult = await cmd.ExecuteBufferedAsync(cts.Token);
 
-                ThreadHelper.JoinableTaskFactory.Run(async delegate
+                if (cliResult.ExitCode == 0)
                 {
-                    var cliResult = await cmd.ExecuteBufferedAsync(cts.Token);
+                    var regexResult = Regex.Match(cliResult.StandardOutput, @"((?>Updated to v)(?'version'\d+\.\d+\.\d+\.\d+))");
 
-                    if (cliResult.ExitCode == 0)
+                    if (regexResult.Success)
                     {
-                        var regexResult = Regex.Match(cliResult.StandardOutput, @"((?>Updated to v)(?'version'\d+\.\d+\.\d+\.\d+))");
-
-                        if (regexResult.Success)
-                        {
-                            MessageCentre.InternalErrorWriteLine($"VirtualDevice: updated nanoCLR image to v{regexResult.Groups["version"].Value}");
-                            MessageCentre.OutputVirtualDeviceMessage($"Updated nanoCLR image to v{regexResult.Groups["version"].Value}");
-                        }
+                        MessageCentre.InternalErrorWriteLine($"VirtualDevice: updated nanoCLR image to v{regexResult.Groups["version"].Value}");
+                        MessageCentre.OutputVirtualDeviceMessage($"Updated nanoCLR image to v{regexResult.Groups["version"].Value}");
                     }
-                    else
-                    {
-                        MessageCentre.InternalErrorWriteLine($"VirtualDevice: failed to update the nanoCLR image");
-                        MessageCentre.OutputVirtualDeviceMessage("ERROR: failed to update the nanoCLR image");
-                    }
-                });
-            }
+                }
+                else
+                {
+                    MessageCentre.InternalErrorWriteLine($"VirtualDevice: failed to update the nanoCLR image");
+                    MessageCentre.OutputVirtualDeviceMessage("ERROR: failed to update the nanoCLR image");
+                }
+            });
         }
         public string ListVirtualSerialPorts()
         {
@@ -184,24 +234,21 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         .WithValidation(CommandResultValidation.None);
 
             // setup cancellation token with a timeout of 1 minute
-            using (var cts = new CancellationTokenSource())
+            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(20));
+
+            return ThreadHelper.JoinableTaskFactory.Run(async delegate
             {
-                cts.CancelAfter(TimeSpan.FromSeconds(20));
+                var cliResult = await cmd.ExecuteBufferedAsync(cts.Token);
 
-                return ThreadHelper.JoinableTaskFactory.Run(async delegate
+                if (cliResult.ExitCode == 0)
                 {
-                    var cliResult = await cmd.ExecuteBufferedAsync(cts.Token);
-
-                    if (cliResult.ExitCode == 0)
-                    {
-                        return cliResult.StandardOutput;
-                    }
-                    else
-                    {
-                        return "";
-                    }
-                });
-            }
+                    return cliResult.StandardOutput;
+                }
+                else
+                {
+                    return "";
+                }
+            });
         }
 
         public bool CreateVirtualSerialPort(string portName, out string executionLog)
@@ -211,19 +258,16 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 .WithValidation(CommandResultValidation.None);
 
             // setup cancellation token with a timeout of 1 minute
-            using (var cts = new CancellationTokenSource())
+            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(20));
+
+            var cliResult = ThreadHelper.JoinableTaskFactory.Run(async delegate
             {
-                cts.CancelAfter(TimeSpan.FromSeconds(20));
+                return await cmd.ExecuteBufferedAsync(cts.Token);
+            });
 
-                var cliResult = ThreadHelper.JoinableTaskFactory.Run(async delegate
-                {
-                    return await cmd.ExecuteBufferedAsync(cts.Token);
-                });
+            executionLog = cliResult.StandardOutput;
 
-                executionLog = cliResult.StandardOutput;
-
-                return (cliResult.ExitCode == 0);
-            }
+            return (cliResult.ExitCode == 0);
         }
 
         public void StopVirtualDevice(bool shutdownProcessing = false)
@@ -280,7 +324,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                             // rescan devices
                             _nanoDeviceCommService.DebugClient.ReScanDevices();
                         }
-                        catch(Exception ex)
+                        catch
                         {
                             // catch all, don't bother
                         }
@@ -376,10 +420,11 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 _nanoClrProcess = new Process();
 
                 _nanoClrProcess.StartInfo.FileName = "nanoclr";
-                _nanoClrProcess.StartInfo.Arguments = $"run --serialport {NanoFrameworkPackage.SettingVirtualDevicePort} --waitfordebugger --monitorparentpid {Process.GetCurrentProcess().Id}";
+                _nanoClrProcess.StartInfo.Arguments = $"run --serialport {NanoFrameworkPackage.SettingVirtualDevicePort} --waitfordebugger --loopafterexit --monitorparentpid {Process.GetCurrentProcess().Id}";
                 _nanoClrProcess.StartInfo.UseShellExecute = false;
                 _nanoClrProcess.StartInfo.CreateNoWindow = true;
                 _nanoClrProcess.StartInfo.RedirectStandardOutput = true;
+                _nanoClrProcess.StartInfo.RedirectStandardInput = true;
                 _nanoClrProcess.StartInfo.RedirectStandardError = true;
                 _nanoClrProcess.OutputDataReceived += nanoClrProcess_OutputDataReceived;
                 _nanoClrProcess.EnableRaisingEvents = true;
@@ -507,6 +552,10 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 MessageCentre.OutputVirtualDeviceMessage(e.Data);
             }
         }
+
+        internal class NuGetPackage
+        {
+            public string[] Versions { get; set; }
+        }
     }
 }
-
