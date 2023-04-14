@@ -234,24 +234,21 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         .WithValidation(CommandResultValidation.None);
 
             // setup cancellation token with a timeout of 1 minute
-            using (var cts = new CancellationTokenSource())
+            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(20));
+
+            return ThreadHelper.JoinableTaskFactory.Run(async delegate
             {
-                cts.CancelAfter(TimeSpan.FromSeconds(20));
+                var cliResult = await cmd.ExecuteBufferedAsync(cts.Token);
 
-                return ThreadHelper.JoinableTaskFactory.Run(async delegate
+                if (cliResult.ExitCode == 0)
                 {
-                    var cliResult = await cmd.ExecuteBufferedAsync(cts.Token);
-
-                    if (cliResult.ExitCode == 0)
-                    {
-                        return cliResult.StandardOutput;
-                    }
-                    else
-                    {
-                        return "";
-                    }
-                });
-            }
+                    return cliResult.StandardOutput;
+                }
+                else
+                {
+                    return "";
+                }
+            });
         }
 
         public bool CreateVirtualSerialPort(string portName, out string executionLog)
@@ -261,19 +258,16 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 .WithValidation(CommandResultValidation.None);
 
             // setup cancellation token with a timeout of 1 minute
-            using (var cts = new CancellationTokenSource())
+            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(20));
+
+            var cliResult = ThreadHelper.JoinableTaskFactory.Run(async delegate
             {
-                cts.CancelAfter(TimeSpan.FromSeconds(20));
+                return await cmd.ExecuteBufferedAsync(cts.Token);
+            });
 
-                var cliResult = ThreadHelper.JoinableTaskFactory.Run(async delegate
-                {
-                    return await cmd.ExecuteBufferedAsync(cts.Token);
-                });
+            executionLog = cliResult.StandardOutput;
 
-                executionLog = cliResult.StandardOutput;
-
-                return (cliResult.ExitCode == 0);
-            }
+            return (cliResult.ExitCode == 0);
         }
 
         public void StopVirtualDevice(bool shutdownProcessing = false)
