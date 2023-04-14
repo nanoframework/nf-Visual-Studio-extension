@@ -9,8 +9,11 @@ using GalaSoft.MvvmLight.Messaging;
 using Microsoft;
 using Microsoft.VisualStudio.Shell;
 using nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel;
+using Newtonsoft.Json;
 using System;
+using System.ComponentModel;
 using System.Diagnostics;
+using System.Net.Http;
 using System.Text.RegularExpressions;
 using System.Threading;
 
@@ -23,7 +26,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         // taken from E9008 @ nanoclr
         private const int NanoClrErrorUnknowErrorStartingInstance = 9008;
 
-        private readonly Microsoft.VisualStudio.Shell.IAsyncServiceProvider _serviceProvider;
+        private readonly IAsyncServiceProvider _serviceProvider;
         private Process _nanoClrProcess = null;
         private INanoDeviceCommService _nanoDeviceCommService;
 
@@ -91,21 +94,82 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         {
             MessageCentre.InternalErrorWriteLine($"VirtualDevice: Install/upate nanoclr tool");
 
-            var cmd = Cli.Wrap("dotnet")
-                .WithArguments("tool update -g nanoclr")
-                .WithValidation(CommandResultValidation.None);
-
             // signal install/update ongoing
             Messenger.Default.Send(new NotificationMessage(true.ToString()), DeviceExplorerViewModel.MessagingTokens.VirtualDeviceOperationExecuting);
 
-            // setup cancellation token with a timeout of 1 minute
-            using (var cts = new CancellationTokenSource())
+
+            // get installed tool version (if installed)
+            var cmd = Cli.Wrap("nanoclr")
+                .WithArguments("--help")
+                .WithValidation(CommandResultValidation.None);
+
+            bool performInstallUpdate = false;
+
+            // setup cancellation token with a timeout of 10 seconds
+            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(10));
+
+            ThreadHelper.JoinableTaskFactory.Run(async delegate
             {
-                cts.CancelAfter(TimeSpan.FromMinutes(1));
+                try
+                {
+                    var cliResult = await cmd.ExecuteBufferedAsync(cts.Token);
+
+                    if (cliResult.ExitCode == 0)
+                    {
+                        var regexResult = Regex.Match(cliResult.StandardOutput, @"(?'version'\d+\.\d+\.\d+)", RegexOptions.RightToLeft);
+
+                        if (regexResult.Success)
+                        {
+                            MessageCentre.InternalErrorWriteLine($"VirtualDevice: Running v{regexResult.Groups["version"].Value}");
+                            MessageCentre.OutputVirtualDeviceMessage($"Running nanoclr v{regexResult.Groups["version"].Value}");
+
+                            // compose version
+                            Version installedVersion = new Version(regexResult.Groups[1].Value);
+
+                            NanoClrIsInstalled = true;
+
+                            // check latest version
+                            var httpClient = new HttpClient();
+                            var response = await httpClient.GetAsync("https://api.nuget.org/v3-flatcontainer/nanoclr/index.json");
+                            response.EnsureSuccessStatusCode();
+                            var responseContent = await response.Content.ReadAsStringAsync();
+                            var package = JsonConvert.DeserializeObject<NuGetPackage>(responseContent);
+                            Version latestPackageVersion = new Version(package.Versions[package.Versions.Length - 1]);
+
+                            // check if we are running the latest one
+                            if (latestPackageVersion > installedVersion)
+                            {
+                                // need to update
+                                performInstallUpdate = true;
+                            }
+                        }
+                        else
+                        {
+                            // something wrong with the output, can't proceed
+                            MessageCentre.InternalErrorWriteLine("VirtualDevice: Failed to parse current nanoCLR CLI version");
+                        }
+                    }
+                }
+                catch (Win32Exception)
+                {
+                    // nanoclr doesn't seem to be installed
+                    performInstallUpdate = true;
+                    NanoClrIsInstalled = false;
+                }
+            });
+
+            if (performInstallUpdate)
+            {
+                cmd = Cli.Wrap("dotnet")
+                    .WithArguments("tool update -g nanoclr")
+                    .WithValidation(CommandResultValidation.None);
+
+                // setup cancellation token with a timeout of 1 minute
+                using var cts1 = new CancellationTokenSource(TimeSpan.FromMinutes(1));
 
                 ThreadHelper.JoinableTaskFactory.Run(async delegate
                 {
-                    var cliResult = await cmd.ExecuteBufferedAsync(cts.Token);
+                    var cliResult = await cmd.ExecuteBufferedAsync(cts1.Token);
 
                     if (cliResult.ExitCode == 0)
                     {
@@ -116,8 +180,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                             MessageCentre.InternalErrorWriteLine($"VirtualDevice: Install/update successful. Running v{regexResult.Groups["version"].Value}");
                             MessageCentre.OutputVirtualDeviceMessage($"Running nanoclr v{regexResult.Groups["version"].Value}");
                         }
-
-                        NanoClrIsInstalled = true;
                     }
                     else
                     {
@@ -129,10 +191,10 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         NanoClrIsInstalled = false;
                     }
                 });
-
-                // signal install/update completed
-                Messenger.Default.Send(new NotificationMessage(false.ToString()), DeviceExplorerViewModel.MessagingTokens.VirtualDeviceOperationExecuting);
             }
+
+            // signal install/update completed
+            Messenger.Default.Send(new NotificationMessage(false.ToString()), DeviceExplorerViewModel.MessagingTokens.VirtualDeviceOperationExecuting);
         }
 
         public void UpdateNanoClr()
