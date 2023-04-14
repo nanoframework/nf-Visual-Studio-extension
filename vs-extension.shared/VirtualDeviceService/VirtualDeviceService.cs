@@ -119,7 +119,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                     if (cliResult.ExitCode == 0)
                     {
-                        var regexResult = Regex.Match(cliResult.StandardOutput, @"((?>\(version ')(?'version'\d+\.\d+\.\d+)(?>'\)))");
+                        var regexResult = Regex.Match(cliResult.StandardOutput, @"((?>version ')(?'version'\d+\.\d+\.\d+)(?>'))", RegexOptions.RightToLeft);
 
                         if (regexResult.Success)
                         {
