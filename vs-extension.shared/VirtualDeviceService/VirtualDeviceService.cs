@@ -377,7 +377,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 _nanoClrProcess = new Process();
 
                 _nanoClrProcess.StartInfo.FileName = "nanoclr";
-                _nanoClrProcess.StartInfo.Arguments = $"run --serialport {NanoFrameworkPackage.SettingVirtualDevicePort} --waitfordebugger --monitorparentpid {Process.GetCurrentProcess().Id}";
+                _nanoClrProcess.StartInfo.Arguments = $"run --serialport {NanoFrameworkPackage.SettingVirtualDevicePort} --waitfordebugger --loopafterexit --monitorparentpid {Process.GetCurrentProcess().Id}";
                 _nanoClrProcess.StartInfo.UseShellExecute = false;
                 _nanoClrProcess.StartInfo.CreateNoWindow = true;
                 _nanoClrProcess.StartInfo.RedirectStandardOutput = true;
