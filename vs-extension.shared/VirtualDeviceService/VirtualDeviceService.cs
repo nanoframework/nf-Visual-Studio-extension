@@ -552,6 +552,10 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 MessageCentre.OutputVirtualDeviceMessage(e.Data);
             }
         }
+
+        internal class NuGetPackage
+        {
+            public string[] Versions { get; set; }
+        }
     }
 }
-
