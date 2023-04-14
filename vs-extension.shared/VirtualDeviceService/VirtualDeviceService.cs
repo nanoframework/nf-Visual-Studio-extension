@@ -204,31 +204,28 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 .WithValidation(CommandResultValidation.None);
 
             // setup cancellation token with a timeout of 1 minute
-            using (var cts = new CancellationTokenSource())
+            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(20));
+
+            ThreadHelper.JoinableTaskFactory.Run(async delegate
             {
-                cts.CancelAfter(TimeSpan.FromSeconds(20));
+                var cliResult = await cmd.ExecuteBufferedAsync(cts.Token);
 
-                ThreadHelper.JoinableTaskFactory.Run(async delegate
+                if (cliResult.ExitCode == 0)
                 {
-                    var cliResult = await cmd.ExecuteBufferedAsync(cts.Token);
+                    var regexResult = Regex.Match(cliResult.StandardOutput, @"((?>Updated to v)(?'version'\d+\.\d+\.\d+\.\d+))");
 
-                    if (cliResult.ExitCode == 0)
+                    if (regexResult.Success)
                     {
-                        var regexResult = Regex.Match(cliResult.StandardOutput, @"((?>Updated to v)(?'version'\d+\.\d+\.\d+\.\d+))");
-
-                        if (regexResult.Success)
-                        {
-                            MessageCentre.InternalErrorWriteLine($"VirtualDevice: updated nanoCLR image to v{regexResult.Groups["version"].Value}");
-                            MessageCentre.OutputVirtualDeviceMessage($"Updated nanoCLR image to v{regexResult.Groups["version"].Value}");
-                        }
+                        MessageCentre.InternalErrorWriteLine($"VirtualDevice: updated nanoCLR image to v{regexResult.Groups["version"].Value}");
+                        MessageCentre.OutputVirtualDeviceMessage($"Updated nanoCLR image to v{regexResult.Groups["version"].Value}");
                     }
-                    else
-                    {
-                        MessageCentre.InternalErrorWriteLine($"VirtualDevice: failed to update the nanoCLR image");
-                        MessageCentre.OutputVirtualDeviceMessage("ERROR: failed to update the nanoCLR image");
-                    }
-                });
-            }
+                }
+                else
+                {
+                    MessageCentre.InternalErrorWriteLine($"VirtualDevice: failed to update the nanoCLR image");
+                    MessageCentre.OutputVirtualDeviceMessage("ERROR: failed to update the nanoCLR image");
+                }
+            });
         }
         public string ListVirtualSerialPorts()
         {
