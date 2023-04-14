@@ -6,23 +6,13 @@
 using CliWrap;
 using CliWrap.Buffered;
 using GalaSoft.MvvmLight.Messaging;
-using Humanizer;
 using Microsoft;
-using Microsoft.VisualStudio.RpcContracts.Commands;
 using Microsoft.VisualStudio.Shell;
-using Microsoft.VisualStudio.Threading;
-using Mono.Cecil.Cil;
 using nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO.Packaging;
-using System.Management.Instrumentation;
-using System.Security.Policy;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace nanoFramework.Tools.VisualStudio.Extension
 {
