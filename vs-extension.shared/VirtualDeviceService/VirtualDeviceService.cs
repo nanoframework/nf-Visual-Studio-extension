@@ -281,7 +281,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                             // rescan devices
                             _nanoDeviceCommService.DebugClient.ReScanDevices();
                         }
-                        catch(Exception ex)
+                        catch
                         {
                             // catch all, don't bother
                         }
