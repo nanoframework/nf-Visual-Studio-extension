@@ -4,6 +4,7 @@
 // See LICENSE file in the project root for full license information.
 //
 
+using System;
 using System.Diagnostics;
 using System.IO;
 using System.Xml;
@@ -11,6 +12,7 @@ using System.Xml.Serialization;
 
 namespace nanoFramework.Tools.VisualStudio.Extension
 {
+    [XmlRoot("PdbxFile")]
     public class Pdbx
     {
         public class TokenMap
@@ -28,21 +30,21 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 return "0x" + u.ToString("X");
             }
 
-            [XmlIgnore]public uint CLR;
-            [XmlIgnore]public uint nanoCLR;
+            [XmlIgnore] public uint CLR;
+            [XmlIgnore] public uint nanoCLR;
 
             [XmlElement("CLR")]
             public string CLR_String
             {
-                get {return UInt32ToString(CLR);}
-                set {CLR = StringToUInt32(value);}
+                get { return UInt32ToString(CLR); }
+                set { CLR = StringToUInt32(value); }
             }
 
             [XmlElement("nanoCLR")]
             public string nanoCLR_String
             {
-                get {return UInt32ToString(nanoCLR);}
-                set {nanoCLR = StringToUInt32(value);}
+                get { return UInt32ToString(nanoCLR); }
+                set { nanoCLR = StringToUInt32(value); }
             }
         }
 
@@ -58,11 +60,22 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         {
             public Token Token;
 
-            [XmlIgnore]public Class Class;
+            [XmlIgnore] public Class Class;
         }
 
         public class Method : ClassMember
         {
+            [XmlAttribute]
+            public string Name;
+            [XmlAttribute]
+            public int NumArgs;
+            [XmlAttribute]
+            public int NumLocals;
+            [XmlAttribute]
+            public int NumGenericParams;
+            [XmlAttribute]
+            public bool IsGenericInstance;
+
             public bool HasByteCode = true;
 
             public IL[] ILMap;
@@ -88,10 +101,19 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         public class Class
         {
+            [XmlAttribute]
+            public string Name;
+            [XmlAttribute]
+            public int NumGenericParams;
+            [XmlAttribute]
+            public bool IsGenericInstance;
+
+            [XmlAttribute]
+            public string IsEnum;
             public Token Token;
             public Field[] Fields;
             public Method[] Methods;
-            [XmlIgnore]public Assembly Assembly;
+            [XmlIgnore] public Assembly Assembly;
         }
 
         public class Assembly   /*Module*/
@@ -108,7 +130,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             public VersionStruct Version;
             public Token Token;
             public Class[] Classes;
-            [XmlIgnore]public CorDebugAssembly CorDebugAssembly;
+            [XmlIgnore] public CorDebugAssembly CorDebugAssembly;
         }
 
         public class PdbxFile
@@ -126,8 +148,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                 public string[] AssemblyDirectories
                 {
-                    get {return _assemblyDirectories;}
-                    set {_assemblyDirectories = value;}
+                    get { return _assemblyDirectories; }
+                    set { _assemblyDirectories = value; }
                 }
 
                 public PdbxFile Resolve(string name, Tools.Debugger.WireProtocol.Commands.DebuggingResolveAssembly.Version version, bool fIsTargetBigEndian)
@@ -140,7 +162,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             }
 
             public Assembly Assembly;
-            [XmlIgnore]public string PdbxPath;
+            [XmlIgnore] public string PdbxPath;
 
             private static PdbxFile TryPdbxFile(string path, Tools.Debugger.WireProtocol.Commands.DebuggingResolveAssembly.Version version)
             {
@@ -149,21 +171,29 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     path += ".pdbx";
                     if (File.Exists(path))
                     {
-                        XmlSerializer xmls = new Serialization.PdbxFile.PdbxFileSerializer();
+                        XmlSerializer serializer = new XmlSerializer(typeof(PdbxFile));
 
-                        PdbxFile file = (PdbxFile)Utility.XmlDeserialize(path, xmls);
+                        PdbxFile newFile;
+                        using (FileStream fs = new FileStream(path, FileMode.Open))
+                        {
+                            newFile = (PdbxFile)serializer.Deserialize(fs);
+                        }
 
                         //Check version
-                        Assembly.VersionStruct version2 = file.Assembly.Version;
+                        Assembly.VersionStruct version2 = newFile.Assembly.Version;
 
                         if (version2.Major == version.MajorVersion && version2.Minor == version.MinorVersion)
                         {
-                            file.Initialize(path);
-                            return file;
+                            newFile.Initialize(path);
+                            return newFile;
                         }
                     }
                 }
+#if DEBUG
+                catch (Exception ex)
+#else
                 catch
+#endif
                 {
                 }
 
@@ -178,7 +208,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 {
                     string directory = assemblyDirectories[iDirectory];
 
-                    if(!string.IsNullOrEmpty(directorySuffix))
+                    if (!string.IsNullOrEmpty(directorySuffix))
                     {
                         directory = Path.Combine(directory, directorySuffix);
                     }
@@ -198,7 +228,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                 if (assemblyPaths != null)
                 {
-                    for(int iPath = 0; iPath < assemblyPaths.Length; iPath++)
+                    for (int iPath = 0; iPath < assemblyPaths.Length; iPath++)
                     {
                         string path = assemblyPaths[iPath];
                         string pathNoExt = Path.ChangeExtension(path, null);
@@ -246,12 +276,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             {
                 PdbxPath = path;
 
-                for(int iClass = 0; iClass < Assembly.Classes.Length; iClass++)
+                for (int iClass = 0; iClass < Assembly.Classes.Length; iClass++)
                 {
                     Class c = Assembly.Classes[iClass];
                     c.Assembly = Assembly;
 
-                    for(int iMethod = 0; iMethod < c.Methods.Length; iMethod++)
+                    for (int iMethod = 0; iMethod < c.Methods.Length; iMethod++)
                     {
                         Method m = c.Methods[iMethod];
                         m.Class = c;

@@ -46,7 +46,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)CorDebug\MetaDataImportInterface.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)CorDebug\nanoCLR_TypeSystem.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)CorDebug\Pdbx.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)CorDebug\PdbxFile.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)CorDebug\ProcessExitException.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)CorDebug\Utility\Boolean.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)CorDebug\Utility\Utility.FImplies.cs" />
