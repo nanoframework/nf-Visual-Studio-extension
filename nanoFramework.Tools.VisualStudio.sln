@@ -93,6 +93,7 @@ Global
 		{E3E5B359-8E18-4B7D-8469-F93C6867D712}.Debug|x86.ActiveCfg = Debug|Any CPU
 		{E3E5B359-8E18-4B7D-8469-F93C6867D712}.Debug|x86.Build.0 = Debug|Any CPU
 		{E3E5B359-8E18-4B7D-8469-F93C6867D712}.Release|Any CPU.ActiveCfg = Release|x64
+		{E3E5B359-8E18-4B7D-8469-F93C6867D712}.Release|Any CPU.Build.0 = Release|x64
 		{E3E5B359-8E18-4B7D-8469-F93C6867D712}.Release|x64.ActiveCfg = Release|x64
 		{E3E5B359-8E18-4B7D-8469-F93C6867D712}.Release|x64.Build.0 = Release|x64
 		{E3E5B359-8E18-4B7D-8469-F93C6867D712}.Release|x86.ActiveCfg = Release|Any CPU
@@ -304,7 +305,6 @@ Global
 		vs-extension.shared\vs-extension.shared.projitems*{b16737e2-4b5d-4048-a740-2bb1df462637}*SharedItemsImports = 13
 		CSharp.BlankApplication\CSharp.BlankApplication.Shared.projitems*{c5a2cf84-5591-4c33-8cf7-6c949531bfb1}*SharedItemsImports = 13
 		CSharp.BlankApplication\CSharp.BlankApplication.Shared.projitems*{cd034c5a-a9eb-4c8e-b163-0ba9619cd122}*SharedItemsImports = 4
-		metadata-processor\MetadataProcessor.Shared\MetadataProcessor.Shared.projitems*{e32f7d15-2499-440c-8026-4d5ee1c5ec3a}*SharedItemsImports = 4
 		vs-extension.shared\vs-extension.shared.projitems*{e3e5b359-8e18-4b7d-8469-f93c6867d712}*SharedItemsImports = 4
 		CSharp.ClassLibrary\CSharp.ClassLibrary.Shared.projitems*{faa194f0-5c3b-46c7-977b-d2a84444bf80}*SharedItemsImports = 13
 	EndGlobalSection
