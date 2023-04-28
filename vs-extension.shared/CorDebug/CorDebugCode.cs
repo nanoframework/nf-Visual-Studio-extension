@@ -20,7 +20,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         #region ICorDebugCode Members
 
-        int ICorDebugCode.GetAddress (out ulong pStart)
+        int ICorDebugCode.GetAddress(out ulong pStart)
         {
             // CorDebugCode.GetAddress is not implemented
             pStart = 0;
@@ -28,7 +28,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             return COM_HResults.S_OK;
         }
 
-        int ICorDebugCode.GetEnCRemapSequencePoints (uint cMap, out uint pcMap, uint[] offsets)
+        int ICorDebugCode.GetEnCRemapSequencePoints(uint cMap, out uint pcMap, uint[] offsets)
         {
             // CorDebugCode.GetEnCRemapSequencePoints is not implemented
             pcMap = 0;
@@ -36,14 +36,14 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             return COM_HResults.S_OK;
         }
 
-        int ICorDebugCode.CreateBreakpoint (uint offset, out ICorDebugFunctionBreakpoint ppBreakpoint)
+        int ICorDebugCode.CreateBreakpoint(uint offset, out ICorDebugFunctionBreakpoint ppBreakpoint)
         {
             ppBreakpoint = new CorDebugFunctionBreakpoint(m_function, offset);
 
             return COM_HResults.S_OK;
         }
 
-        int ICorDebugCode.GetSize (out uint pcBytes)
+        int ICorDebugCode.GetSize(out uint pcBytes)
         {
             // CorDebugCode.GetSize is not implemented
             pcBytes = 0;
@@ -51,7 +51,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             return COM_HResults.S_OK;
         }
 
-        int ICorDebugCode.GetVersionNumber (out uint nVersion)
+        int ICorDebugCode.GetVersionNumber(out uint nVersion)
         {
             // CorDebugCode.GetVersionNumber is not implemented
             nVersion = 1;
@@ -59,7 +59,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             return COM_HResults.S_OK;
         }
 
-        int ICorDebugCode.GetILToNativeMapping (uint cMap, out uint pcMap, COR_DEBUG_IL_TO_NATIVE_MAP[] map)
+        int ICorDebugCode.GetILToNativeMapping(uint cMap, out uint pcMap, COR_DEBUG_IL_TO_NATIVE_MAP[] map)
         {
             int pbIsJustMyCode;
             pcMap = 0;
@@ -86,15 +86,15 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             //to allow set next statement, and whatever else cpde relies on.
             if (map != null)
             {
-                map[0].ilOffset          = (uint)CorDebugIlToNativeMappingTypes.NO_MAPPING;
+                map[0].ilOffset = (uint)CorDebugIlToNativeMappingTypes.NO_MAPPING;
                 map[0].nativeStartOffset = 0xFFFFFFFF;
-                map[0].nativeEndOffset   = 0xFFFFFFFF;
+                map[0].nativeEndOffset = 0xFFFFFFFF;
             }
 
             return COM_HResults.S_OK;
         }
 
-        int ICorDebugCode.GetCode (uint startOffset, uint endOffset, uint cBufferAlloc, byte[] buffer, out uint pcBufferSize)
+        int ICorDebugCode.GetCode(uint startOffset, uint endOffset, uint cBufferAlloc, byte[] buffer, out uint pcBufferSize)
         {
             // CorDebugCode.GetCode is not implemented
             pcBufferSize = 0;
@@ -102,20 +102,20 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             return COM_HResults.S_OK;
         }
 
-        int ICorDebugCode.IsIL (out int pbIL)
+        int ICorDebugCode.IsIL(out int pbIL)
         {
             pbIL = Boolean.TRUE;
 
             return COM_HResults.S_OK;
         }
 
-        int ICorDebugCode.GetFunction (out ICorDebugFunction ppFunction)
+        int ICorDebugCode.GetFunction(out ICorDebugFunction ppFunction)
         {
             ppFunction = m_function;
 
             return COM_HResults.S_OK;
         }
 
-#endregion
+        #endregion
     }
 }

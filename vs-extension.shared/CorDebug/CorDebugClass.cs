@@ -13,10 +13,10 @@ namespace nanoFramework.Tools.VisualStudio.Extension
     public class CorDebugClass : ICorDebugClass, ICorDebugClass2
     {
         CorDebugAssembly m_assembly;
-        Pdbx.Class m_pdbxClass;
+        Class m_pdbxClass;
         uint m_tkSymbolless;
 
-        public CorDebugClass(CorDebugAssembly assembly, Pdbx.Class cls)
+        public CorDebugClass(CorDebugAssembly assembly, Class cls)
         {
             m_assembly = assembly;
             m_pdbxClass = cls;
@@ -48,9 +48,13 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             get
             {
                 if (HasSymbols)
-                    return MetaData.Helper.ClassIsEnum(Assembly.MetaDataImport, m_pdbxClass.Token.CLR);
+                {
+                    return m_pdbxClass.IsEnum;
+                }
                 else
+                {
                     return false;
+                }
             }
         }
 
@@ -72,7 +76,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             get { return Assembly.AppDomain; }
         }
 
-        public Pdbx.Class PdbxClass
+        public Class PdbxClass
         {
             [DebuggerHidden]
             get { return m_pdbxClass; }
@@ -87,7 +91,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         {
             get
             {
-                uint tk = HasSymbols ? m_pdbxClass.Token.nanoCLR : m_tkSymbolless;
+                uint tk = HasSymbols ? m_pdbxClass.Token.NanoCLRToken : m_tkSymbolless;
 
                 return nanoCLR_TypeSystem.ClassMemberIndexFromnanoCLRToken(tk, Assembly);
             }
@@ -104,7 +108,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         int ICorDebugClass.GetToken(out uint pTypeDef)
         {
-            pTypeDef = HasSymbols ? m_pdbxClass.Token.CLR : m_tkSymbolless;
+            pTypeDef = HasSymbols ? m_pdbxClass.Token.CLRToken : m_tkSymbolless;
 
             return COM_HResults.S_OK;
         }
@@ -147,7 +151,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     if (!m_assembly.IsFrameworkAssembly)
                     {
                         //now update the debugger JMC state...
-                        foreach (Pdbx.Method m in m_pdbxClass.Methods)
+                        foreach (Method m in m_pdbxClass.Methods)
                         {
                             m.IsJMC = fJMC;
                         }
