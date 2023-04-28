@@ -8,7 +8,6 @@ using Microsoft.VisualStudio.ProjectSystem;
 using Microsoft.VisualStudio.ProjectSystem.Debug;
 using Microsoft.VisualStudio.ProjectSystem.VS.Debug;
 using Microsoft.VisualStudio.Threading;
-using nanoFramework.Tools.Debugger;
 using nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel;
 using System;
 using System.Collections.Generic;
@@ -16,7 +15,6 @@ using System.ComponentModel.Composition;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
-using System.Windows;
 
 namespace nanoFramework.Tools.VisualStudio.Extension
 {
@@ -32,7 +30,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         {
             // get details about assembly
             _informationalVersionAttribute = Attribute.GetCustomAttribute(
-                Assembly.GetExecutingAssembly(),
+                System.Reflection.Assembly.GetExecutingAssembly(),
                 typeof(AssemblyInformationalVersionAttribute))
                 as AssemblyInformationalVersionAttribute;
         }

@@ -41,7 +41,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 {
                     // get details about assembly
                     _informationalVersionAttributeStore = (Attribute.GetCustomAttribute(
-                        Assembly.GetExecutingAssembly(),
+                        System.Reflection.Assembly.GetExecutingAssembly(),
                         typeof(AssemblyInformationalVersionAttribute))
                         as AssemblyInformationalVersionAttribute).InformationalVersion;
                 }
