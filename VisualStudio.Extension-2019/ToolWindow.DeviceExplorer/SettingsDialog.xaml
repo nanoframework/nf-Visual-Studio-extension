@@ -132,6 +132,7 @@
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
 
                             </Grid.RowDefinitions>
                             <Grid.ColumnDefinitions>
@@ -157,6 +158,11 @@
                             </Grid>
                             <Button x:Name="StartStopDevice" Content="Start virtual device" HorizontalAlignment="Left" Click="StartStopDevice_Click" Grid.Row="1" Margin="55,20,0,0" VerticalAlignment="Top" Width="106" Grid.Column="1" />
                             <CheckBox x:Name="AutoUpdateNanoClrImage" Grid.Row="2" Grid.Column="0" HorizontalAlignment="Left"  Margin="4,20,0,0" Content="Auto update nanoCLR image" Grid.ColumnSpan="2" Checked="AutoUpdateNanoClrImage_Checked" Unchecked="AutoUpdateNanoClrImage_Checked" />
+
+                            <!-- setting to allow loading a specific nanoCLR instance  -->
+                            <CheckBox x:Name="LoadNanoClrInstance" Grid.Row="3" Grid.Column="0" HorizontalAlignment="Left"  Margin="4,14,0,0" Content="Load specific nanoCLR instance" Grid.ColumnSpan="2"/>
+                            <TextBox x:Name="PathOfLocalNanoClrInstance" Grid.Row="3" Grid.Column="1" Margin="0,42,64,0" HorizontalAlignment="Stretch" Text="" IsEnabled="False"/>
+                            <Button x:Name="ShowFilePickerLocalNanoClrInstance" Grid.Row="3" Grid.Column="1" HorizontalAlignment="Right" Content=" Browse... " IsEnabled="False" Margin="0,42,0,0" Click="ShowFilePickerForNanoCLRInstance_Click"/>
 
                         </Grid>
                     </GroupBox>

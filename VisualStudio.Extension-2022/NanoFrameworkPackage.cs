@@ -112,6 +112,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         private const string SETTINGS_ALLOW_PREVIEW_IMAGES_KEY = "IncludePrereleaseUpdates";
         private const string SETTINGS_VIRTUAL_DEVICE_ENABLE_KEY = "VirtualDeviceEnable";
         private const string SETTINGS_VIRTUAL_DEVICE_AUTO_UPDATE_NANOCLR_KEY = "VirtualDeviceAutoUpdateNanoCLR";
+        private const string SETTINGS_VIRTUAL_DEVICE_LOAD_NANOCLR_INSTANCE_KEY = "VirtualDeviceLoadNanoCLRInstance";
+        private const string SETTINGS_VIRTUAL_DEVICE_PATH_OF_NANOCLR_INSTANCE_KEY = "VirtualDevicePathOfNanoCLRInstance";
         private const string SETTINGS_VIRTUAL_DEVICE_PORT = "VirtualDevicePort";
 
         private static bool? s_OptionShowInternalErrors;
@@ -393,6 +395,60 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                 s_SettingVirtualDeviceEnable = value;
 
+            }
+        }
+
+        private static bool? s_SettingLoadNanoClrInstance = null;
+        /// <summary>
+        /// Setting to enable loading a nanoCLR instance in the virtual device.
+        /// The value is persisted per user
+        /// Default is <see langword="false"/>
+        /// </summary>
+        public static bool SettingLoadNanoClrInstance
+        {
+            get
+            {
+                if (!s_SettingLoadNanoClrInstance.HasValue)
+                {
+                    s_SettingLoadNanoClrInstance = bool.Parse((string)s_instance.UserRegistryRoot.OpenSubKey(EXTENSION_SUBKEY).GetValue(SETTINGS_VIRTUAL_DEVICE_LOAD_NANOCLR_INSTANCE_KEY, "False"));
+                }
+
+                return s_SettingLoadNanoClrInstance.Value;
+
+            }
+            set
+            {
+                s_instance.UserRegistryRoot.OpenSubKey(EXTENSION_SUBKEY, true).SetValue(SETTINGS_VIRTUAL_DEVICE_LOAD_NANOCLR_INSTANCE_KEY, value);
+                s_instance.UserRegistryRoot.OpenSubKey(EXTENSION_SUBKEY, true).Flush();
+
+                s_SettingLoadNanoClrInstance = value;
+            }
+        }
+
+        private static string s_SettingPathOfLocalNanoClrInstance = null;
+        /// <summary>
+        /// Setting to store path where to load nanoCLR instance from.
+        /// The value is persisted per user.
+        /// Default is empty.
+        /// </summary>
+        public static string SettingPathOfLocalNanoClrInstance
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(s_SettingPathOfFlashDumpCache))
+                {
+                    s_SettingPathOfLocalNanoClrInstance = (string)s_instance.UserRegistryRoot.OpenSubKey(EXTENSION_SUBKEY).GetValue(SETTINGS_VIRTUAL_DEVICE_PATH_OF_NANOCLR_INSTANCE_KEY);
+                }
+
+                return s_SettingPathOfLocalNanoClrInstance;
+            }
+
+            set
+            {
+                s_instance.UserRegistryRoot.OpenSubKey(EXTENSION_SUBKEY, true).SetValue(SETTINGS_VIRTUAL_DEVICE_PATH_OF_NANOCLR_INSTANCE_KEY, value);
+                s_instance.UserRegistryRoot.OpenSubKey(EXTENSION_SUBKEY, true).Flush();
+
+                s_SettingPathOfLocalNanoClrInstance = value;
             }
         }
 
