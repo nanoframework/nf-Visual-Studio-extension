@@ -13,7 +13,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         bool VirtualDeviceIsRunning { get; }
 
-        bool CanStartVirtualDevice { get; }
+        bool CanStartStopVirtualDevice { get; }
 
         Task InitVirtualDeviceAsync();
 
