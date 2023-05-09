@@ -100,7 +100,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         public void InstallNanoClrTool()
         {
-            MessageCentre.InternalErrorWriteLine($"VirtualDevice: Install/upate nanoclr tool");
+            MessageCentre.InternalErrorWriteLine($"VirtualDevice: Install/update nanoclr tool");
 
             // signal install/update ongoing
             Messenger.Default.Send(new NotificationMessage(true.ToString()), DeviceExplorerViewModel.MessagingTokens.VirtualDeviceOperationExecuting);
