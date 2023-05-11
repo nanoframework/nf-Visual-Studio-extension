@@ -354,9 +354,9 @@
       },
       "nanoFramework.TestFramework": {
         "type": "Direct",
-        "requested": "[2.1.76, )",
-        "resolved": "2.1.76",
-        "contentHash": "JaY5kSB4Lilq5HAM/Xg8m/kjORxzWUnpqElMs6RMo1VdYYq17lqKcgIeQjCIEUcgRXrKS4+ZKgojP1PVcQzWTw=="
+        "requested": "[2.1.77, )",
+        "resolved": "2.1.77",
+        "contentHash": "CNu5AaYbnLGGZttXBtbH2dhmTnNHBAHPMBp7dJr4w9VifmNCr62m5JUf4fqf6XySfpmBw/LmlYsb+nLJNVk0EQ=="
       },
       "nanoFramework.Tools.Debugger.Net": {
         "type": "Direct",
