@@ -4,7 +4,7 @@
 //
 
 using System;
-using System.ComponentModel.DataAnnotations;
+using System.ComponentModel;
 using System.Linq;
 using System.Windows.Markup;
 
@@ -34,8 +34,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                             {
                                 return !(e.GetType()
                                     .GetField(e.ToString())
-                                    .GetCustomAttributes(typeof(DisplayAttribute), false)
-                                    .SingleOrDefault() is DisplayAttribute attribute) ? e.ToString() : attribute.Description;
+                                    .GetCustomAttributes(typeof(DescriptionAttribute), false)
+                                    .SingleOrDefault() is DescriptionAttribute attribute) ? e.ToString() : attribute.Description;
                             }).Invoke()
                         }
                 );
