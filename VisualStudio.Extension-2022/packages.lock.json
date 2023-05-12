@@ -360,11 +360,10 @@
       },
       "nanoFramework.Tools.Debugger.Net": {
         "type": "Direct",
-        "requested": "[2.4.22, )",
-        "resolved": "2.4.22",
-        "contentHash": "inAk/TwMwSxBsR/XMaPFhYnZ5bHp0ud6o04j8sRWgJ2Hz4dm+6HhC2E3LHNU31nlgpyoDa0O+GZetqwjY/kyTA==",
+        "requested": "[2.4.23, )",
+        "resolved": "2.4.23",
+        "contentHash": "C3f6TGGXB2Kfedf476hvFKt8B/uuCOzYptceHvcXq/4W0OK0o2L8XLLLO+Ng+YdNzr8+lu5atPAIyLyqMnjRzA==",
         "dependencies": {
-          "Microsoft.Extensions.Options.DataAnnotations": "6.0.0",
           "Polly": "7.2.3",
           "PropertyChanged.Fody": "2.6.1",
           "System.IO.Ports": "7.0.0"
@@ -1034,15 +1033,6 @@
         "dependencies": {
           "Microsoft.Bcl.AsyncInterfaces": "6.0.0",
           "System.Threading.Tasks.Extensions": "4.5.4"
-        }
-      },
-      "Microsoft.Extensions.Options.DataAnnotations": {
-        "type": "Transitive",
-        "resolved": "6.0.0",
-        "contentHash": "Fvs4plZYQT/iF/JsYwP/pppQRvQC211enBjCoIu/355M+aunlzSyzN/n3wPibyY76794MFLkLVT47JCBc3porg==",
-        "dependencies": {
-          "Microsoft.Extensions.DependencyInjection.Abstractions": "6.0.0",
-          "Microsoft.Extensions.Options": "6.0.0"
         }
       },
       "Microsoft.Extensions.Primitives": {
