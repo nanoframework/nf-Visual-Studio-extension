@@ -71,6 +71,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
     [ProvideService(typeof(NanoDeviceCommService), IsAsyncQueryable = true)]
     [ProvideService(typeof(VirtualDeviceService), IsAsyncQueryable = true)]
     [ProvideCodeGenerator(typeof(nFResXFileCodeGenerator), nFResXFileCodeGenerator.Name, nFResXFileCodeGenerator.Description, true, ProjectSystem = ProvideCodeGeneratorAttribute.CSharpProjectGuid)]
+    [ProvideOptionPage(typeof(NanoOptionsPageDebugging), ".NET nanoFramework", "Debugging", 0, 0, true)]
     public sealed class NanoFrameworkPackage : AsyncPackage, Microsoft.VisualStudio.OLE.Interop.IOleCommandTarget
     {
         /// <summary>
@@ -523,6 +524,15 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 return _virtualDeviceService;
             }
         }
+
+        /// <summary>
+        /// Gets the debugging options page for the .NET nanoFramework extension.
+        /// </summary>
+        public static NanoOptionsPageDebugging DebuggingOptions => ThreadHelper.JoinableTaskFactory.Run(async delegate
+        {
+            await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+            return s_instance.GetDialogPage(typeof(NanoOptionsPageDebugging)) as NanoOptionsPageDebugging;
+        });
 
         private static NanoFrameworkPackage s_instance { get; set; }
 
