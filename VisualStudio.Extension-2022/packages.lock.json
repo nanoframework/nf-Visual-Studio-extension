@@ -360,9 +360,9 @@
       },
       "nanoFramework.Tools.Debugger.Net": {
         "type": "Direct",
-        "requested": "[2.4.25, )",
-        "resolved": "2.4.25",
-        "contentHash": "NOHcdxd09Pxn5ifiinSeDhrXkh/R1+hjp9OQ8pkNAaFTbJsNlGR4+M293r11tAVlpQwoeq5AYpFDOgyJIglC4Q==",
+        "requested": "[2.4.33, )",
+        "resolved": "2.4.33",
+        "contentHash": "Y1Sq1xOuFAkLBmxdpWBDq4CBWHOYuEEb70RXUWm5a+o9axj0/p7yGKY13fJGe3x9MStUYIzptcIcHefWOE7yfg==",
         "dependencies": {
           "Polly": "7.2.3",
           "PropertyChanged.Fody": "2.6.1",
@@ -2065,6 +2065,24 @@
         "dependencies": {
           "Microsoft.VisualStudio.Interop": "17.5.33428.366"
         }
+      },
+      "csharp.assemblyinfotemplate": {
+        "type": "Project"
+      },
+      "csharp.blankapplication-vs2022": {
+        "type": "Project"
+      },
+      "csharp.classlibrary-vs2022": {
+        "type": "Project"
+      },
+      "csharp.classtemplate": {
+        "type": "Project"
+      },
+      "csharp.resourcetemplate": {
+        "type": "Project"
+      },
+      "csharp.testapplication-vs2022": {
+        "type": "Project"
       },
       "nanoFramework.Tools.BuildTasks": {
         "type": "Project",

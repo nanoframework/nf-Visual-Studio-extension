@@ -8,7 +8,6 @@ using Microsoft.VisualStudio.ProjectSystem;
 using Microsoft.VisualStudio.ProjectSystem.Debug;
 using Microsoft.VisualStudio.ProjectSystem.VS.Debug;
 using Microsoft.VisualStudio.Threading;
-using nanoFramework.Tools.Debugger;
 using nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel;
 using System;
 using System.Collections.Generic;
@@ -16,7 +15,6 @@ using System.ComponentModel.Composition;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
-using System.Windows;
 
 namespace nanoFramework.Tools.VisualStudio.Extension
 {
@@ -58,10 +56,13 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     device.CreateDebugEngine();
                 }
 
+                // update stack trace processing option
+                device.DebugEngine.NoStackTraceInExceptions = !NanoFrameworkPackage.DebuggingOptions.ProcessStackTraceOption;
+
                 // make sure that the device is connected
                 if (device.DebugEngine.Connect(
-                    false,
-                    true))
+                            false,
+                            true))
                 {
                     string commandLine = await GetCommandLineForLaunchAsync();
                     commandLine = string.Format("{0} \"{1}{2}\"", commandLine, CorDebugProcess.DeployDeviceName, deployDeviceName);

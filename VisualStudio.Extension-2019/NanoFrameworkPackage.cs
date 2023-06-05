@@ -5,7 +5,6 @@
 
 using GalaSoft.MvvmLight.Ioc;
 using Microsoft;
-using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.ProjectSystem.VS;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
@@ -71,6 +70,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
     // register code generator for resources
     [ProvideObject(typeof(nFResXFileCodeGenerator))]
     [ProvideCodeGenerator(typeof(nFResXFileCodeGenerator), nFResXFileCodeGenerator.Name, nFResXFileCodeGenerator.Description, true, ProjectSystem = ProvideCodeGeneratorAttribute.CSharpProjectGuid)]
+    [ProvideOptionPage(typeof(NanoOptionsPageDebugging), ".NET nanoFramework", "Debugging", 0, 0, true)]
     [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1650:ElementDocumentationMustBeSpelledCorrectly", Justification = "pkgdef, VS and vsixmanifest are valid VS terms")]
     public sealed class NanoFrameworkPackage : AsyncPackage, Microsoft.VisualStudio.OLE.Interop.IOleCommandTarget
     {
@@ -523,6 +523,15 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 return _virtualDeviceService;
             }
         }
+
+        /// <summary>
+        /// Gets the debugging options page for the .NET nanoFramework extension.
+        /// </summary>
+        public static NanoOptionsPageDebugging DebuggingOptions => ThreadHelper.JoinableTaskFactory.Run(async delegate
+        {
+            await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+            return s_instance.GetDialogPage(typeof(NanoOptionsPageDebugging)) as NanoOptionsPageDebugging;
+        });
 
         private static NanoFrameworkPackage s_instance { get; set; }
 
