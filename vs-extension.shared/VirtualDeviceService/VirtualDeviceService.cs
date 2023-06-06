@@ -16,6 +16,8 @@ using System.Diagnostics;
 using System.Net.Http;
 using System.Text.RegularExpressions;
 using System.Threading;
+using System.Threading.Tasks;
+using Task = System.Threading.Tasks.Task;
 
 namespace nanoFramework.Tools.VisualStudio.Extension
 {
@@ -44,12 +46,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         public bool VirtualDeviceIsRunning => _nanoClrProcess != null && !_nanoClrProcess.HasExited;
 
         /// <summary>
-        /// Gets a value indicating if the virtual device can be started.
+        /// Gets a value indicating if the virtual device can be started or stopped.
         /// </summary>
         /// <remarks>
         /// The virtual device can't be started if it's already running when this instance of Visual Studio was started.
         /// </remarks>
-        public bool CanStartVirtualDevice { get; private set; } = true;
+        public bool CanStartStopVirtualDevice { get; private set; } = true;
 
         public VirtualDeviceService(IAsyncServiceProvider provider)
         {
@@ -66,7 +68,10 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 if (NanoFrameworkPackage.SettingVirtualDeviceEnable)
                 {
                     // wait a little bit to allow other services to load
-                    await System.Threading.Tasks.Task.Delay(5_000);
+                    await Task.Delay(5_000);
+
+                    // can't start/stop virtual device during install
+                    CanStartStopVirtualDevice = false;
 
                     // take care of installing/updating nanoclr tool
                     InstallNanoClrTool();
@@ -85,6 +90,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     {
                         _nanoDeviceCommService.DebugClient.ReScanDevices();
                     }
+
+                    // OK to start/stop virtual device
+                    CanStartStopVirtualDevice = true;
                 }
 
             });
@@ -92,7 +100,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         public void InstallNanoClrTool()
         {
-            MessageCentre.InternalErrorWriteLine($"VirtualDevice: Install/upate nanoclr tool");
+            MessageCentre.InternalErrorWriteLine($"VirtualDevice: Install/update nanoclr tool");
 
             // signal install/update ongoing
             Messenger.Default.Send(new NotificationMessage(true.ToString()), DeviceExplorerViewModel.MessagingTokens.VirtualDeviceOperationExecuting);
@@ -110,6 +118,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
             ThreadHelper.JoinableTaskFactory.Run(async delegate
             {
+                // can't start/stop virtual device during update
+                CanStartStopVirtualDevice = false;
+
                 try
                 {
                     var cliResult = await cmd.ExecuteBufferedAsync(cts.Token);
@@ -156,6 +167,11 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     performInstallUpdate = true;
                     NanoClrIsInstalled = false;
                 }
+                finally
+                {
+                    // OK to start/stop virtual device
+                    CanStartStopVirtualDevice = true;
+                }
             });
 
             if (performInstallUpdate)
@@ -169,6 +185,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                 ThreadHelper.JoinableTaskFactory.Run(async delegate
                 {
+                    // can't start/stop virtual device during install
+                    CanStartStopVirtualDevice = false;
+
                     var cliResult = await cmd.ExecuteBufferedAsync(cts1.Token);
 
                     if (cliResult.ExitCode == 0)
@@ -190,6 +209,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                         NanoClrIsInstalled = false;
                     }
+
+                    // OK to start/stop virtual device
+                    CanStartStopVirtualDevice = true;
                 });
             }
 
@@ -208,6 +230,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
             ThreadHelper.JoinableTaskFactory.Run(async delegate
             {
+                // can't start/stop virtual device during install
+                CanStartStopVirtualDevice = false;
+
                 var cliResult = await cmd.ExecuteBufferedAsync(cts.Token);
 
                 if (cliResult.ExitCode == 0)
@@ -225,6 +250,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     MessageCentre.InternalErrorWriteLine($"VirtualDevice: failed to update the nanoCLR image");
                     MessageCentre.OutputVirtualDeviceMessage("ERROR: failed to update the nanoCLR image");
                 }
+
+                // OK to start/stop virtual device
+                CanStartStopVirtualDevice = true;
             });
         }
         public string ListVirtualSerialPorts()
@@ -278,6 +306,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 {
                     await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync(CancellationToken.None);
 
+                    byte[] ctrlC = new byte[] { 0x03 };
+
                     if (shutdownProcessing)
                     {
                         // call from VS shutdown handler
@@ -290,7 +320,10 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                             _nanoClrProcess.OutputDataReceived -= nanoClrProcess_OutputDataReceived;
 
                             // send Ctrl+C escape
-                            _nanoClrProcess.StandardInput.Write("\x3");
+                            _nanoClrProcess.StandardInput.Write(ctrlC);
+
+                            // pause for a moment 
+                            await Task.Delay(250);
 
                             // kill process
                             _nanoClrProcess.Kill();
@@ -306,8 +339,15 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                         try
                         {
+                            _nanoClrProcess.EnableRaisingEvents = false; 
                             _nanoClrProcess.OutputDataReceived -= nanoClrProcess_OutputDataReceived;
                             _nanoClrProcess.Exited -= VirtualDeviceProcess_Exited;
+
+                            // send Ctrl+C escape
+                            _nanoClrProcess.StandardInput.Write(ctrlC);
+
+                            // pause for a moment 
+                            await Task.Delay(250);
 
                             // kill process
                             _nanoClrProcess.Kill();
@@ -341,7 +381,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             }
         }
 
-        public async System.Threading.Tasks.Task<bool> StartVirtualDeviceAsync(bool rescanDevices)
+        public async Task<bool> StartVirtualDeviceAsync(bool rescanDevices)
         {
             bool firstPassRunning = true;
 
@@ -414,13 +454,21 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     NanoFrameworkPackage.SettingVirtualDevicePort = regexResult.Groups["comport"].Value;
                 }
 
+                // check if we are to load a local nanoCLR instance
+                string nanoClrInstanceOption = string.Empty;
+
+                if(NanoFrameworkPackage.SettingLoadNanoClrInstance && !string.IsNullOrEmpty(NanoFrameworkPackage.SettingPathOfLocalNanoClrInstance))
+                {
+                    nanoClrInstanceOption = $"--localinstance \"{NanoFrameworkPackage.SettingPathOfLocalNanoClrInstance}\"";
+                }
+
                 MessageCentre.InternalErrorWriteLine($"VirtualDevice: Setting up process to run virtual device");
 
                 // OK to launch process with nanoclr
                 _nanoClrProcess = new Process();
 
                 _nanoClrProcess.StartInfo.FileName = "nanoclr";
-                _nanoClrProcess.StartInfo.Arguments = $"run --serialport {NanoFrameworkPackage.SettingVirtualDevicePort} --waitfordebugger --loopafterexit --monitorparentpid {Process.GetCurrentProcess().Id}";
+                _nanoClrProcess.StartInfo.Arguments = $"run --serialport {NanoFrameworkPackage.SettingVirtualDevicePort} {nanoClrInstanceOption} --waitfordebugger --loopafterexit --monitorparentpid {Process.GetCurrentProcess().Id}";
                 _nanoClrProcess.StartInfo.UseShellExecute = false;
                 _nanoClrProcess.StartInfo.CreateNoWindow = true;
                 _nanoClrProcess.StartInfo.RedirectStandardOutput = true;
@@ -469,8 +517,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         // set handler for process exited
                         _nanoClrProcess.Exited += VirtualDeviceProcess_Exited;
 
-                        CanStartVirtualDevice = true;
-
                         // done here
                         return true;
                     }
@@ -488,8 +534,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 if (_nanoClrProcess.ExitCode == NanoClrErrorInstanceAlreadyRunning
                     || _nanoClrProcess.ExitCode == NanoClrErrorUnknowErrorStartingInstance)
                 {
-                    CanStartVirtualDevice = false;
-
                     MessageCentre.OutputVirtualDeviceMessage("");
                     MessageCentre.OutputVirtualDeviceMessage("***********************************************************************************");
                     MessageCentre.OutputVirtualDeviceMessage("Failed to start virtual device. Possibly there is another instance already running.");

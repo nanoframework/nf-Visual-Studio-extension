@@ -13,6 +13,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
     using System.Net;
     using System.Windows.Controls.Primitives;
     using System.Windows.Forms;
+    using Task = System.Threading.Tasks.Task;
 
     /// <summary>
     /// Interaction logic for DeviceExplorerControl.
@@ -50,6 +51,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             IncludePrereleaseUpdates.IsChecked = NanoFrameworkPackage.SettingIncludePrereleaseUpdates;
             EnableVirtualDevice.IsChecked = NanoFrameworkPackage.SettingVirtualDeviceEnable;
             VirtualDeviceSerialPort.Text = NanoFrameworkPackage.SettingVirtualDevicePort;
+            LoadNanoClrInstance.IsChecked = NanoFrameworkPackage.SettingLoadNanoClrInstance;
+            PathOfLocalNanoClrInstance.Text = NanoFrameworkPackage.SettingPathOfLocalNanoClrInstance;
             AutoUpdateNanoClrImage.IsChecked = NanoFrameworkPackage.SettingVirtualDeviceAutoUpdateNanoClrImage;
 
             if (string.IsNullOrEmpty(NanoFrameworkPackage.SettingPathOfFlashDumpCache))
@@ -67,21 +70,25 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             PortBlackList.Text = NanoFrameworkPackage.SettingPortBlackList;
 
             // update button content for start/stop device depending if it's running or not
+            bool canStartStopVirtualDevice = NanoFrameworkPackage.VirtualDeviceService.CanStartStopVirtualDevice;
+            bool virtualDeviceIsRunning = NanoFrameworkPackage.VirtualDeviceService.VirtualDeviceIsRunning;
+
             if (EnableVirtualDevice.IsChecked.Value
-               && NanoFrameworkPackage.VirtualDeviceService.CanStartVirtualDevice
-               && NanoFrameworkPackage.VirtualDeviceService.VirtualDeviceIsRunning)
+               && virtualDeviceIsRunning)
             {
                 StartStopDevice.Content = _stopVirtualDeviceLabel;
             }
 
             // enable start/stop button if possible
-            StartStopDevice.IsEnabled = NanoFrameworkPackage.VirtualDeviceService.NanoClrIsInstalled
-                                        && NanoFrameworkPackage.VirtualDeviceService.CanStartVirtualDevice;
+            StartStopDevice.IsEnabled = canStartStopVirtualDevice;
+
+            LoadNanoClrInstance.IsEnabled = EnableVirtualDevice.IsChecked.Value;
+            ShowFilePickerLocalNanoClrInstance.IsEnabled = LoadNanoClrInstance.IsEnabled;
 
             if (!string.IsNullOrEmpty(VirtualDeviceSerialPort.Text))
             {
                 // if there is a COM port set, enable the text box only if it's not running
-                VirtualDeviceSerialPort.IsEnabled = !NanoFrameworkPackage.VirtualDeviceService.VirtualDeviceIsRunning;
+                VirtualDeviceSerialPort.IsEnabled = !virtualDeviceIsRunning;
             }
 
             // OK to add event handlers to controls now
@@ -90,18 +97,20 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             VirtualDeviceSerialPort.LostFocus += VirtualDeviceSerialPort_LostFocus;
             EnableVirtualDevice.Checked += EnableVirtualSerialDevice_Checked;
             EnableVirtualDevice.Unchecked += EnableVirtualSerialDevice_Checked;
+            LoadNanoClrInstance.Checked += LoadNanoClrInstance_Checked;
+            LoadNanoClrInstance.Unchecked += LoadNanoClrInstance_Checked;
 
             // set focus on close button
             CloseButton.Focus();
         }
 
-        private async System.Threading.Tasks.Task UpdateStartStopAvailabilityAsync(string installCompleted)
+        private async Task UpdateStartStopAvailabilityAsync(string installCompleted)
         {
             await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
             StartStopDevice.IsEnabled = !bool.Parse(installCompleted)
                                         && NanoFrameworkPackage.VirtualDeviceService.NanoClrIsInstalled
-                                        && NanoFrameworkPackage.VirtualDeviceService.CanStartVirtualDevice;
+                                        && NanoFrameworkPackage.VirtualDeviceService.CanStartStopVirtualDevice;
         }
 
         private void CloseButton_Click(object sender, System.Windows.RoutedEventArgs e)
@@ -208,13 +217,16 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             // save new state
             NanoFrameworkPackage.SettingVirtualDeviceEnable = (sender as ToggleButton).IsChecked ?? false;
 
+            LoadNanoClrInstance.IsEnabled = (sender as ToggleButton).IsChecked ?? false;
+            ShowFilePickerLocalNanoClrInstance.IsEnabled = LoadNanoClrInstance.IsEnabled;
+
             // install/update nanoclr tool
             if (NanoFrameworkPackage.SettingVirtualDeviceEnable && !NanoFrameworkPackage.VirtualDeviceService.NanoClrIsInstalled)
             {
                 // yield to give the UI thread a chance to respond to user input
-                await System.Threading.Tasks.Task.Yield();
+                await Task.Yield();
 
-                await System.Threading.Tasks.Task.Run(() =>
+                await Task.Run(() =>
                 {
                     NanoFrameworkPackage.VirtualDeviceService.InstallNanoClrTool();
                 });
@@ -230,9 +242,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         private async void StartStopDevice_Click(object sender, System.Windows.RoutedEventArgs e)
         {
             // yield to give the UI thread a chance to respond to user input
-            await System.Threading.Tasks.Task.Yield();
+            await Task.Yield();
 
-            await System.Threading.Tasks.Task.Run(async () =>
+            await Task.Run(async () =>
             {
                 await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
@@ -265,6 +277,51 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         {
             // save new state
             NanoFrameworkPackage.SettingVirtualDeviceAutoUpdateNanoClrImage = (sender as ToggleButton).IsChecked ?? false;
+        }
+
+        private void LoadNanoClrInstance_Checked(object sender, System.Windows.RoutedEventArgs e)
+        {
+            // save new state
+            NanoFrameworkPackage.SettingLoadNanoClrInstance = (sender as ToggleButton).IsChecked ?? false;
+
+            // enable/disable file picker button
+            ShowFilePickerLocalNanoClrInstance.IsEnabled = (sender as ToggleButton).IsChecked ?? false;
+        }
+
+        private void ShowFilePickerForNanoCLRInstance_Click(object sender, System.Windows.RoutedEventArgs e)
+        {
+            var filePickerDialog = new OpenFileDialog
+            {
+                Title = "Select nanoCLR instance",
+                DefaultExt = ".dll",
+                Filter = "nanoCLR instance (*.dll)|*.dll",
+                CheckFileExists = true,
+                CheckPathExists = true,
+                Multiselect = false,
+            };
+
+            // let's try make things easier:
+            // if the current path is set, open folder browser dialog with it
+            if (!string.IsNullOrEmpty(PathOfLocalNanoClrInstance.Text))
+            {
+                filePickerDialog.FileName = PathOfLocalNanoClrInstance.Text;
+            }
+
+            // show dialog
+            DialogResult result = filePickerDialog.ShowDialog();
+
+            if (result == System.Windows.Forms.DialogResult.OK && !string.IsNullOrWhiteSpace(filePickerDialog.FileName))
+            {
+                // looks like we have a valid path
+                // save setting
+                NanoFrameworkPackage.SettingPathOfLocalNanoClrInstance = filePickerDialog.FileName;
+                // update UI control too
+                PathOfLocalNanoClrInstance.Text = filePickerDialog.FileName;
+            }
+            else
+            {
+                // any other outcome from folder browser dialog doesn't require processing
+            }
         }
     }
 }

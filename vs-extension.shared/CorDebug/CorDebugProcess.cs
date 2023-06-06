@@ -491,12 +491,21 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                             Thread.Sleep(10);
 
-                            if (_engine.SetExecutionMode(Commands.DebuggingExecutionChangeConditions.State.SourceLevelDebugging, 0))
+                            // compose execution mode flags
+                            // always enable source level debugging
+                            var executionMode = Commands.DebuggingExecutionChangeConditions.State.SourceLevelDebugging;
+
+                            // check if we need to disable the stack trace in exceptions
+                            if(_engine.ThrowOnCommunicationFailure)
+                            {
+                                executionMode |= Commands.DebuggingExecutionChangeConditions.State.NoStackTraceInExceptions;
+                            }
+
+                            if (_engine.SetExecutionMode(executionMode, 0))
                             {
                                 // done here
                                 break;
                             }
-
                         }
                     }
 

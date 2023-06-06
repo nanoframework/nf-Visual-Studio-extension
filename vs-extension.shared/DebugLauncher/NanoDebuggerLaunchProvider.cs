@@ -56,10 +56,13 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     device.CreateDebugEngine();
                 }
 
+                // update stack trace processing option
+                device.DebugEngine.NoStackTraceInExceptions = !NanoFrameworkPackage.DebuggingOptions.ProcessStackTraceOption;
+
                 // make sure that the device is connected
                 if (device.DebugEngine.Connect(
-                    false,
-                    true))
+                            false,
+                            true))
                 {
                     string commandLine = await GetCommandLineForLaunchAsync();
                     commandLine = string.Format("{0} \"{1}{2}\"", commandLine, CorDebugProcess.DeployDeviceName, deployDeviceName);
