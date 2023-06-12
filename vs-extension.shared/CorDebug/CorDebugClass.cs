@@ -14,17 +14,29 @@ namespace nanoFramework.Tools.VisualStudio.Extension
     {
         CorDebugAssembly m_assembly;
         Class m_pdbxClass;
+        TypeSpec m_pdbxTypeSpec;
         uint m_tkSymbolless;
+
+        public CorDebugClass(CorDebugAssembly assembly, TypeSpec typeSpec)
+        {
+            m_assembly = assembly;
+            m_pdbxTypeSpec = typeSpec;
+            m_pdbxClass = null;
+        }
 
         public CorDebugClass(CorDebugAssembly assembly, Class cls)
         {
             m_assembly = assembly;
             m_pdbxClass = cls;
+            m_pdbxTypeSpec = null;
         }
 
-        public CorDebugClass(CorDebugAssembly assembly, uint tkSymbolless) : this(assembly, null)
+        public CorDebugClass(CorDebugAssembly assembly, uint tkSymbolless)
         {
             m_tkSymbolless = tkSymbolless;
+            m_assembly = assembly;
+            m_pdbxClass = null;
+            m_pdbxTypeSpec = null;
         }
 
         public ICorDebugClass ICorDebugClass
@@ -47,7 +59,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         {
             get
             {
-                if (HasSymbols)
+                if (HasSymbols && m_pdbxClass != null)
                 {
                     return m_pdbxClass.IsEnum;
                 }
@@ -82,9 +94,15 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             get { return m_pdbxClass; }
         }
 
+        public TypeSpec PdbxTypeSpec
+        {
+            [DebuggerHidden]
+            get { return m_pdbxTypeSpec; }
+        }
+
         public bool HasSymbols
         {
-            get { return m_pdbxClass != null; }
+            get { return (m_pdbxClass != null || m_pdbxTypeSpec != null); }
         }
 
         public uint TypeDef_Index
@@ -92,6 +110,16 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             get
             {
                 uint tk = HasSymbols ? m_pdbxClass.Token.NanoCLRToken : m_tkSymbolless;
+
+                return nanoCLR_TypeSystem.ClassMemberIndexFromnanoCLRToken(tk, Assembly);
+            }
+        }
+
+        public uint TypeSpec_Index
+        {
+            get
+            {
+                uint tk = HasSymbols ? m_pdbxTypeSpec.Token.NanoCLRToken : m_tkSymbolless;
 
                 return nanoCLR_TypeSystem.ClassMemberIndexFromnanoCLRToken(tk, Assembly);
             }

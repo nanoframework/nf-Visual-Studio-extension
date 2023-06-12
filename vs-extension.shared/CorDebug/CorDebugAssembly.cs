@@ -376,9 +376,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                 if (ts != null)
                 {
-                    c = ht[(uint)0x04000001] as Class;
-
-                    cls = new CorDebugClass(this, c);
+                    cls = new CorDebugClass(this, ts);
                 }
             }
 
