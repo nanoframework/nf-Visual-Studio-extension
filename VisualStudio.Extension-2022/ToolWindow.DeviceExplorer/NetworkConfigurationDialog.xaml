@@ -246,7 +246,7 @@
 
                             <!-- open file dialog to select device certificate file -->
                             <Label Grid.Row="1" Grid.Column="0" HorizontalAlignment="Left" Content="Select certificate file to upload to the target." Margin="-3,0,0,0" />
-                            <Button x:Name="ShowDeviceCertificateFilePicker" Grid.Row="1" Grid.Column="1" Content="Browse..." Width="65" Margin="7,5,0,5" Click="ShowShowDeviceCertificatePicker_Click"/>
+                            <Button x:Name="ShowDeviceCertificateFilePicker" Grid.Row="1" Grid.Column="1" Content="Browse..." Width="65" Margin="7,5,0,5" Click="ShowDeviceCertificatePicker_Click"/>
 
                             <!-- clear device certificate -->
                             <Label Grid.Row="2" Grid.Column="0" HorizontalAlignment="Left" Content="Clear device certificate stored on the target." Margin="-3,0,0,0" />
