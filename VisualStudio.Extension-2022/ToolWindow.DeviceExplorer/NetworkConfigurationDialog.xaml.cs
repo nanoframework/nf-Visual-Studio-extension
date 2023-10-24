@@ -321,7 +321,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             };
         }
 
-        private void ShowShowDeviceCertificatePicker_Click(object sender, System.Windows.RoutedEventArgs e)
+        private void ShowDeviceCertificatePicker_Click(object sender, System.Windows.RoutedEventArgs e)
         {
             var openFileDialog = new OpenFileDialog
             {
