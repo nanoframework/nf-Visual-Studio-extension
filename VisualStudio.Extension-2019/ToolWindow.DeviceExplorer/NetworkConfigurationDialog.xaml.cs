@@ -5,6 +5,7 @@
 
 namespace nanoFramework.Tools.VisualStudio.Extension
 {
+    using Microsoft.VisualStudio.Package;
     using Microsoft.VisualStudio.PlatformUI;
     using nanoFramework.Tools.Debugger;
     using nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel;
@@ -344,11 +345,29 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 {
                     MessageCentre.InternalErrorWriteLine($"Opening device certificate file: {openFileDialog.FileName}");
 
+                    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+                    // Requirement from Mbed TLS parser: if the file is a PEM file, need to make sure it ends with a terminator (0x00) //
+                    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+                    var fileIsPem = FilePathUtilities.GetFileExtension(openFileDialog.FileName) == ".pem";
+
                     using (FileStream binFile = new FileStream(openFileDialog.FileName, FileMode.Open))
                     {
-                        deviceCertificateFile.Certificate = new byte[binFile.Length];
-                        binFile.Read(deviceCertificateFile.Certificate, 0, (int)binFile.Length);
-                        deviceCertificateFile.CertificateSize = (uint)binFile.Length;
+                        var certificateContent = new byte[binFile.Length];
+                        binFile.Read(certificateContent, 0, (int)binFile.Length);
+
+                        if (fileIsPem)
+                        {
+                            // check if last position it's a terminator
+                            if (certificateContent[certificateContent.Length - 1] != 0x00)
+                            {
+                                // nope, add terminator
+                                Array.Resize(ref certificateContent, certificateContent.Length + 1);
+                                certificateContent[certificateContent.Length - 1] = 0x00;
+                            }
+                        }
+
+                        deviceCertificateFile.Certificate = certificateContent;
+                        deviceCertificateFile.CertificateSize = (uint)certificateContent.Length;
                     }
 
                     // store device certificate
