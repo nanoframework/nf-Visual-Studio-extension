@@ -301,7 +301,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 {
                     MessageCentre.OutputMessage($"Error reading Root CA file: {ex.Message}");
 
-                    MessageCentre.InternalErrorWriteLine($"Error reading Root CA file: {ex.Message} \r\n { ex.StackTrace }");
+                    MessageCentre.InternalErrorWriteLine($"Error reading Root CA file: {ex.Message} \r\n {ex.StackTrace}");
                 }
             }
             else
@@ -357,7 +357,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 {
                     MessageCentre.OutputMessage($"Error reading device certificate file: {ex.Message}");
 
-                    MessageCentre.InternalErrorWriteLine($"Error reading device certificate file: {ex.Message} \r\n { ex.StackTrace }");
+                    MessageCentre.InternalErrorWriteLine($"Error reading device certificate file: {ex.Message} \r\n {ex.StackTrace}");
                 }
             }
             else
