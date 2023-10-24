@@ -3,6 +3,7 @@
   <PropertyGroup>
     <MinimumVisualStudioVersion>17.0</MinimumVisualStudioVersion>
     <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -46,7 +47,7 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Optimize>true</Optimize>
     <DebugType>pdbonly</DebugType>
-    <PlatformTarget>x64</PlatformTarget>
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <DeployExtension>False</DeployExtension>
   </PropertyGroup>
@@ -62,7 +63,7 @@
     <CodeAnalysisRuleSet>
     </CodeAnalysisRuleSet>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <PlatformTarget>x64</PlatformTarget>
+    <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -74,7 +75,7 @@
     <CodeAnalysisRuleSet>
     </CodeAnalysisRuleSet>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <PlatformTarget>x86</PlatformTarget>
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DeployExtension>False</DeployExtension>
     <DeployExtension>False</DeployExtension>
   </PropertyGroup>
@@ -491,7 +492,7 @@
       <Version>3.5.0</Version>
     </PackageReference>
     <PackageReference Include="EnvDTE80">
-      <Version>17.5.33428.366</Version>
+      <Version>17.7.37355</Version>
     </PackageReference>
     <PackageReference Include="Extended.Wpf.Toolkit">
       <Version>4.5.0</Version>
@@ -506,19 +507,19 @@
       <Version>2.5.108</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.Bcl.AsyncInterfaces">
-      <Version>6.0.0</Version>
+      <Version>7.0.0</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.Build">
-      <Version>17.5.0</Version>
+      <Version>17.7.0</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.Build.Framework">
-      <Version>17.5.0</Version>
+      <Version>17.7.0</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.Build.Tasks.Core">
-      <Version>17.5.0</Version>
+      <Version>17.7.0</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.Build.Utilities.Core">
-      <Version>17.5.0</Version>
+      <Version>17.7.0</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.CodeAnalysis.BannedApiAnalyzers">
       <Version>3.3.4</Version>
@@ -526,10 +527,10 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.Extensions.Options">
-      <Version>6.0.0</Version>
+      <Version>7.0.1</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.VisualStudio.Composition">
-      <Version>17.4.16</Version>
+      <Version>17.7.18</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.VisualStudio.Debugger.Engine">
       <Version>17.0.3041101</Version>
@@ -541,7 +542,7 @@
       <Version>17.2.402-pre</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.VisualStudio.SDK">
-      <Version>17.5.33428.388</Version>
+      <Version>17.6.36389</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.Win32.Primitives">
       <Version>4.3.0</Version>
@@ -560,7 +561,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="nanoFramework.Tools.Debugger.Net" Version="2.4.33" />
+    <PackageReference Include="nanoFramework.Tools.Debugger.Net" Version="2.4.34" />
     <PackageReference Include="nanoFramework.Tools.MetadataProcessor.MsBuildTask" Version="3.0.36" />
     <PackageReference Include="Nerdbank.GitVersioning">
       <Version>3.5.119</Version>
@@ -580,10 +581,10 @@
       <Version>1.29.3</Version>
     </PackageReference>
     <PackageReference Include="stdole">
-      <Version>17.5.33428.366</Version>
+      <Version>17.7.37355</Version>
     </PackageReference>
     <PackageReference Include="StreamJsonRpc">
-      <Version>2.14.24</Version>
+      <Version>2.16.36</Version>
     </PackageReference>
     <PackageReference Include="System.Collections">
       <Version>4.3.0</Version>
@@ -592,7 +593,7 @@
       <Version>4.3.0</Version>
     </PackageReference>
     <PackageReference Include="System.Composition">
-      <Version>6.0.0</Version>
+      <Version>7.0.0</Version>
     </PackageReference>
     <PackageReference Include="System.Console">
       <Version>4.3.1</Version>
@@ -648,7 +649,7 @@
     <PackageReference Include="System.Xml.ReaderWriter">
       <Version>4.3.1</Version>
     </PackageReference>
-    <PackageReference Include="Microsoft.VSSDK.BuildTools" Version="17.3.2094" PrivateAssets="all" IncludeAssets="runtime; build; native; contentfiles; analyzers" />
+    <PackageReference Include="Microsoft.VSSDK.BuildTools" Version="17.6.2164" PrivateAssets="all" IncludeAssets="runtime; build; native; contentfiles; analyzers" />
   </ItemGroup>
   <Import Project="..\vs-extension.shared\vs-extension.shared.projitems" Label="Shared" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
