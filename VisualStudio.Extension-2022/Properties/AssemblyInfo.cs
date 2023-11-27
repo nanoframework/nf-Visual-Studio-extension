@@ -1,5 +1,4 @@
-﻿using Microsoft.VisualStudio.Shell;
-using System.Reflection;
+﻿using System.Reflection;
 
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
@@ -9,4 +8,3 @@ using System.Reflection;
 [assembly: AssemblyProduct(".NET nanoFramework VisualStudio Extension")]
 [assembly: AssemblyCopyright("Copyright © 2019 .NET nanoFramework contributors")]
 [assembly: System.CLSCompliant(false)]
-[assembly: ProvideCodeBase]
