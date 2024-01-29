@@ -134,9 +134,13 @@ jobs:
     vmImage: 'windows-latest'
 
   variables:
-    DOTNET_NOLOGO: true
-    solution: 'VisualStudio.Extension-2019/VisualStudio.Extension-vs2019.csproj'
-    buildConfiguration: 'Release'
+    - group: sign-client-credentials
+    - name: DOTNET_NOLOGO
+      value: true  
+    - name: buildConfiguration
+      value: 'Release'
+    - name: solution
+      value: 'VisualStudio.Extension-2019/VisualStudio.Extension-vs2019.csproj'
 
   steps:
 
@@ -320,9 +324,13 @@ jobs:
     vmImage: 'windows-latest'
 
   variables:
-    DOTNET_NOLOGO: true
-    solution: 'VisualStudio.Extension-2022/VisualStudio.Extension-vs2022.csproj'
-    buildConfiguration: 'Release'
+    - group: sign-client-credentials
+    - name: DOTNET_NOLOGO
+      value: true  
+    - name: buildConfiguration
+      value: 'Release'
+    - name: solution
+      value: 'VisualStudio.Extension-2019/VisualStudio.Extension-vs2022.csproj'
 
   steps:
 
