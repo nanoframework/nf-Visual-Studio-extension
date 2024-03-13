@@ -99,6 +99,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             // this result is of type Microsoft.Build.Evaluation.Project
             var projectResult = await ((System.Threading.Tasks.Task<Microsoft.Build.Evaluation.Project>)buildProject.GetValue(Properties.ConfiguredProject));
 
+            // All the files that needs potentially to be deployed to the internal storage
+            var contents = projectResult.Items.Where(m => m.ItemType == "Content" && m.Metadata.Any(t => t.Name == "CopyToOutputDirectory" && t.EvaluatedValue != "Never"));
+
             if (!string.Equals(projectResult.Properties.First(p => p.Name == "OutputType").EvaluatedValue, "Exe", StringComparison.InvariantCultureIgnoreCase))
             {
                 // This is not an executable project, it must be a referenced assembly
@@ -368,6 +371,25 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                     // deployment successful
                     await outputPaneWriter.WriteLineAsync("Deployment successful!");
+
+                    // Now deploying to the internal storage if any
+                    if (contents.Any())
+                    {
+                        await outputPaneWriter.WriteLineAsync("Deploying content files to internal storage");
+                        foreach(var file in  contents)
+                        {
+                            await outputPaneWriter.WriteLineAsync($"Deploying {file.EvaluatedInclude}");
+                            if(file.EvaluatedInclude.Contains(Path.DirectorySeparatorChar))
+                            {
+                                MessageCentre.InternalErrorWriteLine("File should not be a path, internal storage does not support folders.");
+                            }
+
+                            // Find the file where the exe is. There is an exe because otherwise, we won't be here with a simple DLL
+                            var fileAssemblyPath = projectResult.Properties.Where(m => m.Name == "TargetPath").First().EvaluatedValue;
+                            var fileName = Path.Combine(fileAssemblyPath.Substring(0, fileAssemblyPath.LastIndexOf(Path.DirectorySeparatorChar)), file.EvaluatedInclude);
+                            //device.DebugEngine.AddFile(fileName, File.ReadAllBytes(fileName));
+                        }
+                    }
 
                     // reset the hash for the connected device so the deployment information can be refreshed
                     _viewModelLocator.DeviceExplorer.LastDeviceConnectedHash = 0;
