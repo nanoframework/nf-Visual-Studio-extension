@@ -375,19 +375,22 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     // Now deploying to the internal storage if any
                     if (contents.Any())
                     {
-                        await outputPaneWriter.WriteLineAsync("Deploying content files to internal storage");
+                        MessageCentre.InternalErrorWriteLine("Deploying content files to internal storage");
                         foreach(var file in  contents)
                         {
-                            await outputPaneWriter.WriteLineAsync($"Deploying {file.EvaluatedInclude}");
+                            MessageCentre.InternalErrorWriteLine($"Deploying {file.EvaluatedInclude}");
                             if(file.EvaluatedInclude.Contains(Path.DirectorySeparatorChar))
                             {
-                                MessageCentre.InternalErrorWriteLine("File should not be a path, internal storage does not support folders.");
+                                MessageCentre.InternalErrorWriteLine("File should not be a path, internal storage does not support folders. It will still try to deploy.");
                             }
 
                             // Find the file where the exe is. There is an exe because otherwise, we won't be here with a simple DLL
                             var fileAssemblyPath = projectResult.Properties.Where(m => m.Name == "TargetPath").First().EvaluatedValue;
                             var fileName = Path.Combine(fileAssemblyPath.Substring(0, fileAssemblyPath.LastIndexOf(Path.DirectorySeparatorChar)), file.EvaluatedInclude);
-                            //device.DebugEngine.AddFile(fileName, File.ReadAllBytes(fileName));
+                            // Deploying the file
+                            // var ret = device.DebugEngine.AddFile("I:\\" + fileName, File.ReadAllBytes(fileName));
+                            // Checking success :TODO once Debug lib will be updated
+                            // MessageCentre.InternalErrorWriteLine($"");
                         }
                     }
 
