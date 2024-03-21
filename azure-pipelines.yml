@@ -330,7 +330,7 @@ jobs:
     - name: buildConfiguration
       value: 'Release'
     - name: solution
-      value: 'VisualStudio.Extension-2019/VisualStudio.Extension-vs2022.csproj'
+      value: 'VisualStudio.Extension-2022/VisualStudio.Extension-vs2022.csproj'
 
   steps:
 
