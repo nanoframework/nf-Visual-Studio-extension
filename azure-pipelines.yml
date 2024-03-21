@@ -207,25 +207,36 @@ jobs:
 
   - task: DotNetCoreCLI@2
     displayName: Install SignTool tool
-    condition: and( succeeded(), eq(variables['System.PullRequest.PullRequestId'], '') )
+    condition: >-
+      and(
+        succeeded(),
+        eq(variables['System.PullRequest.PullRequestId'], '')
+      )
     inputs:
       command: custom
       custom: tool
-      arguments: install --tool-path . SignClient
+      arguments: install --tool-path . sign --version 0.9.1-beta.23530.1
   
   - pwsh: |
-      .\SignClient "Sign" `
+      .\sign code azure-key-vault `
+      "**\*.vsix" `
       --baseDirectory "$(Build.ArtifactStagingDirectory)\vs2019" `
-      --input "**\*.vsix" `
-      --config "$(Build.Repository.LocalPath)\config\SignClient.json" `
-      --filelist "$(Build.Repository.LocalPath)\config\filelist.txt" `
-      --user "$(SignClientUser)" `
-      --secret '$(SignClientSecret)' `
-      --name ".NET nanoFramework VS2019 Extension" `
+      --file-list "$(Build.Repository.LocalPath)\config\filelist.txt" `
       --description ".NET nanoFramework VS2019 Extension" `
-      --descriptionUrl "https://github.com/$env:Build_Repository_Name"
+      --description-url "https://github.com/$env:Build_Repository_Name" `
+      --azure-key-vault-tenant-id "$(SignTenantId)" `
+      --azure-key-vault-client-id "$(SignClientId)" `
+      --azure-key-vault-client-secret "$(SignClientSecret)" `
+      --azure-key-vault-certificate "$(SignKeyVaultCertificate)" `
+      --azure-key-vault-url "$(SignKeyVaultUrl)" `
+      --timestamp-url http://timestamp.digicert.com
     displayName: Sign VS2019 packages
-    condition: and( succeeded(), eq(variables['System.PullRequest.PullRequestId'], '') )
+    continueOnError: true
+    condition: >-
+      and(
+        succeeded(),
+        eq(variables['System.PullRequest.PullRequestId'], '')
+      )
 
   # publish artifacts (only possible if this is not a PR originated on a fork)
   - task: PublishBuildArtifacts@1
@@ -399,24 +410,36 @@ jobs:
 
   - task: DotNetCoreCLI@2
     displayName: Install SignTool tool
-    condition: and( succeeded(), eq(variables['System.PullRequest.PullRequestId'], '') )
+    condition: >-
+      and(
+        succeeded(),
+        eq(variables['System.PullRequest.PullRequestId'], '')
+      )
     inputs:
       command: custom
       custom: tool
-      arguments: install --tool-path . SignClient
+      arguments: install --tool-path . sign --version 0.9.1-beta.23530.1
+
   - pwsh: |
-      .\SignClient "Sign" `
+      .\sign code azure-key-vault `
+      "**\*.vsix" `
       --baseDirectory "$(Build.ArtifactStagingDirectory)\vs2022" `
-      --input "**\*.vsix" `
-      --config "$(Build.Repository.LocalPath)\config\SignClient.json" `
-      --filelist "$(Build.Repository.LocalPath)\config\filelist.txt" `
-      --user "$(SignClientUser)" `
-      --secret '$(SignClientSecret)' `
-      --name ".NET nanoFramework VS2022 Extension" `
-      --description ".NET nanoFramework VS2022 Extension" `
-      --descriptionUrl "https://github.com/$env:Build_Repository_Name"
+      --file-list "$(Build.Repository.LocalPath)\config\filelist.txt" `
+      --description ".NET nanoFramework VS2019 Extension" `
+      --description-url "https://github.com/$env:Build_Repository_Name" `
+      --azure-key-vault-tenant-id "$(SignTenantId)" `
+      --azure-key-vault-client-id "$(SignClientId)" `
+      --azure-key-vault-client-secret "$(SignClientSecret)" `
+      --azure-key-vault-certificate "$(SignKeyVaultCertificate)" `
+      --azure-key-vault-url "$(SignKeyVaultUrl)" `
+      --timestamp-url http://timestamp.digicert.com
     displayName: Sign VS2022 packages
-    condition: and( succeeded(), eq(variables['System.PullRequest.PullRequestId'], '') )
+    continueOnError: true
+    condition: >-
+      and(
+        succeeded(),
+        eq(variables['System.PullRequest.PullRequestId'], '')
+      )
 
   # publish artifacts (only possible if this is not a PR originated on a fork)
   - task: PublishBuildArtifacts@1
