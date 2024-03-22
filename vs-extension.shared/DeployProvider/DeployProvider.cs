@@ -375,22 +375,41 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     // Now deploying to the internal storage if any
                     if (contents.Any())
                     {
+                        await outputPaneWriter.WriteLineAsync($"Deploying {contents.Count()} content files to internal storage");
                         MessageCentre.InternalErrorWriteLine("Deploying content files to internal storage");
-                        foreach(var file in  contents)
+                        foreach (var file in  contents)
                         {
-                            MessageCentre.InternalErrorWriteLine($"Deploying {file.EvaluatedInclude}");
-                            if(file.EvaluatedInclude.Contains(Path.DirectorySeparatorChar))
+                            string fileName;
+                            var storPath = file.Metadata.Where(m => m.Name == "NF_StoragePath");
+                            if (storPath.Any())
                             {
-                                MessageCentre.InternalErrorWriteLine("File should not be a path, internal storage does not support folders. It will still try to deploy.");
+                                fileName = storPath.FirstOrDefault().EvaluatedValue;
                             }
+                            else
+                            {
+                                // Default is internal storage
+                                fileName = "I:\\" + file.EvaluatedInclude;
+                            }
+
+                            await outputPaneWriter.WriteLineAsync($"{file.EvaluatedInclude} deploying to {fileName}.");
+                            MessageCentre.InternalErrorWriteLine($"{file.EvaluatedInclude} deploying to {fileName}.");
 
                             // Find the file where the exe is. There is an exe because otherwise, we won't be here with a simple DLL
                             var fileAssemblyPath = projectResult.Properties.Where(m => m.Name == "TargetPath").First().EvaluatedValue;
-                            var fileName = Path.Combine(fileAssemblyPath.Substring(0, fileAssemblyPath.LastIndexOf(Path.DirectorySeparatorChar)), file.EvaluatedInclude);
+                            var contentFileName = Path.Combine(fileAssemblyPath.Substring(0, fileAssemblyPath.LastIndexOf(Path.DirectorySeparatorChar)), file.EvaluatedInclude);
+
                             // Deploying the file
-                            // var ret = device.DebugEngine.AddFile("I:\\" + fileName, File.ReadAllBytes(fileName));
-                            // Checking success :TODO once Debug lib will be updated
-                            // MessageCentre.InternalErrorWriteLine($"");
+                            var ret = device.DebugEngine.AddStorageFile(fileName, File.ReadAllBytes(contentFileName));
+                            if (ret == Debugger.WireProtocol.StorageOperationErrorCode.NoError)
+                            {
+                                await outputPaneWriter.WriteLineAsync($"{file.EvaluatedInclude} deplpoyed sucessfully.");
+                                MessageCentre.InternalErrorWriteLine($"{file.EvaluatedInclude} deplpoyed sucessfully.");
+                            }
+                            else
+                            {
+                                await outputPaneWriter.WriteLineAsync($"{file.EvaluatedInclude} deployment error.");
+                                MessageCentre.InternalErrorWriteLine($"{file.EvaluatedInclude} deployment error.");
+                            }
                         }
                     }
 
