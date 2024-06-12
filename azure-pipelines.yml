@@ -12,9 +12,6 @@ trigger:
       - NuGet.Config
       - .github_changelog_generator
       - .gitignore
-  tags:
-    include:
-    - refs/tags/v*
 
 # PR always trigger build
 pr:
@@ -215,7 +212,7 @@ jobs:
     inputs:
       command: custom
       custom: tool
-      arguments: install --tool-path . sign --version 0.9.1-beta.23530.1
+      arguments: install --tool-path . sign --version 0.9.1-beta.24170.3
   
   - pwsh: |
       .\sign code azure-key-vault `
@@ -286,39 +283,20 @@ jobs:
       tagSource: userSpecifiedTag
       tag: v$(VS2019_Build.BUILD_VERSION)
       title: '.NET nanoFramework VS Extension v$(VS2019_Build.BUILD_VERSION)'
-      releaseNotesSource: inline
-      releaseNotesInline: '<br><br><h4>Install from Open VSIX Gallery development feed.</h4><br>The following Visual Studio Extension is available for install from this release:<br><br>:package: [nanoFramework VS2019 Extension](http://vsixgallery.com/extension/455f2be5-bb07-451e-b351-a9faf3018dc9)'
-      assets: '$(Build.ArtifactStagingDirectory)/**/*.vsix'
-      assetUploadMode: replace
-      isPreRelease: true
-      isDraft: true
-      addChangeLog: false
-
-  # create or update GitHub release ON tags from release or main branches
-  - task: GithubRelease@1
-    condition: >-
-      and(
-        succeeded(),
-        startsWith(variables['Build.SourceBranch'], 'refs/tags/v'),
-        contains(variables['Build.SourceBranch'], 'v2019'),
-        or(
-          eq(variables['Build.SourceBranchName'], 'main'),
-          contains(variables['Build.SourceBranchName'], 'release')
-        )
-      )
-    displayName: Create/Update GitHub stable release
-    inputs:
-      action: edit
-      gitHubConnection: 'github.com_nano-$(System.TeamProject)'
-      tagSource: userSpecifiedTag
-      tag: v$(VS2019_Build.BUILD_VERSION)
-      title: '.NET nanoFramework VS Extension v$(VS2019_Build.BUILD_VERSION)'
-      releaseNotesSource: inline
-      releaseNotesInline: '<br><br><h4>Install from Visual Studio Marketplace.</h4><br>The following Visual Studio Extension is available for install from this release:<br><br>:package: [.NET nanoFramework VS2019 Extension](https://marketplace.visualstudio.com/items?itemName=nanoframework.nanoFramework-VS2019-Extension)'
       assets: '$(Build.ArtifactStagingDirectory)/**/*.vsix'
       assetUploadMode: replace
       isPreRelease: false
-      addChangeLog: false
+      isDraft: true
+      addChangeLog: true
+      changeLogType: issueBased
+      changeLogLabels: |
+        [
+          { "label" : "Type: bug", "displayName" : "Bugs fixed", "state" : "closed" },
+          { "label" : "Type: enhancement", "displayName" : "Enhancements and new features", "state" : "closed" },
+          { "label" : "Breaking-Change", "displayName" : "Breaking Changes", "state" : "closed" }
+          { "label" : "Type: dependencies", "displayName" : "Dependencies updated", "state" : "closed" },
+          { "label" : "Type: documentation", "displayName" : "Documentation", "state" : "closed" }
+        ]
 
 ######################
 - job: VS2022
@@ -418,7 +396,7 @@ jobs:
     inputs:
       command: custom
       custom: tool
-      arguments: install --tool-path . sign --version 0.9.1-beta.23530.1
+      arguments: install --tool-path . sign --version 0.9.1-beta.24170.3
 
   - pwsh: |
       .\sign code azure-key-vault `
@@ -494,34 +472,17 @@ jobs:
       assets: '$(Build.ArtifactStagingDirectory)/**/*.vsix'
       assetUploadMode: replace
       isDraft: true
-      isPreRelease: true
-      addChangeLog: false
-
-  # create or update GitHub release ON tags from release or main branches
-  - task: GithubRelease@1
-    condition: >-
-      and(
-        succeeded(),
-        startsWith(variables['Build.SourceBranch'], 'refs/tags/v'),
-        contains(variables['Build.SourceBranch'], 'v2022'),
-        or(
-          eq(variables['Build.SourceBranchName'], 'main'),
-          contains(variables['Build.SourceBranchName'], 'release')
-        )
-      )
-    displayName: Create/Update GitHub stable release
-    inputs:
-      action: edit
-      gitHubConnection: 'github.com_nano-$(System.TeamProject)'
-      tagSource: userSpecifiedTag
-      tag: v$(VS2022_Build.BUILD_VERSION)
-      title: '.NET nanoFramework VS Extension v$(VS2022_Build.BUILD_VERSION)'
-      releaseNotesSource: inline
-      releaseNotesInline: '<br><br><h4>Install from Visual Studio Marketplace.</h4><br>The following Visual Studio Extension is available for install from this release:<br><br>:package: [.NET nanoFramework VS2022 Extension](https://marketplace.visualstudio.com/items?itemName=nanoframework.nanoFramework-VS2022-Extension)'
-      assets: '$(Build.ArtifactStagingDirectory)/**/*.vsix'
-      assetUploadMode: replace
       isPreRelease: false
-      addChangeLog: false
+      addChangeLog: true
+      changeLogType: issueBased
+      changeLogLabels: |
+        [
+          { "label" : "Type: bug", "displayName" : "Bugs fixed", "state" : "closed" },
+          { "label" : "Type: enhancement", "displayName" : "Enhancements and new features", "state" : "closed" },
+          { "label" : "Breaking-Change", "displayName" : "Breaking Changes", "state" : "closed" }
+          { "label" : "Type: dependencies", "displayName" : "Dependencies updated", "state" : "closed" },
+          { "label" : "Type: documentation", "displayName" : "Documentation", "state" : "closed" }
+        ]
 
 ##################################
 # report build failure to Discord
