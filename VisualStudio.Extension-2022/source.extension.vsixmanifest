@@ -34,6 +34,6 @@
         <Asset Type="Microsoft.VisualStudio.ResourceTemplate" d:Source="Project" d:ProjectName="CSharp.ResourceTemplate" d:TargetPath="|CSharp.ResourceTemplate;TemplateProjectOutputGroup|" Path="ItemTemplates" d:VsixSubPath="ItemTemplates" />
         <Asset Type="Microsoft.VisualStudio.ProjectTemplate" d:Source="Project" d:ProjectName="CSharp.TestApplication-vs2022" d:TargetPath="|CSharp.TestApplication-vs2022;TemplateProjectOutputGroup|" Path="ProjectTemplates" d:VsixSubPath="ProjectTemplates" />
         <Asset Type="nanoFramework.CoreLibrary.1.15.5.nupkg" d:Source="File" Path="Packages\nanoFramework.CoreLibrary.1.15.5.nupkg" d:VsixSubPath="Packages" />
-        <Asset Type="nanoFramework.TestFramework.2.1.93.nupkg" d:Source="File" Path="Packages\nanoFramework.TestFramework.2.1.93.nupkg" d:VsixSubPath="Packages" />
+        <Asset Type="nanoFramework.TestFramework.2.1.107.nupkg" d:Source="File" Path="Packages\nanoFramework.TestFramework.2.1.107.nupkg" d:VsixSubPath="Packages" />
     </Assets>
 </PackageManifest>
