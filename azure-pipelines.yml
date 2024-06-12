@@ -289,6 +289,7 @@ jobs:
       isDraft: true
       addChangeLog: true
       changeLogType: issueBased
+      lastNonDraftReleaseByTag: 'v2019\.[\d.]+'
       changeLogLabels: |
         [
           { "label" : "Type: bug", "displayName" : "Bugs fixed", "state" : "closed" },
@@ -467,14 +468,13 @@ jobs:
       tagSource: userSpecifiedTag
       tag: v$(VS2022_Build.BUILD_VERSION)
       title: '.NET nanoFramework VS Extension v$(VS2022_Build.BUILD_VERSION)'
-      releaseNotesSource: inline
-      releaseNotesInline: '<br><br><h4>Install from Open VSIX Gallery development feed.</h4><br>The following Visual Studio Extension is available for install from this release:<br><br>:package: [.NET nanoFramework VS2022 Extension](http://vsixgallery.com/extension/bf694e17-fa5f-4877-9317-6d3664b2689a)'
       assets: '$(Build.ArtifactStagingDirectory)/**/*.vsix'
       assetUploadMode: replace
       isDraft: true
       isPreRelease: false
       addChangeLog: true
       changeLogType: issueBased
+      lastNonDraftReleaseByTag: 'v2022\.[\d.]+'
       changeLogLabels: |
         [
           { "label" : "Type: bug", "displayName" : "Bugs fixed", "state" : "closed" },
