@@ -369,12 +369,6 @@
           "System.IO.Ports": "7.0.0"
         }
       },
-      "nanoFramework.Tools.MetadataProcessor.MsBuildTask": {
-        "type": "Direct",
-        "requested": "[3.0.44, )",
-        "resolved": "3.0.44",
-        "contentHash": "xSfgLINbd7PrNB0SlRXpJYn49gz0nYo34nmVSoD+gOzVx4lsRsNhTytEx6WNfJuc7BiXS9gFqHPiY9nUTHs8AQ=="
-      },
       "Nerdbank.GitVersioning": {
         "type": "Direct",
         "requested": "[3.5.119, )",
