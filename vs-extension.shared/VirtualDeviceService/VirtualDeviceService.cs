@@ -431,7 +431,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         MessageCentre.OutputVirtualDeviceMessage("*** Failed to create Virtual Serial Device ***");
                         MessageCentre.OutputVirtualDeviceMessage("**********************************************");
                         MessageCentre.OutputVirtualDeviceMessage("");
-                        MessageCentre.OutputVirtualDeviceMessage($"Please run this at a command prompt: 'nanoclr --virtualserial --create {regexResult.Groups["comport"].Value}'");
+                        MessageCentre.OutputVirtualDeviceMessage($"Please run this at a command prompt: 'nanoclr virtualserial --create {regexResult.Groups["comport"].Value}'");
                         MessageCentre.OutputVirtualDeviceMessage($"Then update the Serial Port input in the Virtual Device tab in the Settings dialog with {regexResult.Groups["comport"].Value}");
                         MessageCentre.OutputVirtualDeviceMessage("");
 
