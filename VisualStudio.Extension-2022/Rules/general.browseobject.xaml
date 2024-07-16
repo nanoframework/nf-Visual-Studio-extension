@@ -54,6 +54,15 @@
             <DataSource PersistedName="NF_GenerateStubsDirectory" HasConfigurationCondition="False" Label="nanoFramework" SourceOfDefaultValue="AfterContext"/>
         </StringProperty.DataSource>
     </StringProperty>
+	<StringProperty Category="nanoFramework" Name="NF_StoragePath" DisplayName="Storage destination path" Visible="true" Description="Destination path in target storage, including file name.">
+		<StringProperty.DataSource>
+			<DataSource HasConfigurationCondition="False"
+						Label="nanoFramework"
+							PersistedName="NF_StoragePath"
+							Persistence="UserFile"
+							SourceOfDefaultValue="AfterContext" />
+		</StringProperty.DataSource>
+	</StringProperty>
 
     <BoolProperty Category="nFAdvanced" Name="NFMDP_DUMP_METADATA" DisplayName="Generate metadata dump files" Visible="True" Description="Enable this to generate dump files with metadata during build.">
         <BoolProperty.DataSource>

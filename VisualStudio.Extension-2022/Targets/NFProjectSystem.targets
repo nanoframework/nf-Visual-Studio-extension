@@ -12,6 +12,10 @@
     </ProjectConfiguration>
   </ItemGroup>
 
+	<PropertyPageSchema Include="Compile.BrowseObject.xaml">
+		<Context>BrowseObject</Context>
+	</PropertyPageSchema>
+
 
   <!-- ProjectCapabilities in dev15 should be supported via NuGet packages -->
   <ItemGroup>
