@@ -158,5 +158,14 @@
 
   <BoolProperty Name="Visible"
                 Visible="false" />
-
+    <!--nanoFramework deployment rule-->
+	<Category Name="nanoFramework" DisplayName="nanoFramework" Description=".NET nanoFramework properties" />
+	<StringProperty Category="nanoFramework" Name="NF_StoragePath" DisplayName="Storage destination path" Visible="true" Description="Destination path in target storage, including file name.">
+		<StringProperty.DataSource>
+			<DataSource HasConfigurationCondition="False"
+                        PersistedName="NF_StoragePath"
+                        Persistence="UserFile"
+                        SourceOfDefaultValue="AfterContext" />
+		</StringProperty.DataSource>
+	</StringProperty>
 </Rule>
