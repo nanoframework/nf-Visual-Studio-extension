@@ -11,6 +11,9 @@
     <DefaultName>NFClassLibrary</DefaultName>
     <ProvideDefaultName>true</ProvideDefaultName>
     <PromptForSaveOnCreation>true</PromptForSaveOnCreation>
+	<LanguageTag>CSharp</LanguageTag>
+	<PlatformTag>Nanoframework</PlatformTag>
+	<ProjectTypeTag>Library</ProjectTypeTag>
   </TemplateData>
   <TemplateContent>
     <Project File="NFClassLibrary.nfproj" ReplaceParameters="true">
