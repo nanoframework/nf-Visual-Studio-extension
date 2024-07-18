@@ -12,7 +12,7 @@
     <ProvideDefaultName>true</ProvideDefaultName>
     <PromptForSaveOnCreation>true</PromptForSaveOnCreation>
 	<LanguageTag>CSharp</LanguageTag>
-	<PlatformTag>Nanoframework</PlatformTag>
+	<PlatformTag>nanoFramework</PlatformTag>
 	<ProjectTypeTag>Console</ProjectTypeTag>
 	<ProjectTypeTag>IoT</ProjectTypeTag>
   </TemplateData>
