@@ -11,6 +11,10 @@
     <DefaultName>NFApp</DefaultName>
     <ProvideDefaultName>true</ProvideDefaultName>
     <PromptForSaveOnCreation>true</PromptForSaveOnCreation>
+	  <LanguageTag>CSharp</LanguageTag>
+	  <PlatformTag>nanoFramework</PlatformTag>
+	  <ProjectTypeTag>Console</ProjectTypeTag>
+	  <ProjectTypeTag>IoT</ProjectTypeTag>
   </TemplateData>
   <TemplateContent>
     <Project File="NFApp.nfproj" ReplaceParameters="true">
