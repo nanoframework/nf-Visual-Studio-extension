@@ -11,6 +11,9 @@
     <DefaultName>NFUnitTest</DefaultName>
     <ProvideDefaultName>true</ProvideDefaultName>
     <PromptForSaveOnCreation>true</PromptForSaveOnCreation>
+	  <LanguageTag>CSharp</LanguageTag>
+	  <PlatformTag>nanoFramework</PlatformTag>
+	  <ProjectTypeTag>Test</ProjectTypeTag>
   </TemplateData>
   <TemplateContent>
     <Project File="NFUnitTest.nfproj" ReplaceParameters="true">
