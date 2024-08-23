@@ -326,6 +326,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         int Microsoft.VisualStudio.Debugger.Interop.IDebugPortEx2.LaunchSuspended(string pszExe, string pszArgs, string pszDir, string bstrEnv, uint hStdInput, uint hStdOutput, uint hStdError, out IDebugProcess2 ppPortProcess)
         {
+            System.Windows.Forms.MessageBox.Show("Deployment successful, please reset the nano device to get the application running");
+
             ppPortProcess = null;
             return COM_HResults.S_OK;
         }
