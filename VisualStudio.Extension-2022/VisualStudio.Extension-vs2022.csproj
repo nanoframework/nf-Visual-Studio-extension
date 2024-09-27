@@ -567,7 +567,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="nanoFramework.Tools.Debugger.Net" Version="2.4.42" />
+    <PackageReference Include="nanoFramework.Tools.Debugger.Net" Version="2.4.45" />
     <PackageReference Include="nanoFramework.Tools.MetadataProcessor.MsBuildTask" Version="3.0.53" />
     <PackageReference Include="Nerdbank.GitVersioning">
       <Version>3.6.139</Version>
