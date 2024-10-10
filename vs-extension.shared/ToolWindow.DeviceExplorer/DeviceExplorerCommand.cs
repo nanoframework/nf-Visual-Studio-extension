@@ -1,19 +1,18 @@
-//
-// Copyright (c) .NET Foundation and Contributors
-// See LICENSE file in the project root for full license information.
-//
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
+using System;
+using System.ComponentModel.Design;
+using System.Text;
+using System.Windows;
 using GalaSoft.MvvmLight.Ioc;
 using GalaSoft.MvvmLight.Messaging;
 using Microsoft.VisualStudio.Shell;
 using nanoFramework.Tools.Debugger;
 using nanoFramework.Tools.Debugger.Extensions;
+using nanoFramework.Tools.Debugger.NFDevice;
 using nanoFramework.Tools.Debugger.WireProtocol;
 using nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel;
-using System;
-using System.ComponentModel.Design;
-using System.Text;
-using System.Windows;
 using Task = System.Threading.Tasks.Task;
 
 namespace nanoFramework.Tools.VisualStudio.Extension
@@ -82,6 +81,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         // 3r group
         public const int ShowInternalErrorsCommandID = 0x0300;
         public const int ShowSettingsCommandID = 0x0420;
+
+        // Timeout for exclusive access
+        private const int ExclusiveAccessTimeout = 3000;
 
         INanoDeviceCommService NanoDeviceCommService;
         OleMenuCommandService MenuCommandService;
@@ -301,6 +303,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 var descriptionBackup = ViewModelLocator.DeviceExplorer.SelectedDevice.Description;
 
                 MessageCentre.StartProgressMessage($"Pinging {descriptionBackup}...");
+                GlobalExclusiveDeviceAccess exclusiveAccess = null;
                 try
                 {
                     // disable buttons
@@ -308,6 +311,14 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                     // make sure this device is showing as selected in Device Explorer tree view
                     ViewModelLocator.DeviceExplorer.ForceNanoDeviceSelection();
+
+                    // Get exclusive access to the device, but don't wait forever
+                    exclusiveAccess = GlobalExclusiveDeviceAccess.TryGet(ViewModelLocator.DeviceExplorer.SelectedDevice, ExclusiveAccessTimeout);
+                    if (exclusiveAccess is null)
+                    {
+                        MessageCentre.OutputMessage($"Cannot access {descriptionBackup}, another application is using the device.");
+                        return;
+                    }
 
                     // check if debugger engine exists
                     if (NanoDeviceCommService.Device.DebugEngine == null)
@@ -348,6 +359,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     // disconnect device
                     NanoDeviceCommService.Device?.DebugEngine?.Stop(true);
 
+                    exclusiveAccess?.Dispose();
+
                     // enable buttons
                     await UpdateDeviceDependentToolbarButtonsAsync(true);
 
@@ -375,6 +388,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
             await Task.Run(async delegate
             {
+                GlobalExclusiveDeviceAccess exclusiveAccess = null;
                 try
                 {
                     // disable buttons
@@ -386,6 +400,14 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     // only query device if it's different 
                     if (descriptionBackup.GetHashCode() != ViewModelLocator.DeviceExplorer.LastDeviceConnectedHash)
                     {
+                        // Get exclusive access to the device, but don't wait forever
+                        exclusiveAccess = GlobalExclusiveDeviceAccess.TryGet(ViewModelLocator.DeviceExplorer.SelectedDevice, ExclusiveAccessTimeout);
+                        if (exclusiveAccess is null)
+                        {
+                            MessageCentre.OutputMessage($"Cannot access {descriptionBackup}, another application is using the device.");
+                            return;
+                        }
+
                         // check if debugger engine exists
                         if (NanoDeviceCommService.Device.DebugEngine == null)
                         {
@@ -543,6 +565,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     // disconnect device
                     NanoDeviceCommService.Device?.DebugEngine?.Stop(true);
 
+                    exclusiveAccess?.Dispose();
+
                     // enable buttons
                     await UpdateDeviceDependentToolbarButtonsAsync(true);
 
@@ -574,6 +598,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
             await Task.Run(async delegate
             {
+                GlobalExclusiveDeviceAccess exclusiveAccess = null;
                 try
                 {
                     // disable buttons
@@ -581,6 +606,14 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                     // make sure this device is showing as selected in Device Explorer tree view
                     ViewModelLocator.DeviceExplorer.ForceNanoDeviceSelection();
+
+                    // Get exclusive access to the device, but don't wait forever
+                    exclusiveAccess = GlobalExclusiveDeviceAccess.TryGet(ViewModelLocator.DeviceExplorer.SelectedDevice, ExclusiveAccessTimeout);
+                    if (exclusiveAccess is null)
+                    {
+                        MessageCentre.OutputMessage($"Cannot access {descriptionBackup}, another application is using the device.");
+                        return;
+                    }
 
                     // check if debugger engine exists
                     if (NanoDeviceCommService.Device.DebugEngine == null)
@@ -639,6 +672,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     // disconnect device
                     NanoDeviceCommService.Device?.DebugEngine?.Stop(true);
 
+                    exclusiveAccess?.Dispose();
+
                     // enable buttons
                     await UpdateDeviceDependentToolbarButtonsAsync(true);
 
@@ -665,6 +700,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
             await Task.Run(async delegate
             {
+                GlobalExclusiveDeviceAccess exclusiveAccess = null;
                 try
                 {
                     // disable buttons
@@ -672,6 +708,17 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                     // make sure this device is showing as selected in Device Explorer tree view
                     ViewModelLocator.DeviceExplorer.ForceNanoDeviceSelection();
+
+                    // Get exclusive access to the device, but don't wait forever
+                    exclusiveAccess = GlobalExclusiveDeviceAccess.TryGet(ViewModelLocator.DeviceExplorer.SelectedDevice, ExclusiveAccessTimeout);
+                    if (exclusiveAccess is null)
+                    {
+                        _ = MessageBox.Show($"Cannot access {ViewModelLocator.DeviceExplorer.SelectedDevice.Description}, another application is using the device.",
+                                            ".NET nanoFramework Device Explorer",
+                                            MessageBoxButton.OK,
+                                            MessageBoxImage.Error);
+                        return;
+                    }
 
                     // check if debugger engine exists
                     if (NanoDeviceCommService.Device.DebugEngine == null)
@@ -761,6 +808,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     // disconnect device
                     NanoDeviceCommService.Device?.DebugEngine?.Stop(true);
 
+                    exclusiveAccess?.Dispose();
+
                     // enable buttons
                     await UpdateDeviceDependentToolbarButtonsAsync(true);
 
@@ -785,6 +834,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
             await Task.Run(async delegate
             {
+                GlobalExclusiveDeviceAccess exclusiveAccess = null;
                 try
                 {
                     // disable buttons
@@ -792,6 +842,14 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                     // make sure this device is showing as selected in Device Explorer tree view
                     ViewModelLocator.DeviceExplorer.ForceNanoDeviceSelection();
+
+                    // Get exclusive access to the device, but don't wait forever
+                    exclusiveAccess = GlobalExclusiveDeviceAccess.TryGet(ViewModelLocator.DeviceExplorer.SelectedDevice, ExclusiveAccessTimeout);
+                    if (exclusiveAccess is null)
+                    {
+                        MessageCentre.OutputMessage($"Cannot access {ViewModelLocator.DeviceExplorer.SelectedDevice.Description}, another application is using the device.");
+                        return;
+                    }
 
                     // check if debugger engine exists
                     if (NanoDeviceCommService.Device.DebugEngine == null)
@@ -880,6 +938,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 {
                     // disconnect device
                     NanoDeviceCommService.Device?.DebugEngine?.Stop(true);
+
+                    exclusiveAccess?.Dispose();
 
                     // enable buttons
                     await UpdateDeviceDependentToolbarButtonsAsync(true);

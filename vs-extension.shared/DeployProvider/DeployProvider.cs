@@ -1,16 +1,6 @@
-//
-// Copyright (c) .NET Foundation and Contributors
-// Portions Copyright (c) Microsoft Corporation.  All rights reserved.
-// See LICENSE file in the project root for full license information.
-//
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
-using ICSharpCode.Decompiler;
-using ICSharpCode.Decompiler.CSharp;
-using Microsoft.VisualStudio.ProjectSystem;
-using Microsoft.VisualStudio.ProjectSystem.Build;
-using Microsoft.VisualStudio.Shell;
-using nanoFramework.Tools.Debugger;
-using nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
@@ -19,6 +9,14 @@ using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Threading;
+using ICSharpCode.Decompiler;
+using ICSharpCode.Decompiler.CSharp;
+using Microsoft.VisualStudio.ProjectSystem;
+using Microsoft.VisualStudio.ProjectSystem.Build;
+using Microsoft.VisualStudio.Shell;
+using nanoFramework.Tools.Debugger;
+using nanoFramework.Tools.Debugger.NFDevice;
+using nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel;
 using Task = System.Threading.Tasks.Task;
 
 namespace nanoFramework.Tools.VisualStudio.Extension
@@ -27,6 +25,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
     [AppliesTo(NanoCSharpProjectUnconfigured.UniqueCapability)]
     internal class DeployProvider : IDeployProvider
     {
+        private const int ExclusiveAccessTimeout = 3000;
+
         private static ViewModelLocator _viewModelLocator;
 
         private static Package _package;
@@ -125,6 +125,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             await outputPaneWriter.WriteLineAsync($"Getting things ready to deploy assemblies to .NET nanoFramework device: {device.Description}.");
 
             bool needsToCloseMessageOutput = false;
+
+            // Get exclusive access to the device, but don't wait forever
+            MessageCentre.InternalErrorWriteLine("Try to get exclusive access to the nanoDevice");
+
+            using var exclusiveAccess = GlobalExclusiveDeviceAccess.TryGet(device, ExclusiveAccessTimeout)
+                ?? throw new DeploymentException($"Couldn't access the device {device.Description}, it is used by another application!");
 
             try
             {
@@ -404,6 +410,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             }
             finally
             {
+                device.DebugEngine?.Stop();
+
                 MessageCentre.StopProgressMessage();
             }
         }

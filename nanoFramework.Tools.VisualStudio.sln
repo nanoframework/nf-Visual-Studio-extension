@@ -294,7 +294,9 @@ Global
 	EndGlobalSection
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		CSharp.TestApplication\CSharp.TestApplication.Shared.projitems*{0a06b3c4-5813-439e-85ef-6d584a4e03ed}*SharedItemsImports = 13
+		nf-debugger\nanoFramework.Tools.DebugLibrary.Shared\nanoFramework.Tools.DebugLibrary.Net.projitems*{101d57ad-d22f-4905-a992-de15e723f164}*SharedItemsImports = 5
 		CSharp.TestApplication\CSharp.TestApplication.Shared.projitems*{3040ba82-56cc-4189-a26c-cabb4b6b7b87}*SharedItemsImports = 4
+		nf-debugger\nanoFramework.Tools.DebugLibrary.Shared\nanoFramework.Tools.DebugLibrary.Net.projitems*{31472cae-4b1a-4ab9-9b2a-8f28dbe01bcf}*SharedItemsImports = 13
 		CSharp.ClassLibrary\CSharp.ClassLibrary.Shared.projitems*{4aa9a693-ff7c-4f84-b0ce-28a7ee009471}*SharedItemsImports = 4
 		CSharp.BlankApplication\CSharp.BlankApplication.Shared.projitems*{572121bd-e972-4bf7-abf1-78251dde1181}*SharedItemsImports = 4
 		CSharp.ClassLibrary\CSharp.ClassLibrary.Shared.projitems*{5dc66510-7529-477b-98a8-733a792ddd14}*SharedItemsImports = 4
@@ -303,6 +305,7 @@ Global
 		vs-extension.shared\vs-extension.shared.projitems*{b16737e2-4b5d-4048-a740-2bb1df462637}*SharedItemsImports = 13
 		CSharp.BlankApplication\CSharp.BlankApplication.Shared.projitems*{c5a2cf84-5591-4c33-8cf7-6c949531bfb1}*SharedItemsImports = 13
 		CSharp.BlankApplication\CSharp.BlankApplication.Shared.projitems*{cd034c5a-a9eb-4c8e-b163-0ba9619cd122}*SharedItemsImports = 4
+		metadata-processor\MetadataProcessor.Shared\MetadataProcessor.Shared.projitems*{e32f7d15-2499-440c-8026-4d5ee1c5ec3a}*SharedItemsImports = 4
 		vs-extension.shared\vs-extension.shared.projitems*{e3e5b359-8e18-4b7d-8469-f93c6867d712}*SharedItemsImports = 4
 		CSharp.ClassLibrary\CSharp.ClassLibrary.Shared.projitems*{faa194f0-5c3b-46c7-977b-d2a84444bf80}*SharedItemsImports = 13
 	EndGlobalSection
