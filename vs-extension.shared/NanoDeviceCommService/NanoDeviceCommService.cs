@@ -1,14 +1,12 @@
-﻿//
-// Copyright (c) .NET Foundation and Contributors
-// See LICENSE file in the project root for full license information.
-//
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
-using nanoFramework.Tools.Debugger;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using nanoFramework.Tools.Debugger;
 
 namespace nanoFramework.Tools.VisualStudio.Extension
 {
@@ -83,18 +81,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             Device = device;
 
             return true;
-        }
-
-        public bool ConnectTo(string deviceId = null, int timeout = 5000)
-        {
-            if (deviceId == null)
-            {
-                return Device.DebugEngine.Connect(timeout, true);
-            }
-            else
-            {
-                return DebugClient.NanoFrameworkDevices.FirstOrDefault(d => d.Description == deviceId).DebugEngine.Connect(timeout, true);
-            }
         }
     }
 }

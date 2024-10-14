@@ -1,20 +1,19 @@
-﻿//
-// Copyright (c) .NET Foundation and Contributors
-// See LICENSE file in the project root for full license information.
-//
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
-using GalaSoft.MvvmLight.Ioc;
-using Microsoft.VisualStudio.ProjectSystem;
-using Microsoft.VisualStudio.ProjectSystem.Debug;
-using Microsoft.VisualStudio.ProjectSystem.VS.Debug;
-using Microsoft.VisualStudio.Threading;
-using nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using GalaSoft.MvvmLight.Ioc;
+using Microsoft.VisualStudio.ProjectSystem;
+using Microsoft.VisualStudio.ProjectSystem.Debug;
+using Microsoft.VisualStudio.ProjectSystem.VS.Debug;
+using Microsoft.VisualStudio.Threading;
+using nanoFramework.Tools.Debugger.NFDevice;
+using nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel;
 
 namespace nanoFramework.Tools.VisualStudio.Extension
 {
@@ -22,6 +21,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
     [AppliesTo(NanoCSharpProjectUnconfigured.UniqueCapability)]
     internal partial class NanoDebuggerLaunchProvider : DebugLaunchProviderBase
     {
+        private const int ExclusiveAccessTimeout = 3000;
+
         private static AssemblyInformationalVersionAttribute _informationalVersionAttribute;
 
         [ImportingConstructor]
@@ -50,35 +51,62 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 // get device
                 var device = SimpleIoc.Default.GetInstance<DeviceExplorerViewModel>().SelectedDevice;
 
-                // check for debug engine
-                if (device.DebugEngine == null)
+                var exclusiveAccess = GlobalExclusiveDeviceAccess.TryGet(device, ExclusiveAccessTimeout);
+                if (exclusiveAccess is null)
                 {
-                    device.CreateDebugEngine();
+#pragma warning disable S112 // OK to use Exception here
+                    throw new Exception($"Can't get access to {deployDeviceName}, another application is using the device!");
+#pragma warning restore S112 // General exceptions should never be thrown            
                 }
-
-                // update stack trace processing option
-                device.DebugEngine.NoStackTraceInExceptions = !NanoFrameworkPackage.DebuggingOptions.ProcessStackTraceOption;
-
-                // make sure that the device is connected
-                if (device.DebugEngine.Connect(
-                            false,
-                            true))
+                else
                 {
-                    string commandLine = await GetCommandLineForLaunchAsync();
-                    commandLine = string.Format("{0} \"{1}{2}\"", commandLine, CorDebugProcess.DeployDeviceName, deployDeviceName);
+                    var stopDebugEngine = true;
 
-                    var settings = new DebugLaunchSettings(launchOptions)
+                    try
                     {
-                        Executable = typeof(CorDebugProcess).Assembly.Location,
-                        Arguments = commandLine,
-                        LaunchOperation = DebugLaunchOperation.CreateProcess,
-                        PortSupplierGuid = DebugPortSupplier.PortSupplierGuid,
-                        PortName = NanoFrameworkPackage.NanoDeviceCommService.Device.Description,
-                        Project = VsHierarchy,
-                        LaunchDebugEngineGuid = CorDebug.EngineGuid
-                    };
+                        // check for debug engine
+                        if (device.DebugEngine == null)
+                        {
+                            device.CreateDebugEngine();
+                        }
 
-                    return new IDebugLaunchSettings[] { settings };
+                        // update stack trace processing option
+                        device.DebugEngine.NoStackTraceInExceptions = !NanoFrameworkPackage.DebuggingOptions.ProcessStackTraceOption;
+
+                        // make sure that the device is connected
+                        if (device.DebugEngine.Connect(
+                                    false,
+                                    true))
+                        {
+                            string commandLine = await GetCommandLineForLaunchAsync();
+                            commandLine = string.Format("{0} \"{1}{2}\"", commandLine, CorDebugProcess.DeployDeviceName, deployDeviceName);
+
+                            var settings = new DebugLaunchSettings(launchOptions)
+                            {
+                                Executable = typeof(CorDebugProcess).Assembly.Location,
+                                Arguments = commandLine,
+                                LaunchOperation = DebugLaunchOperation.CreateProcess,
+                                PortSupplierGuid = DebugPortSupplier.PortSupplierGuid,
+                                PortName = NanoFrameworkPackage.NanoDeviceCommService.Device.Description,
+                                Project = VsHierarchy,
+                                LaunchDebugEngineGuid = CorDebug.EngineGuid
+                            };
+
+                            stopDebugEngine = false;
+                            return new IDebugLaunchSettings[] { settings };
+                        }
+                    }
+                    finally
+                    {
+                        if (stopDebugEngine)
+                        {
+                            // On success, the debug engine does not have to be stopped, it will be stopped in the CorDebugProcess
+                            // and the global exclusive access is terminated there.
+                            device.DebugEngine?.Stop();
+                        }
+
+                        exclusiveAccess?.Dispose();
+                    }
                 }
 
 #pragma warning disable S112 // OK to use Exception here
