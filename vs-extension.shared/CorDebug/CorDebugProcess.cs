@@ -1,20 +1,17 @@
-//
-// Copyright (c) .NET Foundation and Contributors
-// Portions Copyright (c) Microsoft Corporation.  All rights reserved.
-// See LICENSE file in the project root for full license information.
-//
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
-using CorDebugInterop;
-using Microsoft.VisualStudio.Debugger.Interop;
-using nanoFramework.Tools.Debugger;
-using nanoFramework.Tools.Debugger.Extensions;
-using nanoFramework.Tools.Debugger.WireProtocol;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Threading;
+using CorDebugInterop;
+using Microsoft.VisualStudio.Debugger.Interop;
+using nanoFramework.Tools.Debugger;
+using nanoFramework.Tools.Debugger.Extensions;
+using nanoFramework.Tools.Debugger.WireProtocol;
 using BreakpointDef = nanoFramework.Tools.Debugger.WireProtocol.Commands.Debugging_Execution_BreakpointDef;
 
 namespace nanoFramework.Tools.VisualStudio.Extension
@@ -424,7 +421,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     break;
                 }
 
-                MessageCentre.InternalErrorWriteLine($"Attempting to connect the debugger engine ({retry + 1}/{ maxOperationRetries })");
+                MessageCentre.InternalErrorWriteLine($"Attempting to connect the debugger engine ({retry + 1}/{maxOperationRetries})");
 
                 try
                 {
@@ -496,7 +493,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                             var executionMode = Commands.DebuggingExecutionChangeConditions.State.SourceLevelDebugging;
 
                             // check if we need to disable the stack trace in exceptions
-                            if(_engine.ThrowOnCommunicationFailure)
+                            if (_engine.ThrowOnCommunicationFailure)
                             {
                                 executionMode |= Commands.DebuggingExecutionChangeConditions.State.NoStackTraceInExceptions;
                             }
@@ -516,7 +513,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 {
                     DetachFromEngine();
 
-                    if(!ShuttingDown)
+                    if (!ShuttingDown)
                     {
                         Thread.Sleep(10);
                     }
@@ -1564,10 +1561,16 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 {
                     _engine.ThrowOnCommunicationFailure = false;
 
-                    // need to reboot device to clear memory leaks which are caused by the running app stopping execution and leaving C/C++ vars orphaned in the CRT heap
-                    _engine.RebootDevice(RebootOptions.NormalReboot);
-
-                    DetachFromEngine();
+                    try
+                    {
+                        // need to reboot device to clear memory leaks which are caused by the running app stopping execution and leaving C/C++ vars orphaned in the CRT heap
+                        _engine.RebootDevice(RebootOptions.NormalReboot);
+                    }
+                    finally
+                    {
+                        // Make sure the engine is detached (disposes the global exclusive access)
+                        DetachFromEngine();
+                    }
                 }
             }
             catch (Exception ex)

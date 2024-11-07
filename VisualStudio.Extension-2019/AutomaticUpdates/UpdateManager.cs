@@ -1,24 +1,23 @@
-﻿//
-// Copyright (c) .NET Foundation and Contributors
-// See LICENSE file in the project root for full license information.
-//
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
-using GalaSoft.MvvmLight.Messaging;
-using Microsoft.VisualStudio.Shell;
-using nanoFramework.Tools.Debugger;
-using nanoFramework.Tools.VisualStudio.Extension.FirmwareUpdate;
-using nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel;
 using System;
 using System.Collections.Concurrent;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
+using GalaSoft.MvvmLight.Messaging;
+using Microsoft.VisualStudio.Shell;
+using nanoFramework.Tools.Debugger;
+using nanoFramework.Tools.Debugger.NFDevice;
+using nanoFramework.Tools.VisualStudio.Extension.FirmwareUpdate;
+using nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel;
 using Task = System.Threading.Tasks.Task;
 
 namespace nanoFramework.Tools.VisualStudio.Extension.AutomaticUpdates
 {
     public class UpdateManager
     {
+        private const int ExclusiveAccessTimeout = 3000;
         private static UpdateManager s_instance;
         private ViewModelLocator ViewModelLocator;
         private readonly Package _package;
@@ -32,7 +31,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.AutomaticUpdates
         }
 
         public static void Initialize(
-            AsyncPackage package, 
+            AsyncPackage package,
             ViewModelLocator vmLocator)
         {
             s_instance = new UpdateManager(package)
@@ -101,257 +100,279 @@ namespace nanoFramework.Tools.VisualStudio.Extension.AutomaticUpdates
                         }
                     }
 #endif
-
-                    // check if DebugEngine is available
-                    if (nanoDevice.DebugEngine == null)
-                    {
-                        nanoDevice.CreateDebugEngine();
-                    }
-
-                    if (nanoDevice.DebugEngine == null)
-                    {
-                        // can't create it, quit update now
-                        return;
-                    }
-
-                    // add this device to the updatING list
-                    if (!devicesUpdatING.TryAdd(deviceId, new object()))
-                    {
-                        // fail to add device to list
-#if DEBUG
-                        Console.WriteLine($"[Automatic Updates] {nanoDevice.TargetName} update already in progress.");
-#endif
-
-                        // quit, never mind, this is not critical whatsoever
-                        return;
-                    }
-
-                    // better wrap this on a try-finally because a lot of things can go wrong in the process
+                    GlobalExclusiveDeviceAccess exclusiveAccess = null;
                     try
                     {
-                        await Task.Yield();
-
-                        var fwPackage = await GetFirmwarePackageAsync(
-                            nanoDevice.TargetName,
-                            nanoDevice.Platform);
-
-                        await Task.Yield();
-
-                        //////////////////////////////
-                        // STM32 targets
-                        if (fwPackage is Stm32Firmware)
+                        // Get exclusive access to the device, but don't wait forever
+                        exclusiveAccess = GlobalExclusiveDeviceAccess.TryGet(nanoDevice, ExclusiveAccessTimeout);
+                        if (exclusiveAccess is null)
                         {
-                            // sanity check
-                            if (nanoDevice.DebugEngine == null)
-                            {
+                            // Can't get access, quit update for now
 #if DEBUG
-                                Console.WriteLine($"[Automatic Updates] {nanoDevice.TargetName} debug engine is not ready.");
+                            Console.WriteLine($"[Automatic Updates] Cannot access {nanoDevice.Description}, another application is using the device");
 #endif
-                                // quit 
-                                return;
-                            }
+                            return;
+                        }
 
-                            if (nanoDevice.DebugEngine.Connect(
-                                1000,
-                                true,
-                                true))
+
+                        // check if DebugEngine is available
+                        if (nanoDevice.DebugEngine == null)
+                        {
+                            nanoDevice.CreateDebugEngine();
+                        }
+
+                        if (nanoDevice.DebugEngine == null)
+                        {
+                            // can't create it, quit update now
+                            return;
+                        }
+
+                        // add this device to the updatING list
+                        if (!devicesUpdatING.TryAdd(deviceId, new object()))
+                        {
+                            // fail to add device to list
+#if DEBUG
+                            Console.WriteLine($"[Automatic Updates] {nanoDevice.TargetName} update already in progress.");
+#endif
+
+                            // quit, never mind, this is not critical whatsoever
+                            return;
+                        }
+
+                        // better wrap this on a try-finally because a lot of things can go wrong in the process
+                        try
+                        {
+                            await Task.Yield();
+
+                            var fwPackage = await GetFirmwarePackageAsync(
+                                nanoDevice.TargetName,
+                                nanoDevice.Platform);
+
+                            await Task.Yield();
+
+                            //////////////////////////////
+                            // STM32 targets
+                            if (fwPackage is Stm32Firmware)
                             {
-                                Version currentClrVersion = null;
-
-                                // try to store CLR version
-                                if(nanoDevice.DebugEngine.IsConnectedTonanoCLR)
+                                // sanity check
+                                if (nanoDevice.DebugEngine == null)
                                 {
-                                    if (nanoDevice.DeviceInfo.Valid)
-                                    {
-                                        currentClrVersion = nanoDevice.DeviceInfo.SolutionBuildVersion;
-                                    }
+#if DEBUG
+                                    Console.WriteLine($"[Automatic Updates] {nanoDevice.TargetName} debug engine is not ready.");
+#endif
+                                    // quit 
+                                    return;
                                 }
 
-                                // update conditions:
-                                // 1. Running CLR _and_ the new version is higher
-                                // 2. Running nanoBooter and there is no version information on the CLR (presumably because there is no CLR installed)
-                                if (fwPackage.Version > nanoDevice.CLRVersion)
+                                if (nanoDevice.DebugEngine.Connect(
+                                    1000,
+                                    true,
+                                    true))
                                 {
-                                    bool attemptToLaunchBooter = false;
+                                    Version currentClrVersion = null;
 
+                                    // try to store CLR version
                                     if (nanoDevice.DebugEngine.IsConnectedTonanoCLR)
                                     {
-                                        // any update has to be handled by nanoBooter, so let's have it running
-                                        try
+                                        if (nanoDevice.DeviceInfo.Valid)
                                         {
-                                            MessageCentre.OutputFirmwareUpdateMessage($"[{deviceDescription}] Launching nanoBooter...");
+                                            currentClrVersion = nanoDevice.DeviceInfo.SolutionBuildVersion;
+                                        }
+                                    }
 
-                                            attemptToLaunchBooter = nanoDevice.ConnectToNanoBooter();
+                                    // update conditions:
+                                    // 1. Running CLR _and_ the new version is higher
+                                    // 2. Running nanoBooter and there is no version information on the CLR (presumably because there is no CLR installed)
+                                    if (fwPackage.Version > nanoDevice.CLRVersion)
+                                    {
+                                        bool attemptToLaunchBooter = false;
 
-                                            if (!attemptToLaunchBooter)
+                                        if (nanoDevice.DebugEngine.IsConnectedTonanoCLR)
+                                        {
+                                            // any update has to be handled by nanoBooter, so let's have it running
+                                            try
                                             {
-                                                // check for version where the software reboot to nanoBooter was made available
-                                                if (currentClrVersion != null &&
-                                                    nanoDevice.DeviceInfo.SolutionBuildVersion < new Version("1.6.0.54"))
-                                                {
-                                                    MessageCentre.OutputFirmwareUpdateMessage($"[{deviceDescription}] The device is running a version that doesn't support rebooting by software. Please update your device using 'nanoff' tool.");
+                                                MessageCentre.OutputFirmwareUpdateMessage($"[{deviceDescription}] Launching nanoBooter...");
 
-                                                    await Task.Yield();
+                                                attemptToLaunchBooter = nanoDevice.ConnectToNanoBooter();
+
+                                                if (!attemptToLaunchBooter)
+                                                {
+                                                    // check for version where the software reboot to nanoBooter was made available
+                                                    if (currentClrVersion != null &&
+                                                        nanoDevice.DeviceInfo.SolutionBuildVersion < new Version("1.6.0.54"))
+                                                    {
+                                                        MessageCentre.OutputFirmwareUpdateMessage($"[{deviceDescription}] The device is running a version that doesn't support rebooting by software. Please update your device using 'nanoff' tool.");
+
+                                                        await Task.Yield();
+                                                    }
                                                 }
                                             }
+                                            catch
+                                            {
+                                                // this reboot step can go wrong and there's no big deal with that
+                                            }
                                         }
-                                        catch
+                                        else
                                         {
-                                            // this reboot step can go wrong and there's no big deal with that
+                                            attemptToLaunchBooter = true;
                                         }
-                                    }
-                                    else
-                                    {
-                                        attemptToLaunchBooter = true;
-                                    }
 
-                                    // check if the device is still there
-                                    if(ViewModelLocator.DeviceExplorer.AvailableDevices.FirstOrDefault(d => d.DeviceUniqueId == deviceUniqueId) == null)
-                                    {
+                                        // check if the device is still there
+                                        if (ViewModelLocator.DeviceExplorer.AvailableDevices.FirstOrDefault(d => d.DeviceUniqueId == deviceUniqueId) == null)
+                                        {
 #if DEBUG
-                                        Console.WriteLine($"[Automatic Updates] {nanoDevice.TargetName} is not available anymore.");
+                                            Console.WriteLine($"[Automatic Updates] {nanoDevice.TargetName} is not available anymore.");
 #endif
-                                        return;
-                                    }
-
-                                    if (attemptToLaunchBooter &&
-                                        nanoDevice.Ping() == Debugger.WireProtocol.ConnectionSource.nanoBooter)
-                                    {
-                                        // get address for CLR block expected by device
-                                        var clrAddress = nanoDevice.GetCLRStartAddress();
-
-                                        // compare with address on the fw packages
-                                        if (clrAddress !=
-                                            (fwPackage as Stm32Firmware).ClrStartAddress)
-                                        {
-                                            // CLR addresses don't match, can't proceed with update
-                                            MessageCentre.OutputFirmwareUpdateMessage($"[{deviceDescription}] ERROR: Can't update device. CLR addresses are different. Please update nanoBooter manually.");
                                             return;
                                         }
 
-                                        await Task.Yield();
-
-                                        MessageCentre.OutputFirmwareUpdateMessage($"[{deviceDescription}] Starting update to CLR v{fwPackage.Version}.");
-
-                                        try
+                                        if (attemptToLaunchBooter &&
+                                            nanoDevice.Ping() == Debugger.WireProtocol.ConnectionSource.nanoBooter)
                                         {
+                                            // get address for CLR block expected by device
+                                            var clrAddress = nanoDevice.GetCLRStartAddress();
+
+                                            // compare with address on the fw packages
+                                            if (clrAddress !=
+                                                (fwPackage as Stm32Firmware).ClrStartAddress)
+                                            {
+                                                // CLR addresses don't match, can't proceed with update
+                                                MessageCentre.OutputFirmwareUpdateMessage($"[{deviceDescription}] ERROR: Can't update device. CLR addresses are different. Please update nanoBooter manually.");
+                                                return;
+                                            }
+
                                             await Task.Yield();
 
-                                            // create a progress indicator to be used by deployment operation to post debug messages
-                                            var progressIndicator = new Progress<string>(m => MessageCentre.OutputFirmwareUpdateMessage($"[{deviceDescription}] {m}"));
+                                            MessageCentre.OutputFirmwareUpdateMessage($"[{deviceDescription}] Starting update to CLR v{fwPackage.Version}.");
 
-                                            if (nanoDevice.DeployBinaryFile(
-                                                (fwPackage as Stm32Firmware).nanoClrFileBin,
-                                                (fwPackage as Stm32Firmware).ClrStartAddress,
-                                                progressIndicator))
+                                            try
                                             {
                                                 await Task.Yield();
 
-                                                MessageCentre.OutputFirmwareUpdateMessage($"[{deviceDescription}] Update successful.");
+                                                // create a progress indicator to be used by deployment operation to post debug messages
+                                                var progressIndicator = new Progress<string>(m => MessageCentre.OutputFirmwareUpdateMessage($"[{deviceDescription}] {m}"));
 
-                                                // add it to the list of devices updatED with the update time stamp
-                                                devicesUpdatED.TryAdd(deviceDescription, DateTime.UtcNow);
-                                            }
-
-                                            // if this is the selected device...
-                                            if (ViewModelLocator.DeviceExplorer.SelectedDevice?.DeviceUniqueId == deviceUniqueId)
-                                            {
-                                                // ...reset property to force that device capabilities to be retrieved on next connection
-                                                ViewModelLocator.DeviceExplorer.LastDeviceConnectedHash = 0;
-                                            }
-
-                                            if (attemptToLaunchBooter)
-                                            {
-                                                // try to reboot target 
-
-                                                // remove it from updatING list
-                                                devicesUpdatING.TryRemove(deviceId, out var dummy);
-
-                                                // check if the device is still there
-                                                if (ViewModelLocator.DeviceExplorer.AvailableDevices.FirstOrDefault(d => d.DeviceUniqueId == Guid.Parse(deviceId)) == null)
+                                                if (nanoDevice.DeployBinaryFile(
+                                                    (fwPackage as Stm32Firmware).nanoClrFileBin,
+                                                    (fwPackage as Stm32Firmware).ClrStartAddress,
+                                                    progressIndicator))
                                                 {
-                                                    return;
+                                                    await Task.Yield();
+
+                                                    MessageCentre.OutputFirmwareUpdateMessage($"[{deviceDescription}] Update successful.");
+
+                                                    // add it to the list of devices updatED with the update time stamp
+                                                    devicesUpdatED.TryAdd(deviceDescription, DateTime.UtcNow);
                                                 }
 
-                                                MessageCentre.OutputFirmwareUpdateMessage($"[{deviceDescription}] Rebooting...");
+                                                // if this is the selected device...
+                                                if (ViewModelLocator.DeviceExplorer.SelectedDevice?.DeviceUniqueId == deviceUniqueId)
+                                                {
+                                                    // ...reset property to force that device capabilities to be retrieved on next connection
+                                                    ViewModelLocator.DeviceExplorer.LastDeviceConnectedHash = 0;
+                                                }
 
-                                                nanoDevice.DebugEngine.RebootDevice(RebootOptions.NormalReboot);
+                                                if (attemptToLaunchBooter)
+                                                {
+                                                    // try to reboot target 
+
+                                                    // remove it from updatING list
+                                                    devicesUpdatING.TryRemove(deviceId, out var dummy);
+
+                                                    // check if the device is still there
+                                                    if (ViewModelLocator.DeviceExplorer.AvailableDevices.FirstOrDefault(d => d.DeviceUniqueId == Guid.Parse(deviceId)) == null)
+                                                    {
+                                                        return;
+                                                    }
+
+                                                    MessageCentre.OutputFirmwareUpdateMessage($"[{deviceDescription}] Rebooting...");
+
+                                                    nanoDevice.DebugEngine.RebootDevice(RebootOptions.NormalReboot);
+                                                }
+                                            }
+                                            catch (Exception ex)
+                                            {
+                                                MessageCentre.OutputFirmwareUpdateMessage($"[{deviceDescription}] ERROR: Exception occurred when performing update ({ex.Message}).");
                                             }
                                         }
-                                        catch (Exception ex)
+                                        else
                                         {
-                                            MessageCentre.OutputFirmwareUpdateMessage($"[{deviceDescription}] ERROR: Exception occurred when performing update ({ex.Message}).");
+                                            if (attemptToLaunchBooter)
+                                            {
+                                                // only report this as an error if the launch was successful
+                                                MessageCentre.OutputFirmwareUpdateMessage($"[{deviceDescription}] ERROR: Failed to launch nanoBooter. Quitting update.");
+                                            }
                                         }
                                     }
                                     else
                                     {
-                                        if (attemptToLaunchBooter)
+                                        // just to make sure that the CLR version is the latest, so we don't check it over and over
+                                        if (nanoDevice.DebugEngine.IsConnectedTonanoCLR &&
+                                            (fwPackage.Version == nanoDevice.DeviceInfo.ClrBuildVersion))
                                         {
-                                            // only report this as an error if the launch was successful
-                                            MessageCentre.OutputFirmwareUpdateMessage($"[{deviceDescription}] ERROR: Failed to launch nanoBooter. Quitting update.");
+                                            // add it to the list of devices updatED with the update time stamp
+                                            devicesUpdatED.TryAdd(deviceDescription, DateTime.UtcNow);
                                         }
                                     }
                                 }
                                 else
                                 {
-                                    // just to make sure that the CLR version is the latest, so we don't check it over and over
-                                    if (nanoDevice.DebugEngine.IsConnectedTonanoCLR &&
-                                        (fwPackage.Version == nanoDevice.DeviceInfo.ClrBuildVersion))
-                                    {
-                                        // add it to the list of devices updatED with the update time stamp
-                                        devicesUpdatED.TryAdd(deviceDescription, DateTime.UtcNow);
-                                    }
+                                    MessageCentre.OutputFirmwareUpdateMessage($"[{deviceDescription}] ERROR: Can't connect to device. Quitting update.");
                                 }
+                            }
+                            ///////////////////////////////////
+                            // ESP32 targets
+                            else if (fwPackage is Esp32Firmware)
+                            {
+                                // TODO
+                                // not supported yet
+
+                                MessageCentre.OutputFirmwareUpdateMessage("The ability to update ESP32 targets is not currently available. Yet...");
+
+                                // add it to the list of devices updatED with the update time stamp
+                                devicesUpdatED.TryAdd(deviceDescription, DateTime.UtcNow);
+                            }
+                            ///////////////////////////////////////
+                            // TI CC13x26x2
+                            else if (fwPackage is CC13x26x2Firmware)
+                            {
+                                // TODO
+                                // not supported yet
+
+                                MessageCentre.OutputFirmwareUpdateMessage("The ability to update CC13x26x2 targets is not currently available. Yet...");
+
+                                // add it to the list of devices updatED with the update time stamp
+                                devicesUpdatED.TryAdd(deviceDescription, DateTime.UtcNow);
                             }
                             else
                             {
-                                MessageCentre.OutputFirmwareUpdateMessage($"[{deviceDescription}] ERROR: Can't connect to device. Quitting update.");
+                                // shouldn't be here....
                             }
                         }
-                        ///////////////////////////////////
-                        // ESP32 targets
-                        else if (fwPackage is Esp32Firmware)
+                        catch (Exception ex)
                         {
-                            // TODO
-                            // not supported yet
-
-                            MessageCentre.OutputFirmwareUpdateMessage("The ability to update ESP32 targets is not currently available. Yet...");
-
-                            // add it to the list of devices updatED with the update time stamp
-                            devicesUpdatED.TryAdd(deviceDescription, DateTime.UtcNow);
+                            MessageCentre.OutputFirmwareUpdateMessage($"[{deviceDescription}] ERROR: Exception occurred when performing update ({ex.Message}).");
                         }
-                        ///////////////////////////////////////
-                        // TI CC13x26x2
-                        else if (fwPackage is CC13x26x2Firmware)
+                        finally
                         {
-                            // TODO
-                            // not supported yet
-
-                            MessageCentre.OutputFirmwareUpdateMessage("The ability to update CC13x26x2 targets is not currently available. Yet...");
-
-                            // add it to the list of devices updatED with the update time stamp
-                            devicesUpdatED.TryAdd(deviceDescription, DateTime.UtcNow);
+                            // remove it from updatING list
+                            devicesUpdatING.TryRemove(deviceId, out var dummy);
                         }
-                        else
-                        {
-                            // shouldn't be here....
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        MessageCentre.OutputFirmwareUpdateMessage($"[{deviceDescription}] ERROR: Exception occurred when performing update ({ex.Message}).");
+
                     }
                     finally
                     {
-                        // remove it from updatING list
-                        devicesUpdatING.TryRemove(deviceId, out var dummy);
+                        nanoDevice.DebugEngine?.Stop();
+
+                        exclusiveAccess?.Dispose();
                     }
                 }
             });
         }
 
         internal static async Task<FirmwarePackage> GetFirmwarePackageAsync(
-            string targetName, 
+            string targetName,
             string platformName)
         {
             if (platformName.StartsWith("STM32"))
