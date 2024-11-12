@@ -489,9 +489,6 @@
     <PackageReference Include="ICSharpCode.Decompiler">
       <Version>7.2.1.6856</Version>
     </PackageReference>
-    <PackageReference Include="MessagePack">
-      <Version>2.5.187</Version>
-    </PackageReference>
     <PackageReference Include="Microsoft.Bcl.AsyncInterfaces">
       <Version>6.0.0</Version>
     </PackageReference>
