@@ -431,15 +431,15 @@
       },
       "StreamJsonRpc": {
         "type": "Direct",
-        "requested": "[2.9.85, )",
-        "resolved": "2.9.85",
-        "contentHash": "ZLW1Y/I9NO8PRkCbqAvJvHqsNDfAw4/DpD8EFhAXgnct7pFKFs6y+LFokFoI2rB1jGaYYxW7aX6DNrxO1e+vKg==",
+        "requested": "[2.8.28, )",
+        "resolved": "2.8.28",
+        "contentHash": "i2hKUXJSLEoWpPqQNyISqLDqmFHMiyasjTC/PrrHNWhQyauFeVoebSct3E4OTUzRC1DYjVJ9AMiVbp/uVYLnjQ==",
         "dependencies": {
-          "MessagePack": "2.3.75",
+          "MessagePack": "2.2.85",
           "Microsoft.Bcl.AsyncInterfaces": "5.0.0",
-          "Microsoft.VisualStudio.Threading": "16.10.56",
-          "Nerdbank.Streams": "2.8.46",
-          "Newtonsoft.Json": "13.0.1",
+          "Microsoft.VisualStudio.Threading": "16.9.60",
+          "Nerdbank.Streams": "2.6.81",
+          "Newtonsoft.Json": "12.0.2",
           "System.Collections.Immutable": "5.0.0",
           "System.Diagnostics.DiagnosticSource": "5.0.1",
           "System.IO.Pipelines": "5.0.1",
@@ -1972,8 +1972,8 @@
       },
       "Microsoft.VisualStudio.Validation": {
         "type": "Transitive",
-        "resolved": "16.10.26",
-        "contentHash": "5KXcBcBjvuCZvRrudAEGN64a6OtbRxqLxecKpTSm4p9GCavYtclZYA01csTtmTEkveiAX1k9bpx/4H0ohk2d5g=="
+        "resolved": "16.9.32",
+        "contentHash": "4Ozqy5OjtU4k9aKT76or3y8tVq6ju8+ba4YZHIe5wTb28jeCg11zkK6bdI4kj8s+k5OSekyO+FkUyoOkvPkgVg=="
       },
       "Microsoft.VisualStudio.VSHelp": {
         "type": "Transitive",
@@ -2008,15 +2008,15 @@
       },
       "Nerdbank.Streams": {
         "type": "Transitive",
-        "resolved": "2.8.46",
-        "contentHash": "/d18ruvWphgn15w9kXQCD77TTvtbPLqnTAzXlMK+HpxDY8WJrBhnJmuUsJbOZ1HtbTRmRbiIqcNmcSLERBLj+w==",
+        "resolved": "2.6.81",
+        "contentHash": "htBHFE359qyyFwrvAGvFxrbBAoldZdl0XjtQdDWTJ8t5sWWs7QVXID5y1ZGJE61UgpV5CqWsj/NT0LOAn5GdZw==",
         "dependencies": {
-          "Microsoft.Bcl.AsyncInterfaces": "5.0.0",
-          "Microsoft.VisualStudio.Threading": "16.10.56",
-          "Microsoft.VisualStudio.Validation": "16.10.26",
-          "System.IO.Pipelines": "5.0.1",
+          "Microsoft.Bcl.AsyncInterfaces": "1.1.1",
+          "Microsoft.VisualStudio.Threading": "16.7.56",
+          "Microsoft.VisualStudio.Validation": "15.5.31",
+          "System.IO.Pipelines": "4.7.2",
           "System.Net.WebSockets": "4.3.0",
-          "System.Runtime.CompilerServices.Unsafe": "5.0.0"
+          "System.Runtime.CompilerServices.Unsafe": "4.7.1"
         }
       },
       "Polly": {
