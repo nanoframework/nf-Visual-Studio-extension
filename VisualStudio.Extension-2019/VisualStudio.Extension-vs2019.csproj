@@ -573,7 +573,7 @@
       <Version>16.10.31320.204</Version>
     </PackageReference>
     <PackageReference Include="StreamJsonRpc">
-      <Version>2.9.85</Version>
+      <Version>2.8.28</Version>
     </PackageReference>
     <PackageReference Include="System.Collections">
       <Version>4.3.0</Version>
