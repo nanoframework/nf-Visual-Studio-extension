@@ -5,15 +5,16 @@
 
 namespace nanoFramework.Tools.VisualStudio.Extension
 {
-    using Microsoft.VisualStudio.Package;
-    using Microsoft.VisualStudio.PlatformUI;
-    using nanoFramework.Tools.Debugger;
-    using nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel;
     using System;
     using System.IO;
     using System.Linq;
     using System.Net;
     using System.Windows.Forms;
+    using CommunityToolkit.Mvvm.DependencyInjection;
+    using Microsoft.VisualStudio.Package;
+    using Microsoft.VisualStudio.PlatformUI;
+    using nanoFramework.Tools.Debugger;
+    using nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel;
 
     /// <summary>
     /// Interaction logic for DeviceExplorerControl.
@@ -28,6 +29,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         public NetworkConfigurationDialog(string helpTopic) : base(helpTopic)
         {
             InitializeComponent();
+
+            DataContext = Ioc.Default.GetService<DeviceExplorerViewModel>();
+
             InitControls();
         }
 
@@ -37,6 +41,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         public NetworkConfigurationDialog()
         {
             InitializeComponent();
+
+            DataContext = Ioc.Default.GetService<DeviceExplorerViewModel>();
+
             InitControls();
         }
 

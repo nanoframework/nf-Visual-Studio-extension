@@ -9,6 +9,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Threading;
+using CommunityToolkit.Mvvm.DependencyInjection;
 using ICSharpCode.Decompiler;
 using ICSharpCode.Decompiler.CSharp;
 using Microsoft.VisualStudio.ProjectSystem;
@@ -26,8 +27,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension
     internal class DeployProvider : IDeployProvider
     {
         private const int ExclusiveAccessTimeout = 3000;
-
-        private static ViewModelLocator _viewModelLocator;
 
         private static Package _package;
 
@@ -72,10 +71,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         [Import]
         ConfiguredProject ConfiguredProject { get; set; }
 
-        public static void Initialize(AsyncPackage package, ViewModelLocator vmLocator)
+        public static void Initialize(AsyncPackage package)
         {
             _package = package;
-            _viewModelLocator = vmLocator;
         }
 
         public async Task DeployAsync(CancellationToken cancellationToken, TextWriter outputPaneWriter)
@@ -108,8 +106,10 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 return;
             }
 
+            var deviceExplorer = Ioc.Default.GetService<DeviceExplorerViewModel>();
+
             // just in case....
-            if (_viewModelLocator?.DeviceExplorer.SelectedDevice == null)
+            if (deviceExplorer.SelectedDevice == null)
             {
                 // can't debug
                 // throw exception to signal deployment failure
@@ -183,7 +183,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         MessageCentre.InternalErrorWriteLine("*** ERROR: device reporting no assemblies loaded. This can not happen. Sanity check failed ***");
 
                         // there are no assemblies deployed?!
-                        throw new DeploymentException($"Couldn't find any native assemblies deployed in {_viewModelLocator.DeviceExplorer.SelectedDevice.Description}! If the situation persists reboot the device.");
+                        throw new DeploymentException($"Couldn't find any native assemblies deployed in {deviceExplorer.SelectedDevice.Description}! If the situation persists reboot the device.");
                     }
 
                     // For a known project output assembly path, this shall contain the corresponding
@@ -376,7 +376,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     await outputPaneWriter.WriteLineAsync("Deployment successful!");
 
                     // reset the hash for the connected device so the deployment information can be refreshed
-                    _viewModelLocator.DeviceExplorer.LastDeviceConnectedHash = 0;
+                    deviceExplorer.LastDeviceConnectedHash = 0;
                 }
                 else
                 {
@@ -384,7 +384,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     MessageCentre.InternalErrorWriteLine("*** ERROR: failing to connect to device ***");
 
                     // throw exception to signal deployment failure
-                    throw new DeploymentException($"{_viewModelLocator.DeviceExplorer.SelectedDevice.Description} is not responding. Please retry the deployment. If the situation persists reboot the device.");
+                    throw new DeploymentException($"{deviceExplorer.SelectedDevice.Description} is not responding. Please retry the deployment. If the situation persists reboot the device.");
                 }
             }
             catch (DeploymentException)
