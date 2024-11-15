@@ -489,7 +489,7 @@
       <Version>7.2.1.6856</Version>
     </PackageReference>
     <PackageReference Include="MessagePack">
-      <Version>2.3.112</Version>
+      <Version>2.5.187</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.Build">
       <Version>16.11.0</Version>
