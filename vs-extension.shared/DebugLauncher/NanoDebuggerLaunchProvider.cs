@@ -7,7 +7,7 @@ using System.ComponentModel.Composition;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
-using GalaSoft.MvvmLight.Ioc;
+using CommunityToolkit.Mvvm.DependencyInjection;
 using Microsoft.VisualStudio.ProjectSystem;
 using Microsoft.VisualStudio.ProjectSystem.Debug;
 using Microsoft.VisualStudio.ProjectSystem.VS.Debug;
@@ -44,12 +44,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             // output information about assembly running this to help debugging
             MessageCentre.InternalErrorWriteLine($"Launching debugger provider from v{_informationalVersionAttribute.InformationalVersion}");
 
-            if (SimpleIoc.Default.GetInstance<DeviceExplorerViewModel>().SelectedDevice != null)
+            if (Ioc.Default.GetService<DeviceExplorerViewModel>().SelectedDevice != null)
             {
-                var deployDeviceName = SimpleIoc.Default.GetInstance<DeviceExplorerViewModel>().SelectedDevice.Description;
+                var deployDeviceName = Ioc.Default.GetService<DeviceExplorerViewModel>().SelectedDevice.Description;
 
                 // get device
-                var device = SimpleIoc.Default.GetInstance<DeviceExplorerViewModel>().SelectedDevice;
+                var device = Ioc.Default.GetService<DeviceExplorerViewModel>().SelectedDevice;
 
                 var exclusiveAccess = GlobalExclusiveDeviceAccess.TryGet(device, ExclusiveAccessTimeout);
                 if (exclusiveAccess is null)

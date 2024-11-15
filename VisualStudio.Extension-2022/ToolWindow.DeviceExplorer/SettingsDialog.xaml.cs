@@ -5,15 +5,13 @@
 
 namespace nanoFramework.Tools.VisualStudio.Extension
 {
-    using GalaSoft.MvvmLight.Messaging;
-    using Microsoft.VisualStudio.PlatformUI;
-    using Microsoft.VisualStudio.Shell;
-    using nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel;
     using System.Collections.Generic;
     using System.Net;
     using System.Threading.Tasks;
     using System.Windows.Controls.Primitives;
     using System.Windows.Forms;
+    using Microsoft.VisualStudio.PlatformUI;
+    using Microsoft.VisualStudio.Shell;
 
     /// <summary>
     /// Interaction logic for DeviceExplorerControl.
@@ -42,7 +40,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         // init controls
         private void InitControls()
         {
-            Messenger.Default.Register<NotificationMessage>(this, DeviceExplorerViewModel.MessagingTokens.VirtualDeviceOperationExecuting, (message) => this.UpdateStartStopAvailabilityAsync(message.Notification).ConfigureAwait(false));
+            //WeakReferenceMessenger.Default.Register<NotificationMessage>(this, DeviceExplorerViewModel.MessagingTokens.VirtualDeviceOperationExecuting, (message) => this.UpdateStartStopAvailabilityAsync(message.Notification).ConfigureAwait(false));
 
             // set controls according to stored preferences
             GenerateDeploymentImage.IsChecked = NanoFrameworkPackage.SettingGenerateDeploymentImage;

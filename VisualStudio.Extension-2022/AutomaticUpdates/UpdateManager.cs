@@ -5,12 +5,14 @@ using System;
 using System.Collections.Concurrent;
 using System.Linq;
 using System.Threading.Tasks;
-using GalaSoft.MvvmLight.Messaging;
+using CommunityToolkit.Mvvm.DependencyInjection;
+using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.VisualStudio.Shell;
 using nanoFramework.Tools.Debugger;
 using nanoFramework.Tools.Debugger.NFDevice;
 using nanoFramework.Tools.VisualStudio.Extension.FirmwareUpdate;
 using nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel;
+using static nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel.DeviceExplorerViewModel.Messages;
 using Task = System.Threading.Tasks.Task;
 
 namespace nanoFramework.Tools.VisualStudio.Extension.AutomaticUpdates
@@ -20,7 +22,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension.AutomaticUpdates
         private const int ExclusiveAccessTimeout = 3000;
 
         private static UpdateManager s_instance;
-        private ViewModelLocator ViewModelLocator;
         private readonly Package _package;
 
         private readonly ConcurrentDictionary<string, object> devicesUpdatING = new ConcurrentDictionary<string, object>();
@@ -31,17 +32,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension.AutomaticUpdates
             _package = package ?? throw new ArgumentNullException($"{package} can't be null.");
         }
 
-        public static void Initialize(
-            AsyncPackage package,
-            ViewModelLocator vmLocator)
+        public static void Initialize(AsyncPackage package)
         {
-            s_instance = new UpdateManager(package)
-            {
-                ViewModelLocator = vmLocator
-            };
+            s_instance = new UpdateManager(package);
 
-            Messenger.Default.Register<NotificationMessage>(s_instance, DeviceExplorerViewModel.MessagingTokens.LaunchFirmwareUpdateForNanoDevice, (message) => s_instance.LaunchUpdate(message.Notification));
-            Messenger.Default.Register<NotificationMessage>(s_instance, DeviceExplorerViewModel.MessagingTokens.NanoDeviceHasDeparted, (message) => s_instance.ProcessNanoDeviceDeparture(message.Notification));
+            WeakReferenceMessenger.Default.Register<LaunchFirmwareUpdateForNanoDeviceMessage>(s_instance, (r, message) => s_instance.LaunchUpdate(message.Value));
+            WeakReferenceMessenger.Default.Register<NanoDeviceHasDepartedMessage>(s_instance, (r, message) => s_instance.ProcessNanoDeviceDeparture(message.Value));
         }
 
         private void ProcessNanoDeviceDeparture(string deviceId)
@@ -70,7 +66,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension.AutomaticUpdates
 
                     var deviceUniqueId = Guid.Parse(deviceId);
 
-                    var nanoDevice = ViewModelLocator.DeviceExplorer.AvailableDevices.FirstOrDefault(d => d.DeviceUniqueId == deviceUniqueId);
+                    var deviceExplorer = Ioc.Default.GetService<DeviceExplorerViewModel>();
+
+                    var nanoDevice = deviceExplorer.AvailableDevices.FirstOrDefault(d => d.DeviceUniqueId == deviceUniqueId);
 
                     // sanity check
                     if (
@@ -220,7 +218,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.AutomaticUpdates
                                         }
 
                                         // check if the device is still there
-                                        if (ViewModelLocator.DeviceExplorer.AvailableDevices.FirstOrDefault(d => d.DeviceUniqueId == deviceUniqueId) == null)
+                                        if (deviceExplorer.AvailableDevices.FirstOrDefault(d => d.DeviceUniqueId == deviceUniqueId) == null)
                                         {
 #if DEBUG
                                             Console.WriteLine($"[Automatic Updates] {nanoDevice.TargetName} is not available anymore.");
@@ -268,10 +266,10 @@ namespace nanoFramework.Tools.VisualStudio.Extension.AutomaticUpdates
                                                 }
 
                                                 // if this is the selected device...
-                                                if (ViewModelLocator.DeviceExplorer.SelectedDevice?.DeviceUniqueId == deviceUniqueId)
+                                                if (deviceExplorer.SelectedDevice?.DeviceUniqueId == deviceUniqueId)
                                                 {
                                                     // ...reset property to force that device capabilities to be retrieved on next connection
-                                                    ViewModelLocator.DeviceExplorer.LastDeviceConnectedHash = 0;
+                                                    deviceExplorer.LastDeviceConnectedHash = 0;
                                                 }
 
                                                 if (attemptToLaunchBooter)
@@ -282,7 +280,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.AutomaticUpdates
                                                     devicesUpdatING.TryRemove(deviceId, out var dummy);
 
                                                     // check if the device is still there
-                                                    if (ViewModelLocator.DeviceExplorer.AvailableDevices.FirstOrDefault(d => d.DeviceUniqueId == Guid.Parse(deviceId)) == null)
+                                                    if (deviceExplorer.AvailableDevices.FirstOrDefault(d => d.DeviceUniqueId == Guid.Parse(deviceId)) == null)
                                                     {
                                                         return;
                                                     }

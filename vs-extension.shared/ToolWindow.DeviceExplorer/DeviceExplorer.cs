@@ -6,9 +6,9 @@
 namespace nanoFramework.Tools.VisualStudio.Extension
 {
     using System;
+    using System.ComponentModel.Design;
     using System.Runtime.InteropServices;
     using Microsoft.VisualStudio.Shell;
-    using System.ComponentModel.Design;
     using Microsoft.VisualStudio.Shell.Interop;
 
     /// <summary>

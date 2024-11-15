@@ -27,10 +27,6 @@
         <Converters:WirelessAP_OptionsTypeConverter x:Key="WirelessAP_OptionsTypeConverter"/>
     </vsp:DialogWindow.Resources>
 
-    <vsp:DialogWindow.DataContext>
-        <Binding Path="DeviceExplorer" Source="{StaticResource Locator}" NotifyOnSourceUpdated="True" NotifyOnTargetUpdated="True"/>
-    </vsp:DialogWindow.DataContext>
-
     <Grid Margin="0,0,0,4">
         <TabControl x:Name="IPversionOptions" HorizontalAlignment="Left" Height="333" Margin="10,10,0,0" VerticalAlignment="Top" Width="372">
             <TabItem Header="IPv4">

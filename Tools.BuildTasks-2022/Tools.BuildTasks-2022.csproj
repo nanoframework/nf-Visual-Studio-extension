@@ -91,17 +91,18 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="key.snk" />
+    <None Include="packages.lock.json" />
     <None Include="version.json" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.Build.Framework">
-      <Version>17.1.0</Version>
+      <Version>17.12.6</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.Build.Utilities.Core">
-      <Version>17.1.0</Version>
+      <Version>17.11.4</Version>
     </PackageReference>
     <PackageReference Include="Nerdbank.GitVersioning">
-      <Version>3.5.104</Version>
+      <Version>3.6.146</Version>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
