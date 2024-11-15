@@ -3,39 +3,26 @@
 // See LICENSE file in the project root for full license information.
 //
 
-using GalaSoft.MvvmLight;
-using GalaSoft.MvvmLight.Messaging;
-using Microsoft.VisualStudio.Shell;
-using nanoFramework.Tools.Debugger;
-using nanoFramework.Tools.Debugger.WireProtocol;
-using PropertyChanged;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.Linq;
-using System.Net;
-using System.Runtime.CompilerServices;
 using System.Text;
-using System.Threading;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Messaging;
+using CommunityToolkit.Mvvm.Messaging.Messages;
+using Microsoft.VisualStudio.Shell;
+using nanoFramework.Tools.Debugger;
+using nanoFramework.Tools.Debugger.WireProtocol;
+using static nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel.DeviceExplorerViewModel.Messages;
 using Task = System.Threading.Tasks.Task;
 
 namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
 {
     /// <summary>
     /// This class contains properties that the main View can data bind to.
-    /// <para>
-    /// Use the <strong>mvvminpc</strong> snippet to add bindable properties to this ViewModel.
-    /// </para>
-    /// <para>
-    /// You can also use Blend to data bind with the tool's support.
-    /// </para>
-    /// <para>
-    /// See http://www.galasoft.ch/mvvm
-    /// </para>
     /// </summary>
-    [AddINotifyPropertyChangedInterface]
-    public class DeviceExplorerViewModel : ViewModelBase, INotifyPropertyChanging
+    public class DeviceExplorerViewModel : ObservableObject
     {
         public const int WRITE_TO_OUTPUT_TOKEN = 1;
         public const int SELECTED_NULL_TOKEN = 2;
@@ -44,12 +31,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
         private const int SerialDeviceReconnectMaximumAttempts = 4 * 10;
         private ConnectionSource _lastDeviceConnectionSource;
 
-        // keep this here otherwise Fody won't be able to properly implement INotifyPropertyChanging
-#pragma warning disable 67
-        public event PropertyChangingEventHandler PropertyChanging;
-#pragma warning restore 67
-
-        private bool _deviceEnumerationCompleted { get; set; }
+        private bool _deviceEnumerationCompleted;
 
         /// <summary>
         /// Sets if Device Explorer should auto-select a device when there is only a single one in the available list.
@@ -64,41 +46,43 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
         /// <summary>
         /// Gets the service provider from the owner package.
         /// </summary>
-        private IServiceProvider _serviceProvider
+        private IServiceProvider _serviceProvider => Package;
+
+        private INanoDeviceCommService _nanoDeviceCommService;
+        public INanoDeviceCommService NanoDeviceCommService
         {
-            get
+            get => _nanoDeviceCommService;
+            set
             {
-                return Package;
+                if (SetProperty(ref _nanoDeviceCommService, value))
+                {
+                    OnNanoDeviceCommServiceChanged();
+                }
             }
         }
-
-        public INanoDeviceCommService NanoDeviceCommService { private get; set; }
 
         /// <summary>
         /// Initializes a new instance of the MainViewModel class.
         /// </summary>
         public DeviceExplorerViewModel()
         {
-            if (IsInDesignMode)
-            {
-                // Code runs in Blend --> create design time data.
-                AvailableDevices = new ObservableCollection<NanoDeviceBase>();
-
-                //AvailableDevices.Add(new NanoDevice<NanoSerialDevice>() { Description = "Awesome nanodevice1" });
-                //AvailableDevices.Add(new NanoDevice<NanoSerialDevice>() { Description = "Awesome nanodevice2" });
-            }
-            else
-            {
-                // Code runs "for real"
-                AvailableDevices = new ObservableCollection<NanoDeviceBase>();
-            }
-
+            AvailableDevices = new ObservableCollection<NanoDeviceBase>();
             SelectedDevice = null;
         }
 
-        public ObservableCollection<NanoDeviceBase> AvailableDevices { set; get; }
+        private ObservableCollection<NanoDeviceBase> _availableDevices;
+        public ObservableCollection<NanoDeviceBase> AvailableDevices
+        {
+            get => _availableDevices;
+            set => SetProperty(ref _availableDevices, value);
+        }
 
-        public NanoDeviceBase SelectedDevice { get; set; }
+        private NanoDeviceBase _selectedDevice;
+        public NanoDeviceBase SelectedDevice
+        {
+            get => _selectedDevice;
+            set => SetProperty(ref _selectedDevice, value);
+        }
 
         public string DeviceToReSelect { get; set; } = null;
 
@@ -107,7 +91,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
             if (NanoDeviceCommService != null)
             {
                 NanoDeviceCommService.DebugClient.DeviceEnumerationCompleted += SerialDebugClient_DeviceEnumerationCompleted;
-
                 NanoDeviceCommService.DebugClient.LogMessageAvailable += DebugClient_LogMessageAvailable;
             }
         }
@@ -126,7 +109,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
 
             UpdateAvailableDevices();
 
-            MessengerInstance.Send(new NotificationMessage(""), MessagingTokens.NanoDevicesDeviceEnumerationCompleted);
+            WeakReferenceMessenger.Default.Send(new NanoDeviceEnumerationCompletedMessage());
         }
 
         private void UpdateAvailableDevices()
@@ -170,7 +153,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
                 // launch firmware update task
                 foreach (var d in AvailableDevices)
                 {
-                    MessengerInstance.Send(new NotificationMessage(d.ConnectionId.ToString()), MessagingTokens.LaunchFirmwareUpdateForNanoDevice);
+                    WeakReferenceMessenger.Default.Send(new LaunchFirmwareUpdateForNanoDeviceMessage(d.ConnectionId));
                 }
             }
         }
@@ -193,14 +176,14 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
                     break;
             }
 
-            MessengerInstance.Send(new NotificationMessage(""), MessagingTokens.NanoDevicesCollectionHasChanged);
+            WeakReferenceMessenger.Default.Send(new NanoDevicesCollectionHasChangedMessage());
 
             // launch update for arriving devices, if any
             if (e.NewItems != null)
             {
                 foreach (var d in e.NewItems)
                 {
-                    MessengerInstance.Send(new NotificationMessage((d as NanoDeviceBase).ConnectionId.ToString()), MessagingTokens.LaunchFirmwareUpdateForNanoDevice);
+                    WeakReferenceMessenger.Default.Send(new LaunchFirmwareUpdateForNanoDeviceMessage((d as NanoDeviceBase).ConnectionId));
                 }
             }
 
@@ -209,7 +192,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
             {
                 foreach (var d in e.OldItems)
                 {
-                    MessengerInstance.Send(new NotificationMessage((d as NanoDeviceBase).ConnectionId.ToString()), MessagingTokens.NanoDeviceHasDeparted);
+                    WeakReferenceMessenger.Default.Send(new NanoDeviceHasDepartedMessage((d as NanoDeviceBase).ConnectionId));
                 }
             }
 
@@ -256,13 +239,13 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
             SelectedDevice = nanoDevice;
 
             // request forced selection of device in UI
-            _ = Task.Run(() => { MessengerInstance.Send(new NotificationMessage(""), MessagingTokens.ForceSelectionOfNanoDevice); });
+            _ = Task.Run(() => { WeakReferenceMessenger.Default.Send(new ForceSelectionOfNanoDeviceMessage()); });
         }
 
         public void ForceNanoDeviceSelection()
         {
             // request forced selection of device in UI
-            _ = Task.Run(() => { MessengerInstance.Send(new NotificationMessage(""), MessagingTokens.ForceSelectionOfNanoDevice); });
+            _ = Task.Run(() => { WeakReferenceMessenger.Default.Send(new ForceSelectionOfNanoDeviceMessage()); });
         }
 
         public void OnSelectedDeviceChanged()
@@ -271,15 +254,25 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
             LastDeviceConnectedHash = 0;
 
             // signal event that the selected device has changed
-            MessengerInstance.Send(new NotificationMessage(""), MessagingTokens.SelectedNanoDeviceHasChanged);
+            WeakReferenceMessenger.Default.Send(new SelectedNanoDeviceHasChangedMessage());
         }
-
 
         #region Transport
 
         public List<Debugger.WireProtocol.TransportType> AvailableTransportTypes { get; set; }
 
-        public Debugger.WireProtocol.TransportType SelectedTransportType { get; set; }
+        private Debugger.WireProtocol.TransportType _selectedTransportType;
+        public Debugger.WireProtocol.TransportType SelectedTransportType
+        {
+            get => _selectedTransportType;
+            set
+            {
+                if (SetProperty(ref _selectedTransportType, value))
+                {
+                    OnSelectedTransportTypeChanged();
+                }
+            }
+        }
 
         public void OnSelectedTransportTypeChanged()
         {
@@ -287,7 +280,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
         }
 
         #endregion
-
 
         #region Device Capabilities
 
@@ -309,29 +301,15 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
         /// <summary>
         /// used to store connection information about a previously connect device
         /// </summary>
-        public ConnectionSource LastDeviceConnectionSource 
-        { 
-            get
-            {
-                if (LastDeviceConnectedHash != 0)
-                {
-                    return _lastDeviceConnectionSource;
-                }
-                else
-                {
-                    return ConnectionSource.Unknown;
-                }
-            }
-
-            set
-            {
-                _lastDeviceConnectionSource = value;
-            }
+        public ConnectionSource LastDeviceConnectionSource
+        {
+            get => LastDeviceConnectedHash != 0 ? _lastDeviceConnectionSource : ConnectionSource.Unknown;
+            set => SetProperty(ref _lastDeviceConnectionSource, value);
         }
 
         #endregion
 
-        # region Network configuration dialog
+        #region Network configuration dialog
 
         public DeviceConfiguration.NetworkConfigurationProperties DeviceNetworkConfiguration { get; set; }
 
@@ -340,43 +318,52 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
         public DeviceConfiguration.X509CaRootBundleProperties CaCertificateBundle { get; set; }
         public DeviceConfiguration.X509DeviceCertificatesProperties DeviceCertificate { get; internal set; }
 
-        public bool CanChangeMacAddress
-        {
-
-            get
-            {
-                if (SelectedDevice is null)
-                {
-                    return false;
-                }
-                else
-                {
-                    if (SelectedDevice.DebugEngine != null &&
-                        !SelectedDevice.DebugEngine.Capabilities.IsUnknown)
-                    {
-                        return SelectedDevice.DebugEngine.Capabilities.CanChangeMacAddress;
-                    }
-                    else
-                    {
-                        return false;
-                    }
-                }
-            }
-        }
+        public bool CanChangeMacAddress => SelectedDevice?.DebugEngine?.Capabilities?.CanChangeMacAddress ?? false;
 
         #endregion
 
         #region messaging tokens
 
-        public static class MessagingTokens
+        public sealed class Messages
         {
-            public static readonly string SelectedNanoDeviceHasChanged = new Guid("{C3173983-A19A-49DD-A4BD-F25D360F7334}").ToString();
-            public static readonly string NanoDevicesCollectionHasChanged = new Guid("{3E8906F9-F68A-45B7-A0CE-6D42BDB22455}").ToString();
-            public static readonly string NanoDevicesDeviceEnumerationCompleted = new Guid("{347E2874-212C-4BC8-BB38-16E91FFCAB32}").ToString();
-            public static readonly string ForceSelectionOfNanoDevice = new Guid("{8F012794-BC66-429D-9F9D-A9B0F546D6B5}").ToString();
-            public static readonly string LaunchFirmwareUpdateForNanoDevice = new Guid("{93822E8C-4A94-4573-AC4F-DEB7FA703933}").ToString();
-            public static readonly string NanoDeviceHasDeparted = new Guid("{38429FA1-3C16-44C2-937E-227C20AC0342}").ToString();
-            public static readonly string VirtualDeviceOperationExecuting = new Guid("{B1B40C6E-5EE7-4A69-BB70-9A8663C928C1}").ToString();
+            public sealed class NanoDeviceEnumerationCompletedMessage
+            {
+            }
+
+            public sealed class NanoDevicesCollectionHasChangedMessage
+            {
+
+            }
+
+            public sealed class ForceSelectionOfNanoDeviceMessage
+            {
+            }
+
+            public sealed class LaunchFirmwareUpdateForNanoDeviceMessage : ValueChangedMessage<string>
+            {
+                public LaunchFirmwareUpdateForNanoDeviceMessage(string value) : base(value)
+                {
+                }
+            }
+
+            public sealed class NanoDeviceHasDepartedMessage : ValueChangedMessage<string>
+            {
+                public NanoDeviceHasDepartedMessage(string value) : base(value)
+                {
+                }
+            }
+
+            public sealed class SelectedNanoDeviceHasChangedMessage
+            {
+            }
+
+            public sealed class VirtualDeviceOperationExecutingMessage : ValueChangedMessage<bool>
+            {
+                public VirtualDeviceOperationExecutingMessage(bool value) : base(value)
+                {
+                }
+            }
+
         }
 
         #endregion

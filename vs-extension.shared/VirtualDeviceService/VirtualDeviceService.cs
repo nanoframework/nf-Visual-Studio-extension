@@ -5,7 +5,7 @@
 
 using CliWrap;
 using CliWrap.Buffered;
-using GalaSoft.MvvmLight.Messaging;
+using CommunityToolkit.Mvvm.Messaging;
 using Microsoft;
 using Microsoft.VisualStudio.Shell;
 using nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel;
@@ -17,6 +17,7 @@ using System.Net.Http;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using static nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel.DeviceExplorerViewModel.Messages;
 using Task = System.Threading.Tasks.Task;
 
 namespace nanoFramework.Tools.VisualStudio.Extension
@@ -103,7 +104,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             MessageCentre.InternalErrorWriteLine($"VirtualDevice: Install/update nanoclr tool");
 
             // signal install/update ongoing
-            Messenger.Default.Send(new NotificationMessage(true.ToString()), DeviceExplorerViewModel.MessagingTokens.VirtualDeviceOperationExecuting);
+            WeakReferenceMessenger.Default.Send(new VirtualDeviceOperationExecutingMessage(true));
 
 
             // get installed tool version (if installed)
@@ -216,7 +217,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             }
 
             // signal install/update completed
-            Messenger.Default.Send(new NotificationMessage(false.ToString()), DeviceExplorerViewModel.MessagingTokens.VirtualDeviceOperationExecuting);
+            WeakReferenceMessenger.Default.Send(new VirtualDeviceOperationExecutingMessage(false));
         }
 
         public void UpdateNanoClr()
@@ -388,7 +389,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync(CancellationToken.None);
 
             // signal start operation
-            Messenger.Default.Send(new NotificationMessage(true.ToString()), DeviceExplorerViewModel.MessagingTokens.VirtualDeviceOperationExecuting);
+            WeakReferenceMessenger.Default.Send(new VirtualDeviceOperationExecutingMessage(true));
 
             MessageCentre.InternalErrorWriteLine($"VirtualDevice: Attempting to start virtual device");
 
@@ -563,7 +564,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             finally
             {
                 // signal start operation completed
-                Messenger.Default.Send(new NotificationMessage(false.ToString()), DeviceExplorerViewModel.MessagingTokens.VirtualDeviceOperationExecuting);
+                WeakReferenceMessenger.Default.Send(new VirtualDeviceOperationExecutingMessage(false));
 
                 // rescan devices, if start was successful and this wasn't requested to skip
                 if (_nanoClrProcess != null

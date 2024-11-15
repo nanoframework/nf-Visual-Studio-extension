@@ -39,9 +39,9 @@
       },
       "Nerdbank.GitVersioning": {
         "type": "Direct",
-        "requested": "[3.5.104, )",
-        "resolved": "3.5.104",
-        "contentHash": "U2rlnA+5RxROC53NXtcbX+ZZUajdcuBLQ/OgZF9abOZZzCBuqxUThx1rsQ+Lw8MMy8CU2o6Ctz0q3zz0bM5J8g=="
+        "requested": "[3.6.146, )",
+        "resolved": "3.6.146",
+        "contentHash": "W1eQ8hD9Y/cZ2+ilgxECl003xr1hybpN3fMxoTlMqg++BixETBMWzS4y9s08oHJKXgKtudsoxhITNOEf1OR66w=="
       },
       "Microsoft.CodeAnalysis.BannedApiAnalyzers": {
         "type": "Transitive",

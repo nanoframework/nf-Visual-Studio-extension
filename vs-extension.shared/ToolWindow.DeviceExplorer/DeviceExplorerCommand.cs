@@ -5,14 +5,15 @@ using System;
 using System.ComponentModel.Design;
 using System.Text;
 using System.Windows;
-using GalaSoft.MvvmLight.Ioc;
-using GalaSoft.MvvmLight.Messaging;
+using CommunityToolkit.Mvvm.DependencyInjection;
+using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.VisualStudio.Shell;
 using nanoFramework.Tools.Debugger;
 using nanoFramework.Tools.Debugger.Extensions;
 using nanoFramework.Tools.Debugger.NFDevice;
 using nanoFramework.Tools.Debugger.WireProtocol;
 using nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel;
+using static nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel.DeviceExplorerViewModel.Messages;
 using Task = System.Threading.Tasks.Task;
 
 namespace nanoFramework.Tools.VisualStudio.Extension
@@ -41,7 +42,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 #error "Missing dev version constant. Maybe the platform is not correctly set? (x64 for VS2022 and AnyCPU for VS2019)."
 #endif
 
-        private ViewModelLocator ViewModelLocator;
+        //private ViewModelLocator ViewModelLocator;
 
         /// <summary>
         /// VS Package that provides this command, not null.
@@ -129,7 +130,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         /// Initializes the singleton instance of the command.
         /// </summary>
         /// <param name="package">Owner package, not null.</param>
-        public static async Task InitializeAsync(AsyncPackage package, ViewModelLocator vmLocator)
+        public static async Task InitializeAsync(AsyncPackage package)
         {
             // Switch to the main thread - the call to AddCommand in ToolWindow1Command's constructor requires
             // the UI thread.
@@ -139,20 +140,18 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
             Instance = new DeviceExplorerCommand(package, commandService);
 
-            Instance.ViewModelLocator = vmLocator;
-
             var commService = await package.GetServiceAsync(typeof(NanoDeviceCommService));
 
             Instance.NanoDeviceCommService = commService as INanoDeviceCommService;
 
             await Instance.CreateToolbarHandlersAsync();
 
-            SimpleIoc.Default.GetInstance<DeviceExplorerViewModel>().NanoDeviceCommService = Instance.NanoDeviceCommService;
+            Ioc.Default.GetService<DeviceExplorerViewModel>().NanoDeviceCommService = Instance.NanoDeviceCommService;
 
             // setup message listeners to be notified of events occurring in the View Model
-            Messenger.Default.Register<NotificationMessage>(Instance, DeviceExplorerViewModel.MessagingTokens.SelectedNanoDeviceHasChanged, (message) => Instance.SelectedNanoDeviceHasChangedHandlerAsync().ConfigureAwait(false));
-            Messenger.Default.Register<NotificationMessage>(Instance, DeviceExplorerViewModel.MessagingTokens.NanoDevicesCollectionHasChanged, (message) => Instance.NanoDevicesCollectionChangedHandlerAsync().ConfigureAwait(false));
-            Messenger.Default.Register<NotificationMessage>(Instance, DeviceExplorerViewModel.MessagingTokens.NanoDevicesDeviceEnumerationCompleted, (message) => Instance.NanoDevicesDeviceEnumerationCompletedHandlerAsync().ConfigureAwait(false));
+            WeakReferenceMessenger.Default.Register<SelectedNanoDeviceHasChangedMessage>(Instance, static (r, message) => Instance.SelectedNanoDeviceHasChangedHandlerAsync().ConfigureAwait(false));
+            WeakReferenceMessenger.Default.Register<NanoDevicesCollectionHasChangedMessage>(Instance, static (r, message) => Instance.NanoDevicesCollectionChangedHandlerAsync().ConfigureAwait(false));
+            WeakReferenceMessenger.Default.Register<NanoDeviceEnumerationCompletedMessage>(Instance, static (r, message) => Instance.NanoDevicesDeviceEnumerationCompletedHandlerAsync().ConfigureAwait(false));
         }
 
         private async Task CreateToolbarHandlersAsync()
@@ -300,7 +299,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
             await Task.Run(async delegate
             {
-                var descriptionBackup = ViewModelLocator.DeviceExplorer.SelectedDevice.Description;
+                var deviceExplorer = Ioc.Default.GetService<DeviceExplorerViewModel>();
+
+                var descriptionBackup = deviceExplorer.SelectedDevice.Description;
 
                 MessageCentre.StartProgressMessage($"Pinging {descriptionBackup}...");
                 GlobalExclusiveDeviceAccess exclusiveAccess = null;
@@ -310,10 +311,10 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     await UpdateDeviceDependentToolbarButtonsAsync(false);
 
                     // make sure this device is showing as selected in Device Explorer tree view
-                    ViewModelLocator.DeviceExplorer.ForceNanoDeviceSelection();
+                    deviceExplorer.ForceNanoDeviceSelection();
 
                     // Get exclusive access to the device, but don't wait forever
-                    exclusiveAccess = GlobalExclusiveDeviceAccess.TryGet(ViewModelLocator.DeviceExplorer.SelectedDevice, ExclusiveAccessTimeout);
+                    exclusiveAccess = GlobalExclusiveDeviceAccess.TryGet(deviceExplorer.SelectedDevice, ExclusiveAccessTimeout);
                     if (exclusiveAccess is null)
                     {
                         MessageCentre.OutputMessage($"Cannot access {descriptionBackup}, another application is using the device.");
@@ -382,7 +383,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             // yield to give the UI thread a chance to respond to user input
             await Task.Yield();
 
-            var descriptionBackup = ViewModelLocator.DeviceExplorer.SelectedDevice.Description;
+            var deviceExplorer = Ioc.Default.GetService<DeviceExplorerViewModel>();
+
+            var descriptionBackup = deviceExplorer.SelectedDevice.Description;
 
             MessageCentre.StartProgressMessage($"Querying {descriptionBackup} capabilities...");
 
@@ -395,13 +398,13 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     await UpdateDeviceDependentToolbarButtonsAsync(false);
 
                     // make sure this device is showing as selected in Device Explorer tree view
-                    ViewModelLocator.DeviceExplorer.ForceNanoDeviceSelection();
+                    deviceExplorer.ForceNanoDeviceSelection();
 
                     // only query device if it's different 
-                    if (descriptionBackup.GetHashCode() != ViewModelLocator.DeviceExplorer.LastDeviceConnectedHash)
+                    if (descriptionBackup.GetHashCode() != deviceExplorer.LastDeviceConnectedHash)
                     {
                         // Get exclusive access to the device, but don't wait forever
-                        exclusiveAccess = GlobalExclusiveDeviceAccess.TryGet(ViewModelLocator.DeviceExplorer.SelectedDevice, ExclusiveAccessTimeout);
+                        exclusiveAccess = GlobalExclusiveDeviceAccess.TryGet(deviceExplorer.SelectedDevice, ExclusiveAccessTimeout);
                         if (exclusiveAccess is null)
                         {
                             MessageCentre.OutputMessage($"Cannot access {descriptionBackup}, another application is using the device.");
@@ -420,9 +423,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                             true))
                         {
                             // keep device description hash code to avoid get info twice
-                            ViewModelLocator.DeviceExplorer.LastDeviceConnectedHash = descriptionBackup.GetHashCode();
+                            deviceExplorer.LastDeviceConnectedHash = descriptionBackup.GetHashCode();
                             // also store connection source
-                            ViewModelLocator.DeviceExplorer.LastDeviceConnectionSource = NanoDeviceCommService.Device.DebugEngine.ConnectionSource;
+                            deviceExplorer.LastDeviceConnectionSource = NanoDeviceCommService.Device.DebugEngine.ConnectionSource;
 
                             // check that we are in CLR
                             if (NanoDeviceCommService.Device.DebugEngine.IsConnectedTonanoCLR)
@@ -439,17 +442,17 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                                     if (deviceInfo.Valid)
                                     {
                                         // load view model properties for maps
-                                        ViewModelLocator.DeviceExplorer.DeviceMemoryMap = new StringBuilder(memoryMap?.ToStringForOutput() ?? "Empty");
-                                        ViewModelLocator.DeviceExplorer.DeviceFlashSectorMap = new StringBuilder(flashMap?.ToStringForOutput() ?? "Empty");
-                                        ViewModelLocator.DeviceExplorer.DeviceDeploymentMap = new StringBuilder(deploymentMap?.ToStringForOutput() ?? "Empty");
+                                        deviceExplorer.DeviceMemoryMap = new StringBuilder(memoryMap?.ToStringForOutput() ?? "Empty");
+                                        deviceExplorer.DeviceFlashSectorMap = new StringBuilder(flashMap?.ToStringForOutput() ?? "Empty");
+                                        deviceExplorer.DeviceDeploymentMap = new StringBuilder(deploymentMap?.ToStringForOutput() ?? "Empty");
 
                                         // load view model property for system
-                                        ViewModelLocator.DeviceExplorer.DeviceSystemInfo = new StringBuilder(deviceInfo?.ToString() ?? "Empty");
+                                        deviceExplorer.DeviceSystemInfo = new StringBuilder(deviceInfo?.ToString() ?? "Empty");
                                     }
                                     else
                                     {
                                         // reset property to force that device capabilities are retrieved on next connection
-                                        ViewModelLocator.DeviceExplorer.LastDeviceConnectedHash = 0;
+                                        deviceExplorer.LastDeviceConnectedHash = 0;
 
                                         // report issue to user
                                         MessageCentre.OutputMessage($"Error retrieving device information from {descriptionBackup}. Please reconnect device.");
@@ -460,7 +463,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                                 catch
                                 {
                                     // reset property to force that device capabilities are retrieved on next connection
-                                    ViewModelLocator.DeviceExplorer.LastDeviceConnectedHash = 0;
+                                    deviceExplorer.LastDeviceConnectedHash = 0;
 
                                     // report issue to user
                                     MessageCentre.OutputMessage($"Error retrieving device information from {descriptionBackup}. Please reconnect device.");
@@ -480,12 +483,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                                     if (deviceInfo != null)
                                     {
                                         // load view model properties for maps
-                                        ViewModelLocator.DeviceExplorer.TargetInfo = new StringBuilder(deviceInfo.ToString() ?? "Empty");
+                                        deviceExplorer.TargetInfo = new StringBuilder(deviceInfo.ToString() ?? "Empty");
                                     }
                                     else
                                     {
                                         // reset property to force that device capabilities are retrieved on next connection
-                                        ViewModelLocator.DeviceExplorer.LastDeviceConnectedHash = 0;
+                                        deviceExplorer.LastDeviceConnectedHash = 0;
 
                                         // report issue to user
                                         MessageCentre.OutputMessage($"Error retrieving device information from {descriptionBackup}. Please reconnect device.");
@@ -496,7 +499,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                                 catch
                                 {
                                     // reset property to force that device capabilities are retrieved on next connection
-                                    ViewModelLocator.DeviceExplorer.LastDeviceConnectedHash = 0;
+                                    deviceExplorer.LastDeviceConnectedHash = 0;
 
                                     // report issue to user
                                     MessageCentre.OutputMessage($"Error retrieving device information from {descriptionBackup}. Please reconnect device.");
@@ -508,7 +511,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         else
                         {
                             // reset property to force that device capabilities are retrieved on next connection
-                            ViewModelLocator.DeviceExplorer.LastDeviceConnectedHash = 0;
+                            deviceExplorer.LastDeviceConnectedHash = 0;
 
                             MessageCentre.OutputMessage($"{descriptionBackup} is not responding, please reboot the device.");
 
@@ -520,36 +523,36 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                     }
 
-                    if (ViewModelLocator.DeviceExplorer.LastDeviceConnectionSource == ConnectionSource.nanoCLR)
+                    if (deviceExplorer.LastDeviceConnectionSource == ConnectionSource.nanoCLR)
                     {
                         // CLR, output full details
                         MessageCentre.OutputMessage(string.Empty);
                         MessageCentre.OutputMessage(string.Empty);
                         MessageCentre.OutputMessage("System Information");
-                        MessageCentre.OutputMessage(ViewModelLocator.DeviceExplorer.DeviceSystemInfo.ToString());
+                        MessageCentre.OutputMessage(deviceExplorer.DeviceSystemInfo.ToString());
 
                         MessageCentre.OutputMessage(string.Empty);
                         MessageCentre.OutputMessage(string.Empty);
-                        MessageCentre.OutputMessage(ViewModelLocator.DeviceExplorer.DeviceMemoryMap.ToString());
+                        MessageCentre.OutputMessage(deviceExplorer.DeviceMemoryMap.ToString());
 
                         MessageCentre.OutputMessage(string.Empty);
                         MessageCentre.OutputMessage(string.Empty);
-                        MessageCentre.OutputMessage(ViewModelLocator.DeviceExplorer.DeviceFlashSectorMap.ToString());
+                        MessageCentre.OutputMessage(deviceExplorer.DeviceFlashSectorMap.ToString());
 
                         MessageCentre.OutputMessage(string.Empty);
                         MessageCentre.OutputMessage(string.Empty);
                         MessageCentre.OutputMessage("Deployment Map");
-                        MessageCentre.OutputMessage(ViewModelLocator.DeviceExplorer.DeviceDeploymentMap.ToString());
+                        MessageCentre.OutputMessage(deviceExplorer.DeviceDeploymentMap.ToString());
                         MessageCentre.OutputMessage(string.Empty);
                     }
-                    else if (ViewModelLocator.DeviceExplorer.LastDeviceConnectionSource == ConnectionSource.nanoBooter)
+                    else if (deviceExplorer.LastDeviceConnectionSource == ConnectionSource.nanoBooter)
                     {
                         // booter, can only output minimal details
 
                         MessageCentre.OutputMessage(string.Empty);
                         MessageCentre.OutputMessage(string.Empty);
                         MessageCentre.OutputMessage("Target Information");
-                        MessageCentre.OutputMessage(ViewModelLocator.DeviceExplorer.TargetInfo.ToString());
+                        MessageCentre.OutputMessage(deviceExplorer.TargetInfo.ToString());
                     }
                     else
                     {
@@ -589,7 +592,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             // yield to give the UI thread a chance to respond to user input
             await Task.Yield();
 
-            var descriptionBackup = ViewModelLocator.DeviceExplorer.SelectedDevice.Description;
+            var deviceExplorer = Ioc.Default.GetService<DeviceExplorerViewModel>();
+
+            var descriptionBackup = deviceExplorer.SelectedDevice.Description;
 
             var logProgressIndicator = new Progress<string>(MessageCentre.InternalErrorWriteLine);
             var progressIndicator = new Progress<MessageWithProgress>((m) => MessageCentre.StartMessageWithProgress(m));
@@ -605,10 +610,10 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     await UpdateDeviceDependentToolbarButtonsAsync(false);
 
                     // make sure this device is showing as selected in Device Explorer tree view
-                    ViewModelLocator.DeviceExplorer.ForceNanoDeviceSelection();
+                    deviceExplorer.ForceNanoDeviceSelection();
 
                     // Get exclusive access to the device, but don't wait forever
-                    exclusiveAccess = GlobalExclusiveDeviceAccess.TryGet(ViewModelLocator.DeviceExplorer.SelectedDevice, ExclusiveAccessTimeout);
+                    exclusiveAccess = GlobalExclusiveDeviceAccess.TryGet(deviceExplorer.SelectedDevice, ExclusiveAccessTimeout);
                     if (exclusiveAccess is null)
                     {
                         MessageCentre.OutputMessage($"Cannot access {descriptionBackup}, another application is using the device.");
@@ -634,7 +639,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                                 MessageCentre.OutputMessage($"{descriptionBackup} deployment area erased.");
 
                                 // reset the hash for the connected device so the deployment information can be refreshed, if and when requested
-                                ViewModelLocator.DeviceExplorer.LastDeviceConnectedHash = 0;
+                                deviceExplorer.LastDeviceConnectedHash = 0;
 
                                 // yield to give the UI thread a chance to respond to user input
                                 await Task.Yield();
@@ -656,7 +661,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     else
                     {
                         // reset property to force that device capabilities are retrieved on next connection
-                        ViewModelLocator.DeviceExplorer.LastDeviceConnectedHash = 0;
+                        deviceExplorer.LastDeviceConnectedHash = 0;
 
                         MessageCentre.OutputMessage($"{descriptionBackup} is not responding, please reboot the device.");
 
@@ -696,7 +701,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             // yield to give the UI thread a chance to respond to user input
             await Task.Yield();
 
-            var descriptionBackup = ViewModelLocator.DeviceExplorer.SelectedDevice.Description;
+            var deviceExplorer = Ioc.Default.GetService<DeviceExplorerViewModel>();
+
+            var descriptionBackup = deviceExplorer.SelectedDevice.Description;
 
             await Task.Run(async delegate
             {
@@ -707,13 +714,13 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     await UpdateDeviceDependentToolbarButtonsAsync(false);
 
                     // make sure this device is showing as selected in Device Explorer tree view
-                    ViewModelLocator.DeviceExplorer.ForceNanoDeviceSelection();
+                    deviceExplorer.ForceNanoDeviceSelection();
 
                     // Get exclusive access to the device, but don't wait forever
-                    exclusiveAccess = GlobalExclusiveDeviceAccess.TryGet(ViewModelLocator.DeviceExplorer.SelectedDevice, ExclusiveAccessTimeout);
+                    exclusiveAccess = GlobalExclusiveDeviceAccess.TryGet(deviceExplorer.SelectedDevice, ExclusiveAccessTimeout);
                     if (exclusiveAccess is null)
                     {
-                        _ = MessageBox.Show($"Cannot access {ViewModelLocator.DeviceExplorer.SelectedDevice.Description}, another application is using the device.",
+                        _ = MessageBox.Show($"Cannot access {deviceExplorer.SelectedDevice.Description}, another application is using the device.",
                                             ".NET nanoFramework Device Explorer",
                                             MessageBoxButton.OK,
                                             MessageBoxImage.Error);
@@ -736,11 +743,11 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                             if (networkConfigurations.Count > 0)
                             {
-                                ViewModelLocator.DeviceExplorer.DeviceNetworkConfiguration = networkConfigurations[0];
+                                deviceExplorer.DeviceNetworkConfiguration = networkConfigurations[0];
                             }
                             else
                             {
-                                ViewModelLocator.DeviceExplorer.DeviceNetworkConfiguration = new DeviceConfiguration.NetworkConfigurationProperties();
+                                deviceExplorer.DeviceNetworkConfiguration = new DeviceConfiguration.NetworkConfigurationProperties();
                             }
 
                             // for now, just get the 1st Wi-Fi configuration, if exists
@@ -748,11 +755,11 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                             if (wirellesConfigurations.Count > 0)
                             {
-                                ViewModelLocator.DeviceExplorer.DeviceWireless80211Configuration = wirellesConfigurations[0];
+                                deviceExplorer.DeviceWireless80211Configuration = wirellesConfigurations[0];
                             }
                             else
                             {
-                                ViewModelLocator.DeviceExplorer.DeviceWireless80211Configuration = new DeviceConfiguration.Wireless80211ConfigurationProperties();
+                                deviceExplorer.DeviceWireless80211Configuration = new DeviceConfiguration.Wireless80211ConfigurationProperties();
                             }
 
                             // yield to give the UI thread a chance to respond to user input
@@ -840,14 +847,16 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     // disable buttons
                     await UpdateDeviceDependentToolbarButtonsAsync(false);
 
+                    var deviceExplorer = Ioc.Default.GetService<DeviceExplorerViewModel>();
+
                     // make sure this device is showing as selected in Device Explorer tree view
-                    ViewModelLocator.DeviceExplorer.ForceNanoDeviceSelection();
+                    deviceExplorer.ForceNanoDeviceSelection();
 
                     // Get exclusive access to the device, but don't wait forever
-                    exclusiveAccess = GlobalExclusiveDeviceAccess.TryGet(ViewModelLocator.DeviceExplorer.SelectedDevice, ExclusiveAccessTimeout);
+                    exclusiveAccess = GlobalExclusiveDeviceAccess.TryGet(deviceExplorer.SelectedDevice, ExclusiveAccessTimeout);
                     if (exclusiveAccess is null)
                     {
-                        MessageCentre.OutputMessage($"Cannot access {ViewModelLocator.DeviceExplorer.SelectedDevice.Description}, another application is using the device.");
+                        MessageCentre.OutputMessage($"Cannot access {deviceExplorer.SelectedDevice.Description}, another application is using the device.");
                         return;
                     }
 
@@ -870,7 +879,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         try
                         {
                             // reset the hash for the connected device so the deployment information can be refreshed, if and when requested
-                            ViewModelLocator.DeviceExplorer.LastDeviceConnectedHash = 0;
+                            deviceExplorer.LastDeviceConnectedHash = 0;
 
                             // set reboot option according to the button that was clicked
                             RebootOptions rebootOption = RebootOptions.NormalReboot;
@@ -910,7 +919,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                             await Task.Yield();
 
                             // reset property to force that device capabilities are retrieved on next connection
-                            ViewModelLocator.DeviceExplorer.LastDeviceConnectedHash = 0;
+                            deviceExplorer.LastDeviceConnectedHash = 0;
                         }
                         catch
                         {
@@ -923,7 +932,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     else
                     {
                         // reset property to force that device capabilities are retrieved on next connection
-                        ViewModelLocator.DeviceExplorer.LastDeviceConnectedHash = 0;
+                        deviceExplorer.LastDeviceConnectedHash = 0;
 
                         MessageCentre.OutputMessage($"{previousSelectedDeviceDescription} is not responding, please reboot the device.");
 
@@ -1019,8 +1028,10 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                 NanoDeviceCommService.DebugClient.StopDeviceWatchers();
 
+                var deviceExplorer = Ioc.Default.GetService<DeviceExplorerViewModel>();
+
                 // need to remove event handler
-                NanoDeviceCommService.DebugClient.NanoFrameworkDevices.CollectionChanged -= ViewModelLocator.DeviceExplorer.NanoFrameworkDevices_CollectionChanged;
+                NanoDeviceCommService.DebugClient.NanoFrameworkDevices.CollectionChanged -= deviceExplorer.NanoFrameworkDevices_CollectionChanged;
 
                 MessageCentre.OutputMessage(Environment.NewLine);
                 MessageCentre.OutputMessage("***********************************************************************************");
@@ -1111,9 +1122,11 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         {
             await Task.Run(async delegate
             {
-                if (ViewModelLocator.DeviceExplorer.SelectedDevice != null)
+                var deviceExplorer = Ioc.Default.GetService<DeviceExplorerViewModel>();
+
+                if (deviceExplorer.SelectedDevice != null)
                 {
-                    NanoDeviceCommService.SelectDevice(ViewModelLocator.DeviceExplorer.SelectedDevice.Description);
+                    NanoDeviceCommService.SelectDevice(deviceExplorer.SelectedDevice.Description);
                 }
                 else
                 {
@@ -1162,11 +1175,13 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 // get the menu command service to reach the toolbar commands
                 var menuCommandService = Instance.MenuCommandService;
 
+                var deviceExplorer = Ioc.Default.GetService<DeviceExplorerViewModel>();
+
                 // are there any devices available
-                if (ViewModelLocator.DeviceExplorer.AvailableDevices.Count > 0)
+                if (deviceExplorer.AvailableDevices.Count > 0)
                 {
                     // any device selected?
-                    if (ViewModelLocator.DeviceExplorer.SelectedDevice != null)
+                    if (deviceExplorer.SelectedDevice != null)
                     {
                         // there is a device selected
                         // enable ping button
@@ -1216,16 +1231,18 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         private void UpdateRebootMenuGroup(OleMenuCommandService menuCommandService)
         {
-            if (ViewModelLocator.DeviceExplorer.SelectedDevice != null)
+            var deviceExplorer = Ioc.Default.GetService<DeviceExplorerViewModel>();
+
+            if (deviceExplorer.SelectedDevice != null)
             {
                 // enable boot to nanoBooter, if available on target
-                menuCommandService.FindCommand(GenerateCommandID(RebootNanoBooterID)).Enabled = ViewModelLocator.DeviceExplorer.SelectedDevice.HasNanoBooter;
+                menuCommandService.FindCommand(GenerateCommandID(RebootNanoBooterID)).Enabled = deviceExplorer.SelectedDevice.HasNanoBooter;
 
                 // enable boot to bootloader, if available on target
-                menuCommandService.FindCommand(GenerateCommandID(RebootBootloaderID)).Enabled = ViewModelLocator.DeviceExplorer.SelectedDevice.HasProprietaryBooter;
+                menuCommandService.FindCommand(GenerateCommandID(RebootBootloaderID)).Enabled = deviceExplorer.SelectedDevice.HasProprietaryBooter;
 
                 // enable boot CLR if we are on CLR
-                menuCommandService.FindCommand(GenerateCommandID(RebootClrID)).Enabled = ViewModelLocator.DeviceExplorer.SelectedDevice.DebugEngine != null ? ViewModelLocator.DeviceExplorer.SelectedDevice.DebugEngine.IsConnectedTonanoCLR : false;
+                menuCommandService.FindCommand(GenerateCommandID(RebootClrID)).Enabled = deviceExplorer.SelectedDevice.DebugEngine != null ? deviceExplorer.SelectedDevice.DebugEngine.IsConnectedTonanoCLR : false;
             }
             else
             {
@@ -1251,7 +1268,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 // are there any devices available
                 if (isEnable)
                 {
-                    if (ViewModelLocator.DeviceExplorer.AvailableDevices.Count == 0)
+                    var deviceExplorer = Ioc.Default.GetService<DeviceExplorerViewModel>();
+
+                    if (deviceExplorer.AvailableDevices.Count == 0)
                     {
                         // no device available!!
                         // done here
@@ -1259,7 +1278,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     }
 
                     // any device selected?
-                    if (ViewModelLocator.DeviceExplorer.SelectedDevice == null)
+                    if (deviceExplorer.SelectedDevice == null)
                     {
                         // no device selected!!
                         // done here

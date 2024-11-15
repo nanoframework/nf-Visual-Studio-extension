@@ -3,16 +3,6 @@
 // See LICENSE file in the project root for full license information.
 //
 
-using GalaSoft.MvvmLight.Ioc;
-using Microsoft;
-using Microsoft.VisualStudio.ProjectSystem.VS;
-using Microsoft.VisualStudio.Shell;
-using Microsoft.VisualStudio.Shell.Interop;
-using Microsoft.VisualStudio.TextTemplating.VSHost;
-using Microsoft.VisualStudio.Threading;
-using nanoFramework.Tools.VisualStudio.Extension;
-using nanoFramework.Tools.VisualStudio.Extension.AutomaticUpdates;
-using nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel;
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -22,7 +12,17 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows;
+using CommunityToolkit.Mvvm.DependencyInjection;
+using Microsoft;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.VisualStudio.ProjectSystem.VS;
+using Microsoft.VisualStudio.Shell;
+using Microsoft.VisualStudio.Shell.Interop;
+using Microsoft.VisualStudio.TextTemplating.VSHost;
+using Microsoft.VisualStudio.Threading;
+using nanoFramework.Tools.VisualStudio.Extension;
+using nanoFramework.Tools.VisualStudio.Extension.AutomaticUpdates;
+using nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel;
 using Task = System.Threading.Tasks.Task;
 
 [assembly: ProjectTypeRegistration(projectTypeGuid: NanoFrameworkPackage.ProjectTypeGuid,
@@ -579,37 +579,32 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         /// <returns>A task representing the async work of package initialization, or an already completed task if there is none. Do not return null from this method.</returns>
         protected override async Task InitializeAsync(CancellationToken cancellationToken, IProgress<ServiceProgressData> progress)
         {
+
             // make sure "our" key exists and it's writable
             s_instance.UserRegistryRoot.CreateSubKey(EXTENSION_SUBKEY, true);
 
             AddService(typeof(NanoDeviceCommService), CreateNanoDeviceCommServiceAsync);
             AddService(typeof(VirtualDeviceService), CreateVirtualDeviceManagerServiceAsync);
 
-            ViewModelLocator viewModelLocator = null;
+            // Configure IoC container
+            Ioc.Default.ConfigureServices(
+                new ServiceCollection()
+                .AddSingleton<DeviceExplorerViewModel>()
+                .BuildServiceProvider());
 
-            // Need to add the View model Locator to the application resource dictionary programmatically 
-            // because at the extension level we don't have 'XAML' access to it
-            // try to find if the view model locator is already in the app resources dictionary
-            if (Application.Current.TryFindResource("Locator") == null)
-            {
-                // instantiate the view model locator...
-                viewModelLocator = new ViewModelLocator();
-
-                // ... and add it there
-                Application.Current.Resources.Add("Locator", viewModelLocator);
-            }
-
-            SimpleIoc.Default.GetInstance<DeviceExplorerViewModel>().Package = this;
+            Ioc.Default.GetService<DeviceExplorerViewModel>().Package = this;
 
             await MessageCentre.InitializeAsync(this, ".NET nanoFramework Extension");
 
-            DeployProvider.Initialize(this, viewModelLocator);
-            UpdateManager.Initialize(this, viewModelLocator);
+            DeployProvider.Initialize(this);
+            UpdateManager.Initialize(this);
+
+            await JoinableTaskFactory.SwitchToMainThreadAsync(cancellationToken);
 
             // Enable debugger UI context
             UIContext.FromUIContextGuid(CorDebug.EngineGuid).IsActive = true;
 
-            await DeviceExplorerCommand.InitializeAsync(this, viewModelLocator);
+            await DeviceExplorerCommand.InitializeAsync(this);
             VirtualDeviceService.InitVirtualDeviceAsync().FireAndForget();
         }
 

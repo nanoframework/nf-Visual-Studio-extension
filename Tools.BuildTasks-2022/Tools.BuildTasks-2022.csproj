@@ -96,16 +96,13 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.Build.Framework">
-      <Version>17.10.4</Version>
+      <Version>17.12.6</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.Build.Utilities.Core">
-      <Version>17.10.4</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.IO.Redist">
-      <Version>6.0.1</Version>
+      <Version>17.11.4</Version>
     </PackageReference>
     <PackageReference Include="Nerdbank.GitVersioning">
-      <Version>3.6.139</Version>
+      <Version>3.6.146</Version>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>

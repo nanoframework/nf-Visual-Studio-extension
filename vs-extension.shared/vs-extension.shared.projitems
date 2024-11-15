@@ -86,7 +86,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)ToolWindow.DeviceExplorer\ViewModel\DesignDataService.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ToolWindow.DeviceExplorer\ViewModel\DeviceExplorerViewModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ToolWindow.DeviceExplorer\ViewModel\IDataService.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)ToolWindow.DeviceExplorer\ViewModel\ViewModelLocator.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utilities\DeploymentImageGenerator.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utilities\EnumToItemsSource.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utilities\ReferenceCrawler.cs" />

@@ -5,12 +5,14 @@
 
 namespace nanoFramework.Tools.VisualStudio.Extension
 {
-    using GalaSoft.MvvmLight.Messaging;
+    using System;
+    using System.Windows.Controls;
+    using CommunityToolkit.Mvvm.DependencyInjection;
+    using CommunityToolkit.Mvvm.Messaging;
     using Microsoft.VisualStudio.Shell;
     using nanoFramework.Tools.Debugger;
     using nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel;
-    using System;
-    using System.Windows.Controls;
+    using static nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel.DeviceExplorerViewModel.Messages;
 
     /// <summary>
     /// Interaction logic for DeviceExplorerControl.
@@ -27,10 +29,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         {
             InitializeComponent();
 
+            DataContext = Ioc.Default.GetService<DeviceExplorerViewModel>();
+
             Loaded += DeviceExplorerControl_Loaded;
 
             deviceTreeView.SelectedItemChanged += DevicesTreeView_SelectedItemChanged;
-            Messenger.Default.Register<NotificationMessage>(this, DeviceExplorerViewModel.MessagingTokens.ForceSelectionOfNanoDevice, (message) => ForceSelectionOfNanoDeviceHandlerAsync().ConfigureAwait(false));
+            WeakReferenceMessenger.Default.Register<ForceSelectionOfNanoDeviceMessage>(this, (r, message) => ForceSelectionOfNanoDeviceHandlerAsync().ConfigureAwait(false));
         }
 
         private void DeviceExplorerControl_Loaded(object sender, System.Windows.RoutedEventArgs e)
@@ -103,11 +107,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     // need to disable the event handler otherwise it will mess the selection
                     deviceTreeView.SelectedItemChanged -= DevicesTreeView_SelectedItemChanged;
 
-
-                    if (deviceItem != null)
-                    {
-                        deviceItem.IsSelected = true;
-                    }
+                    deviceItem.IsSelected = true;
 
                     // enabled it back
                     deviceTreeView.SelectedItemChanged += DevicesTreeView_SelectedItemChanged;
@@ -120,7 +120,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             }
             while (tryCount-- > 0);
 
-            Messenger.Default.Send(new NotificationMessage(""), DeviceExplorerViewModel.MessagingTokens.SelectedNanoDeviceHasChanged);
+            WeakReferenceMessenger.Default.Send(new SelectedNanoDeviceHasChangedMessage());
 
             // force redrawing to show selection
             deviceTreeView.InvalidateVisual();

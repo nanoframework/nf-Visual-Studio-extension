@@ -45,7 +45,7 @@
     <DefineConstants>TRACE;DEBUG;DEV16</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DeployExtension>True</DeployExtension>
+    <DeployExtension>False</DeployExtension>
     <CreateVsixContainer>True</CreateVsixContainer>
     <CodeAnalysisRuleSet>
     </CodeAnalysisRuleSet>
@@ -155,7 +155,6 @@
     </Content>
     <Resource Include="Resources\DeviceCapabilities.16.16.png" />
     <Resource Include="Resources\Ping.16.16.png" />
-    <None Include="FodyWeavers.xml" />
     <Resource Include="Resources\DeviceConnected.16.16.png" />
     <VSCTCompile Include="NanoFrameworkMoniker.vsct">
       <SubType>Designer</SubType>
@@ -480,17 +479,17 @@
     <PackageReference Include="CliWrap">
       <Version>3.5.0</Version>
     </PackageReference>
+    <PackageReference Include="CommunityToolkit.Mvvm">
+      <Version>8.2.2</Version>
+    </PackageReference>
     <PackageReference Include="Extended.Wpf.Toolkit">
       <Version>4.3.0</Version>
-    </PackageReference>
-    <PackageReference Include="Humanizer">
-      <Version>2.14.1</Version>
     </PackageReference>
     <PackageReference Include="ICSharpCode.Decompiler">
       <Version>7.2.1.6856</Version>
     </PackageReference>
-    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces">
-      <Version>6.0.0</Version>
+    <PackageReference Include="MessagePack">
+      <Version>2.3.112</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.Build">
       <Version>16.11.0</Version>
@@ -508,6 +507,9 @@
       <Version>3.3.3</Version>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection">
+      <Version>6.0.2</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.Extensions.Options">
       <Version>6.0.0</Version>
@@ -530,15 +532,6 @@
     <PackageReference Include="Microsoft.VisualStudio.TextTemplating.VSHost.15.0">
       <Version>16.10.31321.278</Version>
     </PackageReference>
-    <PackageReference Include="Microsoft.Win32.Primitives">
-      <Version>4.3.0</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.Win32.Registry">
-      <Version>5.0.0</Version>
-    </PackageReference>
-    <PackageReference Include="MvvmLightLibsStd10">
-      <Version>5.4.1.1</Version>
-    </PackageReference>
     <PackageReference Include="nanoFramework.CoreLibrary" GeneratePathProperty="true">
       <Version>1.15.5</Version>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -547,7 +540,9 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="nanoFramework.Tools.Debugger.Net" Version="2.4.47" />
+    <PackageReference Include="nanoFramework.Tools.Debugger.Net">
+      <Version>2.5.1</Version>
+    </PackageReference>
     <PackageReference Include="nanoFramework.Tools.MetadataProcessor.MsBuildTask" Version="3.0.56" />
     <PackageReference Include="Nerdbank.GitVersioning">
       <Version>3.6.146</Version>
@@ -558,13 +553,7 @@
       <Version>13.0.3</Version>
     </PackageReference>
     <PackageReference Include="NuGet.VisualStudio">
-      <Version>5.11.0</Version>
-    </PackageReference>
-    <PackageReference Include="PropertyChanged.Fody">
-      <Version>2.6.1</Version>
-    </PackageReference>
-    <PackageReference Include="PropertyChanging.Fody">
-      <Version>1.29.3</Version>
+      <Version>5.11.6</Version>
     </PackageReference>
     <PackageReference Include="stdole">
       <Version>16.10.31320.204</Version>
@@ -572,70 +561,16 @@
     <PackageReference Include="StreamJsonRpc">
       <Version>2.8.28</Version>
     </PackageReference>
-    <PackageReference Include="System.Collections">
-      <Version>4.3.0</Version>
-    </PackageReference>
-    <PackageReference Include="System.Collections.Concurrent">
-      <Version>4.3.0</Version>
-    </PackageReference>
     <PackageReference Include="System.Composition">
       <Version>6.0.0</Version>
-    </PackageReference>
-    <PackageReference Include="System.Console">
-      <Version>4.3.1</Version>
-    </PackageReference>
-    <PackageReference Include="System.Diagnostics.Debug">
-      <Version>4.3.0</Version>
-    </PackageReference>
-    <PackageReference Include="System.Diagnostics.DiagnosticSource">
-      <Version>6.0.0</Version>
-    </PackageReference>
-    <PackageReference Include="System.Diagnostics.Tracing">
-      <Version>4.3.0</Version>
-    </PackageReference>
-    <PackageReference Include="System.Dynamic.Runtime">
-      <Version>4.3.0</Version>
-    </PackageReference>
-    <PackageReference Include="System.Globalization.Calendars">
-      <Version>4.3.0</Version>
-    </PackageReference>
-    <PackageReference Include="System.IO.FileSystem">
-      <Version>4.3.0</Version>
-    </PackageReference>
-    <PackageReference Include="System.Linq">
-      <Version>4.3.0</Version>
-    </PackageReference>
-    <PackageReference Include="System.Net.Sockets">
-      <Version>4.3.0</Version>
-    </PackageReference>
-    <PackageReference Include="System.Resources.ResourceManager">
-      <Version>4.3.0</Version>
-    </PackageReference>
-    <PackageReference Include="System.Runtime.Extensions">
-      <Version>4.3.1</Version>
-    </PackageReference>
-    <PackageReference Include="System.Runtime.InteropServices.RuntimeInformation">
-      <Version>4.3.0</Version>
-    </PackageReference>
-    <PackageReference Include="System.Runtime.WindowsRuntime.UI.Xaml">
-      <Version>5.0.0-preview.5.20278.1</Version>
-    </PackageReference>
-    <PackageReference Include="System.Security.Cryptography.Algorithms">
-      <Version>4.3.1</Version>
-    </PackageReference>
-    <PackageReference Include="System.Threading">
-      <Version>4.3.0</Version>
-    </PackageReference>
-    <PackageReference Include="System.Threading.Tasks">
-      <Version>4.3.0</Version>
-    </PackageReference>
-    <PackageReference Include="System.Xml.ReaderWriter">
-      <Version>4.3.1</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.VisualStudio.SDK" Version="16.10.31321.278" ExcludeAssets="runtime">
       <IncludeAssets>compile; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.VSSDK.BuildTools" Version="16.11.35" PrivateAssets="all" IncludeAssets="runtime; build; native; contentfiles; analyzers" />
+    <PackageReference Include="System.Text.Encodings.Web">
+      <Version>4.7.2</Version>
+    </PackageReference>
   </ItemGroup>
   <Import Project="..\vs-extension.shared\vs-extension.shared.projitems" Label="Shared" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
