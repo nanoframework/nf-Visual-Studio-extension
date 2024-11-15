@@ -1,6 +1,6 @@
 {
   "$schema": "https://raw.githubusercontent.com/AArnott/Nerdbank.GitVersioning/master/src/NerdBank.GitVersioning/version.schema.json",
-  "version": "2022.3.0",
+  "version": "2022.12.0",
   "release": {
     "branchName" : "release-v{version}",
     "versionIncrement" : "minor",
