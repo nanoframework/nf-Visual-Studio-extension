@@ -322,7 +322,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     }
 
                     // Get exclusive access to the device, but don't wait forever
-                    exclusiveAccess = GlobalExclusiveDeviceAccess.TryGet(ViewModelLocator.DeviceExplorer.SelectedDevice, ExclusiveAccessTimeout);
+                    exclusiveAccess = GlobalExclusiveDeviceAccess.TryGet(deviceExplorer.SelectedDevice, ExclusiveAccessTimeout);
                     if (exclusiveAccess is null)
                     {
                         MessageCentre.OutputMessage($"Cannot access {descriptionBackup}, another application is using the device.");
@@ -629,7 +629,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     }
 
                     // Get exclusive access to the device, but don't wait forever
-                    exclusiveAccess = GlobalExclusiveDeviceAccess.TryGet(ViewModelLocator.DeviceExplorer.SelectedDevice, ExclusiveAccessTimeout);
+                    exclusiveAccess = GlobalExclusiveDeviceAccess.TryGet(deviceExplorer.SelectedDevice, ExclusiveAccessTimeout);
                     if (exclusiveAccess is null)
                     {
                         MessageCentre.OutputMessage($"Cannot access {descriptionBackup}, another application is using the device.");
@@ -744,10 +744,10 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     }
 
                     // Get exclusive access to the device, but don't wait forever
-                    exclusiveAccess = GlobalExclusiveDeviceAccess.TryGet(ViewModelLocator.DeviceExplorer.SelectedDevice, ExclusiveAccessTimeout);
+                    exclusiveAccess = GlobalExclusiveDeviceAccess.TryGet(deviceExplorer.SelectedDevice, ExclusiveAccessTimeout);
                     if (exclusiveAccess is null)
                     {
-                        _ = MessageBox.Show($"Cannot access {ViewModelLocator.DeviceExplorer.SelectedDevice.Description}, another application is using the device.",
+                        _ = MessageBox.Show($"Cannot access {deviceExplorer.SelectedDevice.Description}, another application is using the device.",
                                             ".NET nanoFramework Device Explorer",
                                             MessageBoxButton.OK,
                                             MessageBoxImage.Error);
@@ -888,10 +888,10 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     }
 
                     // Get exclusive access to the device, but don't wait forever
-                    exclusiveAccess = GlobalExclusiveDeviceAccess.TryGet(ViewModelLocator.DeviceExplorer.SelectedDevice, ExclusiveAccessTimeout);
+                    exclusiveAccess = GlobalExclusiveDeviceAccess.TryGet(deviceExplorer.SelectedDevice, ExclusiveAccessTimeout);
                     if (exclusiveAccess is null)
                     {
-                        MessageCentre.OutputMessage($"Cannot access {ViewModelLocator.DeviceExplorer.SelectedDevice.Description}, another application is using the device.");
+                        MessageCentre.OutputMessage($"Cannot access {deviceExplorer.SelectedDevice.Description}, another application is using the device.");
                         return;
                     }
 
