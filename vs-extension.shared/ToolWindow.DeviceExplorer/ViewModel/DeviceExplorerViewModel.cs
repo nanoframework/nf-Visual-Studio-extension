@@ -116,6 +116,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
 
             WeakReferenceMessenger.Default.Send(new NanoDeviceEnumerationCompletedMessage());
 
+            MessageCentre.StopProgressMessage();
         }
 
         public void NanoFrameworkDevices_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
