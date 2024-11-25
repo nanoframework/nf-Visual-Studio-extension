@@ -502,9 +502,6 @@
     <PackageReference Include="EnvDTE80">
       <Version>17.12.40391</Version>
     </PackageReference>
-    <PackageReference Include="Extended.Wpf.Toolkit">
-      <Version>4.6.1</Version>
-    </PackageReference>
     <PackageReference Include="ICSharpCode.Decompiler">
       <Version>7.2.1.6856</Version>
     </PackageReference>

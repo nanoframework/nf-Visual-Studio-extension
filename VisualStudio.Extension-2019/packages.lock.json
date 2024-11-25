@@ -28,12 +28,6 @@
           "System.Runtime.CompilerServices.Unsafe": "6.0.0"
         }
       },
-      "Extended.Wpf.Toolkit": {
-        "type": "Direct",
-        "requested": "[4.3.0, )",
-        "resolved": "4.3.0",
-        "contentHash": "leG4va9wdAk0R92UoycOwacWGPvgdWpNkfezAojkfjg+zxJlvRXUS4hR/urPVzX2dRZh8c7UxmdBIOW7O6N+OA=="
-      },
       "ICSharpCode.Decompiler": {
         "type": "Direct",
         "requested": "[7.2.1.6856, )",
