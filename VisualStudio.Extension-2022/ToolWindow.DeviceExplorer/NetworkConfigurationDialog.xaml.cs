@@ -7,6 +7,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 {
     using System;
     using System.IO;
+    using System.Linq;
     using System.Net;
     using System.Windows.Forms;
     using CommunityToolkit.Mvvm.DependencyInjection;
@@ -22,6 +23,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
     {
         private static readonly IPAddress EmptyIPAddress = new IPAddress(0x0);
         private static readonly IPAddress DefaultMaskIPv4 = new IPAddress(new byte[] { 255, 255, 255, 0 });
+
+        private DeviceExplorerViewModel DeviceExplorerViewModel => DataContext as DeviceExplorerViewModel;
 
         public NetworkConfigurationDialog(string helpTopic) : base(helpTopic)
         {
@@ -47,7 +50,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         // init controls
         private void InitControls()
         {
-            //var networkConfiguration = DeviceExplorerViewModel.DeviceNetworkConfiguration;
+            var networkConfiguration = DeviceExplorerViewModel.DeviceNetworkConfiguration;
 
             // developer note
             // because our IPMaskedTextBox is missing the required properties and events to support
@@ -56,58 +59,58 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             // network config
             // set IPv4 addresses
             // DHCP ?
-            //if ((networkConfiguration.StartupAddressMode == AddressMode.DHCP) ||
-            //    (networkConfiguration.StartupAddressMode == AddressMode.Invalid))
-            //{
-            //    IPv4Automatic.IsChecked = true;
+            if ((networkConfiguration.StartupAddressMode == AddressMode.DHCP) ||
+                (networkConfiguration.StartupAddressMode == AddressMode.Invalid))
+            {
+                IPv4Automatic.IsChecked = true;
 
-            //    IPv4Address.SetAddress(EmptyIPAddress);
-            //    IPv4NetMask.SetAddress(DefaultMaskIPv4);
-            //    IPv4GatewayAddress.SetAddress(EmptyIPAddress);
-            //}
-            //else
-            //{
-            //    IPv4Manual.IsChecked = true;
+                IPv4Address.SetAddress(EmptyIPAddress);
+                IPv4NetMask.SetAddress(DefaultMaskIPv4);
+                IPv4GatewayAddress.SetAddress(EmptyIPAddress);
+            }
+            else
+            {
+                IPv4Manual.IsChecked = true;
 
-            //    IPv4Address.SetAddress(networkConfiguration.IPv4Address ?? EmptyIPAddress);
-            //    IPv4NetMask.SetAddress(networkConfiguration.IPv4NetMask ?? DefaultMaskIPv4);
-            //    IPv4GatewayAddress.SetAddress(networkConfiguration.IPv4GatewayAddress ?? EmptyIPAddress);
-            //}
+                IPv4Address.SetAddress(networkConfiguration.IPv4Address ?? EmptyIPAddress);
+                IPv4NetMask.SetAddress(networkConfiguration.IPv4NetMask ?? DefaultMaskIPv4);
+                IPv4GatewayAddress.SetAddress(networkConfiguration.IPv4GatewayAddress ?? EmptyIPAddress);
+            }
 
-            //// DNS is automatic?
-            //if (networkConfiguration.AutomaticDNS || networkConfiguration.IsUnknown)
-            //{
-            //    IPv4DnsAutomatic.IsChecked = true;
+            // DNS is automatic?
+            if (networkConfiguration.AutomaticDNS || networkConfiguration.IsUnknown)
+            {
+                IPv4DnsAutomatic.IsChecked = true;
 
-            //    IPv4Dns1Address.SetAddress(EmptyIPAddress);
-            //    IPv4Dns2Address.SetAddress(EmptyIPAddress);
-            //}
-            //else
-            //{
-            //    IPv4DnsManual.IsChecked = true;
+                IPv4Dns1Address.SetAddress(EmptyIPAddress);
+                IPv4Dns2Address.SetAddress(EmptyIPAddress);
+            }
+            else
+            {
+                IPv4DnsManual.IsChecked = true;
 
-            //    IPv4Dns1Address.SetAddress(networkConfiguration.IPv4DNSAddress1 ?? EmptyIPAddress);
-            //    IPv4Dns2Address.SetAddress(networkConfiguration.IPv4DNSAddress2 ?? EmptyIPAddress);
-            //}
+                IPv4Dns1Address.SetAddress(networkConfiguration.IPv4DNSAddress1 ?? EmptyIPAddress);
+                IPv4Dns2Address.SetAddress(networkConfiguration.IPv4DNSAddress2 ?? EmptyIPAddress);
+            }
 
-            //// wireless configuration/properties
-            //// get view model property
-            //var wifiProfile = DeviceExplorerViewModel.DeviceWireless80211Configuration;
+            // wireless configuration/properties
+            // get view model property
+            var wifiProfile = DeviceExplorerViewModel.DeviceWireless80211Configuration;
 
-            //// set pass field if it's available from the model
-            //WiFiPassword.Password = wifiProfile?.Password;
+            // set pass field if it's available from the model
+            WiFiPassword.Password = wifiProfile?.Password;
 
-            //// if there is no valid network interface in the device: enable control for interface type selection
-            //if (DeviceExplorerViewModel.DeviceNetworkConfiguration.IsUnknown)
-            //{
-            //    InterfaceType.IsEnabled = true;
-            //}
+            // if there is no valid network interface in the device: enable control for interface type selection
+            if (DeviceExplorerViewModel.DeviceNetworkConfiguration.IsUnknown)
+            {
+                InterfaceType.IsEnabled = true;
+            }
 
-            //// clear CA root certificate
-            //DeviceExplorerViewModel.CaCertificateBundle = null;
+            // clear CA root certificate
+            DeviceExplorerViewModel.CaCertificateBundle = null;
 
-            //// clear device certificate
-            //DeviceExplorerViewModel.DeviceCertificate = null;
+            // clear device certificate
+            DeviceExplorerViewModel.DeviceCertificate = null;
 
             // set focus on cancel button
             CancelButton.Focus();
@@ -121,146 +124,147 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         private void SaveButton_Click(object sender, System.Windows.RoutedEventArgs e)
         {
             // setup device network configuration block to save
-            //var networkConfigurationToSave = DeviceExplorerViewModel.DeviceNetworkConfiguration;
+            var networkConfigurationToSave = DeviceExplorerViewModel.DeviceNetworkConfiguration;
 
-            //// IPv4 address options
-            //if (IPv4Automatic.IsChecked.GetValueOrDefault())
-            //{
-            //    // IPv4 from DHCP
-            //    networkConfigurationToSave.StartupAddressMode = AddressMode.DHCP;
+            // IPv4 address options
+            if (IPv4Automatic.IsChecked.GetValueOrDefault())
+            {
+                // IPv4 from DHCP
+                networkConfigurationToSave.StartupAddressMode = AddressMode.DHCP;
 
-            //    // clear remaining options
-            //    networkConfigurationToSave.IPv4Address = EmptyIPAddress;
-            //    networkConfigurationToSave.IPv4NetMask = DefaultMaskIPv4;
-            //    networkConfigurationToSave.IPv4GatewayAddress = EmptyIPAddress;
-            //}
-            //else
-            //{
-            //    // IPv4 has static configuration
-            //    networkConfigurationToSave.StartupAddressMode = AddressMode.Static;
+                // clear remaining options
+                networkConfigurationToSave.IPv4Address = EmptyIPAddress;
+                networkConfigurationToSave.IPv4NetMask = DefaultMaskIPv4;
+                networkConfigurationToSave.IPv4GatewayAddress = EmptyIPAddress;
+            }
+            else
+            {
+                // IPv4 has static configuration
+                networkConfigurationToSave.StartupAddressMode = AddressMode.Static;
 
-            //    // clear remaining options
-            //    networkConfigurationToSave.IPv4Address = IPv4Address.GetAddress();
-            //    networkConfigurationToSave.IPv4NetMask = IPv4NetMask.GetAddress();
-            //    networkConfigurationToSave.IPv4GatewayAddress = IPv4GatewayAddress.GetAddress();
-            //}
+                // clear remaining options
+                networkConfigurationToSave.IPv4Address = IPv4Address.GetAddress();
+                networkConfigurationToSave.IPv4NetMask = IPv4NetMask.GetAddress();
+                networkConfigurationToSave.IPv4GatewayAddress = IPv4GatewayAddress.GetAddress();
+            }
 
-            //// IPv4 DNS options
-            //if (IPv4DnsAutomatic.IsChecked.GetValueOrDefault())
-            //{
-            //    // IPv4 DNS is automatic and provided by DHCP server
-            //    networkConfigurationToSave.AutomaticDNS = true;
+            // IPv4 DNS options
+            if (IPv4DnsAutomatic.IsChecked.GetValueOrDefault())
+            {
+                // IPv4 DNS is automatic and provided by DHCP server
+                networkConfigurationToSave.AutomaticDNS = true;
 
-            //    // clear DNS addresses
-            //    networkConfigurationToSave.IPv4DNSAddress1 = EmptyIPAddress;
-            //    networkConfigurationToSave.IPv4DNSAddress2 = EmptyIPAddress;
-            //}
-            //else
-            //{
-            //    // IPv4 DNS is static
-            //    networkConfigurationToSave.AutomaticDNS = false;
+                // clear DNS addresses
+                networkConfigurationToSave.IPv4DNSAddress1 = EmptyIPAddress;
+                networkConfigurationToSave.IPv4DNSAddress2 = EmptyIPAddress;
+            }
+            else
+            {
+                // IPv4 DNS is static
+                networkConfigurationToSave.AutomaticDNS = false;
 
-            //    networkConfigurationToSave.IPv4DNSAddress1 = IPv4Dns1Address.GetAddress();
-            //    networkConfigurationToSave.IPv4DNSAddress2 = IPv4Dns2Address.GetAddress();
-            //}
+                networkConfigurationToSave.IPv4DNSAddress1 = IPv4Dns1Address.GetAddress();
+                networkConfigurationToSave.IPv4DNSAddress2 = IPv4Dns2Address.GetAddress();
+            }
 
-            //// IPv6 options are not being handled for now
-            //// FIXME
-            //networkConfigurationToSave.IPv6Address = EmptyIPAddress;
-            //networkConfigurationToSave.IPv6NetMask = EmptyIPAddress;
-            //networkConfigurationToSave.IPv6GatewayAddress = EmptyIPAddress;
-            //networkConfigurationToSave.IPv6DNSAddress1 = EmptyIPAddress;
-            //networkConfigurationToSave.IPv6DNSAddress2 = EmptyIPAddress;
+            // IPv6 options are not being handled for now
+            // FIXME
+            networkConfigurationToSave.IPv6Address = EmptyIPAddress;
+            networkConfigurationToSave.IPv6NetMask = EmptyIPAddress;
+            networkConfigurationToSave.IPv6GatewayAddress = EmptyIPAddress;
+            networkConfigurationToSave.IPv6DNSAddress1 = EmptyIPAddress;
+            networkConfigurationToSave.IPv6DNSAddress2 = EmptyIPAddress;
 
-            //// process MAC address, if that can be updated
-            //if (DeviceExplorerViewModel.CanChangeMacAddress)
-            //{
-            //    try
-            //    {
-            //        var newMACAddress = MACAddress.Text;
-            //        var newMACAddressArray = newMACAddress.Split(':');
-            //        var dummyMacAddress = newMACAddressArray.Select(a => byte.Parse(a, System.Globalization.NumberStyles.HexNumber)).ToArray();
-            //    }
-            //    catch (Exception)
-            //    {
-            //        // error parsing MAC address field
-            //        throw new Exception("Invalid MAC address format. Check value.");
-            //    }
-            //}
+            // process MAC address, if that can be updated
+            if (DeviceExplorerViewModel.CanChangeMacAddress)
+            {
+                // check MAC address
+                try
+                {
+                    var newMACAddress = MACAddress.Text;
+                    var newMACAddressArray = newMACAddress.Split(':');
+                    var dummyMacAddress = newMACAddressArray.Select(a => byte.Parse(a, System.Globalization.NumberStyles.HexNumber)).ToArray();
+                }
+                catch (Exception)
+                {
+                    // error parsing MAC address field
+                    throw new Exception("Invalid MAC address format. Check value.");
+                }
+            }
 
-            //// Wi-Fi config
-            //DeviceExplorerViewModel.DeviceWireless80211Configuration.Password = WiFiPassword.Password;
+            // Wi-Fi config
+            DeviceExplorerViewModel.DeviceWireless80211Configuration.Password = WiFiPassword.Password;
 
-            //MessageCentre.StartProgressMessage($"Uploading network configuration to {DeviceExplorerViewModel.SelectedDevice.Description}...");
+            MessageCentre.StartProgressMessage($"Uploading network configuration to {DeviceExplorerViewModel.SelectedDevice.Description}...");
 
-            //// check if debugger engine exists
-            //if (DeviceExplorerViewModel.SelectedDevice.DebugEngine == null)
-            //{
-            //    DeviceExplorerViewModel.SelectedDevice.CreateDebugEngine();
-            //}
+            // check if debugger engine exists
+            if (DeviceExplorerViewModel.SelectedDevice.DebugEngine == null)
+            {
+                DeviceExplorerViewModel.SelectedDevice.CreateDebugEngine();
+            }
 
-            //// save network configuration to target
-            //var updateResult = DeviceExplorerViewModel.SelectedDevice.DebugEngine.UpdateDeviceConfiguration(networkConfigurationToSave, 0);
+            // save network configuration to target
+            var updateResult = DeviceExplorerViewModel.SelectedDevice.DebugEngine.UpdateDeviceConfiguration(networkConfigurationToSave, 0);
 
-            //if (updateResult == Engine.UpdateDeviceResult.Sucess)
-            //{
-            //    if (DeviceExplorerViewModel.DeviceNetworkConfiguration.InterfaceType == NetworkInterfaceType.Wireless80211)
-            //    {
-            //        // save Wi-Fi profile to target
-            //        updateResult = DeviceExplorerViewModel.SelectedDevice.DebugEngine.UpdateDeviceConfiguration(DeviceExplorerViewModel.DeviceWireless80211Configuration, 0);
-            //    }
-            //}
+            if (updateResult == Engine.UpdateDeviceResult.Sucess)
+            {
+                if (DeviceExplorerViewModel.DeviceNetworkConfiguration.InterfaceType == NetworkInterfaceType.Wireless80211)
+                {
+                    // save Wi-Fi profile to target
+                    updateResult = DeviceExplorerViewModel.SelectedDevice.DebugEngine.UpdateDeviceConfiguration(DeviceExplorerViewModel.DeviceWireless80211Configuration, 0);
+                }
+            }
 
-            //if (updateResult != Engine.UpdateDeviceResult.Sucess)
-            //{
-            //    // update failed
-            //    MessageCentre.OutputMessage($"Error updating {DeviceExplorerViewModel.SelectedDevice.Description} network configuration. Error: {updateResult}.");
-            //    MessageCentre.StopProgressMessage();
+            if (updateResult != Engine.UpdateDeviceResult.Sucess)
+            {
+                // update failed
+                MessageCentre.OutputMessage($"Error updating {DeviceExplorerViewModel.SelectedDevice.Description} network configuration. Error: {updateResult}.");
+                MessageCentre.StopProgressMessage();
 
-            //    return;
-            //}
-            //else
-            //{
-            //    // update of network config successful
-            //    MessageCentre.OutputMessage($"{DeviceExplorerViewModel.SelectedDevice.Description} network configuration updated.");
+                return;
+            }
+            else
+            {
+                // update of network config successful
+                MessageCentre.OutputMessage($"{DeviceExplorerViewModel.SelectedDevice.Description} network configuration updated.");
 
-            //    // is there a CA certificate bundle to upload?
-            //    if (DeviceExplorerViewModel.CaCertificateBundle != null)
-            //    {
-            //        MessageCentre.StartProgressMessage($"Uploading Root CA file to {(DataContext as DeviceExplorerViewModel).SelectedDevice.Description}...");
+                // is there a CA certificate bundle to upload?
+                if (DeviceExplorerViewModel.CaCertificateBundle != null)
+                {
+                    MessageCentre.StartProgressMessage($"Uploading Root CA file to {(DataContext as DeviceExplorerViewModel).SelectedDevice.Description}...");
 
-            //        // save Root CA file to target
-            //        // at position 0
-            //        updateResult = DeviceExplorerViewModel.SelectedDevice.DebugEngine.UpdateDeviceConfiguration(DeviceExplorerViewModel.CaCertificateBundle, 0);
+                    // save Root CA file to target
+                    // at position 0
+                    updateResult = DeviceExplorerViewModel.SelectedDevice.DebugEngine.UpdateDeviceConfiguration(DeviceExplorerViewModel.CaCertificateBundle, 0);
 
-            //        if (updateResult != Engine.UpdateDeviceResult.Sucess)
-            //        {
-            //            MessageCentre.OutputMessage($"Error uploading Root CA file to {(DataContext as DeviceExplorerViewModel).SelectedDevice.Description}. Error: {updateResult}");
-            //            MessageCentre.StopProgressMessage();
+                    if (updateResult != Engine.UpdateDeviceResult.Sucess)
+                    {
+                        MessageCentre.OutputMessage($"Error uploading Root CA file to {(DataContext as DeviceExplorerViewModel).SelectedDevice.Description}. Error: {updateResult}");
+                        MessageCentre.StopProgressMessage();
 
-            //            return;
-            //        }
-            //    }
+                        return;
+                    }
+                }
 
-            //    // is there a device certificate to upload?
-            //    if (DeviceExplorerViewModel.DeviceCertificate != null)
-            //    {
-            //        MessageCentre.StartProgressMessage($"Uploading device certificate file to {(DataContext as DeviceExplorerViewModel).SelectedDevice.Description}...");
+                // is there a device certificate to upload?
+                if (DeviceExplorerViewModel.DeviceCertificate != null)
+                {
+                    MessageCentre.StartProgressMessage($"Uploading device certificate file to {(DataContext as DeviceExplorerViewModel).SelectedDevice.Description}...");
 
-            //        // save device certificate file to target
-            //        // at position 0
+                    // save device certificate file to target
+                    // at position 0
 
-            //        updateResult = DeviceExplorerViewModel.SelectedDevice.DebugEngine.UpdateDeviceConfiguration(DeviceExplorerViewModel.DeviceCertificate, 0);
+                    updateResult = DeviceExplorerViewModel.SelectedDevice.DebugEngine.UpdateDeviceConfiguration(DeviceExplorerViewModel.DeviceCertificate, 0);
 
-            //        if (updateResult != Engine.UpdateDeviceResult.Sucess)
-            //        {
-            //            MessageCentre.OutputMessage($"Error uploading device certificate file to {(DataContext as DeviceExplorerViewModel).SelectedDevice.Description}. Error: {updateResult}");
-            //            MessageCentre.StopProgressMessage();
+                    if (updateResult != Engine.UpdateDeviceResult.Sucess)
+                    {
+                        MessageCentre.OutputMessage($"Error uploading device certificate file to {(DataContext as DeviceExplorerViewModel).SelectedDevice.Description}. Error: {updateResult}");
+                        MessageCentre.StopProgressMessage();
 
-            //            return;
-            //        }
-            //    }
-            //}
+                        return;
+                    }
+                }
+            }
 
             // stop progress message
             MessageCentre.StopProgressMessage();
@@ -300,7 +304,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     }
 
                     // store CA certificate
-                    //DeviceExplorerViewModel.CaCertificateBundle = rootCaFile;
+                    DeviceExplorerViewModel.CaCertificateBundle = rootCaFile;
                 }
                 catch (Exception ex)
                 {
@@ -317,12 +321,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         private void ClearRootCA_Click(object sender, System.Windows.RoutedEventArgs e)
         {
-            //// store empty CA certificate
-            //DeviceExplorerViewModel.CaCertificateBundle = new DeviceConfiguration.X509CaRootBundleProperties()
-            //{
-            //    Certificate = new byte[0],
-            //    CertificateSize = 0
-            //};
+            // store empty CA certificate
+            DeviceExplorerViewModel.CaCertificateBundle = new DeviceConfiguration.X509CaRootBundleProperties()
+            {
+                Certificate = new byte[0],
+                CertificateSize = 0
+            };
         }
 
         private void ShowDeviceCertificatePicker_Click(object sender, System.Windows.RoutedEventArgs e)
@@ -374,7 +378,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     }
 
                     // store device certificate
-                    //DeviceExplorerViewModel.DeviceCertificate = deviceCertificateFile;
+                    DeviceExplorerViewModel.DeviceCertificate = deviceCertificateFile;
                 }
                 catch (Exception ex)
                 {
@@ -391,12 +395,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         private void ClearDeviceCertificate_Click(object sender, System.Windows.RoutedEventArgs e)
         {
-            //// store empty device certificate
-            //DeviceExplorerViewModel.DeviceCertificate = new DeviceConfiguration.X509DeviceCertificatesProperties()
-            //{
-            //    Certificate = new byte[0],
-            //    CertificateSize = 0
-            //};
+            // store empty device certificate
+            DeviceExplorerViewModel.DeviceCertificate = new DeviceConfiguration.X509DeviceCertificatesProperties()
+            {
+                Certificate = new byte[0],
+                CertificateSize = 0
+            };
         }
     }
 }
