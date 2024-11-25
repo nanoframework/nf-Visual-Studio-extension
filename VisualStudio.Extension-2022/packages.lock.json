@@ -43,12 +43,13 @@
       },
       "ICSharpCode.Decompiler": {
         "type": "Direct",
-        "requested": "[8.2.0.7535, )",
-        "resolved": "8.2.0.7535",
-        "contentHash": "y4vSHtXCoTNISvvlxcskz+Hiw1vqY0kQsu0loO6nOsWwwZ60IxaTygEFapN2SuSB3SiswGPv535y/bV70Fm8hw==",
+        "requested": "[7.2.1.6856, )",
+        "resolved": "7.2.1.6856",
+        "contentHash": "0YtLSmDhFJb79+K4c/unBWT5ZHu9ov++k0gCfxIB6+uM/n5TEYjZMKSiEQDB6FeaeLPmduxB3SYxasLIDjuhEQ==",
         "dependencies": {
-          "System.Collections.Immutable": "6.0.0",
-          "System.Reflection.Metadata": "6.0.0"
+          "Microsoft.Win32.Registry": "5.0.0",
+          "System.Collections.Immutable": "5.0.0",
+          "System.Reflection.Metadata": "5.0.0"
         }
       },
       "MessagePack": {
