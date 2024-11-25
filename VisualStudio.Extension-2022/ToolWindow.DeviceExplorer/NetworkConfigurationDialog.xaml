@@ -6,7 +6,6 @@
              xmlns:vsp="clr-namespace:Microsoft.VisualStudio.PlatformUI;assembly=Microsoft.VisualStudio.Shell.15.0"
              xmlns:extension="clr-namespace:nanoFramework.Tools.VisualStudio.Extension"
              xmlns:debuglib="clr-namespace:nanoFramework.Tools.Debugger;assembly=nanoFramework.Tools.DebugLibrary.Net"
-             xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
              xmlns:Converters="clr-namespace:nanoFramework.Tools.VisualStudio.Extension.Converters"
              xmlns:ViewModel="clr-namespace:nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel"
              x:Class="nanoFramework.Tools.VisualStudio.Extension.NetworkConfigurationDialog"
@@ -118,8 +117,9 @@
 
                     <!--MAC address-->
                     <Label Grid.Row="0" Grid.Column="0" HorizontalAlignment="Left" Content="MAC address:" Margin="-6,0,0,0" />
-                    <xctk:MaskedTextBox Grid.Row="0" Grid.Column="1" HorizontalAlignment="Left" Height="23" Mask="AA\:AA\:AA\:AA\:AA\:AA" VerticalAlignment="Center" VerticalContentAlignment="Center" Width="120" Margin="0,3,0,0" x:Name="MACAddress"
-                                         Text="{Binding DeviceNetworkConfiguration.MacAddress, Converter={StaticResource MacAddressConverter}, ValidatesOnNotifyDataErrors=False}" IsEnabled="{Binding CanChangeMacAddress}"/>
+                    <TextBox Grid.Row="0" Grid.Column="1" HorizontalAlignment="Left" Height="23" VerticalAlignment="Center" VerticalContentAlignment="Center" Width="120" Margin="0,3,0,0" x:Name="MACAddress"
+                                         Text="{Binding DeviceNetworkConfiguration.MacAddress, Converter={StaticResource MacAddressConverter}, ValidatesOnNotifyDataErrors=False}" IsEnabled="{Binding CanChangeMacAddress}" />
+                    
 
                     <!--Interface type-->
                     <Label Grid.Row="1" Grid.Column="0" HorizontalAlignment="Left" Content="Interface type:" Margin="-6,6,0,0" />
@@ -128,7 +128,6 @@
                               ItemsSource="{extension:ByteEnumToItemsSource {x:Type debuglib:NetworkInterfaceType}}"
                               SelectedValue="{Binding DeviceNetworkConfiguration.InterfaceType, Converter={StaticResource NetworkInterfaceTypeConverter}, Mode=TwoWay, NotifyOnTargetUpdated=True, NotifyOnSourceUpdated=True, ValidatesOnNotifyDataErrors=False}"
                               SelectedValuePath="Value" />
-                    <!--<xctk:MaskedTextBox Grid.Row="1" Grid.Column="1" HorizontalAlignment="Left" Height="23" Mask="AA\:AA\:AA\:AA\:AA\:AA" VerticalAlignment="Top" Width="120" Margin="0,3,0,0" x:Name="InterfaceType"/>-->
 
                 </Grid>
             </TabItem>
@@ -150,11 +149,11 @@
 
                     <!--SSID-->
                     <Label Grid.Row="0" Grid.Column="0" HorizontalAlignment="Left" Content="SSID:" Margin="-6,0,0,0" />
-                    <xctk:MaskedTextBox Grid.Row="0" Grid.Column="1" HorizontalAlignment="Left" MaxLength="32" Height="23" VerticalContentAlignment="Center" VerticalAlignment="Center" Width="120" Margin="0,3,0,0" Text="{Binding DeviceWireless80211Configuration.Ssid, Mode=TwoWay}" x:Name="SSID"/>
+                    <TextBox Grid.Row="0" Grid.Column="1" HorizontalAlignment="Left" MaxLength="32" Height="23" VerticalContentAlignment="Center" VerticalAlignment="Center" Width="120" Margin="0,3,0,0" Text="{Binding DeviceWireless80211Configuration.Ssid, Mode=TwoWay}" x:Name="SSID"/>
 
                     <!--Pass-->
                     <Label Grid.Row="1" Grid.Column="0" HorizontalAlignment="Left" Content="Password:" Margin="-6,6,0,0" />
-                    <xctk:WatermarkPasswordBox Grid.Row="1" Grid.Column="1" HorizontalAlignment="Left" MaxLength="64" Height="23" VerticalContentAlignment="Center" VerticalAlignment="Center" Width="120" Margin="0,6,0,0" x:Name="WiFiPassword" />
+                    <PasswordBox Grid.Row="1" Grid.Column="1" HorizontalAlignment="Left" MaxLength="64" Height="23" VerticalContentAlignment="Center" VerticalAlignment="Center" Width="120" Margin="0,6,0,0" x:Name="WiFiPassword" PasswordChar="•"/>
 
                     <!--Security type-->
                     <Label Grid.Row="2" Grid.Column="0" HorizontalAlignment="Left" Content="Security type:" Margin="-6,6,0,0" />

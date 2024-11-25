@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <ImageManifest xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://schemas.microsoft.com/VisualStudio/ImageManifestSchema/2014">
   <Symbols>
-    <String Name="Resources" Value="/nanoFramework.Tools.VS2022.Extension;v2022.12.1.0;Component/Resources" />
+    <String Name="Resources" Value="/nanoFramework.Tools.VS2022.Extension;v2022.12.1.3;Component/Resources" />
     <Guid Name="NanoFrameworkCatalog" Value="{23cf437f-5e0e-4b0c-8aa4-ceec5b5f8679}" />
     <ID Name="DeviceConnected" Value="20" />
     <ID Name="DeviceDisconnected" Value="30" />

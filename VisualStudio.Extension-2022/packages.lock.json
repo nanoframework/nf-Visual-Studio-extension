@@ -35,12 +35,6 @@
           "Microsoft.VisualStudio.Interop": "17.12.40391"
         }
       },
-      "Extended.Wpf.Toolkit": {
-        "type": "Direct",
-        "requested": "[4.6.1, )",
-        "resolved": "4.6.1",
-        "contentHash": "LZlLLGZP08mJufT/rjCiURP0owr34ZuAvcyzk5xgsvSMiKJRQvK7oaWUP7IXONE4BwCXREwKhtl34nUS8+RGQg=="
-      },
       "ICSharpCode.Decompiler": {
         "type": "Direct",
         "requested": "[7.2.1.6856, )",
