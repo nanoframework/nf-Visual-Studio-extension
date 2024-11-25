@@ -33,7 +33,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
             Loaded += DeviceExplorerControl_Loaded;
 
-            deviceTreeView.SelectedItemChanged += DevicesTreeView_SelectedItemChanged;
             WeakReferenceMessenger.Default.Register<ForceSelectionOfNanoDeviceMessage>(this, (r, message) => ForceSelectionOfNanoDeviceHandlerAsync().ConfigureAwait(false));
         }
 

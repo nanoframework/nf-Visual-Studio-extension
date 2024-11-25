@@ -305,14 +305,13 @@
       },
       "nanoFramework.Tools.Debugger.Net": {
         "type": "Direct",
-        "requested": "[2.5.1, )",
-        "resolved": "2.5.1",
-        "contentHash": "dsJMxTZCnG2xCsFjHErqPYbPOOQLmAz7V8HH7ZIdAK+Zkhj+FzI+8zb6ZLHaxC4FExEYV8VsHlyrlrvS6IjrlA==",
+        "requested": "[2.5.3, )",
+        "resolved": "2.5.3",
+        "contentHash": "j3w8QO2eupDVtxHEohlETSrQVTO5x1jZQAlgbW9VB15bYbniaeKZ+S55rwgGFeYQpEmNjgp1ArY5HkmD7AfVHw==",
         "dependencies": {
           "CommunityToolkit.Mvvm": "8.2.2",
-          "Polly": "8.5.0",
-          "System.IO.Ports": "8.0.0",
-          "System.Threading.Tasks.Extensions": "4.5.4"
+          "Polly": "7.2.4",
+          "System.IO.Ports": "8.0.0"
         }
       },
       "nanoFramework.Tools.MetadataProcessor.MsBuildTask": {
@@ -452,15 +451,6 @@
         "contentHash": "3aeMZ1N0lJoSyzqiP03hqemtb1BijhsJADdobn/4nsMJ8V1H+CrpuduUe4hlRdx+ikBQju1VGjMD1GJ3Sk05Eg==",
         "dependencies": {
           "System.Threading.Tasks.Extensions": "4.5.4"
-        }
-      },
-      "Microsoft.Bcl.TimeProvider": {
-        "type": "Transitive",
-        "resolved": "8.0.0",
-        "contentHash": "f5Kr5JepAbiGo7uDmhgvMqhntwxqXNn6/IpTBSSI4cuHhgnJGrLxFRhMjVpRkLPp6zJXO0/G0l3j9p9zSJxa+w==",
-        "dependencies": {
-          "Microsoft.Bcl.AsyncInterfaces": "6.0.0",
-          "System.ValueTuple": "4.5.0"
         }
       },
       "Microsoft.Diagnostics.Tracing.EventSource.Redist": {
@@ -1460,23 +1450,8 @@
       },
       "Polly": {
         "type": "Transitive",
-        "resolved": "8.5.0",
-        "contentHash": "GBNZPy7i7OpkaIruWPRJ0+AWzdGDQDnKY91b7Ic2aAch4lKhPjUc5KSffpH9krIWe0MoyghqaRxwRC0Uwz2PkA==",
-        "dependencies": {
-          "Polly.Core": "8.5.0"
-        }
-      },
-      "Polly.Core": {
-        "type": "Transitive",
-        "resolved": "8.5.0",
-        "contentHash": "VYYMZNitZ85UEhwOKkTQI63WEMvzUqwQc74I2mm8h/DBVAMcBBxqYPni4DmuRtbCwngmuONuK2yBJfWNRKzI+A==",
-        "dependencies": {
-          "Microsoft.Bcl.AsyncInterfaces": "6.0.0",
-          "Microsoft.Bcl.TimeProvider": "8.0.0",
-          "System.ComponentModel.Annotations": "4.5.0",
-          "System.Threading.Tasks.Extensions": "4.5.4",
-          "System.ValueTuple": "4.5.0"
-        }
+        "resolved": "7.2.4",
+        "contentHash": "bw00Ck5sh6ekduDE3mnCo1ohzuad946uslCDEENu3091+6UKnBuKLo4e+yaNcCzXxOZCXWY2gV4a35+K1d4LDA=="
       },
       "System.Buffers": {
         "type": "Transitive",
