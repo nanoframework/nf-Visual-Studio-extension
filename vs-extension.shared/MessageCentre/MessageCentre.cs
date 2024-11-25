@@ -1,19 +1,17 @@
-//
+﻿//
 // Copyright (c) .NET Foundation and Contributors
 // Portions Copyright (c) Microsoft Corporation.  All rights reserved.
 // See LICENSE file in the project root for full license information.
 //
 
-using Microsoft;
-using Microsoft.VisualStudio;
-using Microsoft.VisualStudio.OLE.Interop;
-using Microsoft.VisualStudio.Shell;
-using Microsoft.VisualStudio.Shell.Interop;
-using nanoFramework.Tools.Debugger;
 using System;
 using System.Diagnostics;
 using System.Text;
-using System.Threading.Tasks;
+using Microsoft;
+using Microsoft.VisualStudio;
+using Microsoft.VisualStudio.Shell;
+using Microsoft.VisualStudio.Shell.Interop;
+using nanoFramework.Tools.Debugger;
 
 namespace nanoFramework.Tools.VisualStudio.Extension
 {
@@ -32,6 +30,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         private static IVsStatusbar _statusBar;
         private static string _paneName;
         private static uint progressCookie;
+
+        public static string MessageStartSearchingDevices = "[.NET nanoFramework] Start searching for devices in the background...";
+        public static string MessageCompletedDevicesSearch = "[.NET nanoFramework] Devices search completed.";
 
         public static System.Threading.Tasks.Task InitializeAsync(AsyncPackage package, string name)
         {

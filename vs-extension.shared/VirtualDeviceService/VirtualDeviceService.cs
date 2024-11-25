@@ -3,13 +3,6 @@
 // See LICENSE file in the project root for full license information.
 ////
 
-using CliWrap;
-using CliWrap.Buffered;
-using CommunityToolkit.Mvvm.Messaging;
-using Microsoft;
-using Microsoft.VisualStudio.Shell;
-using nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel;
-using Newtonsoft.Json;
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -17,6 +10,12 @@ using System.Net.Http;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using CliWrap;
+using CliWrap.Buffered;
+using CommunityToolkit.Mvvm.Messaging;
+using Microsoft;
+using Microsoft.VisualStudio.Shell;
+using Newtonsoft.Json;
 using static nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel.DeviceExplorerViewModel.Messages;
 using Task = System.Threading.Tasks.Task;
 
@@ -90,6 +89,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     if (!NanoFrameworkPackage.OptionDisableDeviceWatchers)
                     {
                         _nanoDeviceCommService.DebugClient.ReScanDevices();
+
+                        MessageCentre.StartProgressMessage(MessageCentre.MessageStartSearchingDevices);
                     }
 
                     // OK to start/stop virtual device
@@ -340,7 +341,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                         try
                         {
-                            _nanoClrProcess.EnableRaisingEvents = false; 
+                            _nanoClrProcess.EnableRaisingEvents = false;
                             _nanoClrProcess.OutputDataReceived -= nanoClrProcess_OutputDataReceived;
                             _nanoClrProcess.Exited -= VirtualDeviceProcess_Exited;
 
@@ -364,6 +365,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                             // rescan devices
                             _nanoDeviceCommService.DebugClient.ReScanDevices();
+
+                            MessageCentre.StartProgressMessage(MessageCentre.MessageStartSearchingDevices);
                         }
                         catch
                         {
@@ -458,7 +461,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 // check if we are to load a local nanoCLR instance
                 string nanoClrInstanceOption = string.Empty;
 
-                if(NanoFrameworkPackage.SettingLoadNanoClrInstance && !string.IsNullOrEmpty(NanoFrameworkPackage.SettingPathOfLocalNanoClrInstance))
+                if (NanoFrameworkPackage.SettingLoadNanoClrInstance && !string.IsNullOrEmpty(NanoFrameworkPackage.SettingPathOfLocalNanoClrInstance))
                 {
                     nanoClrInstanceOption = $"--localinstance \"{NanoFrameworkPackage.SettingPathOfLocalNanoClrInstance}\"";
                 }
@@ -572,6 +575,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     && rescanDevices)
                 {
                     _nanoDeviceCommService.DebugClient.ReScanDevices();
+
+                    MessageCentre.StartProgressMessage(MessageCentre.MessageStartSearchingDevices);
                 }
             }
 
