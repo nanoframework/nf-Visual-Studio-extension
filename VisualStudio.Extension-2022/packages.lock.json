@@ -356,17 +356,6 @@
         "resolved": "2.1.113",
         "contentHash": "+aFNv9Kew1rxYL7boHO1WUdLRIFeqkUW23770dxQwynUquqob56nI1c5I4E4QAaCQg6TnZm+SLEIa2USHRuoRg=="
       },
-      "nanoFramework.Tools.Debugger.Net": {
-        "type": "Direct",
-        "requested": "[2.5.3, )",
-        "resolved": "2.5.3",
-        "contentHash": "j3w8QO2eupDVtxHEohlETSrQVTO5x1jZQAlgbW9VB15bYbniaeKZ+S55rwgGFeYQpEmNjgp1ArY5HkmD7AfVHw==",
-        "dependencies": {
-          "CommunityToolkit.Mvvm": "8.2.2",
-          "Polly": "7.2.4",
-          "System.IO.Ports": "8.0.0"
-        }
-      },
       "nanoFramework.Tools.MetadataProcessor.MsBuildTask": {
         "type": "Direct",
         "requested": "[3.0.56, )",
@@ -1600,11 +1589,6 @@
         "resolved": "13.0.3",
         "contentHash": "HrC5BXdl00IP9zeV+0Z848QWPAoCr9P3bDEZguI+gkLcBKAOxix/tLEAAHC+UvDNPv4a2d18lOReHMOagPa+zQ=="
       },
-      "Polly": {
-        "type": "Transitive",
-        "resolved": "7.2.4",
-        "contentHash": "bw00Ck5sh6ekduDE3mnCo1ohzuad946uslCDEENu3091+6UKnBuKLo4e+yaNcCzXxOZCXWY2gV4a35+K1d4LDA=="
-      },
       "System.Buffers": {
         "type": "Transitive",
         "resolved": "4.5.1",
@@ -1679,11 +1663,6 @@
           "System.Memory": "4.5.5",
           "System.Threading.Tasks.Extensions": "4.5.4"
         }
-      },
-      "System.IO.Ports": {
-        "type": "Transitive",
-        "resolved": "8.0.0",
-        "contentHash": "MaiPbx2/QXZc62gm/DrajRrGPG1lU4m08GWMoWiymPYM+ba4kfACp2PbiYpqJ4QiFGhHD00zX3RoVDTucjWe9g=="
       },
       "System.Memory": {
         "type": "Transitive",
@@ -1883,24 +1862,6 @@
         "dependencies": {
           "Microsoft.VisualStudio.Interop": "17.12.40391"
         }
-      },
-      "csharp.assemblyinfotemplate": {
-        "type": "Project"
-      },
-      "csharp.blankapplication-vs2022": {
-        "type": "Project"
-      },
-      "csharp.classlibrary-vs2022": {
-        "type": "Project"
-      },
-      "csharp.classtemplate": {
-        "type": "Project"
-      },
-      "csharp.resourcetemplate": {
-        "type": "Project"
-      },
-      "csharp.testapplication-vs2022": {
-        "type": "Project"
       },
       "nanoFramework.Tools.BuildTasks": {
         "type": "Project",
