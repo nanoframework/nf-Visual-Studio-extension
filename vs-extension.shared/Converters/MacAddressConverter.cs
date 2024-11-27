@@ -19,7 +19,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.Converters
             {
                 byte[] macAddress = (byte[])value;
 
-                return String.Join("", macAddress.Select(a => a.ToString("X2")));
+                return String.Join(":", macAddress.Select(a => a.ToString("X2")));
             }
 
             return value;

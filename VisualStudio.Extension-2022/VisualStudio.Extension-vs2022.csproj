@@ -502,11 +502,8 @@
     <PackageReference Include="EnvDTE80">
       <Version>17.12.40391</Version>
     </PackageReference>
-    <PackageReference Include="Extended.Wpf.Toolkit">
-      <Version>4.6.1</Version>
-    </PackageReference>
     <PackageReference Include="ICSharpCode.Decompiler">
-      <Version>8.2.0.7535</Version>
+      <Version>7.2.1.6856</Version>
     </PackageReference>
     <PackageReference Include="MessagePack">
       <Version>2.5.192</Version>
@@ -519,9 +516,6 @@
     </PackageReference>
     <PackageReference Include="Microsoft.Build.Tasks.Core">
       <Version>17.12.6</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.Build.Utilities.Core">
-      <Version>17.11.4</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.CodeAnalysis.BannedApiAnalyzers">
       <Version>3.3.4</Version>
@@ -558,7 +552,7 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="nanoFramework.Tools.Debugger.Net">
-      <Version>2.5.1</Version>
+      <Version>2.5.6</Version>
     </PackageReference>
     <PackageReference Include="nanoFramework.Tools.MetadataProcessor.MsBuildTask" Version="3.0.56" />
     <PackageReference Include="Nerdbank.GitVersioning">

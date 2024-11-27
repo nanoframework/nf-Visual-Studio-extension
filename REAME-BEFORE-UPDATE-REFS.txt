@@ -7,3 +7,7 @@ On failure, a CompositionException is usually silently thrown, and the debugger 
 VS2019
 
 - ICSharpCode cannot be updated beyond v7.2.1.6856 because System.Collections.Immutable cannot go beyond v5.0.0.
+
+VS2022
+
+- ICSharpCode cannot be updated beyond v7.2.1.6856 because System.Collections.Immutable cannot go beyond v5.0.0.

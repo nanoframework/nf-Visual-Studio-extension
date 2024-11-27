@@ -50,6 +50,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     _debugClient = PortBase.CreateInstanceForComposite(
                         new[] { serialDebug, networkDebug },
                         !NanoFrameworkPackage.OptionDisableDeviceWatchers);
+
+                    if (!NanoFrameworkPackage.OptionDisableDeviceWatchers)
+                    {
+                        // output progress message
+                        MessageCentre.StartProgressMessage(MessageCentre.MessageStartSearchingDevices);
+                    }
                 }
 
                 return _debugClient;

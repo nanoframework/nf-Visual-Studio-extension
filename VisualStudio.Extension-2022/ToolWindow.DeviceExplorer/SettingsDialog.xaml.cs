@@ -7,11 +7,13 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 {
     using System.Collections.Generic;
     using System.Net;
-    using System.Threading.Tasks;
     using System.Windows.Controls.Primitives;
     using System.Windows.Forms;
+    using CommunityToolkit.Mvvm.Messaging;
     using Microsoft.VisualStudio.PlatformUI;
     using Microsoft.VisualStudio.Shell;
+    using static nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel.DeviceExplorerViewModel.Messages;
+    using Task = System.Threading.Tasks.Task;
 
     /// <summary>
     /// Interaction logic for DeviceExplorerControl.
@@ -40,7 +42,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         // init controls
         private void InitControls()
         {
-            //WeakReferenceMessenger.Default.Register<NotificationMessage>(this, DeviceExplorerViewModel.MessagingTokens.VirtualDeviceOperationExecuting, (message) => this.UpdateStartStopAvailabilityAsync(message.Notification).ConfigureAwait(false));
+            WeakReferenceMessenger.Default.Register<VirtualDeviceOperationExecutingMessage>(this, (r, message) => this.UpdateStartStopAvailabilityAsync(message.Value).ConfigureAwait(false));
 
             // set controls according to stored preferences
             GenerateDeploymentImage.IsChecked = NanoFrameworkPackage.SettingGenerateDeploymentImage;
@@ -102,11 +104,11 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             CloseButton.Focus();
         }
 
-        private async Task UpdateStartStopAvailabilityAsync(string installCompleted)
+        private async Task UpdateStartStopAvailabilityAsync(bool installCompleted)
         {
             await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
-            StartStopDevice.IsEnabled = !bool.Parse(installCompleted)
+            StartStopDevice.IsEnabled = !installCompleted
                                         && NanoFrameworkPackage.VirtualDeviceService.NanoClrIsInstalled
                                         && NanoFrameworkPackage.VirtualDeviceService.CanStartStopVirtualDevice;
         }

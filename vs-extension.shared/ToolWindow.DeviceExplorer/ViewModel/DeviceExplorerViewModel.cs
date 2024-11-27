@@ -27,11 +27,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
         public const int WRITE_TO_OUTPUT_TOKEN = 1;
         public const int SELECTED_NULL_TOKEN = 2;
 
-        // for serial devices we wait 10 seconds for the device to be available again
-        private const int SerialDeviceReconnectMaximumAttempts = 4 * 10;
         private ConnectionSource _lastDeviceConnectionSource;
 
-        private bool _deviceEnumerationCompleted;
+        private bool _initialDeviceEnumerationCompleted;
 
         /// <summary>
         /// Sets if Device Explorer should auto-select a device when there is only a single one in the available list.
@@ -42,11 +40,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
         /// VS Package.
         /// </summary>
         public Package Package { get; set; }
-
-        /// <summary>
-        /// Gets the service provider from the owner package.
-        /// </summary>
-        private IServiceProvider _serviceProvider => Package;
 
         private INanoDeviceCommService _nanoDeviceCommService;
         public INanoDeviceCommService NanoDeviceCommService
@@ -81,7 +74,13 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
         public NanoDeviceBase SelectedDevice
         {
             get => _selectedDevice;
-            set => SetProperty(ref _selectedDevice, value);
+            set
+            {
+                if (SetProperty(ref _selectedDevice, value))
+                {
+                    OnSelectedDeviceChanged();
+                }
+            }
         }
 
         public string DeviceToReSelect { get; set; } = null;
@@ -92,6 +91,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
             {
                 NanoDeviceCommService.DebugClient.DeviceEnumerationCompleted += SerialDebugClient_DeviceEnumerationCompleted;
                 NanoDeviceCommService.DebugClient.LogMessageAvailable += DebugClient_LogMessageAvailable;
+                NanoDeviceCommService.DebugClient.NanoFrameworkDevices.CollectionChanged += NanoFrameworkDevices_CollectionChanged;
+
+                AvailableDevices = new ObservableCollection<NanoDeviceBase>(NanoDeviceCommService.DebugClient.NanoFrameworkDevices);
             }
         }
 
@@ -102,60 +104,19 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
 
         private void SerialDebugClient_DeviceEnumerationCompleted(object sender, EventArgs e)
         {
-            // save status
-            _deviceEnumerationCompleted = true;
+            SelectedTransportType = TransportType.Serial;
 
-            SelectedTransportType = Debugger.WireProtocol.TransportType.Serial;
+            if (!_initialDeviceEnumerationCompleted)
+            {
+                HandlerDeviceSelection();
 
-            UpdateAvailableDevices();
+                // save status
+                _initialDeviceEnumerationCompleted = true;
+            }
 
             WeakReferenceMessenger.Default.Send(new NanoDeviceEnumerationCompletedMessage());
-        }
 
-        private void UpdateAvailableDevices()
-        {
-            switch (SelectedTransportType)
-            {
-                case Debugger.WireProtocol.TransportType.Serial:
-                    AvailableDevices = new ObservableCollection<NanoDeviceBase>(NanoDeviceCommService.DebugClient.NanoFrameworkDevices);
-
-                    // add handler, but make sure we aren't adding another one so remove it first
-                    NanoDeviceCommService.DebugClient.NanoFrameworkDevices.CollectionChanged -= NanoFrameworkDevices_CollectionChanged;
-                    NanoDeviceCommService.DebugClient.NanoFrameworkDevices.CollectionChanged += NanoFrameworkDevices_CollectionChanged;
-                    break;
-
-                case Debugger.WireProtocol.TransportType.Usb:
-                    //AvailableDevices = new ObservableCollection<NanoDeviceBase>(UsbDebugService.NanoFrameworkDevices);
-                    //NanoDeviceCommService.NanoFrameworkDevicesCollectionChanged += NanoDeviceCommService_NanoFrameworkDevicesCollectionChanged;
-                    break;
-
-                case Debugger.WireProtocol.TransportType.TcpIp:
-                    // TODO
-                    //await Task.Delay(2500);
-                    //    AvailableDevices = new ObservableCollection<NanoDeviceBase>();
-                    //    SelectedDevice = null;
-                    break;
-            }
-
-            // handle auto-connect option
-            if (_deviceEnumerationCompleted || NanoDeviceCommService.DebugClient.IsDevicesEnumerationComplete)
-            {
-                // this auto-connect can only run after the initial device enumeration is completed
-                if (AutoSelect)
-                {
-                    // is there a single device
-                    if (AvailableDevices.Count == 1)
-                    {
-                        ForceNanoDeviceSelection(AvailableDevices[0]);
-                    }
-                }
-
-                // launch firmware update task
-                foreach (var d in AvailableDevices)
-                {
-                    WeakReferenceMessenger.Default.Send(new LaunchFirmwareUpdateForNanoDeviceMessage(d.ConnectionId));
-                }
-            }
+            MessageCentre.StopProgressMessage();
         }
 
         public void NanoFrameworkDevices_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
@@ -167,7 +128,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
                 //    AvailableDevices = new ObservableCollection<NanoDeviceBase>(UsbDebugService.NanoFrameworkDevices);
                 //    break;
 
-                case Debugger.WireProtocol.TransportType.Serial:
+                case TransportType.Serial:
                     AvailableDevices = new ObservableCollection<NanoDeviceBase>(NanoDeviceCommService.DebugClient.NanoFrameworkDevices);
                     break;
 
@@ -183,7 +144,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
             {
                 foreach (var d in e.NewItems)
                 {
-                    WeakReferenceMessenger.Default.Send(new LaunchFirmwareUpdateForNanoDeviceMessage((d as NanoDeviceBase).ConnectionId));
+                    WeakReferenceMessenger.Default.Send(new LaunchFirmwareUpdateForNanoDeviceMessage((d as NanoDeviceBase).DeviceUniqueId.ToString()));
                 }
             }
 
@@ -197,37 +158,43 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
             }
 
             // handle auto-select option
-            if (_deviceEnumerationCompleted || NanoDeviceCommService.DebugClient.IsDevicesEnumerationComplete)
+            if (NanoDeviceCommService.DebugClient.IsDevicesEnumerationComplete)
             {
-                // reselect a specific device has higher priority than auto-select
-                if (DeviceToReSelect != null)
-                {
-                    var deviceToReSelect = AvailableDevices.FirstOrDefault(d => d.Description == DeviceToReSelect);
-                    if (deviceToReSelect != null)
-                    {
-                        // device seems to be back online, select it
-                        ForceNanoDeviceSelection(deviceToReSelect);
+                HandlerDeviceSelection();
+            }
+        }
 
-                        // clear device to reselect
-                        DeviceToReSelect = null;
-                    }
-                }
-                // this auto-select can only run after the initial device enumeration is completed
-                else if (AutoSelect)
+        private void HandlerDeviceSelection()
+        {
+            // reselect a specific device has higher priority than auto-select
+            if (DeviceToReSelect != null)
+            {
+                NanoDeviceBase deviceToReSelect = AvailableDevices.FirstOrDefault(d => d.Description == DeviceToReSelect);
+
+                if (deviceToReSelect != null)
                 {
-                    // is there a single device
-                    if (AvailableDevices.Count == 1)
+                    // device seems to be back online, select it
+                    ForceNanoDeviceSelection(deviceToReSelect);
+
+                    // clear device to reselect
+                    DeviceToReSelect = null;
+                }
+            }
+            // this auto-select can only run after the initial device enumeration is completed
+            else if (AutoSelect)
+            {
+                // is there a single device
+                if (AvailableDevices.Count == 1)
+                {
+                    ForceNanoDeviceSelection(AvailableDevices[0]);
+                }
+                else
+                {
+                    // we have more than one now, was there any device already selected?
+                    if (SelectedDevice != null)
                     {
-                        ForceNanoDeviceSelection(AvailableDevices[0]);
-                    }
-                    else
-                    {
-                        // we have more than one now, was there any device already selected?
-                        if (SelectedDevice != null)
-                        {
-                            // maintain selection
-                            ForceNanoDeviceSelection(AvailableDevices.FirstOrDefault(d => d.Description == SelectedDevice.Description));
-                        }
+                        // maintain selection
+                        ForceNanoDeviceSelection(AvailableDevices.FirstOrDefault(d => d.Description == SelectedDevice.Description));
                     }
                 }
             }
@@ -276,8 +243,11 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
 
         public void OnSelectedTransportTypeChanged()
         {
-            UpdateAvailableDevices();
+
         }
+
+        // this is required to properly handle device auto-selection when device watchers are re-enabled
+        internal void ResetEnumerationFlag() => _initialDeviceEnumerationCompleted = false;
 
         #endregion
 
@@ -363,7 +333,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
                 {
                 }
             }
-
         }
 
         #endregion

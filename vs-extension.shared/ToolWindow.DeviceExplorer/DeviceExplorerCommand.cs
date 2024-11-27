@@ -1014,6 +1014,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 {
                     NanoDeviceCommService.DebugClient.ReScanDevices();
 
+                    MessageCentre.StartProgressMessage(MessageCentre.MessageStartSearchingDevices);
+
                     // don't enable the button here to prevent compulsive developers to click it when the operation is still ongoing
                     // it will be enabled back at NanoDevicesCollectionChangedHandlerAsync
                 }
@@ -1055,6 +1057,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                 NanoDeviceCommService.DebugClient.StartDeviceWatchers();
 
+                MessageCentre.StartProgressMessage(MessageCentre.MessageStartSearchingDevices);
+
                 // don't enable the rescan devices button as this will happen on device enumeration completed
             }
             else
@@ -1065,8 +1069,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                 var deviceExplorer = Ioc.Default.GetService<DeviceExplorerViewModel>();
 
-                // need to remove event handler
-                NanoDeviceCommService.DebugClient.NanoFrameworkDevices.CollectionChanged -= deviceExplorer.NanoFrameworkDevices_CollectionChanged;
+                deviceExplorer.ResetEnumerationFlag();
 
                 MessageCentre.OutputMessage(Environment.NewLine);
                 MessageCentre.OutputMessage("***********************************************************************************");
