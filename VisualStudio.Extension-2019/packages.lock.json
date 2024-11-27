@@ -4,13 +4,12 @@
     ".NETFramework,Version=v4.7.2": {
       "CliWrap": {
         "type": "Direct",
-        "requested": "[3.5.0, )",
-        "resolved": "3.5.0",
-        "contentHash": "JhC8xnY2uVPD8/o/wj8o+5uYQ8jiWJ9rrgTI6i5QqZco++nelZ8RgBjcLmPMJMQMvAXu39obUA/aeEEaYdQUhw==",
+        "requested": "[3.4.1, )",
+        "resolved": "3.4.1",
+        "contentHash": "dXgBVHXxErwlSOHullgPYWeiFFs12QBSs87xGBDc/QUfunWYDL/vv7IH7Accp/qfcwSNMyDIbfeD1PPecdKRCQ==",
         "dependencies": {
           "Microsoft.Bcl.AsyncInterfaces": "6.0.0",
           "System.Buffers": "4.5.1",
-          "System.Memory": "4.5.5",
           "System.Runtime.InteropServices.RuntimeInformation": "4.3.0",
           "System.Threading.Tasks.Extensions": "4.5.4",
           "System.ValueTuple": "4.5.0"
@@ -296,6 +295,17 @@
         "requested": "[2.1.113, )",
         "resolved": "2.1.113",
         "contentHash": "+aFNv9Kew1rxYL7boHO1WUdLRIFeqkUW23770dxQwynUquqob56nI1c5I4E4QAaCQg6TnZm+SLEIa2USHRuoRg=="
+      },
+      "nanoFramework.Tools.Debugger.Net": {
+        "type": "Direct",
+        "requested": "[2.5.4, )",
+        "resolved": "2.5.4",
+        "contentHash": "5H4kqe8+CskYxKDpslfLmn7Z39SjkTT9NUHTRkO3d9oyplL1lLvR1YJkwaipNxveTfg78EziFMjsK7QLWo+WCg==",
+        "dependencies": {
+          "CommunityToolkit.Mvvm": "7.1.2",
+          "Polly": "7.2.4",
+          "System.IO.Ports": "8.0.0"
+        }
       },
       "nanoFramework.Tools.MetadataProcessor.MsBuildTask": {
         "type": "Direct",
