@@ -152,6 +152,18 @@ jobs:
     
   - template: azure-pipelines-templates/install-nuget.yml@templates
 
+  - task: Cache@2
+    displayName: Cache NuGet packages
+    condition: >-
+      and(
+        succeeded(),
+        eq(variables['StartReleaseCandidate'], false)
+      )
+    continueOnError: true
+    inputs:
+      key: 'nuget | vs2019 | **/VisualStudio.Extension-2019/packages.lock.json'
+      path: $(UserProfile)/.nuget/packages
+
   - task: NuGetCommand@2
     inputs:
       restoreSolution: 'nanoFramework.Tools.VisualStudio.sln'
@@ -334,6 +346,18 @@ jobs:
     displayName: Setup git identity
 
   - template: azure-pipelines-templates/install-nuget.yml@templates
+
+  - task: Cache@2
+    displayName: Cache NuGet packages
+    condition: >-
+      and(
+        succeeded(),
+        eq(variables['StartReleaseCandidate'], false)
+      )
+    continueOnError: true
+    inputs:
+      key: 'nuget | vs2022 | **/VisualStudio.Extension-2022/packages.lock.json'
+      path: $(UserProfile)/.nuget/packages
 
   - task: NuGetCommand@2
     inputs:
