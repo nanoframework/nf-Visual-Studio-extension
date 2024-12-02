@@ -130,6 +130,12 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
+    <Content Include="Targets\NFProjectSystem.DesignTime.targets">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <IncludeInVSIX>true</IncludeInVSIX>
+      <VSIXSubPath>nanoFramework\v1.0</VSIXSubPath>
+      <InstallRoot>MSBuild</InstallRoot>
+    </Content>
     <Resource Include="Resources\DeviceErase.16.16.png" />
     <Resource Include="Resources\NetworkConfig.16.16.png" />
     <Resource Include="Resources\DisableDeviceWatchers.16.16.png" />
@@ -324,9 +330,12 @@
     <Resource Include="Resources\DeviceDisconnected.xaml">
       <SubType>Designer</SubType>
     </Resource>
-    <Page Include="Rules\Compile.BrowseObject.xaml">
+    <Content Include="Rules\Content.BrowseObject.xaml">
       <Generator>MSBuild:Compile</Generator>
-    </Page>
+      <IncludeInVSIX>true</IncludeInVSIX>
+      <VSIXSubPath>nanoFramework\v1.0\Rules\</VSIXSubPath>
+      <InstallRoot>MSBuild</InstallRoot>
+    </Content>
     <Page Include="ToolWindow.DeviceExplorer\SettingsDialog.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
