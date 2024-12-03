@@ -10,12 +10,16 @@ trigger:
       - LICENSE.md
       - CHANGELOG*.md
       - NuGet.Config
+      - docs/*
       - .github_changelog_generator
       - .gitignore
 
 # PR always trigger build
 pr:
   autoCancel: true
+  paths:
+    exclude:
+      - docs/*
 
 # add nf-tools repo to resources (for Azure Pipelines templates)
 resources:
