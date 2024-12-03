@@ -1,2 +1,0 @@
-**/Visual-Studio-extension-2019*
-**/Visual-Studio-extension-2022*
