@@ -16,7 +16,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
@@ -30,7 +30,7 @@ jobs:
 
       - name: Build Changelog
         id: build_changelog
-        uses: mikepenz/release-changelog-builder-action@v3
+        uses: mikepenz/release-changelog-builder-action@v5
         with:
           configuration: '.github/.changelog-config-vs2022.json'
           fromTag: ${{ env.PREVIOUS_TAG }}
@@ -39,7 +39,7 @@ jobs:
 
       - name: Update changelog in release
         id: update_release
-        uses: tubone24/update_release@v1.0
+        uses: tubone24/update_release@v1.3.1
         env:
           GITHUB_TOKEN: ${{ github.token }}
           TAG_NAME: ${{steps.build_changelog.outputs.toTag}}
