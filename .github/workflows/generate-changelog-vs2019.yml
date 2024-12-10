@@ -39,7 +39,7 @@ jobs:
 
       - name: Update changelog in release
         id: update_release
-        uses: tubone24/update_release@v1
+        uses: tubone24/update_release@v1.3.1
         env:
           GITHUB_TOKEN: ${{ github.token }}
           TAG_NAME: ${{steps.build_changelog.outputs.toTag}}
