@@ -97,6 +97,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             // this result is of type Microsoft.Build.Evaluation.Project
             var projectResult = await ((System.Threading.Tasks.Task<Microsoft.Build.Evaluation.Project>)buildProject.GetValue(Properties.ConfiguredProject));
 
+            // All the files that needs potentially to be deployed to the internal storage
+            var contents = projectResult.Items.Where(m => m.ItemType == "Content" && m.Metadata.Any(t => t.Name == "CopyToOutputDirectory" && t.EvaluatedValue != "Never"));
+
             if (!string.Equals(projectResult.Properties.First(p => p.Name == "OutputType").EvaluatedValue, "Exe", StringComparison.InvariantCultureIgnoreCase))
             {
                 // This is not an executable project, it must be a referenced assembly
@@ -374,6 +377,47 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                     // deployment successful
                     await outputPaneWriter.WriteLineAsync("Deployment successful!");
+
+                    // Now deploying to the internal storage if any
+                    if (contents.Any())
+                    {
+                        await outputPaneWriter.WriteLineAsync($"Deploying {contents.Count()} content files to internal storage");
+                        MessageCentre.InternalErrorWriteLine("Deploying content files to internal storage");
+                        foreach (var file in contents)
+                        {
+                            string fileName;
+                            var storPath = file.Metadata.Where(m => m.Name == "NF_StoragePath");
+                            if (storPath.Any())
+                            {
+                                fileName = storPath.FirstOrDefault().EvaluatedValue;
+                            }
+                            else
+                            {
+                                // Default is internal storage
+                                fileName = "I:\\" + file.EvaluatedInclude;
+                            }
+
+                            await outputPaneWriter.WriteLineAsync($"{file.EvaluatedInclude} deploying to {fileName}.");
+                            MessageCentre.InternalErrorWriteLine($"{file.EvaluatedInclude} deploying to {fileName}.");
+
+                            // Find the file where the exe is. There is an exe because otherwise, we won't be here with a simple DLL
+                            var fileAssemblyPath = projectResult.Properties.Where(m => m.Name == "TargetPath").First().EvaluatedValue;
+                            var contentFileName = Path.Combine(fileAssemblyPath.Substring(0, fileAssemblyPath.LastIndexOf(Path.DirectorySeparatorChar)), file.EvaluatedInclude);
+
+                            // Deploying the file
+                            var ret = device.DebugEngine.AddStorageFile(fileName, File.ReadAllBytes(contentFileName));
+                            if (ret == Debugger.WireProtocol.StorageOperationErrorCode.NoError)
+                            {
+                                await outputPaneWriter.WriteLineAsync($"{file.EvaluatedInclude} deplpoyed sucessfully.");
+                                MessageCentre.InternalErrorWriteLine($"{file.EvaluatedInclude} deplpoyed sucessfully.");
+                            }
+                            else
+                            {
+                                await outputPaneWriter.WriteLineAsync($"{file.EvaluatedInclude} deployment error.");
+                                MessageCentre.InternalErrorWriteLine($"{file.EvaluatedInclude} deployment error.");
+                            }
+                        }
+                    }
 
                     // reset the hash for the connected device so the deployment information can be refreshed
                     deviceExplorer.LastDeviceConnectedHash = 0;
