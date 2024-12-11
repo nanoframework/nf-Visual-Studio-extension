@@ -245,13 +245,12 @@ jobs:
     inputs:
       command: custom
       custom: tool
-      arguments: install --tool-path . sign --version 0.9.1-beta.24170.3
+      arguments: install --tool-path . sign --version 0.9.1-beta.24529.1
   
   - pwsh: |
       .\sign code azure-key-vault `
       "**/*.vsix" `
       --base-directory "$(Build.ArtifactStagingDirectory)\vs2019" `
-      --file-list "$(Build.Repository.LocalPath)\config\filelist.txt" `
       --description ".NET nanoFramework VS2019 Extension" `
       --description-url "https://github.com/$env:Build_Repository_Name" `
       --azure-key-vault-tenant-id "$(SignTenantId)" `
@@ -417,13 +416,12 @@ jobs:
     inputs:
       command: custom
       custom: tool
-      arguments: install --tool-path . sign --version 0.9.1-beta.24170.3
+      arguments: install --tool-path . sign --version 0.9.1-beta.24529.1
 
   - pwsh: |
       .\sign code azure-key-vault `
       "**/*.vsix" `
       --base-directory "$(Build.ArtifactStagingDirectory)\vs2022" `
-      --file-list "$(Build.Repository.LocalPath)\config\filelist.txt" `
       --description ".NET nanoFramework VS2022 Extension" `
       --description-url "https://github.com/$env:Build_Repository_Name" `
       --azure-key-vault-tenant-id "$(SignTenantId)" `
