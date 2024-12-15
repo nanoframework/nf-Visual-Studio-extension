@@ -64,7 +64,7 @@ namespace nanoFramework.Tools
                 foreach (string peItem in peCollection)
                 {
                     // append to the deploy blob the assembly
-                    using (FileStream fs = File.Open(peItem, FileMode.Open, FileAccess.Read))
+                    using (FileStream fs = File.Open(peItem, FileMode.Open, FileAccess.Read, FileShare.Read))
                     {
                         long length = (fs.Length + 3) / 4 * 4;
                         byte[] buffer = new byte[length];
