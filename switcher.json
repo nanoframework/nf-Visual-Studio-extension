@@ -1,6 +1,0 @@
-{
-  "solution": "nanoFramework.Tools.VisualStudio.sln",
-  "mappings": {
-    "nanoFramework.Tools.Debugger.Net": "nf-debugger/source/nanoFramework.Tools.DebugLibrary.Net/nanoFramework.Tools.DebugLibrary.Net.csproj"
-  }
-}
