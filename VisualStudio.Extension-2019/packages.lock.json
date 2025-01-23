@@ -308,9 +308,9 @@
       },
       "nanoFramework.Tools.MetadataProcessor.MsBuildTask": {
         "type": "Direct",
-        "requested": "[3.0.56, )",
-        "resolved": "3.0.56",
-        "contentHash": "kNLz394HLWf+dPQkjA8TJKyU15wx0aSxbIXeWeEDdniEYZBS5gaxR/2zFXzEGtC1S4GJs56aaQQRreCiMZuV2Q=="
+        "requested": "[3.0.61, )",
+        "resolved": "3.0.61",
+        "contentHash": "j0SSYErpNpwR/AvQHggjCj0nH1dMv0vsRBHkLmiMURPnNEcLGVQju4v4VPRfJXU8zMv9a37VTV5+y9OC0CcypQ=="
       },
       "Nerdbank.GitVersioning": {
         "type": "Direct",
@@ -1849,24 +1849,6 @@
           "VSSDK.DTE": "[7.0.4, 8.0.0)",
           "VSSDK.IDE.12": "[12.0.4, 13.0.0)"
         }
-      },
-      "csharp.assemblyinfotemplate": {
-        "type": "Project"
-      },
-      "csharp.blankapplication-vs2019": {
-        "type": "Project"
-      },
-      "csharp.classlibrary-vs2019": {
-        "type": "Project"
-      },
-      "csharp.classtemplate": {
-        "type": "Project"
-      },
-      "csharp.resourcetemplate": {
-        "type": "Project"
-      },
-      "csharp.testapplication-vs2019": {
-        "type": "Project"
       },
       "nanoFramework.Tools.BuildTasks": {
         "type": "Project",
