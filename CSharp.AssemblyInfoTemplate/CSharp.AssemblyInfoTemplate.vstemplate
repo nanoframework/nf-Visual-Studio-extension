@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<VSTemplate Version="3.0.0" Type="Item" xmlns="http://schemas.microsoft.com/developer/vstemplate/2005" xmlns:sdk="http://schemas.microsoft.com/developer/vstemplate-sdkextension/2010">
+  <TemplateData>
+    <!--<Name Package="{FAE04EC1-301F-11d3-BF4B-00C04F79EFBC}" ID="2405" />-->
+    <!--<Description Package="{FAE04EC1-301F-11d3-BF4B-00C04F79EFBC}" ID="2406" />-->
+    <Name>Assembly Information File (.NET nanoFramework)</Name>
+    <Description>A file containing general assembly information for a .NET nanoFramework project.</Description>
+    <AppliesTo>CSharp</AppliesTo>
+    <Icon>CSAssemblyInfoFile.ico</Icon>
+    <TemplateID>C0D5DFF7-C546-4E01-84FC-8E92D44C567C</TemplateID>
+    <NumberOfParentCategoriesToRollUp>1</NumberOfParentCategoriesToRollUp>
+    <DefaultName>AssemblyInfo.cs</DefaultName>
+    <ProjectType>CSharp</ProjectType>
+  </TemplateData>
+  <TemplateContent>
+    <ProjectItem ReplaceParameters="true">AssemblyInfo.cs</ProjectItem>
+  </TemplateContent>
+</VSTemplate>

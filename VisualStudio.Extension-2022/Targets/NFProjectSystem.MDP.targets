@@ -1,0 +1,788 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="Current" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <!-- Declares the MSBuild tasks that are provided by nanoFramework tools.
+    The path is the current directory because we are using the Nuget package build directory to place all these.
+  -->
+  <!-- Allow overriding the path for nanoFramework MSBuildTasks if environment variable is set. -->
+  <UsingTask TaskName="ResolveRuntimeDependenciesTask"  Condition="'$(NF_MSBUILDTASK_PATH)' == ''" AssemblyFile="$(MSBuildThisFileDirectory)nanoFramework.Tools.BuildTasks.dll" />
+  <UsingTask TaskName="ResolveRuntimeDependenciesTask"  Condition="'$(NF_MSBUILDTASK_PATH)' != ''" AssemblyFile="$(NF_MSBUILDTASK_PATH)\nanoFramework.Tools.BuildTasks.dll" />
+  <UsingTask TaskName="GenerateNanoResourceTask"        Condition="'$(NF_MSBUILDTASK_PATH)' == ''" AssemblyFile="$(MSBuildThisFileDirectory)nanoFramework.Tools.BuildTasks.dll" />
+  <UsingTask TaskName="GenerateNanoResourceTask"        Condition="'$(NF_MSBUILDTASK_PATH)' != ''" AssemblyFile="$(NF_MSBUILDTASK_PATH)\nanoFramework.Tools.BuildTasks.dll" />
+  <UsingTask TaskName="GenerateBinaryOutputTask"        Condition="'$(NF_MSBUILDTASK_PATH)' == ''" AssemblyFile="$(MSBuildThisFileDirectory)nanoFramework.Tools.BuildTasks.dll" />
+  <UsingTask TaskName="GenerateBinaryOutputTask"        Condition="'$(NF_MSBUILDTASK_PATH)' != ''" AssemblyFile="$(NF_MSBUILDTASK_PATH)\nanoFramework.Tools.BuildTasks.dll"/>
+
+  <!--MSBuild task for MDP-->
+  <UsingTask TaskName="MetaDataProcessorTask" Condition="'$(NF_MDP_MSBUILDTASK_PATH)' == ''" AssemblyFile="$(MSBuildThisFileDirectory)nanoFramework.Tools.MetadataProcessor.MsBuildTask.dll" />
+  <UsingTask TaskName="MetaDataProcessorTask" Condition="'$(NF_MDP_MSBUILDTASK_PATH)' != ''" AssemblyFile="$(NF_MDP_MSBUILDTASK_PATH)\nanoFramework.Tools.MetadataProcessor.MsBuildTask.dll" />
+
+  <!-- 
+    ###########################################################
+    common groups for CORE and NONE CORE builds 
+    ###########################################################
+  -->
+
+  <PropertyGroup>
+    <NF_GenerateStubsDirectory Condition="'$(NF_GenerateStubsDirectory)'==''">$(ProjectDir)Stubs</NF_GenerateStubsDirectory>
+    <NF_GenerateStubsRootName Condition="'$(NF_GenerateStubsRootName)'==''">$(TargetName)</NF_GenerateStubsRootName>
+    <NF_GenerateSkeletonProjectName Condition="'$(NF_GenerateSkeletonProjectName)'==''">$(TargetName)</NF_GenerateSkeletonProjectName>
+    <NF_GenerateSkeletonFile>$(NF_GenerateStubsDirectory)\$(NF_GenerateStubsRootName)</NF_GenerateSkeletonFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <NF_GeneratedStubFile Include="$(NF_GenerateStubsDirectory)$(NF_GenerateStubsRootName).h" />
+    <NF_GeneratedStubFile Include="$(NF_GenerateStubsDirectory)$(NF_GenerateStubsRootName).cpp" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <NanoFramework_StartProgram Condition=" '$(StartAction)'== 'Program' ">$(StartProgram)</NanoFramework_StartProgram>
+    <NanoFramework_IntermediateAssembly>$(ProjectDir)$(IntermediateOutputPath)$(TargetName)</NanoFramework_IntermediateAssembly>
+    <NanoFramework_Assembly>$(OutDir)$(TargetName)</NanoFramework_Assembly>
+  </PropertyGroup>
+
+  <!-- 
+    ############################################################################
+    The following groups are to be used in build of REGULAR projects (NON CORE)
+    ############################################################################
+  -->
+
+  <PropertyGroup Condition="'$(NF_IsCoreLibrary)' != 'True' ">
+    <MetaDataProcessorDependsOn>Compile;CopyToOutDir</MetaDataProcessorDependsOn>
+  </PropertyGroup>
+
+  <!-- Overrides the "DependsOn" Properties for MSBuild. This is the recommended way of dealing with this because MSBuild 
+  evaluates the definition of targets sequentially. So there is no way to prevent another project that imports nanoFramework projects
+  from overriding the targets we need to override.
+  See https://msdn.microsoft.com/en-us/library/ms366724.aspx.
+  -->
+  <PropertyGroup Condition="'$(NF_IsCoreLibrary)' != 'True' ">
+    <CoreBuildDependsOn>
+      BuildOnlySettings;
+      PrepareForBuild;
+      PreBuildEvent;
+      ResolveReferences;
+      PrepareResources;
+      ResolveKeySource;
+      Compile;
+      GenerateSerializationAssemblies;
+      CreateSatelliteAssemblies;
+      GetTargetPath;
+      PrepareForRun;
+      IncrementalClean;
+      MetaDataProcessor;
+      PostBuildEvent
+    </CoreBuildDependsOn>
+
+    <CleanDependsOn>
+      BeforeClean;
+      CleanReferencedProjects;
+      CoreClean;
+      AfterClean
+    </CleanDependsOn>
+
+    <CoreCleanDependsOn>
+      NanoFrameworkClean
+    </CoreCleanDependsOn>
+
+    <PrepareForRunDependsOn>
+      MetaDataProcessor;
+      CopyFilesToOutputDirectory;
+      CopyNanoFrameworkFiles;
+      CopyBackNanoFrameworkDlls
+    </PrepareForRunDependsOn>
+
+    <PrepareResourcesDependsOn>
+      PrepareResourceNames;
+      ResGen;
+      CompileLicxFiles;
+      NanoResourceGenerator
+    </PrepareResourcesDependsOn>
+
+    <ResolveReferencesDependsOn>
+      BeforeResolveReferences;
+      ResolveProjectReferences;
+      ResolveAssemblyReferences;
+      ResolveRuntimeDependencies;
+      AfterResolveReferences
+    </ResolveReferencesDependsOn>
+
+  </PropertyGroup>
+
+  <!-- Clean pe/pdbx files -->
+  <Target Name="NanoFrameworkClean">
+    <Delete Condition="EXISTS('$(OutDir)$(TargetName).pe')"   Files="$(OutDir)$(TargetName).pe" />
+    <Delete Condition="EXISTS('$(OutDir)$(TargetName).pdbx')" Files="$(OutDir)$(TargetName).pdbx" />
+  </Target>
+
+  <Target Name="CopyToOutDir">
+
+    <Copy
+        Condition="Exists('$(ProjectDir)$(IntermediateOutputPath)$(TargetName).exe')"
+        SourceFiles="$(ProjectDir)$(IntermediateOutputPath)$(TargetName).exe"
+        DestinationFolder="$(OutDir)" >
+      <Output TaskParameter="DestinationFiles" ItemName="FileWrites" />
+    </Copy>
+
+    <Copy
+        Condition="Exists('$(ProjectDir)$(IntermediateOutputPath)$(TargetName).dll')"
+        SourceFiles="$(ProjectDir)$(IntermediateOutputPath)$(TargetName).dll"
+        DestinationFolder="$(OutDir)" >
+      <Output TaskParameter="DestinationFiles" ItemName="FileWrites" />
+    </Copy>
+
+    <Copy
+        Condition="Exists('$(ProjectDir)$(IntermediateOutputPath)$(TargetName).pdbx')"
+        SourceFiles="$(ProjectDir)$(IntermediateOutputPath)$(TargetName).pdbx"
+        DestinationFolder="$(OutDir)" >
+      <Output TaskParameter="DestinationFiles" ItemName="FileWrites" />
+    </Copy>
+
+    <Copy
+        Condition="Exists('$(ProjectDir)$(IntermediateOutputPath)$(TargetName).bin')"
+        SourceFiles="$(ProjectDir)$(IntermediateOutputPath)$(TargetName).bin"
+        DestinationFolder="$(OutDir)" >
+      <Output TaskParameter="DestinationFiles" ItemName="FileWrites" />
+    </Copy>
+
+  </Target>
+
+  <Target Name="CopyNanoFrameworkFiles">
+
+    <Copy
+        Condition="Exists('$(NanoFramework_IntermediateAssembly).pe')"
+        SourceFiles="$(NanoFramework_IntermediateAssembly).pe"
+        DestinationFiles="$(NanoFramework_Assembly).pe"
+        SkipUnchangedFiles="true">
+      <Output TaskParameter="DestinationFiles" ItemName="FileWrites" />
+    </Copy>
+
+    <Copy
+        Condition="Exists('$(NanoFramework_IntermediateAssembly).pdbx')"
+        SourceFiles="$(NanoFramework_IntermediateAssembly).pdbx"
+        DestinationFiles="$(NanoFramework_Assembly).pdbx"
+        SkipUnchangedFiles="true">
+      <Output TaskParameter="DestinationFiles" ItemName="FileWrites" />
+    </Copy>
+
+    <!--
+        These two tasks will also copy the .pe and .pdbx files for references
+        that are marked as CopyLocal. A couple of notes.  @(ReferenceCopyLocalPaths) can contain the
+        .dll and .pdb files, so there is likely duplicate copying going on here: the copy command
+        is a little smart, but we are still doing a bit more work than necessary.
+        The ContinueOnError set to true is required because the local paths on the referenced file contain the extension.
+        This would cause the task to fail because it would be trying to copy myreferenced.dll.pe and myreferenced.dll.pbx, which obviously don't exit.
+        -->
+    <Copy
+        SourceFiles="@(ReferenceCopyLocalPaths->'%(RootDir)%(Directory)%(Filename).pe')"
+        DestinationFiles="@(ReferenceCopyLocalPaths->'$(OutDir)%(Filename).pe')"
+        SkipUnchangedFiles="true" ContinueOnError="true" >
+      <Output TaskParameter="DestinationFiles" ItemName="FileWrites" />
+    </Copy>
+
+    <Copy
+        SourceFiles="@(ReferenceCopyLocalPaths->'%(RootDir)%(Directory)%(Filename).pdbx')"
+        DestinationFiles="@(ReferenceCopyLocalPaths->'$(OutDir)%(Filename).pdbx')"
+        SkipUnchangedFiles="true" ContinueOnError="true">
+      <Output TaskParameter="DestinationFiles" ItemName="FileWrites" />
+    </Copy>
+
+  </Target>
+
+  <Target Name="CopyBackNanoFrameworkDlls" >
+
+    <Copy
+        SourceFiles="@(ReferenceCopyLocalPaths)"
+        DestinationFiles="@(ReferenceCopyLocalPaths->'$(IntermediateOutputPath)%(Filename)%(Extension)')"
+        SkipUnchangedFiles="false">
+      <Output TaskParameter="DestinationFiles" ItemName="FileWrites" />
+    </Copy>
+
+  </Target>
+
+  <Target Name="MetaDataProcessor"
+          Inputs="$(NanoFramework_Assembly)$(TargetExt);
+            @(ReferencePath);
+            @(ReferenceDependencyPaths);
+            @(ReferenceSatellitePaths);
+            @(NanoFramework_Resources)"
+          Outputs="$(NanoFramework_IntermediateAssembly).pe"
+          DependsOnTargets="$(MetaDataProcessorDependsOn)">
+
+    <ItemGroup>
+      <NFMDP_PE_CreatedFiles Include="$(NFMDP_PE_GenerateSkeletonFile)"  Condition="'$(NFMDP_PE_GenerateSkeletonFile)'!=''"/>
+    </ItemGroup>
+  
+    <ItemGroup>
+      <NFMDP_STUB_CreatedFiles Include="$(NFMDP_STUB_GenerateSkeletonFile)"  Condition="'$(NFMDP_STUB_GenerateSkeletonFile)'!=''"/>
+    </ItemGroup>
+    <MakeDir Directories="@(NFMDP_STUB_CreatedFiles->'%(RootDir)%(Directory)')" Condition="'$(NFMDP_GENERATE_STUBS)' == 'true'"/>
+
+    <PropertyGroup>
+      <NFMDP_STUB_GenerateSkeletonProject>$(NF_GenerateSkeletonProjectName)</NFMDP_STUB_GenerateSkeletonProject>
+      <NFMDP_STUB_GenerateSkeletonName>$(NF_GenerateStubsRootName)</NFMDP_STUB_GenerateSkeletonName>
+      <NFMDP_STUB_GenerateSkeletonFile>$(NF_GenerateSkeletonFile)</NFMDP_STUB_GenerateSkeletonFile>
+    
+      <!-- force this to false for the moment (need to evaluate how safe it is to allow user stubs with Interop -->
+      <NFMDP_STUB_SkeletonWithoutInterop>false</NFMDP_STUB_SkeletonWithoutInterop>
+
+    </PropertyGroup>
+
+    <MetaDataProcessorTask
+        Verbose="$(NFMDP_PE_Verbose)"
+        Parse="$(NanoFramework_Assembly)$(TargetExt)"
+        IsCoreLibrary="$(NF_IsCoreLibrary)"
+        VerboseMinimize="$(NFMDP_PE_VerboseMinimize)"
+        DumpMetadata="$(NFMDP_DUMP_METADATA)"
+        DumpExports="$(NFMDP_STUB_DumpExports)"
+        GenerateDependency="$(NFMDP_STUB_GenerateDependency)"
+        ExcludeClassByName="@(NFMDP_PE_ExcludeClassByName)"
+        LoadHints="@(ReferencePath);@(ReferenceDependencyPaths);@(ReferenceSatellitePaths)"
+        Compile="$(NanoFramework_IntermediateAssembly).pe"
+        GenerateStubs="$(NFMDP_GENERATE_STUBS)"
+        GenerateSkeletonFile="$(NFMDP_STUB_GenerateSkeletonFile)"
+        GenerateSkeletonName="$(NFMDP_STUB_GenerateSkeletonName)"
+        GenerateSkeletonProject="$(NFMDP_STUB_GenerateSkeletonProject)"
+        SkeletonWithoutInterop="$(NFMDP_STUB_SkeletonWithoutInterop)"
+        ImportResources="@(NanoFramework_Resources)">
+      <Output TaskParameter="FilesWritten" ItemName="FileWrites" />
+      <Output TaskParameter="NativeChecksum" PropertyName="NativeChecksum" />
+    </MetaDataProcessorTask>
+
+    <CallTarget Targets="NanoGenerateBinaryOutput"/>
+
+    <!--Output native checksum to pipeline-->
+    <!--Azure Pipelines-->
+    <Message Text="##vso[task.setvariable variable=NF_NATIVE_ASSEMBLY_CHECKSUM;]$(NativeChecksum)" Condition="'$(TF_BUILD)' == 'True' and '$(NativeChecksum)' != '' and '$(NativeChecksum)' != '0x00000000'" />
+    <!--GitHub Actions-->
+    <WriteLinesToFile File="$(GITHUB_ENV)" Lines="NF_NATIVE_ASSEMBLY_CHECKSUM=$(NativeChecksum)" Condition="'$(GITHUB_ACTIONS)' == 'True' and '$(NativeChecksum)' != '' and '$(NativeChecksum)' != '0x00000000'" />
+
+    <!-- Report MDP overridden if that's the case-->
+    <Message Importance="high" Text="*** Metadata processor location overridden with: $(NF_MDP_MSBUILDTASK_PATH)" Condition="'$(NF_MDP_MSBUILDTASK_PATH)' != ''" />
+
+  </Target>
+
+  <Target Name="ResolveRuntimeDependencies"
+          Condition="'$(NF_IsCoreLibrary)' != 'True' ">
+
+    <ItemGroup>
+      <NanoFramework_StartProgramItem Include="$(NanoFramework_StartProgram)" Condition=" '$(NanoFramework_StartProgram)' != '' " />
+    </ItemGroup>
+
+    <!-- Report Build Task overridden if that's the case-->
+    <Message Importance="high" Text="*** .NET nanoFramework Build Task location overridden with: $(NF_MSBUILDTASK_PATH)" Condition="'$(NF_MSBUILDTASK_PATH)' != ''" />
+
+    <PropertyGroup>
+      <NanoFramework_DebugReferencesStateFile>$(IntermediateOutputPath)nanoFramework_DebugReferences.cache</NanoFramework_DebugReferencesStateFile>
+    </PropertyGroup>
+
+    <ResolveAssemblyReferences
+        Assemblies="@(Reference)"
+        AssemblyFiles="$(NanoFramework_StartProgram);@(_ResolvedProjectReferencePaths)"
+        InstalledAssemblyTables="@(InstalledAssemblyTables)"
+        CandidateAssemblyFiles="@(Content);@(None)"
+        SearchPaths="{CandidateAssemblyFiles};
+                         $(ReferencePath);
+                         {HintPathFromItem};
+                         $(TargetFrameworkDirectory);
+                         {Registry:$(FrameworkRegistryBase),$(TargetFrameworkVersion),$(AssemblyFoldersSuffix)$(AssemblyFoldersExConditions)};
+                         {RawFileName};
+                         $(OutputPath);
+                         @(NanoFramework_StartProgramItem->'%(RootDir)%(Directory)')"
+        AppConfigFile="@(_ResolveAssemblyReferencesApplicationConfigFileForExes)"
+        AutoUnify="$(AutoUnifyAssemblyReferences)"
+        FindDependencies="true"
+        FindSatellites="true"
+        FindRelatedFiles="true"
+        Silent="!$(BuildingProject)"
+        StateFile="$(NanoFramework_DebugReferencesStateFile)">
+      <Output TaskParameter="ResolvedFiles" ItemName="NanoFramework_StartProgram_ResolvedFiles"/>
+      <Output TaskParameter="ResolvedDependencyFiles" ItemName="NanoFramework_StartProgram_ResolvedDependencyFiles"/>
+      <Output TaskParameter="RelatedFiles" ItemName="NanoFramework_ReferenceRelatedPaths"/>
+      <Output TaskParameter="SatelliteFiles" ItemName="NanoFramework_ReferenceSatellitePaths"/>
+      <Output TaskParameter="CopyLocalFiles" ItemName="NanoFramework_ReferenceCopyLocalPaths"/>
+      <Output TaskParameter="SuggestedRedirects" ItemName="NanoFramework_SuggestedBindingRedirects"/>
+      <Output TaskParameter="FilesWritten" ItemName="FileWrites"/>
+    </ResolveAssemblyReferences>
+
+    <ResolveRuntimeDependenciesTask
+        Assembly="$(NanoFramework_Assembly)$(TargetExt)"
+        AssemblyReferences="@(ReferencePath);@(ReferenceDependencyPaths);@(ReferenceSatellitePaths)"
+        StartProgram="$(NanoFramework_StartProgram)"
+        StartProgramReferences="@(NanoFramework_StartProgram_ResolvedFiles);@(NanoFramework_StartProgram_ResolvedDependencyFiles)"/>
+
+  </Target>
+
+  <!-- Overriding common targets.  Application and Deployment manifests are not supported -->
+  <Target Name="_CopyManifestFiles" Condition="'$(NF_IsCoreLibrary)' != 'True' "/>
+  <Target Name="_CopyApplicationConfigFiles" Condition="'$(NF_IsCoreLibrary)' != 'True' "/>
+
+  <!-- 
+    ######################################################################
+    The following groups are to be used when building A CORE ASSEMBLY
+    ######################################################################
+  -->
+
+  <PropertyGroup Condition="'$(NF_IsCoreLibrary)' == 'True' ">
+    <!-- nanoFramework MetaDataProcessor options -->
+    <NFMDP_PE_Parse>$(ProjectDir)$(IntermediateOutputPath)$(TargetFileName)</NFMDP_PE_Parse>
+    <NFMDP_PE_Compile_NoExt>$(ProjectDir)$(IntermediateOutputPath)$(TargetName)</NFMDP_PE_Compile_NoExt>
+    <NFMDP_PE_Compile>$(ProjectDir)$(IntermediateOutputPath)$(TargetName).pe</NFMDP_PE_Compile>
+    <NFMDP_PE_SaveStrings>$(ProjectDir)$(IntermediateOutputPath)$(TargetName).strings</NFMDP_PE_SaveStrings>
+    <NFMDP_PE_DumpExports>$(ProjectDir)$(IntermediateOutputPath)$(TargetName)_exports.txt</NFMDP_PE_DumpExports>
+
+    <!-- nanoFramework MetaDataProcessor STUB options -->
+    <NFMDP_STUB_GenerateSkeletonName>$(AssemblyName)</NFMDP_STUB_GenerateSkeletonName>
+    <NFMDP_STUB_Resolve>true</NFMDP_STUB_Resolve>
+
+    <!-- nanoFramework MetaDataProcessor DAT options -->
+
+    <!-- nanoFramework MetaDataProcessor XML options -->
+    <NFMDP_PE_GenerateDependency>$(ProjectDir)$(IntermediateOutputPath)$(TargetName)_dependency_map.xml</NFMDP_PE_GenerateDependency>
+
+    <!-- misc -->
+    <NanoCLR_DisasmInput>$(ProjectDir)$(IntermediateOutputPath)$(TargetFileName)</NanoCLR_DisasmInput>
+    <NanoCLR_DisasmOutput>$(ProjectDir)$(IntermediateOutputPath)$(TargetName).il</NanoCLR_DisasmOutput>
+
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(NF_IsCoreLibrary)' == 'True' ">
+    <!--<MetaDataProcessorDependsOn>Compile</MetaDataProcessorDependsOn>-->
+    <CoreBuildDependsOn>$(CoreBuildDependsOn);MetaDataProcessorCompile</CoreBuildDependsOn>
+    <PrepareResourcesDependsOn>$(PrepareResourcesDependsOn);NanoResourceGenerator</PrepareResourcesDependsOn>
+    <CleanDependsOn>$(CleanDependsOn);NanoCLR_CleanExtraFiles</CleanDependsOn>
+    <ResolveReferencesDependsOn>$(ResolveReferencesDependsOn);ResolveRuntimeDependencies;</ResolveReferencesDependsOn>
+    <BuildingProject Condition=" '$(BuildingProject)'=='' " >false</BuildingProject>
+    <BuildSilently Condition=" '$(BuildSilently)'=='' " >!$(BuildingProject)</BuildSilently>
+    <NFMDP_GENERATE_STUBS>true</NFMDP_GENERATE_STUBS>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(NF_IsCoreLibrary)' == 'True'" >
+    <ResolveReferencesDependsOn>$(ResolveReferencesDependsOn);ResolveRuntimeDependencies</ResolveReferencesDependsOn>
+    <CoreBuildDependsOn>$(CoreBuildDependsOn);NFMDP_CreateDatabaseAndDependencyMap</CoreBuildDependsOn>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(TargetName)' != ''" >
+    <NFMDP_DUMP_Load Include="$(NFMDP_PE_Compile)" >
+      <InProject>false</InProject>
+    </NFMDP_DUMP_Load>
+    <NFMDP_STUB_Load Include="$(NFMDP_PE_Compile)">
+      <InProject>false</InProject>
+    </NFMDP_STUB_Load>
+  </ItemGroup>
+
+  <Target Name="NFMDP_CreateDatabaseAndDependencyMap"
+          DependsOnTargets="MetaDataProcessorDat" />
+
+  <Target Name="MetaDataProcessorCompile"
+          Inputs="
+            $(NFMDP_PE_Parse);
+            @(NFMDP_PE_LoadHints);
+            $(NFMDP_PE_LoadStrings);
+            @(NFMDP_PE_Load);
+            @(NFMDP_PE_LoadDatabase);
+            @(NFMDP_PE_CreateDatabase);
+            @(NFMDP_PE_Resource)"
+          Outputs="
+            $(NFMDP_PE_SaveStrings);
+            $(NFMDP_PE_GenerateStringsTable);
+            $(NFMDP_PE_DumpAll);
+            $(NFMDP_PE_DumpExports);
+            $(NFMDP_PE_Compile);
+            $(NFMDP_PE_CreateDatabaseFile);
+            $(NFMDP_PE_GenerateDependency)"
+          DependsOnTargets="ResolveRuntimeDependencies"
+          Condition="'$(NFMDP_GENERATE_PE)' == 'true'">
+
+    <ItemGroup>
+      <NFMDP_PE_CreatedFiles Include="$(NFMDP_PE_CreateDatabaseFile)" Condition="'$(NFMDP_PE_CreateDatabaseFile)'!=''"/>
+      <NFMDP_PE_CreatedFiles Include="$(NFMDP_PE_GenerateSkeletonFile)"  Condition="'$(NFMDP_PE_GenerateSkeletonFile)'!=''"/>
+      <NFMDP_PE_CreatedFiles Include="$(NFMDP_PE_GenerateDependency)"  Condition="'$(NFMDP_PE_GenerateDependency)'!=''"/>
+    </ItemGroup>
+
+    <MakeDir Directories="@(NFMDP_PE_CreatedFiles->'%(RootDir)%(Directory)')" />
+
+    <ItemGroup>
+      <NFMDP_STUB_Load Include="@(ResolvedPEFile)" />
+      <NFMDP_DAT_CreateDatabase Include="@(NFMDP_STUB_Load)" />
+      <NFMDP_XML_Load Include="@(NFMDP_STUB_Load)" />
+    </ItemGroup>
+
+    <PropertyGroup>
+      <!-- correct path for stubs output if set -->
+      <NFMDP_STUB_GenerateSkeletonFile Condition="'$(NFMDP_GENERATE_STUBS)' == 'true' AND '$(NFMDP_STUB_GenerateSkeletonFile)'!=''">$(OutDir)$(NFMDP_STUB_GenerateSkeletonFile)</NFMDP_STUB_GenerateSkeletonFile>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <NFMDP_STUB_CreatedFiles Include="$(NFMDP_STUB_CreateDatabaseFile)" Condition="'$(NFMDP_STUB_CreateDatabaseFile)'!=''"/>
+      <NFMDP_STUB_CreatedFiles Include="$(NFMDP_STUB_GenerateSkeletonFile)"  Condition="'$(NFMDP_STUB_GenerateSkeletonFile)'!=''"/>
+      <NFMDP_STUB_CreatedFiles Include="$(NFMDP_STUB_GenerateDependency)"  Condition="'$(NFMDP_STUB_GenerateDependency)'!=''"/>
+    </ItemGroup>
+    <MakeDir Directories="@(NFMDP_STUB_CreatedFiles->'%(RootDir)%(Directory)')" Condition="'$(NFMDP_GENERATE_STUBS)' == 'true'"/>
+
+    <PropertyGroup>
+      <NFMDP_STUB_GenerateSkeletonProject>$(NF_GenerateSkeletonProjectName)</NFMDP_STUB_GenerateSkeletonProject>
+      <NFMDP_STUB_GenerateSkeletonName>$(NF_GenerateStubsRootName)</NFMDP_STUB_GenerateSkeletonName>
+      <NFMDP_STUB_GenerateSkeletonFile>$(NF_GenerateSkeletonFile)</NFMDP_STUB_GenerateSkeletonFile>
+
+      <!-- force this to true as this is a core library -->
+      <NFMDP_STUB_SkeletonWithoutInterop>true</NFMDP_STUB_SkeletonWithoutInterop>
+
+    </PropertyGroup>
+
+    <Message Text="Distilling assemblies to nanoCLR PE files (no stubs)..." Condition="'$(NFMDP_GENERATE_STUBS)' == 'false'" />
+    
+    <!-- Report MDP overridden if that's the case-->
+    <Message Importance="high" Text="*** Metadata processor location overridden with: $(NF_MDP_MSBUILDTASK_PATH)" Condition="'$(NF_MDP_MSBUILDTASK_PATH)' != ''" />
+
+    <!-- Compile to PE -->
+    <MetaDataProcessorTask
+        Verbose="$(NFMDP_PE_Verbose)"
+        Parse="$(NFMDP_PE_Parse)"
+        VerboseMinimize="$(NFMDP_PE_VerboseMinimize)"
+        NoAttributes="$(NFMDP_PE_NoAttributes)"
+        SaveStrings="$(NFMDP_PE_SaveStrings)"
+        LoadStrings="$(NFMDP_PE_LoadStrings)"
+        ImportResources="@(NFMDP_PE_Resource)"
+        GenerateStringsTable="$(NFMDP_PE_GenerateStringsTable)"
+        Compile="$(NFMDP_PE_Compile)"
+        DumpMetadata="$(NFMDP_DUMP_METADATA)"
+        DumpExports="$(NFMDP_PE_DumpExports)"
+        GenerateStubs="$(NFMDP_GENERATE_STUBS)"
+        GenerateDependency="$(NFMDP_PE_GenerateDependency)"
+        CreateDatabase="@(NFMDP_PE_CreateDatabase)"
+        CreateDatabaseFile="$(NFMDP_PE_CreateDatabaseFile)"
+        LoadHints="@(NFMDP_PE_LoadHints)"
+        IgnoreAssembly="@(NFMDP_PE_IgnoreAssembly)"
+        ExcludeClassByName="@(NFMDP_PE_ExcludeClassByName)"
+        Condition="'$(NFMDP_GENERATE_STUBS)' == 'false'">
+      <Output TaskParameter="FilesWritten" ItemName="FileWrites"/>
+      <Output TaskParameter="NativeChecksum" PropertyName="NativeChecksum" />
+    </MetaDataProcessorTask>
+
+    <!--Output native checksum to pipeline-->
+    <!--Azure Pipelines-->
+    <Message Text="##vso[task.setvariable variable=NF_NATIVE_ASSEMBLY_CHECKSUM;]$(NativeChecksum)" Condition="'$(TF_BUILD)' == 'True' and '$(NativeChecksum)' != '' and '$(NativeChecksum)' != '0x00000000'" />
+    <!--GitHub Actions-->
+    <WriteLinesToFile File="$(GITHUB_ENV)" Lines="NF_NATIVE_ASSEMBLY_CHECKSUM=$(NativeChecksum)" Condition="'$(GITHUB_ACTIONS)' == 'True' and '$(NativeChecksum)' != '' and '$(NativeChecksum)' != '0x00000000'" />
+
+    <Message Text="Distilling assemblies to nanoCLR PE files along with stubs and skeleton files..." Condition="'$(NFMDP_GENERATE_STUBS)' == 'true'"/>
+
+    <!-- Create STUB file -->
+    <MetaDataProcessorTask
+        Verbose="$(NFMDP_PE_Verbose)"
+        Parse="$(NFMDP_PE_Parse)"
+        IsCoreLibrary="$(NF_IsCoreLibrary)"
+        VerboseMinimize="$(NFMDP_PE_VerboseMinimize)"
+        NoAttributes="$(NFMDP_STUB_NoAttributes)"
+        SaveStrings="$(NFMDP_STUB_SaveStrings)"
+        LoadStrings="$(NFMDP_STUB_LoadStrings)"
+        GenerateStringsTable="$(NFMDP_STUB_GenerateStringsTable)"
+        Compile="$(NFMDP_PE_Compile)"
+        DumpMetadata="$(NFMDP_DUMP_METADATA)"
+        DumpExports="$(NFMDP_STUB_DumpExports)"
+        GenerateStubs="$(NFMDP_GENERATE_STUBS)"
+        GenerateSkeletonFile="$(NFMDP_STUB_GenerateSkeletonFile)"
+        GenerateSkeletonName="$(NFMDP_STUB_GenerateSkeletonName)"
+        GenerateSkeletonProject="$(NFMDP_STUB_GenerateSkeletonProject)"
+        SkeletonWithoutInterop="$(NFMDP_STUB_SkeletonWithoutInterop)"
+        GenerateDependency="$(NFMDP_STUB_GenerateDependency)"
+        CreateDatabase="@(NFMDP_STUB_CreateDatabase)"
+        CreateDatabaseFile="$(NFMDP_STUB_CreateDatabaseFile)"
+        LoadHints="@(ReferencePath);@(ReferenceDependencyPaths);@(ReferenceSatellitePaths)"
+        IgnoreAssembly="@(NFMDP_STUB_IgnoreAssembly)"
+        ExcludeClassByName="@(NFMDP_PE_ExcludeClassByName)"
+        Condition="'$(NFMDP_GENERATE_STUBS)' == 'true'">
+      <Output TaskParameter="FilesWritten" ItemName="FileWrites"/>
+      <Output TaskParameter="NativeChecksum" PropertyName="NativeChecksum" />
+    </MetaDataProcessorTask>
+
+    <!--Output native checksum to pipeline-->
+    <!--Azure Pipelines-->
+    <Message Text="##vso[task.setvariable variable=NF_NATIVE_ASSEMBLY_CHECKSUM;]$(NativeChecksum)" Condition="'$(TF_BUILD)' == 'True' and '$(NativeChecksum)' != '' and '$(NativeChecksum)' != '0x00000000'" />
+    <!--GitHub Actions-->
+    <WriteLinesToFile File="$(GITHUB_ENV)" Lines="NF_NATIVE_ASSEMBLY_CHECKSUM=$(NativeChecksum)" Condition="'$(GITHUB_ACTIONS)' == 'True' and '$(NativeChecksum)' != '' and '$(NativeChecksum)' != '0x00000000'" />
+
+    <!-- Copy files (dll, pe, pdb and pdbx) to ouput directory -->
+    <CallTarget Targets="CopyFilesToOutputDirectory" />
+    <CallTarget Targets="CopyNanoFrameworkFiles" />
+    <CallTarget Targets="CopyBackNanoFrameworkDlls" />
+
+  </Target>
+
+
+  <Target Name="MetaDataProcessorDat_MSG" >
+    <Message Text="Creating assemblies database $(NFMDP_DAT_CreateDatabaseFile) with assemblies: " />
+    <Message Text="    %(NFMDP_DAT_CreateDatabase.identity)" />
+  </Target>
+
+  <!-- MetaDataProcessor DAT -->
+  <Target Name="MetaDataProcessorDat"
+          Inputs="
+            $(NFMDP_DAT_Parse);
+            @(NFMDP_DAT_LoadHints);
+            $(NFMDP_DAT_LoadStrings);
+            @(NFMDP_DAT_Load);
+            @(NFMDP_DAT_LoadDatabase);
+            @(NFMDP_DAT_CreateDatabase);
+            @(ResolvedPEFile);
+            $(MsBuildProjectFullPath)"
+          Outputs="
+            $(NFMDP_DAT_SaveStrings);
+            $(NFMDP_DAT_GenerateStringsTable);
+            $(NFMDP_DAT_DumpAll);
+            $(NFMDP_DAT_DumpExports);
+            $(NFMDP_DAT_Compile);
+            $(NFMDP_DAT_CreateDatabaseFile);
+            $(NFMDP_DAT_GenerateDependency)"
+          Condition="'$(NFMDP_DAT_FILES)' == 'true'">
+
+    <CallTarget Targets="MetaDataProcessorDat_MSG" Condition="'$(NFMDP_DAT_Verbose)'=='true'" />
+
+    <ItemGroup>
+      <NFMDP_DAT_CreatedFiles Include="$(NFMDP_DAT_CreateDatabaseFile)" Condition="'$(NFMDP_DAT_CreateDatabaseFile)'!=''"/>
+      <NFMDP_DAT_CreatedFiles Include="$(NFMDP_DAT_GenerateSkeletonFile)"  Condition="'$(NFMDP_DAT_GenerateSkeletonFile)'!=''"/>
+      <NFMDP_DAT_CreatedFiles Include="$(NFMDP_DAT_GenerateDependency)"  Condition="'$(NFMDP_DAT_GenerateDependency)'!=''"/>
+    </ItemGroup>
+
+    <MakeDir Directories="@(NFMDP_DAT_CreatedFiles->'%(RootDir)%(Directory)')" />
+
+    <MetaDataProcessorTask
+        Verbose="$(NFMDP_DAT_Verbose)"
+        Parse="$(NFMDP_DAT_Parse)"
+        VerboseMinimize="$(NFMDP_DAT_VerboseMinimize)"
+        NoAttributes="$(NFMDP_DAT_NoAttributes)"
+        SaveStrings="$(NFMDP_DAT_SaveStrings)"
+        LoadStrings="$(NFMDP_DAT_LoadStrings)"
+        GenerateStringsTable="$(NFMDP_DAT_GenerateStringsTable)"
+        Compile="$(NFMDP_DAT_Compile)"
+        DumpMetadata="$(NFMDP_DUMP_METADATA)"
+        DumpExports="$(NFMDP_DAT_DumpExports)"
+        GenerateSkeletonFile="$(NFMDP_DAT_GenerateSkeletonFile)"
+        GenerateSkeletonName="$(NFMDP_DAT_GenerateSkeletonName)"
+        GenerateSkeletonProject="$(NFMDP_DAT_GenerateSkeletonProject)"
+        GenerateDependency="$(NFMDP_DAT_GenerateDependency)"
+        CreateDatabase="@(NFMDP_DAT_CreateDatabase)"
+        CreateDatabaseFile="$(NFMDP_DAT_CreateDatabaseFile)"
+        Resolve="$(NFMDP_DAT_Resolve)"
+        LoadHints="@(ReferencePath);@(ReferenceDependencyPaths);@(ReferenceSatellitePaths)"
+        IgnoreAssembly="@(NFMDP_DAT_IgnoreAssembly)"
+        Load="@(NFMDP_DAT_Load)"
+        LoadDatabase="@(NFMDP_DAT_LoadDatabase)"
+        ExcludeClassByName="@(NFMDP_DAT_ExcludeClassByName)">
+      <Output TaskParameter="FilesWritten" ItemName="FileWrites"/>
+      <Output TaskParameter="NativeChecksum" PropertyName="NativeChecksum" />
+    </MetaDataProcessorTask>
+
+    <!--Output native checksum to pipeline-->
+    <!--Azure Pipelines-->
+    <Message Text="##vso[task.setvariable variable=NF_NATIVE_ASSEMBLY_CHECKSUM;]$(NativeChecksum)" Condition="'$(TF_BUILD)' == 'True' and '$(NativeChecksum)' != '' and '$(NativeChecksum)' != '0x00000000'" />
+    <!--GitHub Actions-->
+    <WriteLinesToFile File="$(GITHUB_ENV)" Lines="NF_NATIVE_ASSEMBLY_CHECKSUM=$(NativeChecksum)" Condition="'$(GITHUB_ACTIONS)' == 'True' and '$(NativeChecksum)' != '' and '$(NativeChecksum)' != '0x00000000'" />
+
+    <!-- Report MDP overridden if that's the case-->
+    <Message Importance="high" Text="*** Metadata processor location overridden with: $(NF_MDP_MSBUILDTASK_PATH)" Condition="'$(NF_MDP_MSBUILDTASK_PATH)' != ''" />
+
+  </Target>
+
+  <!-- this target is to be used when building A CORE ASSEMBLY -->
+  <Target Name="ResolveRuntimeDependencies"
+          Condition="'$(NF_IsCoreLibrary)' == 'True' ">
+
+    <CreateItem
+        Include="$(NanoFramework_StartProgram)"
+        Condition=" '$(NanoFramework_StartProgram)' != '' ">
+      <Output TaskParameter="Include" ItemName="NanoFramework_StartProgramItem"/>
+    </CreateItem>
+
+    <CreateProperty Value="$(IntermediateOutputPath)NanoCLR_DebugReferences.cache">
+      <Output TaskParameter="Value" PropertyName="NanoCLR_DebugReferencesStateFile" />
+    </CreateProperty>
+
+    <!-- Report Build Task overridden if that's the case-->
+    <Message Importance="high" Text="*** .NET nanoFramework Build Task location overridden with: $(NF_MSBUILDTASK_PATH)" Condition="'$(NF_MSBUILDTASK_PATH)' != ''" />
+
+    <ResolveAssemblyReference
+        Assemblies="@(Reference)"
+        AssemblyFiles="$(NanoFramework_StartProgram);@(_ResolvedProjectReferencePaths)"
+        CandidateAssemblyFiles="@(Content);@(None)"
+        SearchPaths="{CandidateAssemblyFiles};
+                         $(ReferencePath);
+                         {HintPathFromItem};
+                         $(TargetFrameworkDirectory);
+                         {Registry:$(FrameworkRegistryBase),$(TargetFrameworkVersion),$(AssemblyFoldersSuffix)$(AssemblyFoldersExConditions)};
+                         {RawFileName};
+                         $(OutputPath);
+                         @(NanoFramework_StartProgramItem->'%(RootDir)%(Directory)')"
+        TargetProcessorArchitecture="$(ProcessorArchitecture)"
+        AppConfigFile="@(_ResolveAssemblyReferencesApplicationConfigFileForExes)"
+        AutoUnify="$(AutoUnifyAssemblyReferences)"
+        FindDependencies="true"
+        FindSatellites="true"
+        FindRelatedFiles="true"
+        Silent="!$(BuildingProject)"
+        StateFile="$(NanoFramework_DebugReferencesStateFile)">
+      <Output TaskParameter="ResolvedFiles" ItemName="NanoFramework_StartProgram_ResolvedFiles"/>
+      <Output TaskParameter="ResolvedDependencyFiles" ItemName="NanoFramework_StartProgram_ResolvedDependencyFiles"/>
+      <Output TaskParameter="RelatedFiles" ItemName="NanoFramework_ReferenceRelatedPaths"/>
+      <Output TaskParameter="SatelliteFiles" ItemName="NanoFramework_ReferenceSatellitePaths"/>
+      <Output TaskParameter="CopyLocalFiles" ItemName="NanoFramework_ReferenceCopyLocalPaths"/>
+      <Output TaskParameter="SuggestedRedirects" ItemName="NanoFramework_SuggestedBindingRedirects"/>
+      <Output TaskParameter="FilesWritten" ItemName="FileWrites"/>
+    </ResolveAssemblyReference>
+
+    <ItemGroup>
+      <_ResolvedPEFile Include="@(NanoFramework_StartProgram_ResolvedFiles->'%(RootDir)%(Directory)%(filename).pe')" />
+      <_ResolvedPEFile Include="@(NanoFramework_StartProgram_ResolvedFiles->'%(RootDir)%(Directory)%(filename).pe')" />
+      <_ResolvedPEFile Include="@(NanoFramework_StartProgram_ResolvedDependencyFiles->'%(RootDir)%(Directory)%(filename).pe')" />
+      <_ResolvedPEFile Include="@(NanoFramework_StartProgram_ResolvedDependencyFiles->'%(RootDir)%(Directory)%(filename).pe')" />
+      <ResolvedPEFile Include="%(_ResolvedPEFile.identity)" Condition="EXISTS(%(_ResolvedPEFile.identity))" />
+    </ItemGroup>
+
+    <ResolveRuntimeDependenciesTask
+        Condition="'$(BuildingInsideVisualStudio)' == 'true'"
+        Assembly="$(NanoFramework_Assembly)$(TargetExt)"
+        AssemblyReferences="@(ReferencePath);@(ReferenceDependencyPaths);@(ReferenceSatellitePaths)"
+        StartProgram="$(NanoFramework_StartProgram)"
+        StartProgramReferences="@(NanoFramework_StartProgram_ResolvedFiles);@(NanoFramework_StartProgram_ResolvedDependencyFiles)"/>
+
+  </Target>
+
+  <Target
+    Name="NanoCLR_CleanExtraFiles"
+    Condition="'$(NF_IsCoreLibrary)' == 'True' ">
+    <Delete Files="
+            $(NFMDP_PE_SaveStrings);
+            $(NFMDP_PE_GenerateStringsTable);
+            $(NFMDP_PE_DumpAll);
+            $(NFMDP_PE_Compile);$(NFMDP_PE_Compile_NoExt).pdbx;
+            $(NFMDP_PE_DumpExports);
+            $(NFMDP_PE_CreateDatabaseFile);
+            $(NFMDP_PE_GenerateDependency);
+            $(NFMDP_PE_SaveStrings);
+            $(NFMDP_PE_GenerateStringsTable);
+            $(NFMDP_PE_DumpAll);
+            $(NFMDP_PE_Compile);
+            $(NFMDP_PE_DumpExports);
+            $(NFMDP_PE_CreateDatabaseFile);
+            $(NFMDP_PE_GenerateDependency);
+            $(NFMDP_PE_SaveStrings);
+            $(NFMDP_PE_GenerateStringsTable);
+            $(NFMDP_PE_DumpAll);
+            $(NFMDP_PE_Compile);
+            $(NFMDP_PE_DumpExports);
+            $(NFMDP_PE_CreateDatabaseFile);
+            $(NFMDP_PE_GenerateDependency);
+            $(NFMDP_STUBS_SaveStrings);
+            $(NFMDP_STUBS_GenerateStringsTable);
+            $(NFMDP_STUBS_Compile);
+            $(NFMDP_STUBS_DumpExports);
+            $(NFMDP_STUBS_CreateDatabaseFile);
+            $(NFMDP_STUBS_GenerateDependency);
+            $(NFMDP_DAT_SaveStrings);
+            $(NFMDP_DAT_GenerateStringsTable);
+            $(NFMDP_DAT_DumpAll);
+            $(NFMDP_DAT_Compile);
+            $(NFMDP_DAT_DumpExports);
+            $(NFMDP_DAT_CreateDatabaseFile);
+            $(NFMDP_DAT_GenerateDependency);
+            $(ProjectDir)$(IntermediateOutputPath)DesignTimeResolveAssemblyReferencesInput.cache"
+        TreatErrorsAsWarnings="true" >
+    </Delete>
+
+  </Target>
+
+  <Target Name="NanoResourceGenerator"
+          Condition="'@(EmbeddedResource)'!='' and '$(NF_IsCoreLibrary)' == 'True'"
+          DependsOnTargets="$(NanoResourceGeneratorDependsOn)">
+
+    <!-- Report Build Task overridden if that's the case-->
+    <Message Importance="high" Text="*** .NET nanoFramework Build Task location overridden with: $(NF_MSBUILDTASK_PATH)" Condition="'$(NF_MSBUILDTASK_PATH)' != ''" />
+
+    <GenerateNanoResourceTask
+        Sources="@(EmbeddedResource)"
+        Condition=" '%(EmbeddedResource.Type)' == 'Resx' and '%(EmbeddedResource.GenerateResource)' != 'false'"
+        References="@(ReferencePath)"
+        UseSourcePath="$(UseSourcePath)"
+        StateFile="$(IntermediateOutputPath)$(MSBuildProjectFile).NanoResourceGenerator.Cache"
+        OutputResources="@(EmbeddedResource->'$(ProjectDir)$(IntermediateOutputPath)%(ManifestResourceName).nanoresources')">
+      <Output TaskParameter="OutputResources" ItemName="NFMDP_PE_Resource"/>
+      <Output TaskParameter="OutputResources" ItemName="FileWrites"/>
+    </GenerateNanoResourceTask>
+
+  </Target>
+
+  <Target Name="Disasm"
+          Condition="Exists('$(NanoFramework_DisasmInput)')"
+          Inputs="$(NanoFramework_DisasmInput)"
+          Outputs="$(NanoFramework_DisasmOutput)">
+    <Exec Command="ildasm.exe $(ILDASM_FLAGS) /out=$(NanoFramework_DisasmOutput) $(NanoFramework_DisasmInput)" />
+  </Target>
+
+  <!-- 
+    ###########################################################
+    common targets for CORE and NONE CORE builds 
+    ###########################################################
+  -->
+
+  <Target Name="ReferencedAssemblyDllsToPeFiles"
+          DependsOnTargets="ResolveRuntimeDependencies">
+
+    <ItemGroup>
+      <_ReferencedAssemblyDll Include="@(NanoFramework_StartProgram_ResolvedFiles);@(NanoFramework_StartProgram_ResolvedDependencyFiles)" />
+      <_ReferencedPeFile Include="@(_ReferencedAssemblyDll->'%(RootDir)%(Directory)%(filename).pe')" />
+      <ReferencedPeFile Include="%(_ReferencedPeFile.identity)" Condition="EXISTS(%(_ReferencedPeFile.identity))" />
+    </ItemGroup>
+
+  </Target>
+
+  <Target Name="NanoResourceGenerator"
+          Condition="'@(EmbeddedResource)'!=''"
+          DependsOnTargets="$(NanoResourceGeneratorDependsOn)">
+
+    <!-- Report Build Task overridden if that's the case-->
+    <Message Importance="high" Text="*** .NET nanoFramework Build Task location overridden with: $(NF_MSBUILDTASK_PATH)" Condition="'$(NF_MSBUILDTASK_PATH)' != ''" />
+
+    <GenerateNanoResourceTask
+        Sources="@(EmbeddedResource)"
+        Condition=" '%(EmbeddedResource.Type)' == 'Resx' and '%(EmbeddedResource.GenerateResource)' != 'false'"
+        References="@(ReferencePath)"
+        UseSourcePath="$(UseSourcePath)"
+        StateFile="$(IntermediateOutputPath)$(MSBuildProjectFile).NanoGenerateResource.Cache"
+        OutputResources="@(EmbeddedResource->'$(ProjectDir)$(IntermediateOutputPath)%(ManifestResourceName).nanoresources')">
+      <Output TaskParameter="OutputResources" ItemName="NanoFramework_Resources"/>
+      <Output TaskParameter="FilesWritten" ItemName="FileWrites"/>
+    </GenerateNanoResourceTask>
+
+  </Target>
+
+  <!--
+          CoreClean isn't very good at cleaning files not built into IntermediateDirectory or OutDirectory.  Just clean
+          the known files here
+    -->
+
+  <Target Name="ConvertResources"
+          Condition="Exists('$(OutDir)$(TargetFileName)')">
+
+    <ResourceConverter
+      Condition=" '$(NanoFramework_Skip_ConvertResources)' != 'true' "
+      AssemblyName="$(OutDir)$(TargetFileName)"
+      OutputFile="$(ProjectDir)\Resources.resx"
+      ResourceDirectories="$(CONVERT_RESOURCES_DIR)"/>
+
+  </Target>
+
+  <Target Name="NanoGenerateBinaryOutput">
+
+    <!-- Report Build Task overridden if that's the case-->
+    <Message Importance="high" Text="*** .NET nanoFramework Build Task location overridden with: $(NF_MSBUILDTASK_PATH)" Condition="'$(NF_MSBUILDTASK_PATH)' != ''" />
+
+    <GenerateBinaryOutputTask
+        AssemblyPE="$(NanoFramework_IntermediateAssembly).pe"
+        Assembly="$(NanoFramework_Assembly)$(TargetExt)"
+        AssemblyReferences="@(ReferencePath);@(ReferenceDependencyPaths)">
+      <Output TaskParameter="FileWritten" ItemName="FileWrites" />
+    </GenerateBinaryOutputTask>
+
+  </Target>
+
+</Project>

@@ -1,0 +1,56 @@
+{
+    "categories": [
+        {
+            "title": "## New Features and enhancements",
+            "labels": [
+                "Type: enhancement",
+                "VS2022"
+            ],
+            "exhaustive": true
+        },
+        {
+            "title": "## Bug Fixes",
+            "labels": [
+                "Type: bug",
+                "VS2022"
+            ],
+            "exhaustive": true
+        },
+        {
+            "title": "## Documentation",
+            "labels": [
+                "Type: documentation",
+                "VS2022"
+            ],
+            "exhaustive": true
+        },
+        {
+            "title": "## ⚠️ Breaking Changes",
+            "labels": [
+                "Breaking-Change",
+                "VS2022"
+            ],
+            "exhaustive": true
+        },
+        {
+            "title": "## Updated dependencies",
+            "labels": [
+                "Type: dependencies",
+                "VS2022"
+            ],
+            "exhaustive": true
+        }
+    ],
+    "sort": "ASC",
+    "template": "${{CHANGELOG}}\n\n**Full Changelog:** ${{RELEASE_DIFF}}\n\n<h4>Install from Visual Studio Marketplace</h4>\nThe following Visual Studio Extension is available for install from this release:\n\n:package: [.NET nanoFramework VS2022 Extension](https://marketplace.visualstudio.com/items?itemName=nanoframework.nanoFramework-VS2022-Extension)",
+    "pr_template": "* ${{TITLE}} by @${{AUTHOR}} in #${{NUMBER}}",
+    "empty_template": "- no changes",
+    "max_tags_to_fetch": 200,
+    "max_pull_requests": 200,
+    "tag_resolver": {
+        "method": "sort",
+        "filter": {
+            "pattern": "v2022.(.+)"
+        }
+    }
+}

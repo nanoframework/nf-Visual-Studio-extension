@@ -1,0 +1,138 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="Current" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <PropertyGroup>
+    <TargetingClr2Framework>true</TargetingClr2Framework>
+    <_TargetFrameworkDirectories>$(MSBuildThisFileDirectory)</_TargetFrameworkDirectories>
+    <_FullFrameworkReferenceAssemblyPaths>$(MSBuildThisFileDirectory)</_FullFrameworkReferenceAssemblyPaths>
+    <TargetFrameworkIdentifier>.NETnanoFramework</TargetFrameworkIdentifier>
+    <TargetFrameworkVersion>v1.0</TargetFrameworkVersion>
+    <TargetFrameworkMoniker>.NETnanoFramework,Version=$(TargetFrameworkVersion)</TargetFrameworkMoniker>
+    <TargetFrameworkMonikerDisplayName>.NET nanoFramework 1.0</TargetFrameworkMonikerDisplayName>
+    <GenerateTargetFrameworkAttribute>true</GenerateTargetFrameworkAttribute>
+    <GenerateManifests>true</GenerateManifests>
+    <DefineConstants>$(DefineConstants),NANOFRAMEWORK_1_0</DefineConstants>
+  </PropertyGroup>
+
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+
+  <PropertyGroup>
+    <!--<DefineCommonCapabilities>false</DefineCommonCapabilities>-->
+    <!--<DefineCommonReferenceSchemas>false</DefineCommonReferenceSchemas>-->
+  </PropertyGroup>
+
+  <!--Importing project specific targets **AFTER** Microsoft.CSharp.targets so that project specific xaml rules can override those defined in MSBuild-->
+  <Import Project="$(MSBuildThisFileDirectory)\NFProjectSystem.targets" />
+
+  <ItemGroup>
+    <!-- need to remove LaunchProfiles otherwise the C# project system provides it's ProjectDebuggerProvider that applies to ProjectCapability.LaunchProfiles-->
+    <ProjectCapability Remove="LaunchProfiles" />
+    <ProjectCapability Include="NanoCSharpProject" />
+
+    <ProjectCapability Include="ReferencesFolder;LanguageService"/>
+
+    <!-- Remove these as they are not important or interfere with nanoFramework projects -->
+    <ProjectCapability Remove="COMReferences" />
+    <ProjectCapability Include="SharedProjectReferences" />
+    <ProjectCapability Remove="ProjectConfigurationsInferredFromUsage" />
+    <ProjectCapability Include="ReferenceManagerAssemblies" />
+    <ProjectCapability Remove="ReferenceManagerCOM" />
+    <ProjectCapability Remove="DependenciesTree" />
+    <ProjectCapability Include="ReferenceManagerProjects" />
+    <ProjectCapability Include="ReferenceManagerSharedProjects" />
+    <ProjectCapability Remove="ReferenceManagerWinRT" />
+    <ProjectCapability Include="SingleFileGenerators" />
+    <ProjectCapability Include="IOutputGroupsService" />
+
+    <ProjectCapability Remove="UseFileGlobs" />
+
+    <!-- DiagnoseCapabilities is useful when debugging the project system -->
+    <!--<ProjectCapability Include="DiagnoseCapabilities"/>-->
+    <!-- DependenciesTree capability lights up a Dependencies tree node and it's sub node providers-->
+    <!--<ProjectCapability Include="DependenciesTree" />-->
+  </ItemGroup>
+
+  <ItemGroup>
+
+    <PropertyPageSchema Include="$(MSBuildThisFileDirectory)Rules\general.xaml;">
+      <Context>Project</Context>
+    </PropertyPageSchema>
+
+    <PropertyPageSchema Include="$(MSBuildThisFileDirectory)Rules\nfProjectItemsSchema.xaml;"/>
+
+    <PropertyPageSchema Include="$(MSBuildThisFileDirectory)Rules\NanoDebugger.xaml">
+      <Context>Project</Context>
+    </PropertyPageSchema>
+
+    <PropertyPageSchema Include="$(MSBuildThisFileDirectory)Rules\csharp.browseobject.xaml;">
+      <Context>BrowseObject</Context>
+    </PropertyPageSchema>
+
+    <PropertyPageSchema Include="$(MSBuildThisFileDirectory)Rules\csharp.xaml;">
+      <Context>File</Context>
+    </PropertyPageSchema>
+
+    <PropertyPageSchema Include="$(MSBuildThisFileDirectory)Rules\general_file.xaml">
+      <Context>File</Context>
+    </PropertyPageSchema>
+    <PropertyPageSchema Include="$(MSBuildThisFileDirectory)Rules\scc.xaml">
+      <Context>Invisible</Context>
+    </PropertyPageSchema>
+
+    <PropertyPageSchema Include="
+                        $(MSBuildThisFileDirectory)Rules\folder.xaml;
+                        $(MSBuildThisFileDirectory)Rules\none.xaml;
+                        ">
+      <Context>File;BrowseObject</Context>
+    </PropertyPageSchema>
+
+    <PropertyPageSchema Include="$(MSBuildThisFileDirectory)Rules\general.browseobject.xaml">
+      <Context>BrowseObject</Context>
+    </PropertyPageSchema>
+
+  </ItemGroup>
+
+  <!-- developer notes: need to hack this target (which exists on Microsoft.Common.CurrentVersion.targets) because it's conditions prevent it 
+from generating the TargetFrameworkMonikerAttribute file. All the rest (such as the path) seems to be OK -->
+  <Target Name="GenerateTargetFrameworkMonikerAttribute"
+            BeforeTargets="BeforeCompile"
+            DependsOnTargets="PrepareForBuild;GetReferenceAssemblyPaths"
+            Inputs="$(MSBuildToolsPath)\Microsoft.Common.targets"
+            Outputs="$(TargetFrameworkMonikerAssemblyAttributesPath)">
+
+    <PropertyGroup>
+      <TargetFrameworkMonikerAssemblyAttributeText>
+        // &lt;autogenerated /&gt;
+        using System%3b
+        using System.Reflection%3b
+        [assembly: global::System.Runtime.Versioning.TargetFrameworkAttribute(&quot;$(TargetFrameworkMoniker)&quot;, FrameworkDisplayName = &quot;$(TargetFrameworkMonikerDisplayName)&quot;)]
+
+      </TargetFrameworkMonikerAssemblyAttributeText>
+    </PropertyGroup>
+
+    <WriteLinesToFile
+        File="$(TargetFrameworkMonikerAssemblyAttributesPath)"
+        Lines="$(TargetFrameworkMonikerAssemblyAttributeText)"
+        Overwrite="true"
+        ContinueOnError="true"
+        />
+
+    <ItemGroup Condition="'@(Compile)' != '' ">
+      <Compile Include="$(TargetFrameworkMonikerAssemblyAttributesPath)"/>
+    </ItemGroup>
+  </Target>
+
+  <PropertyGroup>
+    <!-- Roslyn requires the runtimemetadataversion parameter when building a core assembly -->
+    <CompilerResponseFile Condition="'$(IsCoreAssembly)' == 'true'">$(ProjectDir)coreAssembly.rsp</CompilerResponseFile>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <CommandLineArgsForDesignTimeEvaluation>-langversion:$(LangVersion)</CommandLineArgsForDesignTimeEvaluation>
+    <CommandLineArgsForDesignTimeEvaluation Condition="'$(DefineConstants)' != ''">$(CommandLineArgsForDesignTimeEvaluation) -define:$(DefineConstants)</CommandLineArgsForDesignTimeEvaluation>
+  </PropertyGroup>
+
+  <!-- Import MetaDataProcessor targets **AFTER** everything else-->
+  <Import Project="$(MSBuildThisFileDirectory)\NFProjectSystem.MDP.targets" />
+
+</Project>

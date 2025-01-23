@@ -1,0 +1,13 @@
+﻿## Developer Notes
+
+!! Be extremely careful when updating NuGet packages !!
+We are pushing the limits of the VS extensibility SDK, and it's very easy to break things. In particular, the most critical symptom to check for with each package update is the ability to start a debug session.
+On failure, a CompositionException is usually silently thrown, and the debugger refuses to start without any further clue on what is wrong.
+
+VS2019
+
+- ICSharpCode cannot be updated beyond v7.2.1.6856 because System.Collections.Immutable cannot go beyond v5.0.0.
+
+VS2022
+
+- ICSharpCode cannot be updated beyond v7.2.1.6856 because System.Collections.Immutable cannot go beyond v5.0.0.

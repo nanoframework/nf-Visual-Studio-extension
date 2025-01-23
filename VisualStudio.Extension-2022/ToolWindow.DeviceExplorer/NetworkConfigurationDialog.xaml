@@ -1,0 +1,267 @@
+﻿<vsp:DialogWindow
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:vsp="clr-namespace:Microsoft.VisualStudio.PlatformUI;assembly=Microsoft.VisualStudio.Shell.15.0"
+             xmlns:extension="clr-namespace:nanoFramework.Tools.VisualStudio.Extension"
+             xmlns:debuglib="clr-namespace:nanoFramework.Tools.Debugger;assembly=nanoFramework.Tools.DebugLibrary.Net"
+             xmlns:Converters="clr-namespace:nanoFramework.Tools.VisualStudio.Extension.Converters"
+             xmlns:ViewModel="clr-namespace:nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel"
+             x:Class="nanoFramework.Tools.VisualStudio.Extension.NetworkConfigurationDialog"
+             Background="{DynamicResource {x:Static vsp:EnvironmentColors.ToolWindowBackgroundBrushKey}}"
+             Foreground="{DynamicResource {x:Static vsp:EnvironmentColors.ToolWindowTextBrushKey}}"
+             mc:Ignorable="d"
+             WindowStartupLocation="CenterScreen"
+             Width="413" Height="430"
+             x:Name="NetworkConfiguration" Title="Network Configuration">
+    <vsp:DialogWindow.Resources>
+        <Converters:Wireless80211InterfaceTypeToBoolConverter x:Key="Wireless80211InterfaceTypeToBoolConverter"/>
+        <Converters:MacAddressConverter x:Key="MacAddressConverter"/>
+        <Converters:NetworkInterfaceTypeConverter x:Key="NetworkInterfaceTypeConverter"/>
+        <Converters:AuthenticationTypeConverter x:Key="AuthenticationTypeConverter"/>
+        <Converters:EncryptionTypeConverter x:Key="EncryptionTypeConverter"/>
+        <Converters:RadioTypeConverter x:Key="RadioTypeConverter"/>
+        <Converters:Wireless80211_OptionsTypeConverter x:Key="Wireless80211_OptionsTypeConverter"/>
+        <Converters:WirelessAP_OptionsTypeConverter x:Key="WirelessAP_OptionsTypeConverter"/>
+    </vsp:DialogWindow.Resources>
+
+    <Grid Margin="0,0,0,4">
+        <TabControl x:Name="IPversionOptions" HorizontalAlignment="Left" Height="333" Margin="10,10,0,0" VerticalAlignment="Top" Width="372">
+            <TabItem Header="IPv4">
+                <Grid Margin="10,10,10,10">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <!--Ipv4 address related configurations-->
+
+                    <GroupBox Grid.Row="1" Margin="0,22,0,0" Header="                                                          " IsEnabled="{Binding IsChecked, ElementName=IPv4Manual}" >
+                        <Grid Margin="8,10,10,10">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="40*"/>
+                                <ColumnDefinition Width="50*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <!--Ipv4 address-->
+                            <Label Grid.Row="0" Grid.Column="0" HorizontalAlignment="Left" Content="IP address:" Margin="-6,0,0,0" />
+                            <extension:IPMaskedTextBox Grid.Row="0" Grid.Column="1" HorizontalAlignment="Left" Height="23" VerticalAlignment="Top" Width="100" Margin="0,3,0,0" x:Name="IPv4Address"/>
+
+                            <!--Ipv4 subnet mask-->
+                            <Label Grid.Row="1" Grid.Column="0" HorizontalAlignment="Left" Content="Subnet mask:" Margin="-6,6,0,0" />
+                            <extension:IPMaskedTextBox Grid.Row="1" Grid.Column="1" HorizontalAlignment="Left" Height="23" VerticalAlignment="Top" Width="100" Margin="0,6,0,0" x:Name="IPv4NetMask"/>
+
+                            <!--Ipv4 gateway-->
+                            <Label Grid.Row="2" Grid.Column="0" HorizontalAlignment="Left" Content="Default gateway:" Margin="-6,6,0,0" />
+                            <extension:IPMaskedTextBox Grid.Row="2" Grid.Column="1" HorizontalAlignment="Left" Height="23" VerticalAlignment="Top" Width="100" Margin="0,6,0,0" x:Name="IPv4GatewayAddress"/>
+
+                        </Grid>
+                    </GroupBox>
+                    <!--These radio buttons HAVE TO BE HERE (after the GroupBox) so they are in a higher layer than the GroupBox and we can accomplish the same look and feel as the Windows system dialog-->
+                    <RadioButton x:Name="IPv4Automatic" Grid.Row="0" GroupName="AutoIPv4" Margin="10,5,-10,133" Grid.RowSpan="2" Content="Obtain an IP address automatically" IsChecked="True"/>
+                    <RadioButton x:Name="IPv4Manual" GroupName="AutoIPv4" Margin="10,24,-10,116" Grid.Row="1" Content="Use the following IP address"/>
+
+                    <!--Ipv4 DNS configurations-->
+                    <GroupBox Grid.Row="3" Margin="0,22,0,0" Header="                                                                             " IsEnabled="{Binding IsChecked, ElementName=IPv4DnsManual}" >
+                        <Grid Margin="8,10,10,10">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="40*"/>
+                                <ColumnDefinition Width="50*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <!--Ipv4 preferred DNS-->
+                            <Label Grid.Row="0" Grid.Column="0" HorizontalAlignment="Left" Content="Preferred DNS server:" Margin="-6,0,0,0" />
+                            <extension:IPMaskedTextBox Grid.Row="0" Grid.Column="1" HorizontalAlignment="Left" Height="23" VerticalAlignment="Top" Width="100" Margin="0,3,0,0" x:Name="IPv4Dns1Address"
+                                                       />
+
+                            <!--Ipv4 alternate DNS-->
+                            <Label Grid.Row="1" Grid.Column="0" HorizontalAlignment="Left" Content="Alternate DNS server:" Margin="-6,6,0,0" />
+                            <extension:IPMaskedTextBox Grid.Row="1" Grid.Column="1" HorizontalAlignment="Left" Height="23" VerticalAlignment="Top" Width="100" Margin="0,6,0,0" x:Name="IPv4Dns2Address"/>
+
+                        </Grid>
+                    </GroupBox>
+                    <!--These radio buttons HAVE TO BE HERE (after the GroupBox) so they are in a higher layer than the GroupBox and we can accomplish the same look and feel as the Windows system dialog-->
+                    <RadioButton x:Name="IPv4DnsAutomatic" Grid.Row="2" GroupName="DnsIPv4" Margin="10,5,-10,101" Grid.RowSpan="2" IsChecked="True" Content="Obtain DNS server address automatically" />
+                    <RadioButton x:Name="IPv4DnsManual" GroupName="DnsIPv4" Margin="10,24,-10,84" Grid.Row="3" Content="Use the following DNS server addresses:"/>
+
+                </Grid>
+            </TabItem>
+
+            <TabItem Header="IPv6" IsEnabled="False">
+                <Grid/>
+            </TabItem>
+
+            <TabItem Header="Network Interface">
+                <Grid Margin="10,10,10,10">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="20*"/>
+                        <ColumnDefinition Width="50*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!--MAC address-->
+                    <Label Grid.Row="0" Grid.Column="0" HorizontalAlignment="Left" Content="MAC address:" Margin="-6,0,0,0" />
+                    <TextBox Grid.Row="0" Grid.Column="1" HorizontalAlignment="Left" Height="23" VerticalAlignment="Center" VerticalContentAlignment="Center" Width="120" Margin="0,3,0,0" x:Name="MACAddress"
+                                         Text="{Binding DeviceNetworkConfiguration.MacAddress, Converter={StaticResource MacAddressConverter}, ValidatesOnNotifyDataErrors=False}" IsEnabled="{Binding CanChangeMacAddress}" />
+                    
+
+                    <!--Interface type-->
+                    <Label Grid.Row="1" Grid.Column="0" HorizontalAlignment="Left" Content="Interface type:" Margin="-6,6,0,0" />
+                    <ComboBox Grid.Row="1" Grid.Column="1" HorizontalAlignment="Left" Height="23" Width="120" VerticalAlignment="Center" Margin="0,6,0,0" x:Name="InterfaceType" IsEnabled="False" IsReadOnly="True" IsEditable="False"
+                              DisplayMemberPath="DisplayName"
+                              ItemsSource="{extension:ByteEnumToItemsSource {x:Type debuglib:NetworkInterfaceType}}"
+                              SelectedValue="{Binding DeviceNetworkConfiguration.InterfaceType, Converter={StaticResource NetworkInterfaceTypeConverter}, Mode=TwoWay, NotifyOnTargetUpdated=True, NotifyOnSourceUpdated=True, ValidatesOnNotifyDataErrors=False}"
+                              SelectedValuePath="Value" />
+
+                </Grid>
+            </TabItem>
+
+            <TabItem Header="Wi-Fi profiles" IsEnabled="{Binding DeviceNetworkConfiguration.InterfaceType, Converter={StaticResource Wireless80211InterfaceTypeToBoolConverter}, FallbackValue=False, ValidatesOnNotifyDataErrors=False}" >
+                <Grid Margin="10,10,10,10">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="20*"/>
+                        <ColumnDefinition Width="50*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!--SSID-->
+                    <Label Grid.Row="0" Grid.Column="0" HorizontalAlignment="Left" Content="SSID:" Margin="-6,0,0,0" />
+                    <TextBox Grid.Row="0" Grid.Column="1" HorizontalAlignment="Left" MaxLength="32" Height="23" VerticalContentAlignment="Center" VerticalAlignment="Center" Width="120" Margin="0,3,0,0" Text="{Binding DeviceWireless80211Configuration.Ssid, Mode=TwoWay}" x:Name="SSID"/>
+
+                    <!--Pass-->
+                    <Label Grid.Row="1" Grid.Column="0" HorizontalAlignment="Left" Content="Password:" Margin="-6,6,0,0" />
+                    <PasswordBox Grid.Row="1" Grid.Column="1" HorizontalAlignment="Left" MaxLength="64" Height="23" VerticalContentAlignment="Center" VerticalAlignment="Center" Width="120" Margin="0,6,0,0" x:Name="WiFiPassword" PasswordChar="•"/>
+
+                    <!--Security type-->
+                    <Label Grid.Row="2" Grid.Column="0" HorizontalAlignment="Left" Content="Security type:" Margin="-6,6,0,0" />
+                    <ComboBox Grid.Row="2" Grid.Column="1" HorizontalAlignment="Left" Height="23" Width="120" x:Name="SecurityType" VerticalAlignment="Center" Margin="0,6,0,0"
+                              DisplayMemberPath="DisplayName"
+                              ItemsSource="{extension:ByteEnumToItemsSource {x:Type debuglib:AuthenticationType}}"
+                              SelectedValue="{Binding DeviceWireless80211Configuration.Authentication, Converter={StaticResource AuthenticationTypeConverter}, Mode=TwoWay, NotifyOnTargetUpdated=True, NotifyOnSourceUpdated=True, ValidatesOnNotifyDataErrors=False}"
+                              SelectedValuePath="Value" />
+
+                    <!--Encryption type-->
+                    <Label Grid.Row="3" Grid.Column="0" HorizontalAlignment="Left" Content="Encryption type:" Margin="-6,6,0,0" />
+                    <ComboBox Grid.Row="3" Grid.Column="1" HorizontalAlignment="Left" Height="23" Width="120" x:Name="EncryptionType" VerticalAlignment="Center" Margin="0,6,0,0"
+                              DisplayMemberPath="DisplayName"
+                              ItemsSource="{extension:ByteEnumToItemsSource {x:Type debuglib:EncryptionType}}"
+                              SelectedValue="{Binding DeviceWireless80211Configuration.Encryption, Converter={StaticResource EncryptionTypeConverter}, Mode=TwoWay, NotifyOnTargetUpdated=True, NotifyOnSourceUpdated=True, ValidatesOnNotifyDataErrors=False}"
+                              SelectedValuePath="Value" />
+
+                    <!--Radio type-->
+                    <Label Grid.Row="4" Grid.Column="0" HorizontalAlignment="Left" Content="Radio type:" Margin="-6,6,0,0" />
+                    <ComboBox Grid.Row="4" Grid.Column="1" HorizontalAlignment="Left" Height="23" Width="120" x:Name="RadioType"  VerticalAlignment="Center" Margin="0,6,0,0" 
+                              DisplayMemberPath="DisplayName"
+                              ItemsSource="{extension:ByteEnumToItemsSource {x:Type debuglib:RadioType}}"
+                              SelectedValue="{Binding DeviceWireless80211Configuration.Radio, Converter={StaticResource RadioTypeConverter}, Mode=TwoWay, NotifyOnTargetUpdated=True, NotifyOnSourceUpdated=True, ValidatesOnNotifyDataErrors=False}"
+                              SelectedValuePath="Value" />
+
+                    <!--Wi-Fi Options-->
+                    <Label Grid.Row="5" Grid.Column="0" HorizontalAlignment="Left" Content="Options:" Margin="-6,6,0,0" />
+                    <ComboBox Grid.Row="5" Grid.Column="1" HorizontalAlignment="Left" Height="23" Width="120" x:Name="WiFiOptions" VerticalAlignment="Center" Margin="0,6,0,0" 
+                              DisplayMemberPath="DisplayName"
+                              ItemsSource="{extension:ByteEnumToItemsSource {x:Type debuglib:Wireless80211_ConfigurationOptions}}"
+                              SelectedValue="{Binding DeviceWireless80211Configuration.Options, Converter={StaticResource Wireless80211_OptionsTypeConverter}, Mode=TwoWay, NotifyOnTargetUpdated=True, NotifyOnSourceUpdated=True, ValidatesOnNotifyDataErrors=False}"
+                              SelectedValuePath="Value" />
+
+                </Grid>
+            </TabItem>
+
+            <TabItem Header="General" IsEnabled="True">
+                <Grid Margin="10,10,10,10">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- root CA bundle -->
+                    <GroupBox Grid.Row="1" Margin="0,8,0,0" Header="                " IsEnabled="True" >
+                        <Grid Margin="8,10,10,10" >
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="50*"/>
+                                <ColumnDefinition Width="auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <!-- open file dialog to select root ca file -->
+                            <Label Grid.Row="1" Grid.Column="0" HorizontalAlignment="Left" Content="Select Root CA file to upload to the target." Margin="-3,0,0,0" />
+                            <Button x:Name="ShowRootCAFilePicker" Grid.Row="1" Grid.Column="1" Content="Browse..." Width="65" Margin="7,5,0,5" Click="ShowShowRootCAFilePicker_Click"/>
+
+                            <!-- clear root ca storage -->
+                            <Label Grid.Row="2" Grid.Column="0" HorizontalAlignment="Left" Content="Clear Root CA stored on the target." Margin="-3,0,0,0" />
+                            <Button x:Name="ClearRootCA" Grid.Row="2" Grid.Column="1" Content="Clear" Width="65" Margin="7,5,0,5" Click="ClearRootCA_Click"/>
+
+                        </Grid>
+                    </GroupBox>
+
+                    <!--These controls HAVE TO BE HERE (after the GroupBox) so they are in a higher layer than the GroupBox  -->
+                    <Label Margin="10,5,0,0" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Left" Content="Root CA" VerticalAlignment="Top"/>
+
+                    <!-- device certificate -->
+                    <GroupBox Grid.Row="2" Margin="0,8,0,10" Header="                               " IsEnabled="True" >
+                        <Grid Margin="8,10,10,10">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="50*"/>
+                                <ColumnDefinition Width="auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <!-- open file dialog to select device certificate file -->
+                            <Label Grid.Row="1" Grid.Column="0" HorizontalAlignment="Left" Content="Select certificate file to upload to the target." Margin="-3,0,0,0" />
+                            <Button x:Name="ShowDeviceCertificateFilePicker" Grid.Row="1" Grid.Column="1" Content="Browse..." Width="65" Margin="7,5,0,5" Click="ShowDeviceCertificatePicker_Click"/>
+
+                            <!-- clear device certificate -->
+                            <Label Grid.Row="2" Grid.Column="0" HorizontalAlignment="Left" Content="Clear device certificate stored on the target." Margin="-3,0,0,0" />
+                            <Button x:Name="ClearDeviceCertificate" Grid.Row="2" Grid.Column="1" Content="Clear" Width="65" Margin="7,5,0,5" Click="ClearDeviceCertificate_Click"/>
+
+                        </Grid>
+                    </GroupBox>
+
+                    <!--These controls HAVE TO BE HERE (after the GroupBox) so they are in a higher layer than the GroupBox  -->
+                    <Label Margin="10,5,0,0" Grid.Row="2" Grid.Column="0" HorizontalAlignment="Left" Content="Device Certificate" VerticalAlignment="Top"/>
+
+
+                </Grid>
+            </TabItem>
+
+        </TabControl>
+
+        <Button Content="Cancel" HorizontalAlignment="Left" Margin="307,357,0,0" VerticalAlignment="Top" Width="75" x:Name="CancelButton" Click="CancelButton_Click"/>
+        <Button Content="OK" HorizontalAlignment="Left" Margin="222,357,0,0" VerticalAlignment="Top" Width="75" x:Name="SaveButton" Click="SaveButton_Click"/>
+
+    </Grid>
+
+</vsp:DialogWindow>
