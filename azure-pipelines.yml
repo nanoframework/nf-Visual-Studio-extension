@@ -55,6 +55,7 @@ jobs:
 
   steps:
   - checkout: self
+    submodules: false
 
   # check which project(s) have changed
   - powershell: |
