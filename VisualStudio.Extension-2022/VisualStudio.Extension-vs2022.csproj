@@ -125,8 +125,8 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
-    <Content Include="$(PkgnanoFramework_TestFramework)\nanoFramework.TestFramework.3.0.57.nupkg">
-      <Link>Packages\nanoFramework.TestFramework.3.0.57.nupkg</Link>
+    <Content Include="$(PkgnanoFramework_TestFramework)\nanoFramework.TestFramework.3.0.60.nupkg">
+      <Link>Packages\nanoFramework.TestFramework.3.0.60.nupkg</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
@@ -547,7 +547,7 @@
       <Version>1.16.11</Version>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="nanoFramework.TestFramework" Version="3.0.57" GeneratePathProperty="true">
+    <PackageReference Include="nanoFramework.TestFramework" Version="3.0.60" GeneratePathProperty="true">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
