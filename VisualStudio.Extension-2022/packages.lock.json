@@ -353,9 +353,9 @@
       },
       "nanoFramework.Tools.MetadataProcessor.MsBuildTask": {
         "type": "Direct",
-        "requested": "[3.0.72, )",
-        "resolved": "3.0.72",
-        "contentHash": "QXv54Ls2iA52PeE3XT3cOYaoVb96RV466KIvHhvaegUAJPEI/2Jw0s2XTUraqE2A6C6zS2UQOJuArrDMizkecA=="
+        "requested": "[3.0.77, )",
+        "resolved": "3.0.77",
+        "contentHash": "4uSUdDrllI9PopGIowlXoNvp1KJGWrGeuMn4FktMRowWbQfUM68+ej2y8kuYZBjHJjtmsSSyCPaaJkpKZ274Bg=="
       },
       "Nerdbank.GitVersioning": {
         "type": "Direct",
