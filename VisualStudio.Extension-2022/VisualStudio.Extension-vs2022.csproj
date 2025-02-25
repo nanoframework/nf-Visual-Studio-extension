@@ -125,8 +125,8 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
-    <Content Include="$(PkgnanoFramework_TestFramework)\nanoFramework.TestFramework.3.0.67.nupkg">
-      <Link>Packages\nanoFramework.TestFramework.3.0.67.nupkg</Link>
+    <Content Include="$(PkgnanoFramework_TestFramework)\nanoFramework.TestFramework.3.0.68.nupkg">
+      <Link>Packages\nanoFramework.TestFramework.3.0.68.nupkg</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
@@ -543,8 +543,11 @@
     <PackageReference Include="Microsoft.VisualStudio.SDK">
       <Version>17.12.40392</Version>
     </PackageReference>
-    <PackageReference Include="nanoFramework.CoreLibrary" Version="1.17.1" />
-    <PackageReference Include="nanoFramework.TestFramework" Version="3.0.67" GeneratePathProperty="true">
+    <PackageReference Include="nanoFramework.CoreLibrary" GeneratePathProperty="true">
+      <Version>1.17.1</Version>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="nanoFramework.TestFramework" Version="3.0.68" GeneratePathProperty="true">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
