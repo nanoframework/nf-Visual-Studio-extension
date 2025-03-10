@@ -543,7 +543,10 @@
     <PackageReference Include="Microsoft.VisualStudio.SDK">
       <Version>17.12.40392</Version>
     </PackageReference>
-    <PackageReference Include="nanoFramework.CoreLibrary" Version="1.17.7" />
+    <PackageReference Include="nanoFramework.CoreLibrary" GeneratePathProperty="true">
+      <Version>1.17.7</Version>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="nanoFramework.TestFramework" Version="3.0.68" GeneratePathProperty="true">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
