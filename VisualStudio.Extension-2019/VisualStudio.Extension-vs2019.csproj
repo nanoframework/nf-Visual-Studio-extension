@@ -102,13 +102,13 @@
     <Compile Include="AutomaticUpdates\UpdateManager.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="$(PkgnanoFramework_CoreLibrary)\nanoFramework.CoreLibrary.1.15.5.nupkg">
-      <Link>Packages\nanoFramework.CoreLibrary.1.15.5.nupkg</Link>
+    <Content Include="$(PkgnanoFramework_CoreLibrary)\nanoFramework.CoreLibrary.1.17.7.nupkg">
+      <Link>Packages\nanoFramework.CoreLibrary.1.17.7.nupkg</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
-    <Content Include="$(PkgnanoFramework_TestFramework)\nanoFramework.TestFramework.2.1.113.nupkg">
-      <Link>Packages\nanoFramework.TestFramework.2.1.113.nupkg</Link>
+    <Content Include="$(PkgnanoFramework_TestFramework)\nanoFramework.TestFramework.3.0.69.nupkg">
+      <Link>Packages\nanoFramework.TestFramework.3.0.69.nupkg</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
@@ -530,17 +530,15 @@
       <Version>16.10.31321.278</Version>
     </PackageReference>
     <PackageReference Include="nanoFramework.CoreLibrary" GeneratePathProperty="true">
-      <Version>1.15.5</Version>
+      <Version>1.17.7</Version>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="nanoFramework.TestFramework" Version="2.1.113" GeneratePathProperty="true">
+    <PackageReference Include="nanoFramework.TestFramework" Version="3.0.69" GeneratePathProperty="true">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="nanoFramework.Tools.Debugger.Net">
-      <Version>2.5.6</Version>
-    </PackageReference>
-    <PackageReference Include="nanoFramework.Tools.MetadataProcessor.MsBuildTask" Version="3.0.61" />
+    <PackageReference Include="nanoFramework.Tools.Debugger.Net" Version="2.5.10" />
+    <PackageReference Include="nanoFramework.Tools.MetadataProcessor.MsBuildTask" Version="3.0.92" />
     <PackageReference Include="Nerdbank.GitVersioning">
       <Version>3.6.146</Version>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
