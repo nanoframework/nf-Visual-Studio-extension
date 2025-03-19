@@ -533,7 +533,7 @@
       <Version>1.17.7</Version>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="nanoFramework.TestFramework" Version="3.0.69" GeneratePathProperty="true">
+    <PackageReference Include="nanoFramework.TestFramework" Version="3.0.73" GeneratePathProperty="true">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
