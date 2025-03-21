@@ -13,18 +13,30 @@ namespace nanoFramework.Tools.VisualStudio.Extension
     public class CorDebugClass : ICorDebugClass, ICorDebugClass2
     {
         CorDebugAssembly m_assembly;
-        Pdbx.Class m_pdbxClass;
+        Class m_pdbxClass;
+        TypeSpec m_pdbxTypeSpec;
         uint m_tkSymbolless;
 
-        public CorDebugClass(CorDebugAssembly assembly, Pdbx.Class cls)
+        public CorDebugClass(CorDebugAssembly assembly, TypeSpec typeSpec)
+        {
+            m_assembly = assembly;
+            m_pdbxTypeSpec = typeSpec;
+            m_pdbxClass = null;
+        }
+
+        public CorDebugClass(CorDebugAssembly assembly, Class cls)
         {
             m_assembly = assembly;
             m_pdbxClass = cls;
+            m_pdbxTypeSpec = null;
         }
 
-        public CorDebugClass(CorDebugAssembly assembly, uint tkSymbolless) : this(assembly, null)
+        public CorDebugClass(CorDebugAssembly assembly, uint tkSymbolless)
         {
             m_tkSymbolless = tkSymbolless;
+            m_assembly = assembly;
+            m_pdbxClass = null;
+            m_pdbxTypeSpec = null;
         }
 
         public ICorDebugClass ICorDebugClass
@@ -47,10 +59,14 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         {
             get
             {
-                if (HasSymbols)
-                    return MetaData.Helper.ClassIsEnum(Assembly.MetaDataImport, m_pdbxClass.Token.CLR);
+                if (HasSymbols && m_pdbxClass != null)
+                {
+                    return m_pdbxClass.IsEnum;
+                }
                 else
+                {
                     return false;
+                }
             }
         }
 
@@ -72,22 +88,38 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             get { return Assembly.AppDomain; }
         }
 
-        public Pdbx.Class PdbxClass
+        public Class PdbxClass
         {
             [DebuggerHidden]
             get { return m_pdbxClass; }
         }
 
+        public TypeSpec PdbxTypeSpec
+        {
+            [DebuggerHidden]
+            get { return m_pdbxTypeSpec; }
+        }
+
         public bool HasSymbols
         {
-            get { return m_pdbxClass != null; }
+            get { return (m_pdbxClass != null || m_pdbxTypeSpec != null); }
         }
 
         public uint TypeDef_Index
         {
             get
             {
-                uint tk = HasSymbols ? m_pdbxClass.Token.nanoCLR : m_tkSymbolless;
+                uint tk = HasSymbols ? m_pdbxClass.Token.NanoCLRToken : m_tkSymbolless;
+
+                return nanoCLR_TypeSystem.ClassMemberIndexFromnanoCLRToken(tk, Assembly);
+            }
+        }
+
+        public uint TypeSpec_Index
+        {
+            get
+            {
+                uint tk = HasSymbols ? m_pdbxTypeSpec.Token.NanoCLRToken : m_tkSymbolless;
 
                 return nanoCLR_TypeSystem.ClassMemberIndexFromnanoCLRToken(tk, Assembly);
             }
@@ -104,7 +136,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         int ICorDebugClass.GetToken(out uint pTypeDef)
         {
-            pTypeDef = HasSymbols ? m_pdbxClass.Token.CLR : m_tkSymbolless;
+            pTypeDef = HasSymbols ? m_pdbxClass.Token.CLRToken : m_tkSymbolless;
 
             return COM_HResults.S_OK;
         }
@@ -147,7 +179,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     if (!m_assembly.IsFrameworkAssembly)
                     {
                         //now update the debugger JMC state...
-                        foreach (Pdbx.Method m in m_pdbxClass.Methods)
+                        foreach (Method m in m_pdbxClass.Methods)
                         {
                             m.IsJMC = fJMC;
                         }

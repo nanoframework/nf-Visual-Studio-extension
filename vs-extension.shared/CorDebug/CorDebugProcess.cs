@@ -155,7 +155,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             }
             catch
             {
-                // catch all as this can throw and we need to continue
             }
 
             if (!isProcess)
@@ -1413,7 +1412,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
             List<Commands.DebuggingResolveAssembly> assemblies = Engine.ResolveAllAssemblies();
             string[] assemblyPathsT = new string[1];
-            Pdbx.PdbxFile.Resolver resolver = new Pdbx.PdbxFile.Resolver();
+            PdbxFile.Resolver resolver = new PdbxFile.Resolver();
 
             DebugAssert(assemblies.Count > 0, "Error loading assemblies. Assemblies count is 0.");
 
@@ -1468,7 +1467,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         resolver.AssemblyPaths = _assemblyPaths;
                     }
 
-                    Pdbx.PdbxFile pdbxFile = resolver.Resolve(reply.Name, reply.Version, Engine.IsTargetBigEndian); //Pdbx.PdbxFile.Open(reply.Name, reply.m_version, assemblyPaths);
+                    PdbxFile pdbxFile = resolver.Resolve(reply.Name, reply.Version, Engine.IsTargetBigEndian); //Pdbx.PdbxFile.Open(reply.Name, reply.m_version, assemblyPaths);
 
                     assembly = new CorDebugAssembly(this, reply.Name, pdbxFile, nanoCLR_TypeSystem.IdxAssemblyFromIndex(a.Idx));
 
@@ -1737,7 +1736,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             {
                 CorDebugAssembly assembly = GetAssembly(appDomain);
 
-                return assembly.GetClassFromTokenCLR(m_tkCLR);
+                return assembly.GetClassFromCLRToken(m_tkCLR);
             }
 
             public uint TokenCLR
@@ -1749,7 +1748,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         private void AddBuiltInType(object o, CorDebugAssembly assm, string type)
         {
             uint tkCLR = MetaData.Helper.ClassTokenFromName(assm.MetaDataImport, type);
-            CorDebugClass c = assm.GetClassFromTokenCLR(tkCLR);
+            CorDebugClass c = assm.GetClassFromCLRToken(tkCLR);
 
             BuiltinType builtInType = new BuiltinType(assm, tkCLR, c);
 
