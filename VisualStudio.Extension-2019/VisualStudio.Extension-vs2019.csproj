@@ -529,10 +529,7 @@
     <PackageReference Include="Microsoft.VisualStudio.TextTemplating.VSHost.15.0">
       <Version>16.10.31321.278</Version>
     </PackageReference>
-    <PackageReference Include="nanoFramework.CoreLibrary" GeneratePathProperty="true">
-      <Version>1.17.7</Version>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
+    <PackageReference Include="nanoFramework.CoreLibrary" Version="1.17.11" />
     <PackageReference Include="nanoFramework.TestFramework" Version="3.0.73" GeneratePathProperty="true">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
