@@ -1,4 +1,4 @@
-//
+﻿//
 // Copyright (c) .NET Foundation and Contributors
 // Portions Copyright (c) Microsoft Corporation.  All rights reserved.
 // See LICENSE file in the project root for full license information.
@@ -23,23 +23,23 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
         private int _handleEnumNext = 1;
         private bool _alert = false;
 
-        public MetaDataImport (CorDebugAssembly assembly)
+        public MetaDataImport(CorDebugAssembly assembly)
         {
             _assembly = assembly;
             _engine = _assembly.Process.Engine;
-            _guidModule = Guid.NewGuid ();
+            _guidModule = Guid.NewGuid();
             _alEnums = new ArrayList();
 
-            byte[] fakeSig = new byte[] { (byte)CorCallingConvention.IMAGE_CEE_CS_CALLCONV_DEFAULT, 0x0 /*count of params*/, (byte)CorElementType.ELEMENT_TYPE_VOID};
+            byte[] fakeSig = new byte[] { (byte)CorCallingConvention.IMAGE_CEE_CS_CALLCONV_DEFAULT, 0x0 /*count of params*/, (byte)CorElementType.ELEMENT_TYPE_VOID };
             _cbFakeSig = fakeSig.Length;
-            _fakeSig = Marshal.AllocCoTaskMem (_cbFakeSig);
-            Marshal.Copy (fakeSig, 0, _fakeSig, _cbFakeSig);
+            _fakeSig = Marshal.AllocCoTaskMem(_cbFakeSig);
+            Marshal.Copy(fakeSig, 0, _fakeSig, _cbFakeSig);
         }
 
-        ~MetaDataImport ()
+        ~MetaDataImport()
         {
-            Marshal.FreeCoTaskMem (_fakeSig);            
-        }                            
+            Marshal.FreeCoTaskMem(_fakeSig);
+        }
 
         [Conditional("DEBUG")]
         private void NotImpl()
@@ -74,12 +74,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
             public int Enum(IntPtr dest, uint cMax, IntPtr pct)
             {
                 int cItems = Math.Min((int)cMax, Count - m_iToken);
-                
+
                 Marshal.WriteInt32(pct, cItems);
                 Marshal.Copy(m_tokens, m_iToken, pct, cItems);
-                
+
                 m_iToken += cItems;
-                
+
                 return COM_HResults.S_OK;
             }
         }
@@ -104,259 +104,259 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
             return null;
         }
 
-        private int EnumNoTokens( IntPtr phEnum, IntPtr pcTokens )
+        private int EnumNoTokens(IntPtr phEnum, IntPtr pcTokens)
         {
-            int[] tokens = new int[0];        
-            HCorEnum hce = CreateEnum( tokens );
+            int[] tokens = new int[0];
+            HCorEnum hce = CreateEnum(tokens);
 
-            if( phEnum != IntPtr.Zero )
-                Marshal.WriteInt32( phEnum, hce.m_handle );
-            
-            if( pcTokens != IntPtr.Zero )
-                Marshal.WriteInt32( pcTokens, 0 );
+            if (phEnum != IntPtr.Zero)
+                Marshal.WriteInt32(phEnum, hce.m_handle);
+
+            if (pcTokens != IntPtr.Zero)
+                Marshal.WriteInt32(pcTokens, 0);
 
             return COM_HResults.S_OK;
         }
 
         #region IMetaDataImport2 Members
 
-        public int EnumGenericParams (IntPtr phEnum, uint tk, IntPtr rGenericParams, uint cMax, IntPtr pcGenericParams)
+        public int EnumGenericParams(IntPtr phEnum, uint tk, IntPtr rGenericParams, uint cMax, IntPtr pcGenericParams)
         {
-            return EnumNoTokens( phEnum, pcGenericParams );
+            return EnumNoTokens(phEnum, pcGenericParams);
         }
 
-        public int GetGenericParamProps (uint gp, IntPtr pulParamSeq, IntPtr pdwParamFlags, IntPtr ptOwner, IntPtr ptkKind, IntPtr wzName, uint cchName, IntPtr pchName)
+        public int GetGenericParamProps(uint gp, IntPtr pulParamSeq, IntPtr pdwParamFlags, IntPtr ptOwner, IntPtr ptkKind, IntPtr wzName, uint cchName, IntPtr pchName)
         {
             // MetaDataImport.GetGenericParamProps is not implemented
             NotImpl();
             return COM_HResults.E_NOTIMPL;
         }
 
-        public int GetMethodSpecProps (uint mi, IntPtr tkParent, IntPtr ppvSigBlob, IntPtr pcbSigBlob)
+        public int GetMethodSpecProps(uint mi, IntPtr tkParent, IntPtr ppvSigBlob, IntPtr pcbSigBlob)
         {
             // MetaDataImport.GetMethodSpecProps is not implemented
             NotImpl();
             return COM_HResults.E_NOTIMPL;
         }
 
-        public int EnumGenericParamConstraints (IntPtr phEnum, uint tk, IntPtr rGenericParamConstraints, uint cMax, IntPtr pcGenericParamConstraints)
+        public int EnumGenericParamConstraints(IntPtr phEnum, uint tk, IntPtr rGenericParamConstraints, uint cMax, IntPtr pcGenericParamConstraints)
         {
-            return EnumNoTokens( phEnum, pcGenericParamConstraints );
+            return EnumNoTokens(phEnum, pcGenericParamConstraints);
         }
 
-        public int GetGenericParamConstraintProps (uint gpc, IntPtr ptGenericParam, IntPtr ptkConstraintType)
+        public int GetGenericParamConstraintProps(uint gpc, IntPtr ptGenericParam, IntPtr ptkConstraintType)
         {
             // MetaDataImport.GetGenericParamConstraintProps is not implemented
             NotImpl();
             return COM_HResults.E_NOTIMPL;
         }
 
-        public int GetPEKind (IntPtr pdwPEKind, IntPtr pdwMAchine)
+        public int GetPEKind(IntPtr pdwPEKind, IntPtr pdwMAchine)
         {
             // MetaDataImport.GetPEKind is not implemented
             NotImpl();
             return COM_HResults.E_NOTIMPL;
         }
 
-        public int GetVersionString (IntPtr pwzBuf, int ccBufSize, IntPtr pccBufSize)
+        public int GetVersionString(IntPtr pwzBuf, int ccBufSize, IntPtr pccBufSize)
         {
             // MetaDataImport.GetVersionString is not implemented
             NotImpl();
             return COM_HResults.E_NOTIMPL;
         }
 
-        public int EnumMethodSpecs(IntPtr phEnum, uint tk, IntPtr rMethodSpecs, uint cMax, IntPtr pcMethodSpecs) 
+        public int EnumMethodSpecs(IntPtr phEnum, uint tk, IntPtr rMethodSpecs, uint cMax, IntPtr pcMethodSpecs)
         {
-            return EnumNoTokens( phEnum, pcMethodSpecs );
+            return EnumNoTokens(phEnum, pcMethodSpecs);
         }
 
         #endregion
 
         #region IMetaDataImport/IMetaDataAssemblyImport Members
-        public void CloseEnum (IntPtr hEnum)
+        public void CloseEnum(IntPtr hEnum)
         {
             HCorEnum hce = HCorEnumFromHandle(hEnum.ToInt32());
             if (hce != null)
                 _alEnums.Remove(hce);
-        }        
+        }
         #endregion
 
         #region IMetaDataImport Members
 
-        public int CountEnum (IntPtr hEnum, IntPtr pulCount)
-        {            
+        public int CountEnum(IntPtr hEnum, IntPtr pulCount)
+        {
             HCorEnum hce = HCorEnumFromHandle(hEnum.ToInt32());
             Marshal.WriteInt32(pulCount, hce.Count);
             return COM_HResults.S_OK;
         }
 
-        public int ResetEnum (IntPtr hEnum, uint ulPos)
-        {            
+        public int ResetEnum(IntPtr hEnum, uint ulPos)
+        {
             HCorEnum hce = HCorEnumFromHandle(hEnum.ToInt32());
-            return hce.Reset(ulPos);            
+            return hce.Reset(ulPos);
         }
 
-        public int EnumTypeDefs (IntPtr phEnum, IntPtr rTypeDefs, uint cMax, IntPtr pcTypeDefs)
+        public int EnumTypeDefs(IntPtr phEnum, IntPtr rTypeDefs, uint cMax, IntPtr pcTypeDefs)
         {
-            return EnumNoTokens( phEnum, pcTypeDefs );
+            return EnumNoTokens(phEnum, pcTypeDefs);
         }
 
-        public int EnumInterfaceImpls (IntPtr phEnum, uint td, IntPtr rImpls, uint cMax, IntPtr pcImpls)
+        public int EnumInterfaceImpls(IntPtr phEnum, uint td, IntPtr rImpls, uint cMax, IntPtr pcImpls)
         {
-            return EnumNoTokens( phEnum, pcImpls );
+            return EnumNoTokens(phEnum, pcImpls);
         }
 
-        public int EnumTypeRefs (IntPtr phEnum, IntPtr rTypeRefs, uint cMax, IntPtr pcTypeRefs)
+        public int EnumTypeRefs(IntPtr phEnum, IntPtr rTypeRefs, uint cMax, IntPtr pcTypeRefs)
         {
-            return EnumNoTokens( phEnum, pcTypeRefs );
+            return EnumNoTokens(phEnum, pcTypeRefs);
         }
 
-        public int FindTypeDefByName (string szTypeDef, uint tkEnclosingClass, IntPtr mdTypeDef)
+        public int FindTypeDefByName(string szTypeDef, uint tkEnclosingClass, IntPtr mdTypeDef)
         {
             // MetaDataImport.FindTypeDefByName is not implemented
             NotImpl();
             return COM_HResults.E_NOTIMPL;
         }
 
-        public int GetScopeProps (IntPtr szName, uint cchName, IntPtr pchName, IntPtr pmvid)
+        public int GetScopeProps(IntPtr szName, uint cchName, IntPtr pchName, IntPtr pmvid)
         {
             // MetaDataImport.GetScopeProps is not implemented
-            _assembly.ICorDebugAssembly.GetName (cchName, pchName, szName);
+            _assembly.ICorDebugAssembly.GetName(cchName, pchName, szName);
 
             if (pmvid != IntPtr.Zero)
             {
-                byte [] guidModule = _guidModule.ToByteArray();
-                Marshal.Copy (guidModule, 0, pmvid, guidModule.Length);
+                byte[] guidModule = _guidModule.ToByteArray();
+                Marshal.Copy(guidModule, 0, pmvid, guidModule.Length);
             }
 
             return COM_HResults.S_OK;
         }
 
-        public int GetModuleFromScope (IntPtr pmd)
+        public int GetModuleFromScope(IntPtr pmd)
         {
             // MetaDataImport.GetModuleFromScope is not implemented
             NotImpl();
             return COM_HResults.E_NOTIMPL;
         }
 
-        public int GetTypeDefProps (uint td, IntPtr szTypeDef, uint cchTypeDef, IntPtr pchTypeDef, IntPtr pdwTypeDefFlags, IntPtr ptkExtends)
+        public int GetTypeDefProps(uint td, IntPtr szTypeDef, uint cchTypeDef, IntPtr pchTypeDef, IntPtr pdwTypeDefFlags, IntPtr ptkExtends)
         {
-            uint tk     = nanoCLR_TypeSystem.SymbollessSupport.nanoCLRTokenFromTypeDefToken(td);
-            uint index  = nanoCLR_TypeSystem.ClassMemberIndexFromnanoCLRToken (td, _assembly);
+            uint tk = nanoCLR_TypeSystem.SymbollessSupport.nanoCLRTokenFromTypeDefToken(td);
+            uint index = nanoCLR_TypeSystem.ClassMemberIndexFromnanoCLRToken(td, _assembly);
 
             string name = _engine.GetTypeName(index);
 
-            Utility.MarshalString (name, cchTypeDef, pchTypeDef, szTypeDef);
-            Utility.MarshalInt (pchTypeDef, 0);
-            Utility.MarshalInt (pdwTypeDefFlags, 0);
-            Utility.MarshalInt (ptkExtends, 0);            
+            Utility.MarshalString(name, cchTypeDef, pchTypeDef, szTypeDef);
+            Utility.MarshalInt(pchTypeDef, 0);
+            Utility.MarshalInt(pdwTypeDefFlags, 0);
+            Utility.MarshalInt(ptkExtends, 0);
             return COM_HResults.S_OK;
         }
 
-        public int GetInterfaceImplProps (uint iiImpl, IntPtr pClass, IntPtr ptkIface)
+        public int GetInterfaceImplProps(uint iiImpl, IntPtr pClass, IntPtr ptkIface)
         {
             // MetaDataImport.GetInterfaceImplProps is not implemented
             NotImpl();
             return COM_HResults.E_NOTIMPL;
         }
 
-        public int GetTypeRefProps (uint tr, IntPtr ptkResolutionScope, IntPtr szName, uint cchName, IntPtr pchName)
+        public int GetTypeRefProps(uint tr, IntPtr ptkResolutionScope, IntPtr szName, uint cchName, IntPtr pchName)
         {
             // MetaDataImport.GetTypeRefProps is not implemented
             NotImpl();
             return COM_HResults.E_NOTIMPL;
         }
 
-        public int ResolveTypeRef (uint tr, IntPtr riid, ref object ppIScope, IntPtr ptd)
+        public int ResolveTypeRef(uint tr, IntPtr riid, ref object ppIScope, IntPtr ptd)
         {
             // MetaDataImport.ResolveTypeRef is not implemented
             NotImpl();
             return COM_HResults.E_NOTIMPL;
         }
 
-        public int EnumMembers (IntPtr phEnum, uint cl, IntPtr rMembers, uint cMax, IntPtr pcTokens)
+        public int EnumMembers(IntPtr phEnum, uint cl, IntPtr rMembers, uint cMax, IntPtr pcTokens)
         {
-            return EnumNoTokens( phEnum, pcTokens );
+            return EnumNoTokens(phEnum, pcTokens);
         }
 
-        public int EnumMembersWithName (IntPtr phEnum, uint cl, string szName, IntPtr rMembers, uint cMax, IntPtr pcTokens)
+        public int EnumMembersWithName(IntPtr phEnum, uint cl, string szName, IntPtr rMembers, uint cMax, IntPtr pcTokens)
         {
-            return EnumNoTokens( phEnum, pcTokens );
+            return EnumNoTokens(phEnum, pcTokens);
         }
 
-        public int EnumMethods (IntPtr phEnum, uint cl, IntPtr rMethods, uint cMax, IntPtr pcTokens)
+        public int EnumMethods(IntPtr phEnum, uint cl, IntPtr rMethods, uint cMax, IntPtr pcTokens)
         {
-            return EnumNoTokens( phEnum, pcTokens );
+            return EnumNoTokens(phEnum, pcTokens);
         }
 
-        public int EnumMethodsWithName (IntPtr phEnum, uint cl, string szName, IntPtr rMethods, uint cMax, IntPtr pcTokens)
+        public int EnumMethodsWithName(IntPtr phEnum, uint cl, string szName, IntPtr rMethods, uint cMax, IntPtr pcTokens)
         {
-            return EnumNoTokens( phEnum, pcTokens );
+            return EnumNoTokens(phEnum, pcTokens);
         }
 
-        public int EnumFields (IntPtr phEnum, uint cl, IntPtr rFields, uint cMax, IntPtr pcTokens)
+        public int EnumFields(IntPtr phEnum, uint cl, IntPtr rFields, uint cMax, IntPtr pcTokens)
         {
-            return EnumNoTokens( phEnum, pcTokens );
+            return EnumNoTokens(phEnum, pcTokens);
         }
 
-        public int EnumFieldsWithName (IntPtr phEnum, uint cl, string szName, IntPtr rFields, uint cMax, IntPtr pcTokens)
+        public int EnumFieldsWithName(IntPtr phEnum, uint cl, string szName, IntPtr rFields, uint cMax, IntPtr pcTokens)
         {
-            return EnumNoTokens( phEnum, pcTokens );
+            return EnumNoTokens(phEnum, pcTokens);
         }
 
-        public int EnumParams (IntPtr phEnum, uint mb, IntPtr rParams, uint cMax, IntPtr pcTokens)
+        public int EnumParams(IntPtr phEnum, uint mb, IntPtr rParams, uint cMax, IntPtr pcTokens)
         {
-            return EnumNoTokens( phEnum, pcTokens );
+            return EnumNoTokens(phEnum, pcTokens);
         }
 
-        public int EnumMemberRefs (IntPtr phEnum, uint tkParent, IntPtr rMemberRefs, uint cMax, IntPtr pcTokens)
+        public int EnumMemberRefs(IntPtr phEnum, uint tkParent, IntPtr rMemberRefs, uint cMax, IntPtr pcTokens)
         {
-            return EnumNoTokens( phEnum, pcTokens );
+            return EnumNoTokens(phEnum, pcTokens);
         }
 
-        public int EnumMethodImpls (IntPtr phEnum, uint td, IntPtr rMethodBody, IntPtr rMethodDecl, uint cMax, IntPtr pcTokens)
+        public int EnumMethodImpls(IntPtr phEnum, uint td, IntPtr rMethodBody, IntPtr rMethodDecl, uint cMax, IntPtr pcTokens)
         {
-            return EnumNoTokens( phEnum, pcTokens );
+            return EnumNoTokens(phEnum, pcTokens);
         }
 
-        public int EnumPermissionSets (IntPtr phEnum, uint tk, int dwActions, IntPtr rPermission, uint cMax, IntPtr pcTokens)
+        public int EnumPermissionSets(IntPtr phEnum, uint tk, int dwActions, IntPtr rPermission, uint cMax, IntPtr pcTokens)
         {
-            return EnumNoTokens( phEnum, pcTokens );
+            return EnumNoTokens(phEnum, pcTokens);
         }
 
-        public int FindMember (uint td, string szName, IntPtr pvSigBlob, uint cbSigBlob, IntPtr pmb)
+        public int FindMember(uint td, string szName, IntPtr pvSigBlob, uint cbSigBlob, IntPtr pmb)
         {
             // MetaDataImport.FindMember is not implemented
             NotImpl();
             return COM_HResults.E_NOTIMPL;
         }
 
-        public int FindMethod (uint td, string szName, IntPtr pvSigBlog, uint cbSigBlob, IntPtr pmb)
+        public int FindMethod(uint td, string szName, IntPtr pvSigBlog, uint cbSigBlob, IntPtr pmb)
         {
             // MetaDataImport.FindMethod is not implemented
             NotImpl();
             return COM_HResults.E_NOTIMPL;
         }
 
-        public int FindField (uint td, string szName, IntPtr pvSigBlog, uint cbSigBlob, IntPtr pmb)
+        public int FindField(uint td, string szName, IntPtr pvSigBlog, uint cbSigBlob, IntPtr pmb)
         {
             // MetaDataImport.FindField is not implemented
             NotImpl();
             return COM_HResults.E_NOTIMPL;
         }
 
-        public int FindMemberRef (uint td, string szName, IntPtr pvSigBlog, uint cbSigBlob, IntPtr pmr)
+        public int FindMemberRef(uint td, string szName, IntPtr pvSigBlog, uint cbSigBlob, IntPtr pmr)
         {
             // MetaDataImport.FindMemberRef is not implemented
             NotImpl();
             return COM_HResults.E_NOTIMPL;
         }
 
-        public int GetMethodProps (uint mb, IntPtr pClass, IntPtr szMethod, uint cchMethod, IntPtr pchMethod, IntPtr pdwAttr, IntPtr ppvSigBlob, IntPtr pcbSigBlob, IntPtr pulCodeRVA, IntPtr pdwImplFlags)
+        public int GetMethodProps(uint mb, IntPtr pClass, IntPtr szMethod, uint cchMethod, IntPtr pchMethod, IntPtr pdwAttr, IntPtr ppvSigBlob, IntPtr pcbSigBlob, IntPtr pulCodeRVA, IntPtr pdwImplFlags)
         {
-            uint tk = nanoCLR_TypeSystem.SymbollessSupport.nanoCLRTokenFromMethodDefToken (mb);
+            uint tk = nanoCLR_TypeSystem.SymbollessSupport.nanoCLRTokenFromMethodDefToken(mb);
 
-            uint md = nanoCLR_TypeSystem.ClassMemberIndexFromnanoCLRToken (tk, _assembly);
+            uint md = nanoCLR_TypeSystem.ClassMemberIndexFromnanoCLRToken(tk, _assembly);
 
             Debugger.WireProtocol.Commands.Debugging_Resolve_Method.Result resolvedMethod = _engine.ResolveMethod(md);
 
@@ -365,234 +365,234 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
 
             if (resolvedMethod != null)
             {
-                name = resolvedMethod.m_name;                
-                uint tkType = nanoCLR_TypeSystem.nanoCLRTokenFromTypeIndex (resolvedMethod.m_td);
-                tkClass = nanoCLR_TypeSystem.SymbollessSupport.TypeDefTokenFromnanoCLRToken (tkType);
+                name = resolvedMethod.m_name;
+                uint tkType = nanoCLR_TypeSystem.nanoCLRTokenFromTypeIndex(resolvedMethod.m_td);
+                tkClass = nanoCLR_TypeSystem.SymbollessSupport.TypeDefTokenFromnanoCLRToken(tkType);
             }
 
-            Utility.MarshalString (name, cchMethod, pchMethod, szMethod);
-            Utility.MarshalInt (pClass, (int)tkClass);
+            Utility.MarshalString(name, cchMethod, pchMethod, szMethod);
+            Utility.MarshalInt(pClass, (int)tkClass);
             Utility.MarshalInt(pdwAttr, (int)CorMethodAttr.mdStatic);
             Utility.MarshalInt(pulCodeRVA, 0);
             Utility.MarshalInt(pdwImplFlags, 0);
             Utility.MarshalInt(pcbSigBlob, _cbFakeSig);
-            Utility.MarshalInt(ppvSigBlob, _fakeSig.ToInt32 ());
+            Utility.MarshalInt(ppvSigBlob, _fakeSig.ToInt32());
 
             return COM_HResults.S_OK;
         }
 
-        public int GetMemberRefProps (uint mr, IntPtr ptk, IntPtr szMember, uint cchMember, IntPtr pchMember, IntPtr ppvSigBlob, IntPtr pcbSigBlob)
+        public int GetMemberRefProps(uint mr, IntPtr ptk, IntPtr szMember, uint cchMember, IntPtr pchMember, IntPtr ppvSigBlob, IntPtr pcbSigBlob)
         {
             // MetaDataImport.GetMemberRefProps is not implemented
             NotImpl();
             return COM_HResults.E_NOTIMPL;
         }
 
-        public int EnumProperties (IntPtr phEnum, uint td, IntPtr rProperties, uint cMax, IntPtr pcProperties)
+        public int EnumProperties(IntPtr phEnum, uint td, IntPtr rProperties, uint cMax, IntPtr pcProperties)
         {
-            return EnumNoTokens( phEnum, pcProperties );
+            return EnumNoTokens(phEnum, pcProperties);
         }
 
-        public int EnumEvents (IntPtr phEnum, uint td, IntPtr rEvents, uint cMax, IntPtr pcEvents)
+        public int EnumEvents(IntPtr phEnum, uint td, IntPtr rEvents, uint cMax, IntPtr pcEvents)
         {
-            return EnumNoTokens( phEnum, pcEvents );            
+            return EnumNoTokens(phEnum, pcEvents);
         }
 
-        public int GetEventProps (uint ev, IntPtr pClass, IntPtr szEvent, uint cchEvent, IntPtr pchEvent, IntPtr pdwEventFlags, IntPtr ptkEventType, IntPtr pmdAddOn, IntPtr pmdRemoveOn, IntPtr pmdFire, IntPtr rmdOtherMethod, uint cMax, IntPtr pcOtherMethod)
+        public int GetEventProps(uint ev, IntPtr pClass, IntPtr szEvent, uint cchEvent, IntPtr pchEvent, IntPtr pdwEventFlags, IntPtr ptkEventType, IntPtr pmdAddOn, IntPtr pmdRemoveOn, IntPtr pmdFire, IntPtr rmdOtherMethod, uint cMax, IntPtr pcOtherMethod)
         {
             // MetaDataImport.GetEventProps is not implemented
             NotImpl();
             return COM_HResults.E_NOTIMPL;
         }
 
-        public int EnumMethodSemantics (IntPtr phEnum, uint mb, IntPtr rEventProp, uint cMax, IntPtr pcEventProp)
+        public int EnumMethodSemantics(IntPtr phEnum, uint mb, IntPtr rEventProp, uint cMax, IntPtr pcEventProp)
         {
-            return EnumNoTokens( phEnum, pcEventProp );            
+            return EnumNoTokens(phEnum, pcEventProp);
         }
 
-        public int GetMethodSemantics (uint mb, uint tkEventProp, IntPtr pdwSemanticFlags)
+        public int GetMethodSemantics(uint mb, uint tkEventProp, IntPtr pdwSemanticFlags)
         {
             // MetaDataImport.GetMethodSemantics is not implemented
             NotImpl();
             return COM_HResults.E_NOTIMPL;
         }
 
-        public int GetClassLayout (uint td, IntPtr pdwPackSize, IntPtr rFieldOffset, uint cMax, IntPtr pcFieldOffset, IntPtr pulClassSize)
+        public int GetClassLayout(uint td, IntPtr pdwPackSize, IntPtr rFieldOffset, uint cMax, IntPtr pcFieldOffset, IntPtr pulClassSize)
         {
             // MetaDataImport.GetClassLayour is not implemented
             NotImpl();
             return COM_HResults.E_NOTIMPL;
         }
 
-        public int GetFieldMarshal (uint tk, IntPtr ppvNativeType, IntPtr pcbNativeType)
+        public int GetFieldMarshal(uint tk, IntPtr ppvNativeType, IntPtr pcbNativeType)
         {
             // MetaDataImport.GetFieldMarshal is not implemented
             NotImpl();
             return COM_HResults.E_NOTIMPL;
         }
 
-        public int GetRVA (uint tk, IntPtr pulCodeRVA, IntPtr pdwImplFlags)
+        public int GetRVA(uint tk, IntPtr pulCodeRVA, IntPtr pdwImplFlags)
         {
             // MetaDataImport.GetRVA is not implemented
             NotImpl();
             return COM_HResults.E_NOTIMPL;
         }
 
-        public int GetPermissionSetProps (uint pm, IntPtr pdwAction, IntPtr ppvPermission, IntPtr pcbPermission)
+        public int GetPermissionSetProps(uint pm, IntPtr pdwAction, IntPtr ppvPermission, IntPtr pcbPermission)
         {
             // MetaDataImport.GetPermissionSetProps is not implemented
             NotImpl();
             return COM_HResults.E_NOTIMPL;
         }
 
-        public int GetSigFromToken (uint mdSig, IntPtr ppvSig, IntPtr pcbSig)
+        public int GetSigFromToken(uint mdSig, IntPtr ppvSig, IntPtr pcbSig)
         {
             // MetaDataImport.GetSigFromToken is not implemented
             NotImpl();
             return COM_HResults.E_NOTIMPL;
         }
 
-        public int GetModuleRefProps (uint mur, IntPtr szName, uint cchName, IntPtr pchName)
+        public int GetModuleRefProps(uint mur, IntPtr szName, uint cchName, IntPtr pchName)
         {
             // MetaDataImport.GetModuleRefProps is not implemented
             NotImpl();
             return COM_HResults.E_NOTIMPL;
         }
 
-        public int EnumModuleRefs (IntPtr phEnum, IntPtr rModuleRefs, uint cmax, IntPtr pcModuleRefs)
+        public int EnumModuleRefs(IntPtr phEnum, IntPtr rModuleRefs, uint cmax, IntPtr pcModuleRefs)
         {
-            return EnumNoTokens( phEnum, pcModuleRefs );
+            return EnumNoTokens(phEnum, pcModuleRefs);
         }
 
-        public int GetTypeSpecFromToken (uint typespec, IntPtr ppvSig, IntPtr pcbSig)
+        public int GetTypeSpecFromToken(uint typespec, IntPtr ppvSig, IntPtr pcbSig)
         {
             // MetaDataImport.GetTypeSpecFromToken is not implemented
             NotImpl();
             return COM_HResults.E_NOTIMPL;
         }
 
-        public int GetNameFromToken (uint tk, IntPtr pszUtf8NamePtr)
+        public int GetNameFromToken(uint tk, IntPtr pszUtf8NamePtr)
         {
             // MetaDataImport.GetNameFromToken is not implemented
             NotImpl();
             return COM_HResults.E_NOTIMPL;
         }
 
-        public int EnumUnresolvedMethods (IntPtr phEnum, IntPtr rMethods, uint cMax, IntPtr pcTokens)
+        public int EnumUnresolvedMethods(IntPtr phEnum, IntPtr rMethods, uint cMax, IntPtr pcTokens)
         {
-            return EnumNoTokens( phEnum, pcTokens );
+            return EnumNoTokens(phEnum, pcTokens);
         }
 
-        public int GetUserString (uint stk, IntPtr szString, uint cchString, IntPtr pchString)
+        public int GetUserString(uint stk, IntPtr szString, uint cchString, IntPtr pchString)
         {
             // MetaDataImport.GetUserString is not implemented
             NotImpl();
             return COM_HResults.E_NOTIMPL;
         }
 
-        public int GetPinvokeMap (uint tk, IntPtr pdwMappingFlags, IntPtr szImportName, uint cchImportName, IntPtr pchImportName, IntPtr pmrImportDLL)
+        public int GetPinvokeMap(uint tk, IntPtr pdwMappingFlags, IntPtr szImportName, uint cchImportName, IntPtr pchImportName, IntPtr pmrImportDLL)
         {
             // MetaDataImport.GetPinvokeMap is not implemented
             NotImpl();
             return COM_HResults.E_NOTIMPL;
         }
 
-        public int EnumSignatures (IntPtr phEnum, IntPtr rSignatures, uint cmax, IntPtr pcSignatures)
+        public int EnumSignatures(IntPtr phEnum, IntPtr rSignatures, uint cmax, IntPtr pcSignatures)
         {
-            return EnumNoTokens( phEnum, pcSignatures );
+            return EnumNoTokens(phEnum, pcSignatures);
         }
 
-        public int EnumTypeSpecs (IntPtr phEnum, IntPtr rTypeSpecs, uint cmax, IntPtr pcTypeSpecs)
+        public int EnumTypeSpecs(IntPtr phEnum, IntPtr rTypeSpecs, uint cmax, IntPtr pcTypeSpecs)
         {
-            return EnumNoTokens( phEnum, pcTypeSpecs );
+            return EnumNoTokens(phEnum, pcTypeSpecs);
         }
 
-        public int EnumUserStrings (IntPtr phEnum, IntPtr rStrings, uint cmax, IntPtr pcStrings)
+        public int EnumUserStrings(IntPtr phEnum, IntPtr rStrings, uint cmax, IntPtr pcStrings)
         {
-            return EnumNoTokens( phEnum, pcStrings );
+            return EnumNoTokens(phEnum, pcStrings);
         }
 
-        public int GetParamForMethodIndex (uint md, uint ulParamSeq, IntPtr ppd)
+        public int GetParamForMethodIndex(uint md, uint ulParamSeq, IntPtr ppd)
         {
             // MetaDataImport.GetParamForMethodIndex is not implemented
             NotImpl();
             return COM_HResults.E_NOTIMPL;
         }
 
-        public int EnumUserStrings (IntPtr phEnum, uint tk, uint tkType, IntPtr rCustomAttributes, uint cMax, IntPtr pcCustomAttributes)
+        public int EnumUserStrings(IntPtr phEnum, uint tk, uint tkType, IntPtr rCustomAttributes, uint cMax, IntPtr pcCustomAttributes)
         {
-            return EnumNoTokens( phEnum, pcCustomAttributes );
+            return EnumNoTokens(phEnum, pcCustomAttributes);
         }
 
-        public int GetCustomAttributeProps (uint cv, IntPtr ptkObj, IntPtr ptkType, IntPtr ppBlob, IntPtr pcbSize)
+        public int GetCustomAttributeProps(uint cv, IntPtr ptkObj, IntPtr ptkType, IntPtr ppBlob, IntPtr pcbSize)
         {
             return COM_HResults.S_FALSE;
         }
 
-        public int FindTypeRef (uint tkResolutionScope, string szName, IntPtr ptr)
+        public int FindTypeRef(uint tkResolutionScope, string szName, IntPtr ptr)
         {
             // MetaDataImport.FindTypeRef is not implemented
             NotImpl();
             return COM_HResults.E_NOTIMPL;
         }
 
-        public int GetMemberProps (uint mb, IntPtr pClass, IntPtr szMember, uint cchMember, IntPtr pchMember, IntPtr pdwAttr, IntPtr ppvSigBlob, IntPtr pcbSigBlob, IntPtr pulCodeRVA, IntPtr pdwImplFlags, IntPtr pdwCPlusTypeFlag, IntPtr ppValue, IntPtr pcchValue)
+        public int GetMemberProps(uint mb, IntPtr pClass, IntPtr szMember, uint cchMember, IntPtr pchMember, IntPtr pdwAttr, IntPtr ppvSigBlob, IntPtr pcbSigBlob, IntPtr pulCodeRVA, IntPtr pdwImplFlags, IntPtr pdwCPlusTypeFlag, IntPtr ppValue, IntPtr pcchValue)
         {
             // MetaDataImport.GetMemberProps is not implemented
             NotImpl();
             return COM_HResults.E_NOTIMPL;
         }
 
-        public int GetFieldProps (uint mb, IntPtr pClass, IntPtr szField, uint cchField, IntPtr pchField, IntPtr pdwAttr, IntPtr ppvSigBlob, IntPtr pcbSigBlob, IntPtr pdwCPlusTypeFlag, IntPtr ppValue, IntPtr pcchValue)
+        public int GetFieldProps(uint mb, IntPtr pClass, IntPtr szField, uint cchField, IntPtr pchField, IntPtr pdwAttr, IntPtr ppvSigBlob, IntPtr pcbSigBlob, IntPtr pdwCPlusTypeFlag, IntPtr ppValue, IntPtr pcchValue)
         {
             // MetaDataImport.GetFieldProps is not implemented
             NotImpl();
             return COM_HResults.E_NOTIMPL;
         }
 
-        public int GetPropertyProps (uint prop, IntPtr pClass, IntPtr szProperty, uint cchProperty, IntPtr pchProperty, IntPtr pdwPropFlags, IntPtr ppvSig, IntPtr pbSig, IntPtr pdwCPlusTypeFlag, IntPtr ppDefaultValue, IntPtr pcchDefaultValue, IntPtr pmdSetter, IntPtr pmdGetter, IntPtr rmdOtherMethod, uint cMax, IntPtr pcOtherMethod)
+        public int GetPropertyProps(uint prop, IntPtr pClass, IntPtr szProperty, uint cchProperty, IntPtr pchProperty, IntPtr pdwPropFlags, IntPtr ppvSig, IntPtr pbSig, IntPtr pdwCPlusTypeFlag, IntPtr ppDefaultValue, IntPtr pcchDefaultValue, IntPtr pmdSetter, IntPtr pmdGetter, IntPtr rmdOtherMethod, uint cMax, IntPtr pcOtherMethod)
         {
             // MetaDataImport.GetPropertyProps is not implemented
             NotImpl();
             return COM_HResults.E_NOTIMPL;
         }
 
-        public int GetParamProps (uint tk, IntPtr pmd, IntPtr pulSequence, IntPtr szName, uint cchName, IntPtr pchName, IntPtr pdwAttr, IntPtr pdwCPlusTypeFlag, IntPtr ppValue, IntPtr pcchValue)
+        public int GetParamProps(uint tk, IntPtr pmd, IntPtr pulSequence, IntPtr szName, uint cchName, IntPtr pchName, IntPtr pdwAttr, IntPtr pdwCPlusTypeFlag, IntPtr ppValue, IntPtr pcchValue)
         {
             // MetaDataImport.GetParamProps is not implemented
             NotImpl();
             return COM_HResults.E_NOTIMPL;
         }
 
-        public int GetCustomAttributeByName (uint tkObj, string szName, IntPtr ppData, IntPtr pcbData)
+        public int GetCustomAttributeByName(uint tkObj, string szName, IntPtr ppData, IntPtr pcbData)
         {
             // MetaDataImport.GetCustomAttributeByName is not implemented
-            
+
             return COM_HResults.E_NOTIMPL;
         }
 
-        public int IsValidToken (uint tk)
+        public int IsValidToken(uint tk)
         {
             // MetaDataImport.IsValidToken is not implemented
             NotImpl();
             return COM_HResults.E_NOTIMPL;
         }
 
-        public int GetNestedClassProps (uint tdNestedClass, IntPtr ptdEnclosingClass)
+        public int GetNestedClassProps(uint tdNestedClass, IntPtr ptdEnclosingClass)
         {
             // MetaDataImport.GetNestedClassProps is not implemented
             NotImpl();
             return COM_HResults.E_NOTIMPL;
         }
 
-        public int GetNativeCallConvFromSig (IntPtr pvSig, uint cbSig, IntPtr pCallConv)
+        public int GetNativeCallConvFromSig(IntPtr pvSig, uint cbSig, IntPtr pCallConv)
         {
             // MetaDataImport.GetNativeCallConvFromSig is not implemented
             NotImpl();
             return COM_HResults.E_NOTIMPL;
         }
 
-        public int IsGlobal (uint pd, IntPtr pbGlobal)
+        public int IsGlobal(uint pd, IntPtr pbGlobal)
         {
             // MetaDataImport.IsGlobal is not implemented
             NotImpl();
@@ -603,84 +603,84 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
 
         #region IMetaDataAssemblyImport Members
 
-        public int GetAssemblyProps (uint mda, IntPtr ppbPublicKey, IntPtr pcbPublicKey, IntPtr pulHashAlgId, IntPtr szName, uint cchName, IntPtr pchName, IntPtr pMetaData, IntPtr pdwAssemblyFlags)
+        public int GetAssemblyProps(uint mda, IntPtr ppbPublicKey, IntPtr pcbPublicKey, IntPtr pulHashAlgId, IntPtr szName, uint cchName, IntPtr pchName, IntPtr pMetaData, IntPtr pdwAssemblyFlags)
         {
             _assembly.ICorDebugAssembly.GetName(cchName, pchName, szName);
             return COM_HResults.S_OK;
         }
 
-        public int GetAssemblyRefProps (uint mdar, IntPtr ppbPublicKeyOrToken, IntPtr pcbPublicKeyOrToken, IntPtr szName, uint cchName, IntPtr pchName, IntPtr pMetaData, IntPtr ppbHashValue, IntPtr pcbHashValue, IntPtr pdwAssemblyRefFlags)
+        public int GetAssemblyRefProps(uint mdar, IntPtr ppbPublicKeyOrToken, IntPtr pcbPublicKeyOrToken, IntPtr szName, uint cchName, IntPtr pchName, IntPtr pMetaData, IntPtr ppbHashValue, IntPtr pcbHashValue, IntPtr pdwAssemblyRefFlags)
         {
             // MetaDataImport.GetAssemblyRefProps is not implemented
             NotImpl();
             return COM_HResults.E_NOTIMPL;
         }
 
-        public int GetFileProps (uint mdf, IntPtr szName, uint cchName, IntPtr pchName, IntPtr ppbHashValue, IntPtr pcbHashValue, IntPtr pdwFileFlags)
+        public int GetFileProps(uint mdf, IntPtr szName, uint cchName, IntPtr pchName, IntPtr ppbHashValue, IntPtr pcbHashValue, IntPtr pdwFileFlags)
         {
             // MetaDataImport.GetFileProps is not implemented
             NotImpl();
             return COM_HResults.E_NOTIMPL;
         }
 
-        public int GetExportedTypeProps (uint mdct, IntPtr szName, uint cchName, IntPtr pchName, IntPtr ptkImplementation, IntPtr ptkTypeDef, IntPtr pdwExportedTypeFlags)
+        public int GetExportedTypeProps(uint mdct, IntPtr szName, uint cchName, IntPtr pchName, IntPtr ptkImplementation, IntPtr ptkTypeDef, IntPtr pdwExportedTypeFlags)
         {
             // MetaDataImport.GetExportedTypeProps is not implemented
             NotImpl();
             return COM_HResults.E_NOTIMPL;
         }
 
-        public int GetManifestResourceProps (uint mdmr, IntPtr szName, uint cchName, IntPtr pchName, IntPtr ptkImplementation, IntPtr pdwOffset, IntPtr pdwResourceFlags)
+        public int GetManifestResourceProps(uint mdmr, IntPtr szName, uint cchName, IntPtr pchName, IntPtr ptkImplementation, IntPtr pdwOffset, IntPtr pdwResourceFlags)
         {
             // MetaDataImport.GetManifestResourceProps is not implemented
             NotImpl();
             return COM_HResults.E_NOTIMPL;
         }
 
-        public int EnumAssemblyRefs (IntPtr phEnum, IntPtr rAssemblyRefs, uint cMax, IntPtr pcTokens)
+        public int EnumAssemblyRefs(IntPtr phEnum, IntPtr rAssemblyRefs, uint cMax, IntPtr pcTokens)
         {
-            return EnumNoTokens( phEnum, pcTokens );
+            return EnumNoTokens(phEnum, pcTokens);
         }
 
-        public int EnumFiles (IntPtr phEnum, IntPtr rFiles, uint cMax, IntPtr pcTokens)
+        public int EnumFiles(IntPtr phEnum, IntPtr rFiles, uint cMax, IntPtr pcTokens)
         {
-            return EnumNoTokens( phEnum, pcTokens );
+            return EnumNoTokens(phEnum, pcTokens);
         }
 
-        public int EnumExportedTypes (IntPtr phEnum, IntPtr rExportedTypes, uint cMax, IntPtr pcTokens)
+        public int EnumExportedTypes(IntPtr phEnum, IntPtr rExportedTypes, uint cMax, IntPtr pcTokens)
         {
-            return EnumNoTokens( phEnum, pcTokens );
+            return EnumNoTokens(phEnum, pcTokens);
         }
 
-        public int EnumManifestResources (IntPtr phEnum, IntPtr rManifestResources, uint cMax, IntPtr pcTokens)
+        public int EnumManifestResources(IntPtr phEnum, IntPtr rManifestResources, uint cMax, IntPtr pcTokens)
         {
             // MetaDataImport.EnumManifestResources is not implemented
             NotImpl();
             return COM_HResults.E_NOTIMPL;
         }
 
-        public int GetAssemblyFromScope (IntPtr ptkAssembly)
+        public int GetAssemblyFromScope(IntPtr ptkAssembly)
         {
             //Only one assembly per MetaDataImport, doesn't matter what token we give them back            
             NotImpl();
             return COM_HResults.E_NOTIMPL;
         }
 
-        public int FindExportedTypeByName (string szName, uint mdtExportedType, IntPtr ptkExportedType)
+        public int FindExportedTypeByName(string szName, uint mdtExportedType, IntPtr ptkExportedType)
         {
             // MetaDataImport.FindExportedTypeByName is not implemented
             NotImpl();
             return COM_HResults.E_NOTIMPL;
         }
 
-        public int FindManifestResourceByName (string szName, IntPtr ptkManifestResource)
+        public int FindManifestResourceByName(string szName, IntPtr ptkManifestResource)
         {
             // MetaDataImport.FindManifestResourceByName is not implemented
             NotImpl();
             return COM_HResults.E_NOTIMPL;
         }
 
-        public int FindAssembliesByName (string szAppBase, string szPrivateBin, string szAssemblyName, IntPtr ppIUnk, uint cMax, IntPtr pcAssemblies)
+        public int FindAssembliesByName(string szAppBase, string szPrivateBin, string szAssemblyName, IntPtr ppIUnk, uint cMax, IntPtr pcAssemblies)
         {
             // MetaDataImport.FindAssembliesByName is not implemented
             NotImpl();

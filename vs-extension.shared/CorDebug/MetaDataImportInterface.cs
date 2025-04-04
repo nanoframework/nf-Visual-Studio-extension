@@ -1,4 +1,4 @@
-//
+﻿//
 // Copyright (c) .NET Foundation and Contributors
 // Portions Copyright (c) Microsoft Corporation.  All rights reserved.
 // See LICENSE file in the project root for full license information.
@@ -331,7 +331,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
         //[MethodImpl(MethodImplOptions.PreserveSig)]
         int ResolveTypeRef(uint tr,
                             IntPtr riid,
-                            [MarshalAs(UnmanagedType.IUnknown)] 
+                            [MarshalAs(UnmanagedType.IUnknown)]
                             ref object ppIScope,
                             IntPtr ptd
                             );
@@ -888,7 +888,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
         //[MethodImpl(MethodImplOptions.PreserveSig)]
         new int ResolveTypeRef(uint tr,
                                 IntPtr riid,
-                            [MarshalAs(UnmanagedType.IUnknown)] 
+                            [MarshalAs(UnmanagedType.IUnknown)]
                             ref object ppIScope,
                             IntPtr ptd
                             );
