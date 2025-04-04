@@ -1,4 +1,4 @@
-//
+﻿//
 // Copyright (c) .NET Foundation and Contributors
 // Portions Copyright (c) Microsoft Corporation.  All rights reserved.
 // See LICENSE file in the project root for full license information.
@@ -18,23 +18,23 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 {
     public class CorDebugAssembly : ICorDebugAssembly, ICorDebugModule, ICorDebugModule2, IDisposable
     {
-        CorDebugAppDomain _appDomain;
-        CorDebugProcess _process;
-        Hashtable _clrTokensToPdbx;
-        Hashtable _nanoCLRTokensToPdbx;
-        PdbxFile _pdbxFile;
-        Assembly _pdbxAssembly;
-        IMetaDataImport _iMetaDataImport;
-        uint _idx;
-        string _name;
-        string _path;
-        ulong _dummyBaseAddress;
-        FileStream _fileStream;
-        CorDebugAssembly _primaryAssembly;
-        bool _isFrameworkAssembly;
+        private CorDebugAppDomain _appDomain;
+        private CorDebugProcess _process;
+        private Hashtable _clrTokensToPdbx;
+        private Hashtable _nanoCLRTokensToPdbx;
+        private PdbxFile _pdbxFile;
+        private Assembly _pdbxAssembly;
+        private IMetaDataImport _iMetaDataImport;
+        private uint _idx;
+        private string _name;
+        private string _path;
+        private ulong _dummyBaseAddress;
+        private FileStream _fileStream;
+        private CorDebugAssembly _primaryAssembly;
+        private bool _isFrameworkAssembly;
 
         // this list holds the official assemblies name
-        List<string> frameworkAssemblies_v1_0 = new List<string> {
+        private List<string> frameworkAssemblies_v1_0 = new List<string> {
             "mscorlib",
             "nanoframework.hardware.esp32",
             "nanoframework.networking.sntp",

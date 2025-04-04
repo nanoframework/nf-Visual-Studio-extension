@@ -1,4 +1,4 @@
-//
+﻿//
 // Copyright (c) .NET Foundation and Contributors
 // Portions Copyright (c) Microsoft Corporation.  All rights reserved.
 // See LICENSE file in the project root for full license information.
@@ -12,31 +12,31 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 {
     public class CorDebugClass : ICorDebugClass, ICorDebugClass2
     {
-        CorDebugAssembly m_assembly;
-        Class m_pdbxClass;
-        TypeSpec m_pdbxTypeSpec;
-        uint m_tkSymbolless;
+        private CorDebugAssembly _assembly;
+        private Class _pdbxClass;
+        private TypeSpec _pdbxTypeSpec;
+        private uint _tkSymbolless;
 
         public CorDebugClass(CorDebugAssembly assembly, TypeSpec typeSpec)
         {
-            m_assembly = assembly;
-            m_pdbxTypeSpec = typeSpec;
-            m_pdbxClass = null;
+            _assembly = assembly;
+            _pdbxTypeSpec = typeSpec;
+            _pdbxClass = null;
         }
 
         public CorDebugClass(CorDebugAssembly assembly, Class cls)
         {
-            m_assembly = assembly;
-            m_pdbxClass = cls;
-            m_pdbxTypeSpec = null;
+            _assembly = assembly;
+            _pdbxClass = cls;
+            _pdbxTypeSpec = null;
         }
 
         public CorDebugClass(CorDebugAssembly assembly, uint tkSymbolless)
         {
-            m_tkSymbolless = tkSymbolless;
-            m_assembly = assembly;
-            m_pdbxClass = null;
-            m_pdbxTypeSpec = null;
+            _tkSymbolless = tkSymbolless;
+            _assembly = assembly;
+            _pdbxClass = null;
+            _pdbxTypeSpec = null;
         }
 
         public ICorDebugClass ICorDebugClass
@@ -52,16 +52,16 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         public CorDebugAssembly Assembly
         {
             [DebuggerHidden]
-            get { return m_assembly; }
+            get { return _assembly; }
         }
 
         public bool IsEnum
         {
             get
             {
-                if (HasSymbols && m_pdbxClass != null)
+                if (HasSymbols && _pdbxClass != null)
                 {
-                    return m_pdbxClass.IsEnum;
+                    return _pdbxClass.IsEnum;
                 }
                 else
                 {
@@ -91,25 +91,25 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         public Class PdbxClass
         {
             [DebuggerHidden]
-            get { return m_pdbxClass; }
+            get { return _pdbxClass; }
         }
 
         public TypeSpec PdbxTypeSpec
         {
             [DebuggerHidden]
-            get { return m_pdbxTypeSpec; }
+            get { return _pdbxTypeSpec; }
         }
 
         public bool HasSymbols
         {
-            get { return (m_pdbxClass != null || m_pdbxTypeSpec != null); }
+            get { return (_pdbxClass != null || _pdbxTypeSpec != null); }
         }
 
         public uint TypeDef_Index
         {
             get
             {
-                uint tk = HasSymbols ? m_pdbxClass.Token.NanoCLRToken : m_tkSymbolless;
+                uint tk = HasSymbols ? _pdbxClass.Token.NanoCLRToken : _tkSymbolless;
 
                 return nanoCLR_TypeSystem.ClassMemberIndexFromnanoCLRToken(tk, Assembly);
             }
@@ -119,7 +119,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         {
             get
             {
-                uint tk = HasSymbols ? m_pdbxTypeSpec.Token.NanoCLRToken : m_tkSymbolless;
+                uint tk = HasSymbols ? _pdbxTypeSpec.Token.NanoCLRToken : _tkSymbolless;
 
                 return nanoCLR_TypeSystem.ClassMemberIndexFromnanoCLRToken(tk, Assembly);
             }
@@ -129,14 +129,14 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         int ICorDebugClass.GetModule(out ICorDebugModule pModule)
         {
-            pModule = m_assembly;
+            pModule = _assembly;
 
             return COM_HResults.S_OK;
         }
 
         int ICorDebugClass.GetToken(out uint pTypeDef)
         {
-            pTypeDef = HasSymbols ? m_pdbxClass.Token.CLRToken : m_tkSymbolless;
+            pTypeDef = HasSymbols ? _pdbxClass.Token.CLRToken : _tkSymbolless;
 
             return COM_HResults.S_OK;
         }
@@ -176,10 +176,10 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             {
                 if (Engine.Info_SetJMC(fJMC, ReflectionDefinition.Kind.REFLECTION_TYPE, TypeDef_Index))
                 {
-                    if (!m_assembly.IsFrameworkAssembly)
+                    if (!_assembly.IsFrameworkAssembly)
                     {
                         //now update the debugger JMC state...
-                        foreach (Method m in m_pdbxClass.Methods)
+                        foreach (Method m in _pdbxClass.Methods)
                         {
                             m.IsJMC = fJMC;
                         }

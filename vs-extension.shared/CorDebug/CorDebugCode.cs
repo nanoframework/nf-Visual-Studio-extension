@@ -1,4 +1,4 @@
-//
+﻿//
 // Copyright (c) .NET Foundation and Contributors
 // Portions Copyright (c) Microsoft Corporation.  All rights reserved.
 // See LICENSE file in the project root for full license information.
@@ -10,11 +10,11 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 {
     public class CorDebugCode : ICorDebugCode
     {
-        CorDebugFunction m_function;
+        private CorDebugFunction _function;
 
         public CorDebugCode(CorDebugFunction function)
         {
-            m_function = function;
+            _function = function;
         }
 
 
@@ -38,7 +38,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         int ICorDebugCode.CreateBreakpoint(uint offset, out ICorDebugFunctionBreakpoint ppBreakpoint)
         {
-            ppBreakpoint = new CorDebugFunctionBreakpoint(m_function, offset);
+            ppBreakpoint = new CorDebugFunctionBreakpoint(_function, offset);
 
             return COM_HResults.S_OK;
         }
@@ -64,7 +64,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             int pbIsJustMyCode;
             pcMap = 0;
 
-            m_function.ICorDebugFunction2.GetJMCStatus(out pbIsJustMyCode);
+            _function.ICorDebugFunction2.GetJMCStatus(out pbIsJustMyCode);
 
             //
             // REQUIRED FOR 'JUST MY CODE'
@@ -111,7 +111,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         int ICorDebugCode.GetFunction(out ICorDebugFunction ppFunction)
         {
-            ppFunction = m_function;
+            ppFunction = _function;
 
             return COM_HResults.S_OK;
         }
