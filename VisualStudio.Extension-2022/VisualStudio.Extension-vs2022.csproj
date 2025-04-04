@@ -120,8 +120,8 @@
     <Compile Include="AutomaticUpdates\UpdateManager.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="$(PkgnanoFramework_CoreLibrary)\nanoFramework.CoreLibrary.1.17.7.nupkg">
-      <Link>Packages\nanoFramework.CoreLibrary.1.17.7.nupkg</Link>
+    <Content Include="$(PkgnanoFramework_CoreLibrary)\nanoFramework.CoreLibrary.1.17.11.nupkg">
+      <Link>Packages\nanoFramework.CoreLibrary.1.17.11.nupkg</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
@@ -544,7 +544,7 @@
       <Version>17.12.40392</Version>
     </PackageReference>
     <PackageReference Include="nanoFramework.CoreLibrary" GeneratePathProperty="true">
-      <Version>1.17.7</Version>
+      <Version>1.17.11</Version>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="nanoFramework.TestFramework" Version="3.0.75" GeneratePathProperty="true">
