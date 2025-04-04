@@ -266,20 +266,20 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         private void ShowToolWindow(object sender, EventArgs e)
         {
             _ = package.JoinableTaskFactory.RunAsync(async delegate
+            {
+
+                // Get the instance number 0 of this tool window. This window is single instance so this instance
+                // is actually the only one.
+                // The last flag is set to true so that if the tool window does not exists it will be created.
+                ToolWindowPane toolWindow = await package.ShowToolWindowAsync(typeof(DeviceExplorer), 0, true, package.DisposalToken);
+                if ((null == toolWindow) || (null == toolWindow.Frame))
                 {
+                    throw new NotSupportedException("Cannot create nanoFramework Device Explorer tool window.");
+                }
 
-                    // Get the instance number 0 of this tool window. This window is single instance so this instance
-                    // is actually the only one.
-                    // The last flag is set to true so that if the tool window does not exists it will be created.
-                    ToolWindowPane toolWindow = await package.ShowToolWindowAsync(typeof(DeviceExplorer), 0, true, package.DisposalToken);
-                    if ((null == toolWindow) || (null == toolWindow.Frame))
-                    {
-                        throw new NotSupportedException("Cannot create nanoFramework Device Explorer tool window.");
-                    }
-
-                    //IVsWindowFrame windowFrame = (IVsWindowFrame)toolWindow.Frame;
-                    //ErrorHandler.ThrowOnFailure(windowFrame.Show());
-                });
+                //IVsWindowFrame windowFrame = (IVsWindowFrame)toolWindow.Frame;
+                //ErrorHandler.ThrowOnFailure(windowFrame.Show());
+            });
         }
 
         #region Command button handlers
@@ -312,14 +312,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                     // make sure this device is showing as selected in Device Explorer tree view
                     deviceExplorer.ForceNanoDeviceSelection();
-
-                    // Get exclusive access to the device, but don't wait forever
-                    exclusiveAccess = GlobalExclusiveDeviceAccess.TryGet(deviceExplorer.SelectedDevice, ExclusiveAccessTimeout);
-                    if (exclusiveAccess is null)
-                    {
-                        MessageCentre.OutputMessage($"Cannot access {descriptionBackup}, another application is using the device.");
-                        return;
-                    }
 
                     // Get exclusive access to the device, but don't wait forever
                     exclusiveAccess = GlobalExclusiveDeviceAccess.TryGet(deviceExplorer.SelectedDevice, ExclusiveAccessTimeout);
@@ -628,14 +620,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         return;
                     }
 
-                    // Get exclusive access to the device, but don't wait forever
-                    exclusiveAccess = GlobalExclusiveDeviceAccess.TryGet(deviceExplorer.SelectedDevice, ExclusiveAccessTimeout);
-                    if (exclusiveAccess is null)
-                    {
-                        MessageCentre.OutputMessage($"Cannot access {descriptionBackup}, another application is using the device.");
-                        return;
-                    }
-
                     // check if debugger engine exists
                     if (NanoDeviceCommService.Device.DebugEngine == null)
                     {
@@ -731,17 +715,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                     // make sure this device is showing as selected in Device Explorer tree view
                     deviceExplorer.ForceNanoDeviceSelection();
-
-                    // Get exclusive access to the device, but don't wait forever
-                    exclusiveAccess = GlobalExclusiveDeviceAccess.TryGet(deviceExplorer.SelectedDevice, ExclusiveAccessTimeout);
-                    if (exclusiveAccess is null)
-                    {
-                        _ = MessageBox.Show($"Cannot access {deviceExplorer.SelectedDevice.Description}, another application is using the device.",
-                                            ".NET nanoFramework Device Explorer",
-                                            MessageBoxButton.OK,
-                                            MessageBoxImage.Error);
-                        return;
-                    }
 
                     // Get exclusive access to the device, but don't wait forever
                     exclusiveAccess = GlobalExclusiveDeviceAccess.TryGet(deviceExplorer.SelectedDevice, ExclusiveAccessTimeout);
@@ -878,14 +851,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                     // make sure this device is showing as selected in Device Explorer tree view
                     deviceExplorer.ForceNanoDeviceSelection();
-
-                    // Get exclusive access to the device, but don't wait forever
-                    exclusiveAccess = GlobalExclusiveDeviceAccess.TryGet(deviceExplorer.SelectedDevice, ExclusiveAccessTimeout);
-                    if (exclusiveAccess is null)
-                    {
-                        MessageCentre.OutputMessage($"Cannot access {deviceExplorer.SelectedDevice.Description}, another application is using the device.");
-                        return;
-                    }
 
                     // Get exclusive access to the device, but don't wait forever
                     exclusiveAccess = GlobalExclusiveDeviceAccess.TryGet(deviceExplorer.SelectedDevice, ExclusiveAccessTimeout);
