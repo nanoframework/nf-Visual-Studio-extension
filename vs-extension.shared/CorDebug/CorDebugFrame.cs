@@ -115,7 +115,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     CorDebugAppDomain appDomain = Process.GetAppDomainFromId(appDomainId);
                     CorDebugAssembly assembly = appDomain.AssemblyFromIndex(_call.m_md); ;
 
-                    uint tkMethod = nanoCLR_TypeSystem.nanoCLRTokenFromMethodIndex(_call.m_md);
+                    uint tkMethod = nanoCLR_TypeSystem.NanoCLRTokenFromMethodIndex(_call.m_md);
 
                     _function = assembly.GetFunctionFromTokennanoCLR(tkMethod);
                 }
