@@ -105,17 +105,17 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         public static CorDebugAssembly AssemblyFromIndex(CorDebugAppDomain appDomain, uint index)
         {
-            return appDomain.AssemblyFromIdx(nanoCLR_TypeSystem.IdxAssemblyFromIndex(index));
+            return appDomain.AssemblyFromIdx(IdxAssemblyFromIndex(index));
         }
 
         public static CorDebugClass CorDebugClassFromTypeIndex(uint typeIndex, CorDebugAppDomain appDomain)
         {
             CorDebugClass cls = null;
 
-            CorDebugAssembly assembly = appDomain.AssemblyFromIdx(nanoCLR_TypeSystem.IdxAssemblyFromIndex(typeIndex));
+            CorDebugAssembly assembly = appDomain.AssemblyFromIdx(IdxAssemblyFromIndex(typeIndex));
             if (assembly != null)
             {
-                uint typedef = nanoCLR_TypeSystem.CLR_TkFromType(nanoCLR_TypeSystem.NanoCLRTable.TBL_TypeDef, nanoCLR_TypeSystem.IdxFromIndex(typeIndex));
+                uint typedef = CLR_TkFromType(NanoCLRTable.TBL_TypeDef, IdxFromIndex(typeIndex));
                 cls = assembly.GetClassFromNanoCLRToken(typedef);
             }
 
@@ -126,10 +126,10 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         {
             CorDebugClass cls = null;
 
-            CorDebugAssembly assembly = appDomain.AssemblyFromIdx(nanoCLR_TypeSystem.IdxAssemblyFromIndex(typeSpecIndex));
+            CorDebugAssembly assembly = appDomain.AssemblyFromIdx(IdxAssemblyFromIndex(typeSpecIndex));
             if (assembly != null)
             {
-                uint typeSpec = nanoCLR_TypeSystem.CLR_TkFromType(nanoCLR_TypeSystem.NanoCLRTable.TBL_TypeSpec, nanoCLR_TypeSystem.IdxFromIndex(typeSpecIndex));
+                uint typeSpec = CLR_TkFromType(NanoCLRTable.TBL_TypeSpec, IdxFromIndex(typeSpecIndex));
 
                 cls = assembly.GetClassFromNanoCLRToken(typeSpec);
             }
@@ -140,11 +140,11 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         public static CorDebugFunction CorDebugFunctionFromMethodIndex(uint methodIndex, CorDebugAppDomain appDomain)
         {
             CorDebugFunction function = null;
-            CorDebugAssembly assembly = appDomain.AssemblyFromIdx(nanoCLR_TypeSystem.IdxAssemblyFromIndex(methodIndex));
+            CorDebugAssembly assembly = appDomain.AssemblyFromIdx(IdxAssemblyFromIndex(methodIndex));
 
             if (assembly != null)
             {
-                uint tk = nanoCLR_TypeSystem.NanoCLRTokenFromMethodIndex(methodIndex);
+                uint tk = NanoCLRTokenFromMethodIndex(methodIndex);
                 function = assembly.GetFunctionFromTokennanoCLR(tk);
             }
 
@@ -160,26 +160,26 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         public static uint ClassMemberIndexFromnanoCLRToken(uint token, CorDebugAssembly assembly)
         {
-            uint idx = nanoCLR_TypeSystem.CLR_DataFromTk(token);
-            return nanoCLR_TypeSystem.IndexFromIdxAssemblyIdx(assembly.Idx, idx);
+            uint idx = CLR_DataFromTk(token);
+            return IndexFromIdxAssemblyIdx(assembly.Idx, idx);
         }
 
         private static uint NanoCLRTokenFromIndex(nanoCLR_TypeSystem.NanoCLRTable tbl, uint index)
         {
-            uint idxAssembly = nanoCLR_TypeSystem.IdxAssemblyFromIndex(index);
-            uint idxMethod = nanoCLR_TypeSystem.IdxFromIndex(index);
+            uint idxAssembly = IdxAssemblyFromIndex(index);
+            uint idxMethod = IdxFromIndex(index);
 
-            return nanoCLR_TypeSystem.CLR_TkFromType(tbl, idxMethod);
+            return CLR_TkFromType(tbl, idxMethod);
         }
 
         public static uint NanoCLRTokenFromMethodIndex(uint index)
         {
-            return NanoCLRTokenFromIndex(nanoCLR_TypeSystem.NanoCLRTable.TBL_MethodDef, index);
+            return NanoCLRTokenFromIndex(NanoCLRTable.TBL_MethodDef, index);
         }
 
         public static uint NanoCLRTokenFromTypeIndex(uint index)
         {
-            return NanoCLRTokenFromIndex(nanoCLR_TypeSystem.NanoCLRTable.TBL_TypeDef, index);
+            return NanoCLRTokenFromIndex(NanoCLRTable.TBL_TypeDef, index);
         }
 
         public class SymbollessSupport
@@ -193,7 +193,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             public static uint NanoCLRTokenFromMethodDefToken(uint token)
             {
                 Debug.Assert((token & (uint)CorTokenType.mdtMethodDef) != 0);
-                return nanoCLR_TypeSystem.CLR_TkFromType(NanoCLRTable.TBL_MethodDef, token & 0x00ffffff);
+                return CLR_TkFromType(NanoCLRTable.TBL_MethodDef, token & 0x00ffffff);
             }
 
             public static uint TypeDefTokenFromNanoCLRToken(uint token)
@@ -205,7 +205,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             public static uint NanoCLRTokenFromTypeDefToken(uint token)
             {
                 Debug.Assert((token & (uint)CorTokenType.mdtTypeDef) != 0);
-                return nanoCLR_TypeSystem.CLR_TkFromType(NanoCLRTable.TBL_TypeDef, token & 0x00ffffff);
+                return CLR_TkFromType(NanoCLRTable.TBL_TypeDef, token & 0x00ffffff);
             }
 
             internal static uint TypeSpecTokenFromNanoCLRToken(uint token)
@@ -217,7 +217,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             public static uint NanoCLRTokenFromTypeSpecToken(uint token)
             {
                 Debug.Assert((token & (uint)CorTokenType.mdtTypeSpec) != 0);
-                return nanoCLR_TypeSystem.CLR_TkFromType(NanoCLRTable.TBL_TypeSpec, token & 0x00ffffff);
+                return CLR_TkFromType(NanoCLRTable.TBL_TypeSpec, token & 0x00ffffff);
             }
 
         }
