@@ -11,3 +11,6 @@ VS2019
 VS2022
 
 - ICSharpCode cannot be updated beyond v7.2.1.6856 because System.Collections.Immutable cannot go beyond v5.0.0.
+- Microsoft.Extensions.DependencyInjection can't be updated beyond v8.0.1 (last tested with VS17.3.5)
+- CommunityToolkit.Mvvm can't be updated beyond v8.3.2 (last tested with VS17.3.5)
+- CliWrap can't be updated beyond v3.6.7 (last tested with VS17.3.5)
