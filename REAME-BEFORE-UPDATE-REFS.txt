@@ -14,3 +14,4 @@ VS2022
 - Microsoft.Extensions.DependencyInjection can't be updated beyond v8.0.1 (last tested with VS17.3.5)
 - CommunityToolkit.Mvvm can't be updated beyond v8.3.2 (last tested with VS17.3.5)
 - CliWrap can't be updated beyond v3.6.7 (last tested with VS17.3.5)
+- Don't update System libraries beyond v8.0 (last tested with VS17.3.5)
