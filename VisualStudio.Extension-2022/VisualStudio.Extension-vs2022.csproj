@@ -35,6 +35,8 @@
     <StartProgram Condition="'$(DevEnvDir)' != ''">$(DevEnvDir)devenv.exe</StartProgram>
     <StartArguments>/rootSuffix Exp</StartArguments>
     <NF_Build_VS2022>True</NF_Build_VS2022>
+    <!-- Don't generate version info for local builds -->
+    <GenerateAssemblyVersionInfo Condition="'$(Configuration)' == 'Debug'">false</GenerateAssemblyVersionInfo>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
     <DebugSymbols>true</DebugSymbols>
@@ -143,6 +145,8 @@
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
     <Resource Include="Resources\Reboot.16.16.png" />
+    <!-- Only Include app.config for local debugging -->
+    <None Include="app.config" Condition="'$(Configuration)' == 'Debug'" />
     <None Include="Key.snk" />
     <None Include="packages.lock.json" />
     <None Include="source.extension.vsixmanifest">
