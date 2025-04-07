@@ -41,3 +41,7 @@ using Microsoft.VisualStudio.Shell;
 [assembly: ProvideCodeBase(
     AssemblyName = @"nanoFramework.Tools.VS2022.Extension",
     CodeBase = @"$PackageFolder$\nanoFramework.Tools.VS2022.Extension.dll")]
+
+[assembly: ProvideCodeBase(
+    AssemblyName = @"CliWrap",
+    CodeBase = @"$PackageFolder$\CliWrap.dll")]
