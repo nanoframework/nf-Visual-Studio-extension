@@ -24,8 +24,8 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{60B109AE-E582-4ECB-ABB4-B24E07DB87E1}"
 	ProjectSection(SolutionItems) = preProject
 		NuGet.Config = NuGet.Config
-		VisualStudio.Extension-2022\vs2022-marketplace-overview.md = VisualStudio.Extension-2022\vs2022-marketplace-overview.md
 		REAME-BEFORE-UPDATE-REFS.txt = REAME-BEFORE-UPDATE-REFS.txt
+		VisualStudio.Extension-2022\vs2022-marketplace-overview.md = VisualStudio.Extension-2022\vs2022-marketplace-overview.md
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "metadata-processor", "metadata-processor", "{BF7184F8-4E9A-4264-8C30-294798B36F0D}"
@@ -75,6 +75,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "VS2022", "VS2022", "{10319C
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tools.BuildTasks-2022", "Tools.BuildTasks-2022\Tools.BuildTasks-2022.csproj", "{552C2500-2C53-4148-A422-0ED983EF135D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MetadataProcessor.MsBuildTask", "metadata-processor\MetadataProcessor.MsBuildTask\MetadataProcessor.MsBuildTask.csproj", "{81994EAD-E817-D953-3BD2-5CEA59EFD716}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "MetadataProcessor.Shared", "metadata-processor\MetadataProcessor.Shared\MetadataProcessor.Shared.shproj", "{EFE862A2-8AA5-4E4D-8AA2-7FE9A8C22069}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -159,11 +163,13 @@ Global
 		{8252022E-62FD-4A59-BE1E-90FD52DBA0FE}.Release|x86.ActiveCfg = Release|Any CPU
 		{8252022E-62FD-4A59-BE1E-90FD52DBA0FE}.Release|x86.Build.0 = Release|Any CPU
 		{E32F7D15-2499-440C-8026-4D5EE1C5EC3A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E32F7D15-2499-440C-8026-4D5EE1C5EC3A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E32F7D15-2499-440C-8026-4D5EE1C5EC3A}.Debug|x64.ActiveCfg = Debug|Any CPU
 		{E32F7D15-2499-440C-8026-4D5EE1C5EC3A}.Debug|x64.Build.0 = Debug|Any CPU
 		{E32F7D15-2499-440C-8026-4D5EE1C5EC3A}.Debug|x86.ActiveCfg = Debug|Any CPU
 		{E32F7D15-2499-440C-8026-4D5EE1C5EC3A}.Debug|x86.Build.0 = Debug|Any CPU
 		{E32F7D15-2499-440C-8026-4D5EE1C5EC3A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E32F7D15-2499-440C-8026-4D5EE1C5EC3A}.Release|Any CPU.Build.0 = Release|Any CPU
 		{E32F7D15-2499-440C-8026-4D5EE1C5EC3A}.Release|x64.ActiveCfg = Release|Any CPU
 		{E32F7D15-2499-440C-8026-4D5EE1C5EC3A}.Release|x86.ActiveCfg = Release|Any CPU
 		{E32F7D15-2499-440C-8026-4D5EE1C5EC3A}.Release|x86.Build.0 = Release|Any CPU
@@ -180,11 +186,13 @@ Global
 		{CE0631F2-731D-4A48-B927-F13F6B2FB055}.Release|x86.ActiveCfg = Release|Any CPU
 		{CE0631F2-731D-4A48-B927-F13F6B2FB055}.Release|x86.Build.0 = Release|Any CPU
 		{101D57AD-D22F-4905-A992-DE15E723F164}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{101D57AD-D22F-4905-A992-DE15E723F164}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{101D57AD-D22F-4905-A992-DE15E723F164}.Debug|x64.ActiveCfg = Debug|Any CPU
 		{101D57AD-D22F-4905-A992-DE15E723F164}.Debug|x64.Build.0 = Debug|Any CPU
 		{101D57AD-D22F-4905-A992-DE15E723F164}.Debug|x86.ActiveCfg = Debug|Any CPU
 		{101D57AD-D22F-4905-A992-DE15E723F164}.Debug|x86.Build.0 = Debug|Any CPU
 		{101D57AD-D22F-4905-A992-DE15E723F164}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{101D57AD-D22F-4905-A992-DE15E723F164}.Release|Any CPU.Build.0 = Release|Any CPU
 		{101D57AD-D22F-4905-A992-DE15E723F164}.Release|x64.ActiveCfg = Release|Any CPU
 		{101D57AD-D22F-4905-A992-DE15E723F164}.Release|x64.Build.0 = Release|Any CPU
 		{101D57AD-D22F-4905-A992-DE15E723F164}.Release|x86.ActiveCfg = Release|Any CPU
@@ -261,6 +269,18 @@ Global
 		{552C2500-2C53-4148-A422-0ED983EF135D}.Release|x64.Build.0 = Release|Any CPU
 		{552C2500-2C53-4148-A422-0ED983EF135D}.Release|x86.ActiveCfg = Release|Any CPU
 		{552C2500-2C53-4148-A422-0ED983EF135D}.Release|x86.Build.0 = Release|Any CPU
+		{81994EAD-E817-D953-3BD2-5CEA59EFD716}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{81994EAD-E817-D953-3BD2-5CEA59EFD716}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{81994EAD-E817-D953-3BD2-5CEA59EFD716}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{81994EAD-E817-D953-3BD2-5CEA59EFD716}.Debug|x64.Build.0 = Debug|Any CPU
+		{81994EAD-E817-D953-3BD2-5CEA59EFD716}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{81994EAD-E817-D953-3BD2-5CEA59EFD716}.Debug|x86.Build.0 = Debug|Any CPU
+		{81994EAD-E817-D953-3BD2-5CEA59EFD716}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{81994EAD-E817-D953-3BD2-5CEA59EFD716}.Release|Any CPU.Build.0 = Release|Any CPU
+		{81994EAD-E817-D953-3BD2-5CEA59EFD716}.Release|x64.ActiveCfg = Release|Any CPU
+		{81994EAD-E817-D953-3BD2-5CEA59EFD716}.Release|x64.Build.0 = Release|Any CPU
+		{81994EAD-E817-D953-3BD2-5CEA59EFD716}.Release|x86.ActiveCfg = Release|Any CPU
+		{81994EAD-E817-D953-3BD2-5CEA59EFD716}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -288,6 +308,8 @@ Global
 		{A72AC05E-811D-4B37-A18C-C50A1B29105E} = {60B109AE-E582-4ECB-ABB4-B24E07DB87E1}
 		{10319C7F-AC22-4640-BFDA-ADB076F506EF} = {60B109AE-E582-4ECB-ABB4-B24E07DB87E1}
 		{552C2500-2C53-4148-A422-0ED983EF135D} = {BA15D640-224B-4CE0-B143-CFC4D80AAED9}
+		{81994EAD-E817-D953-3BD2-5CEA59EFD716} = {BF7184F8-4E9A-4264-8C30-294798B36F0D}
+		{EFE862A2-8AA5-4E4D-8AA2-7FE9A8C22069} = {BF7184F8-4E9A-4264-8C30-294798B36F0D}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {82FA89F8-D9B1-4038-94B1-D91265C0B0AC}
@@ -301,12 +323,14 @@ Global
 		CSharp.BlankApplication\CSharp.BlankApplication.Shared.projitems*{572121bd-e972-4bf7-abf1-78251dde1181}*SharedItemsImports = 4
 		CSharp.ClassLibrary\CSharp.ClassLibrary.Shared.projitems*{5dc66510-7529-477b-98a8-733a792ddd14}*SharedItemsImports = 4
 		CSharp.TestApplication\CSharp.TestApplication.Shared.projitems*{6c9aa770-796b-4679-9a0f-f06e430af330}*SharedItemsImports = 4
+		metadata-processor\MetadataProcessor.Shared\MetadataProcessor.Shared.projitems*{81994ead-e817-d953-3bd2-5cea59efd716}*SharedItemsImports = 5
 		vs-extension.shared\vs-extension.shared.projitems*{aed4a7c6-24eb-4ee3-b387-fdadc36a3d1b}*SharedItemsImports = 4
 		vs-extension.shared\vs-extension.shared.projitems*{b16737e2-4b5d-4048-a740-2bb1df462637}*SharedItemsImports = 13
 		CSharp.BlankApplication\CSharp.BlankApplication.Shared.projitems*{c5a2cf84-5591-4c33-8cf7-6c949531bfb1}*SharedItemsImports = 13
 		CSharp.BlankApplication\CSharp.BlankApplication.Shared.projitems*{cd034c5a-a9eb-4c8e-b163-0ba9619cd122}*SharedItemsImports = 4
 		metadata-processor\MetadataProcessor.Shared\MetadataProcessor.Shared.projitems*{e32f7d15-2499-440c-8026-4d5ee1c5ec3a}*SharedItemsImports = 4
 		vs-extension.shared\vs-extension.shared.projitems*{e3e5b359-8e18-4b7d-8469-f93c6867d712}*SharedItemsImports = 4
+		metadata-processor\MetadataProcessor.Shared\MetadataProcessor.Shared.projitems*{efe862a2-8aa5-4e4d-8aa2-7fe9a8c22069}*SharedItemsImports = 13
 		CSharp.ClassLibrary\CSharp.ClassLibrary.Shared.projitems*{faa194f0-5c3b-46c7-977b-d2a84444bf80}*SharedItemsImports = 13
 	EndGlobalSection
 EndGlobal

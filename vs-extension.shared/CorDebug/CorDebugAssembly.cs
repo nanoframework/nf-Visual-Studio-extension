@@ -18,23 +18,23 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 {
     public class CorDebugAssembly : ICorDebugAssembly, ICorDebugModule, ICorDebugModule2, IDisposable
     {
-        CorDebugAppDomain _appDomain;
-        CorDebugProcess _process;
-        Hashtable _htTokenCLRToPdbx;
-        Hashtable _htTokennanoCLRToPdbx;
-        Pdbx.PdbxFile _pdbxFile;
-        Pdbx.Assembly _pdbxAssembly;
-        IMetaDataImport _iMetaDataImport;
-        uint _idx;
-        string _name;
-        string _path;
-        ulong _dummyBaseAddress;
-        FileStream _fileStream;
-        CorDebugAssembly _primaryAssembly;
-        bool _isFrameworkAssembly;
+        private CorDebugAppDomain _appDomain;
+        private CorDebugProcess _process;
+        private Hashtable _clrTokensToPdbx;
+        private Hashtable _nanoCLRTokensToPdbx;
+        private PdbxFile _pdbxFile;
+        private Assembly _pdbxAssembly;
+        private IMetaDataImport _iMetaDataImport;
+        private uint _idx;
+        private string _name;
+        private string _path;
+        private ulong _dummyBaseAddress;
+        private FileStream _fileStream;
+        private CorDebugAssembly _primaryAssembly;
+        private bool _isFrameworkAssembly;
 
         // this list holds the official assemblies name
-        List<string> frameworkAssemblies_v1_0 = new List<string> {
+        private List<string> frameworkAssemblies_v1_0 = new List<string> {
             "mscorlib",
             "nanoframework.hardware.esp32",
             "nanoframework.networking.sntp",
@@ -53,15 +53,15 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
 
 
-        public CorDebugAssembly(CorDebugProcess process, string name, Pdbx.PdbxFile pdbxFile, uint idx)
+        public CorDebugAssembly(CorDebugProcess process, string name, PdbxFile pdbxFile, uint idx)
         {
             _process = process;
             _appDomain = null;
             _name = name;
             _pdbxFile = pdbxFile;
             _pdbxAssembly = (pdbxFile != null) ? pdbxFile.Assembly : null;
-            _htTokenCLRToPdbx = new Hashtable();
-            _htTokennanoCLRToPdbx = new Hashtable();
+            _clrTokensToPdbx = new Hashtable();
+            _nanoCLRTokensToPdbx = new Hashtable();
             _idx = idx;
             _primaryAssembly = null;
             _isFrameworkAssembly = false;
@@ -82,17 +82,35 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                 _pdbxAssembly.CorDebugAssembly = this;
 
-                foreach (Pdbx.Class c in _pdbxAssembly.Classes)
+                foreach (Class c in _pdbxAssembly.Classes)
                 {
                     AddTokenToHashtables(c.Token, c);
-                    foreach (Pdbx.Field field in c.Fields)
+                    foreach (Field field in c.Fields)
                     {
                         AddTokenToHashtables(field.Token, field);
                     }
 
-                    foreach (Pdbx.Method method in c.Methods)
+                    foreach (Method method in c.Methods)
                     {
                         AddTokenToHashtables(method.Token, method);
+                    }
+                }
+
+                foreach (var genericParameter in _pdbxAssembly.GenericParams)
+                {
+                    AddTokenToHashtables(genericParameter.Token, genericParameter);
+                }
+
+                foreach (var typeSpec in _pdbxAssembly.TypeSpecs)
+                {
+                    AddTokenToHashtables(typeSpec.Token, typeSpec);
+
+                    if (typeSpec.IsGenericInstance)
+                    {
+                        foreach (var member in typeSpec.Members)
+                        {
+                            AddTokenToHashtables(member.Token, member);
+                        }
                     }
                 }
             }
@@ -168,6 +186,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             }
         }
 
+
         public static CorDebugAssembly AssemblyFromIdx(uint idx, ArrayList assemblies)
         {
             foreach (CorDebugAssembly assembly in assemblies)
@@ -193,10 +212,10 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             get { return _pdbxAssembly != null; }
         }
 
-        private void AddTokenToHashtables(Pdbx.Token token, object o)
+        private void AddTokenToHashtables(Token token, object o)
         {
-            _htTokenCLRToPdbx[token.CLR] = o;
-            _htTokennanoCLRToPdbx[token.nanoCLR] = o;
+            _clrTokensToPdbx[token.CLRToken] = o;
+            _nanoCLRTokensToPdbx[token.NanoCLRToken] = o;
         }
 
         private string FindAssemblyOnDisk()
@@ -297,7 +316,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         private CorDebugFunction GetFunctionFromToken(uint tk, Hashtable ht)
         {
             CorDebugFunction function = null;
-            Pdbx.Method method = ht[tk] as Pdbx.Method;
+            Method method = ht[tk] as Method;
             if (method != null)
             {
                 CorDebugClass c = new CorDebugClass(this, method.Class);
@@ -310,14 +329,14 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         public CorDebugFunction GetFunctionFromTokenCLR(uint tk)
         {
-            return GetFunctionFromToken(tk, _htTokenCLRToPdbx);
+            return GetFunctionFromToken(tk, _clrTokensToPdbx);
         }
 
         public CorDebugFunction GetFunctionFromTokennanoCLR(uint tk)
         {
             if (HasSymbols)
             {
-                return GetFunctionFromToken(tk, _htTokennanoCLRToPdbx);
+                return GetFunctionFromToken(tk, _nanoCLRTokensToPdbx);
             }
             else
             {
@@ -326,43 +345,75 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 Debugger.WireProtocol.Commands.Debugging_Resolve_Method.Result resolvedMethod = Process.Engine.ResolveMethod(index);
                 Debug.Assert(nanoCLR_TypeSystem.IdxAssemblyFromIndex(resolvedMethod.m_td) == Idx);
 
-                uint tkMethod = nanoCLR_TypeSystem.SymbollessSupport.MethodDefTokenFromnanoCLRToken(tk);
-                uint tkClass = nanoCLR_TypeSystem.nanoCLRTokenFromTypeIndex(resolvedMethod.m_td);
+                uint tkMethod = nanoCLR_TypeSystem.SymbollessSupport.MethodDefTokenFromNanoCLRToken(tk);
+                uint tkClass = nanoCLR_TypeSystem.NanoCLRTokenFromTypeIndex(resolvedMethod.m_td);
 
-                CorDebugClass c = GetClassFromTokennanoCLR(tkClass);
+                CorDebugClass c = GetClassFromNanoCLRToken(tkClass);
 
                 return new CorDebugFunction(c, tkMethod);
             }
         }
 
-        public Pdbx.ClassMember GetPdbxClassMemberFromTokenCLR(uint tk)
+        public ClassMember GetPdbxClassMemberFromTokenCLR(uint tk)
         {
-            return _htTokenCLRToPdbx[tk] as Pdbx.ClassMember;
+            return _clrTokensToPdbx[tk] as ClassMember;
         }
 
         private CorDebugClass GetClassFromToken(uint tk, Hashtable ht)
         {
             CorDebugClass cls = null;
-            Pdbx.Class c = ht[tk] as Pdbx.Class;
+
+            // try with classes
+            Class c = ht[tk] as Class;
             if (c != null)
             {
                 cls = new CorDebugClass(this, c);
+            }
+            else
+            {
+                // try with type specifications
+                TypeSpec ts = ht[tk] as TypeSpec;
+
+                if (ts != null)
+                {
+                    cls = new CorDebugClass(this, ts);
+                }
             }
 
             return cls;
         }
 
-        public CorDebugClass GetClassFromTokenCLR(uint tk)
+        private CorDebugClass GetGenericTypeFromToken(uint tk, Hashtable ht)
         {
-            return GetClassFromToken(tk, _htTokenCLRToPdbx);
+            CorDebugClass cls = null;
+            TypeSpec t = ht[tk] as TypeSpec;
+            if (t != null)
+            {
+                //cls = new CorDebugClass(this, t);
+            }
+
+            return cls;
         }
 
-        public CorDebugClass GetClassFromTokennanoCLR(uint tk)
+        public CorDebugClass GetClassFromCLRToken(uint tk)
+        {
+            return GetClassFromToken(tk, _clrTokensToPdbx);
+        }
+
+        public CorDebugClass GetClassFromNanoCLRToken(uint tk)
         {
             if (HasSymbols)
-                return GetClassFromToken(tk, _htTokennanoCLRToPdbx);
+                return GetClassFromToken(tk, _nanoCLRTokensToPdbx);
             else
-                return new CorDebugClass(this, nanoCLR_TypeSystem.SymbollessSupport.TypeDefTokenFromnanoCLRToken(tk));
+                return new CorDebugClass(this, nanoCLR_TypeSystem.SymbollessSupport.TypeDefTokenFromNanoCLRToken(tk));
+        }
+
+        public CorDebugClass GetGenericTypeFromNanoCLRToken(uint tk)
+        {
+            if (HasSymbols)
+                return GetGenericTypeFromToken(tk, _nanoCLRTokensToPdbx);
+            else
+                return new CorDebugClass(this, nanoCLR_TypeSystem.SymbollessSupport.TypeSpecTokenFromNanoCLRToken(tk));
         }
 
         ~CorDebugAssembly()
@@ -497,7 +548,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         int ICorDebugModule.GetClassFromToken(uint typeDef, out ICorDebugClass ppClass)
         {
-            ppClass = GetClassFromTokenCLR(typeDef);
+            ppClass = GetClassFromCLRToken(typeDef);
 
             return COM_HResults.S_OK;
         }
@@ -531,7 +582,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         int ICorDebugModule.GetToken(out uint pToken)
         {
-            pToken = _pdbxAssembly.Token.CLR;
+            pToken = _pdbxAssembly.Token.CLRToken;
 
             return COM_HResults.S_OK;
         }
@@ -592,9 +643,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     if (!_isFrameworkAssembly)
                     {
                         //now update the debugger JMC state...
-                        foreach (Pdbx.Class c in _pdbxAssembly.Classes)
+                        foreach (Class c in _pdbxAssembly.Classes)
                         {
-                            foreach (Pdbx.Method m in c.Methods)
+                            foreach (Method m in c.Methods)
                             {
                                 m.IsJMC = fJMC;
                             }

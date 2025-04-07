@@ -4,17 +4,16 @@
 // See LICENSE file in the project root for full license information.
 //
 
-using System;
-using System.CodeDom.Compiler;
-using System.Diagnostics;
-using System.IO;
-using System.Reflection;
-using System.Runtime.InteropServices;
 using Microsoft.VisualStudio.Designer.Interfaces;
 using Microsoft.VisualStudio.OLE.Interop;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 using nanoFramework.Tools.Utilities;
+using System;
+using System.CodeDom.Compiler;
+using System.Diagnostics;
+using System.IO;
+using System.Runtime.InteropServices;
 using IOleServiceProvider = Microsoft.VisualStudio.OLE.Interop.IServiceProvider;
 
 namespace nanoFramework.Tools.VisualStudio.Extension
@@ -337,7 +336,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             string inputFileNameWithoutExtension = Path.GetFileNameWithoutExtension(inputFileName);
 
             // get VS extension assembly to reach ProcessResourceFiles type
-            Assembly buildTasks = GetType().Assembly;
+            System.Reflection.Assembly buildTasks = GetType().Assembly;
 
             Type typ = buildTasks.GetType("nanoFramework.Tools.ProcessResourceFiles");
 

@@ -18,51 +18,51 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 {
     public class CorDebugProcess : ICorDebugController, ICorDebugProcess, ICorDebugProcess2, IDebugProcess2, IDebugProcessEx2, IDisposable
     {
-        CorDebug _corDebug;
-        Queue _events;
-        ArrayList _threads;
-        ArrayList _assemblies;
-        ArrayList _appDomains;
-        CorDebugAppDomain _appDomainCurrent;
-        string[] _assemblyPaths;
-        ArrayList _breakpoints;
-        Engine _engine;
-        bool _executionPaused;
-        AutoResetEvent _eventDispatch;
-        ManualResetEvent _eventExecutionPaused;
-        ManualResetEvent _eventProcessExited;
-        EventWaitHandle[] _eventsStopped;
-        uint _pid;
-        bool _fUpdateBreakpoints;
-        int _cStopped;
-        DebugPort _debugPort;
-        bool _fLaunched;       //whether the attach was from a launch (vs. an attach)
-        bool _terminating;
-        Utility.Kernel32.CreateThreadCallback _dummyThreadDelegate;
-        AutoResetEvent _dummyThreadEvent;
-        int _cEvalThreads;
-        Hashtable _tdBuiltin;
-        ScratchPadArea _scratchPad;
-        ulong _fakeAssemblyAddressNext;
-        object _syncTerminatingObject;
-        Thread _threadDispatch;
+        private CorDebug _corDebug;
+        private Queue _events;
+        private ArrayList _threads;
+        private ArrayList _assemblies;
+        private ArrayList _appDomains;
+        private CorDebugAppDomain _appDomainCurrent;
+        private string[] _assemblyPaths;
+        private ArrayList _breakpoints;
+        private Engine _engine;
+        private bool _executionPaused;
+        private AutoResetEvent _eventDispatch;
+        private ManualResetEvent _eventExecutionPaused;
+        private ManualResetEvent _eventProcessExited;
+        private EventWaitHandle[] _eventsStopped;
+        private uint _pid;
+        private bool _fUpdateBreakpoints;
+        private int _cStopped;
+        private DebugPort _debugPort;
+        private bool _fLaunched;       //whether the attach was from a launch (vs. an attach)
+        private bool _terminating;
+        private Utility.Kernel32.CreateThreadCallback _dummyThreadDelegate;
+        private AutoResetEvent _dummyThreadEvent;
+        private int _cEvalThreads;
+        private Hashtable _tdBuiltin;
+        private ScratchPadArea _scratchPad;
+        private ulong _fakeAssemblyAddressNext;
+        private object _syncTerminatingObject;
+        private Thread _threadDispatch;
 
-        const ulong c_fakeAddressStart = 0x100000000;
+        private const ulong c_fakeAddressStart = 0x100000000;
 
         /// <summary>
         /// Timeout to wait for device to be initialized mode
         /// </summary>
-        const int initDeviceWaitTimeout = 500;
+        private const int initDeviceWaitTimeout = 500;
 
         /// <summary>
         /// Sleep time between retries.
         /// </summary>
-        const int retrySleepTime = 500;
+        private const int retrySleepTime = 500;
 
         /// <summary>
         /// Max number of attempts to perform an operation.
         /// </summary>
-        const int maxOperationRetries = 5;
+        private const int maxOperationRetries = 5;
 
         public Guid GuidProcessId { get; }
 
@@ -82,7 +82,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             GC.SuppressFinalize(this);
         }
 
-        bool m_fDisposed = false;
+        private bool m_fDisposed = false;
 
         protected virtual void Dispose(bool disposing)
         {
@@ -155,7 +155,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             }
             catch
             {
-                // catch all as this can throw and we need to continue
             }
 
             if (!isProcess)
@@ -1413,7 +1412,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
             List<Commands.DebuggingResolveAssembly> assemblies = Engine.ResolveAllAssemblies();
             string[] assemblyPathsT = new string[1];
-            Pdbx.PdbxFile.Resolver resolver = new Pdbx.PdbxFile.Resolver();
+            PdbxFile.Resolver resolver = new PdbxFile.Resolver();
 
             DebugAssert(assemblies.Count > 0, "Error loading assemblies. Assemblies count is 0.");
 
@@ -1468,7 +1467,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         resolver.AssemblyPaths = _assemblyPaths;
                     }
 
-                    Pdbx.PdbxFile pdbxFile = resolver.Resolve(reply.Name, reply.Version, Engine.IsTargetBigEndian); //Pdbx.PdbxFile.Open(reply.Name, reply.m_version, assemblyPaths);
+                    PdbxFile pdbxFile = resolver.Resolve(reply.Name, reply.Version, Engine.IsTargetBigEndian); //Pdbx.PdbxFile.Open(reply.Name, reply.m_version, assemblyPaths);
 
                     assembly = new CorDebugAssembly(this, reply.Name, pdbxFile, nanoCLR_TypeSystem.IdxAssemblyFromIndex(a.Idx));
 
@@ -1737,7 +1736,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             {
                 CorDebugAssembly assembly = GetAssembly(appDomain);
 
-                return assembly.GetClassFromTokenCLR(m_tkCLR);
+                return assembly.GetClassFromCLRToken(m_tkCLR);
             }
 
             public uint TokenCLR
@@ -1749,7 +1748,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         private void AddBuiltInType(object o, CorDebugAssembly assm, string type)
         {
             uint tkCLR = MetaData.Helper.ClassTokenFromName(assm.MetaDataImport, type);
-            CorDebugClass c = assm.GetClassFromTokenCLR(tkCLR);
+            CorDebugClass c = assm.GetClassFromCLRToken(tkCLR);
 
             BuiltinType builtInType = new BuiltinType(assm, tkCLR, c);
 
