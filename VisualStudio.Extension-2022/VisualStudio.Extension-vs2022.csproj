@@ -280,14 +280,6 @@
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
       <VSIXSubPath>ProjectTemplates</VSIXSubPath>
     </ProjectReference>
-    <ProjectReference Include="..\metadata-processor\MetadataProcessor.MsBuildTask\MetadataProcessor.MsBuildTask.csproj">
-      <Project>{81994ead-e817-d953-3bd2-5cea59efd716}</Project>
-      <Name>MetadataProcessor.MsBuildTask</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\nf-debugger\nanoFramework.Tools.DebugLibrary.Net\nanoFramework.Tools.DebugLibrary.Net.csproj">
-      <Project>{101d57ad-d22f-4905-a992-de15e723f164}</Project>
-      <Name>nanoFramework.Tools.DebugLibrary.Net</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Tools.BuildTasks-2022\Tools.BuildTasks-2022.csproj">
       <Project>{552c2500-2c53-4148-a422-0ed983ef135d}</Project>
       <Name>Tools.BuildTasks-2022</Name>
@@ -556,6 +548,12 @@
     <PackageReference Include="nanoFramework.TestFramework" Version="3.0.75" GeneratePathProperty="true">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="nanoFramework.Tools.Debugger.Net">
+      <Version>3.0.0-preview.1</Version>
+    </PackageReference>
+    <PackageReference Include="nanoFramework.Tools.MetadataProcessor.MsBuildTask">
+      <Version>4.0.0-preview.8</Version>
     </PackageReference>
     <PackageReference Include="Nerdbank.GitVersioning">
       <Version>3.7.115</Version>

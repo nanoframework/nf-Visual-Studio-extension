@@ -315,6 +315,25 @@
         "resolved": "3.0.75",
         "contentHash": "bFqqgfIs6o7M0v3oZAD7NgzDdoPgLeNVyyOHGRxtaiMAyL8BBeBobjKw+OXA0LHT5jPx0qZBH2mcMDV1k8MVBQ=="
       },
+      "nanoFramework.Tools.Debugger.Net": {
+        "type": "Direct",
+        "requested": "[3.0.0-preview.1, )",
+        "resolved": "3.0.0-preview.1",
+        "contentHash": "KgoN2ODPlDw/Y4RXSfdLTRVwAuMl4QL2hvOJ38swh46Onk/hSaj/wpF2UvvqC5jp+JsqOLJYrly6IENDXjgwCw==",
+        "dependencies": {
+          "Polly": "7.2.4",
+          "System.IO.Ports": "8.0.0"
+        }
+      },
+      "nanoFramework.Tools.MetadataProcessor.MsBuildTask": {
+        "type": "Direct",
+        "requested": "[4.0.0-preview.8, )",
+        "resolved": "4.0.0-preview.8",
+        "contentHash": "RFI8Q01POBzRXzaqNFsI6glgHHE/TfpLled+nQMt86j68R9iMZoA+kM7goCzNE5+yeHnItwJKPAitRrA76fnuw==",
+        "dependencies": {
+          "System.Text.Json": "8.0.5"
+        }
+      },
       "Nerdbank.GitVersioning": {
         "type": "Direct",
         "requested": "[3.7.115, )",
@@ -1887,19 +1906,6 @@
         "dependencies": {
           "Microsoft.Build.Framework": "[17.12.6, )",
           "Microsoft.Build.Utilities.Core": "[17.11.4, )"
-        }
-      },
-      "nanoFramework.Tools.Debugger.Net": {
-        "type": "Project",
-        "dependencies": {
-          "Polly": "[7.2.4, )",
-          "System.IO.Ports": "[8.0.0, )"
-        }
-      },
-      "nanoFramework.Tools.MetadataProcessor.MsBuildTask": {
-        "type": "Project",
-        "dependencies": {
-          "System.Text.Json": "[8.0.5, )"
         }
       }
     },
