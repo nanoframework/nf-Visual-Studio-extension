@@ -408,8 +408,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                             var ret = device.DebugEngine.AddStorageFile(fileName, File.ReadAllBytes(contentFileName));
                             if (ret == Debugger.WireProtocol.StorageOperationErrorCode.NoError)
                             {
-                                await outputPaneWriter.WriteLineAsync($"{file.EvaluatedInclude} deplpoyed sucessfully.");
-                                MessageCentre.InternalErrorWriteLine($"{file.EvaluatedInclude} deplpoyed sucessfully.");
+                                await outputPaneWriter.WriteLineAsync($"{file.EvaluatedInclude} deployed sucessfully.");
+                                MessageCentre.InternalErrorWriteLine($"{file.EvaluatedInclude} deployed sucessfully.");
                             }
                             else
                             {

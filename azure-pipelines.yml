@@ -55,6 +55,7 @@ jobs:
 
   steps:
   - checkout: self
+    submodules: false
 
   # check which project(s) have changed
   - powershell: |
@@ -162,9 +163,9 @@ jobs:
 
   steps:
 
-  # need this here in order to persist GitHub credentials AND init submodules
+  # need this here in order to persist GitHub credentials
   - checkout: self
-    submodules: true
+    persistCredentials: true
 
   - script: |
       git config --global user.email 'nanoframework@outlook.com'
@@ -333,9 +334,9 @@ jobs:
 
   steps:
 
-  # need this here in order to persist GitHub credentials AND init submodules
+  # need this here in order to persist GitHub credentials
   - checkout: self
-    submodules: true
+    persistCredentials: true
 
   - script: |
       git config --global user.email 'nanoframework@outlook.com'

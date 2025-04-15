@@ -1,4 +1,4 @@
-//
+﻿//
 // Copyright (c) .NET Foundation and Contributors
 // Portions Copyright (c) Microsoft Corporation.  All rights reserved.
 // See LICENSE file in the project root for full license information.
@@ -12,21 +12,21 @@ using System.Diagnostics;
 
 namespace nanoFramework.Tools.VisualStudio.Extension
 {
-    public class CorDebugFunction : ICorDebugFunction , ICorDebugFunction2
+    public class CorDebugFunction : ICorDebugFunction, ICorDebugFunction2
     {
-        CorDebugClass    m_class;
-        Pdbx.Method      m_pdbxMethod;
-        CorDebugCode     m_codeNative;
-        CorDebugCode     m_codeIL;
-        uint             m_tkSymbolless;
+        CorDebugClass m_class;
+        Pdbx.Method m_pdbxMethod;
+        CorDebugCode m_codeNative;
+        CorDebugCode m_codeIL;
+        uint m_tkSymbolless;
 
         public CorDebugFunction(CorDebugClass cls, Pdbx.Method method)
         {
             m_class = cls;
-            m_pdbxMethod = method;            
+            m_pdbxMethod = method;
         }
 
-        public CorDebugFunction (CorDebugClass cls, uint tkSymbolless) : this (cls, null)
+        public CorDebugFunction(CorDebugClass cls, uint tkSymbolless) : this(cls, null)
         {
             m_tkSymbolless = tkSymbolless;
         }
@@ -48,19 +48,19 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         }
 
         public CorDebugAppDomain AppDomain
-        {                       
+        {
             [DebuggerHidden]
             get { return Class.AppDomain; }
         }
-                
+
         public CorDebugProcess Process
-        {                       
+        {
             [DebuggerHidden]
             get { return Class.Process; }
         }
 
         public CorDebugAssembly Assembly
-        {                       
+        {
             [DebuggerHidden]
             get { return Class.Assembly; }
         }
@@ -86,23 +86,23 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         public uint MethodDef_Index
         {
-            get 
+            get
             {
                 uint tk = HasSymbols ? m_pdbxMethod.Token.nanoCLR : m_tkSymbolless;
 
-                return nanoCLR_TypeSystem.ClassMemberIndexFromnanoCLRToken (tk, m_class.Assembly);
+                return nanoCLR_TypeSystem.ClassMemberIndexFromnanoCLRToken(tk, m_class.Assembly);
             }
         }
 
         public Pdbx.Method PdbxMethod
         {
             [DebuggerHidden]
-            get {return m_pdbxMethod;}
+            get { return m_pdbxMethod; }
         }
 
         public bool IsInternal
         {
-            get {return MetaData.Helper.MethodIsInternal (Class.Assembly.MetaDataImport, m_pdbxMethod.Token.CLR); }
+            get { return MetaData.Helper.MethodIsInternal(Class.Assembly.MetaDataImport, m_pdbxMethod.Token.CLR); }
         }
 
         public bool IsInstance
@@ -117,13 +117,13 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         public uint NumArg
         {
-            get {return MetaData.Helper.MethodGetNumArg (Class.Assembly.MetaDataImport, m_pdbxMethod.Token.CLR);  }
+            get { return MetaData.Helper.MethodGetNumArg(Class.Assembly.MetaDataImport, m_pdbxMethod.Token.CLR); }
         }
 
         public uint GetILCLRFromILnanoCLR(uint ilnanoCLR)
         {
             uint ilCLR;
-            
+
             //Special case for CatchHandlerFound and AppDomain transitions; possibly used elsewhere.
             if (ilnanoCLR == uint.MaxValue) return uint.MaxValue;
 
@@ -182,7 +182,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 return GetIL(o1 as Pdbx.IL).CompareTo(GetIL(o2 as Pdbx.IL));
             }
 
-            public static uint Map(bool fCLR, Pdbx.IL [] ilMap, uint offset)
+            public static uint Map(bool fCLR, Pdbx.IL[] ilMap, uint offset)
             {
                 ILComparer ilComparer = new ILComparer(fCLR);
                 Pdbx.IL il = new Pdbx.IL();
@@ -222,56 +222,56 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         #region ICorDebugFunction Members
 
-        int ICorDebugFunction.GetLocalVarSigToken( out uint pmdSig )
+        int ICorDebugFunction.GetLocalVarSigToken(out uint pmdSig)
         {
             pmdSig = 0;
 
             return COM_HResults.E_NOTIMPL;
         }
 
-        int ICorDebugFunction.CreateBreakpoint( out ICorDebugFunctionBreakpoint ppBreakpoint )
+        int ICorDebugFunction.CreateBreakpoint(out ICorDebugFunctionBreakpoint ppBreakpoint)
         {
-            ppBreakpoint = new CorDebugFunctionBreakpoint( this, 0 );
+            ppBreakpoint = new CorDebugFunctionBreakpoint(this, 0);
 
             return COM_HResults.S_OK;
         }
 
-        int ICorDebugFunction.GetILCode( out ICorDebugCode ppCode )
+        int ICorDebugFunction.GetILCode(out ICorDebugCode ppCode)
         {
-            ppCode = GetCode( ref m_codeIL );
+            ppCode = GetCode(ref m_codeIL);
 
             return COM_HResults.S_OK;
         }
 
-        int ICorDebugFunction.GetModule( out ICorDebugModule ppModule )
+        int ICorDebugFunction.GetModule(out ICorDebugModule ppModule)
         {
-            m_class.ICorDebugClass.GetModule( out ppModule );
+            m_class.ICorDebugClass.GetModule(out ppModule);
 
             return COM_HResults.S_OK;
         }
 
-        int ICorDebugFunction.GetNativeCode( out ICorDebugCode ppCode )
+        int ICorDebugFunction.GetNativeCode(out ICorDebugCode ppCode)
         {
-            ppCode = GetCode( ref m_codeNative );
+            ppCode = GetCode(ref m_codeNative);
 
             return COM_HResults.S_OK;
         }
 
-        int ICorDebugFunction.GetToken( out uint pMethodDef )
+        int ICorDebugFunction.GetToken(out uint pMethodDef)
         {
             pMethodDef = HasSymbols ? m_pdbxMethod.Token.CLR : m_tkSymbolless;
 
             return COM_HResults.S_OK;
         }
 
-        int ICorDebugFunction.GetClass( out ICorDebugClass ppClass )
+        int ICorDebugFunction.GetClass(out ICorDebugClass ppClass)
         {
             ppClass = m_class;
 
             return COM_HResults.S_OK;
         }
 
-        int ICorDebugFunction.GetCurrentVersionNumber( out uint pnCurrentVersion )
+        int ICorDebugFunction.GetCurrentVersionNumber(out uint pnCurrentVersion)
         {
             pnCurrentVersion = 0;
 
@@ -282,21 +282,21 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         #region ICorDebugFunction2 Members
 
-        int ICorDebugFunction2.SetJMCStatus( int bIsJustMyCode )
+        int ICorDebugFunction2.SetJMCStatus(int bIsJustMyCode)
         {
-            bool fJMC = Boolean.IntToBool( bIsJustMyCode );
+            bool fJMC = Boolean.IntToBool(bIsJustMyCode);
 
-            Debug.Assert( Utility.FImplies( fJMC, HasSymbols) );
+            Debug.Assert(Utility.FImplies(fJMC, HasSymbols));
 
             int hres = fJMC ? COM_HResults.E_FAIL : COM_HResults.S_OK;
 
-            if(HasSymbols)
+            if (HasSymbols)
             {
-                if(fJMC != m_pdbxMethod.IsJMC && m_pdbxMethod.CanSetJMC)
+                if (fJMC != m_pdbxMethod.IsJMC && m_pdbxMethod.CanSetJMC)
                 {
                     if (Engine.Info_SetJMC(fJMC, ReflectionDefinition.Kind.REFLECTION_METHOD, MethodDef_Index))
                     {
-                        if( !Assembly.IsFrameworkAssembly)
+                        if (!Assembly.IsFrameworkAssembly)
                         {
                             //now update the debugger JMC state...
                             m_pdbxMethod.IsJMC = fJMC;
@@ -310,14 +310,14 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             return hres;
         }
 
-        int ICorDebugFunction2.GetJMCStatus( out int pbIsJustMyCode )
+        int ICorDebugFunction2.GetJMCStatus(out int pbIsJustMyCode)
         {
-            pbIsJustMyCode = Boolean.BoolToInt(HasSymbols ? m_pdbxMethod.IsJMC : false );
+            pbIsJustMyCode = Boolean.BoolToInt(HasSymbols ? m_pdbxMethod.IsJMC : false);
 
             return COM_HResults.S_OK;
         }
 
-        int ICorDebugFunction2.GetVersionNumber( out uint pnVersion )
+        int ICorDebugFunction2.GetVersionNumber(out uint pnVersion)
         {
             // CorDebugFunction.GetVersionNumber is not implemented
             pnVersion = 1;
@@ -325,7 +325,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             return COM_HResults.S_OK;
         }
 
-        int ICorDebugFunction2.EnumerateNativeCode( out ICorDebugCodeEnum ppCodeEnum )
+        int ICorDebugFunction2.EnumerateNativeCode(out ICorDebugCodeEnum ppCodeEnum)
         {
             ppCodeEnum = null;
 
