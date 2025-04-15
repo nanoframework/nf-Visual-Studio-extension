@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Xml.Linq;
@@ -34,11 +33,6 @@ namespace nanoFramework.Tools
 
         public override bool Execute()
         {
-            if (!Debugger.IsAttached)
-            {
-                //Debugger.Launch();
-            }
-
             _projectDirectory = Path.GetDirectoryName(Path.GetFullPath(ProjectFile));
             string packageConfigPath = Path.Combine(_projectDirectory, "packages.config");
             if (!File.Exists(packageConfigPath))
