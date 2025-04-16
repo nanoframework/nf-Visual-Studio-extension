@@ -337,7 +337,6 @@ jobs:
   # need this here in order to persist GitHub credentials
   - checkout: self
     persistCredentials: true
-    submodules: true
 
   - script: |
       git config --global user.email 'nanoframework@outlook.com'
