@@ -52,6 +52,11 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 val = new CorDebugValueString(rtv, appDomain);
                 fIsReference = true;
             }
+            else if (rtv.IsGenericInst)
+            {
+                val = new CorDebugValueBoxedObject(rtv, appDomain);
+                fIsReference = true;
+            }
             else
             {
                 val = new CorDebugValueObject(rtv, appDomain);
@@ -97,9 +102,27 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             {
                 objBuiltInKey = nanoClrDataType.DATATYPE_TRANSPARENT_PROXY;
             }
+            else if (rtv.DataType == nanoClrDataType.DATATYPE_GENERICINST)
+            {
+                CorDebugProcess.BuiltinType builtInType = appDomain.Process.ResolveBuiltInType(nanoClrDataType.DATATYPE_GENERICINST);
+
+                if (builtInType == null)
+                {
+                    cls = nanoCLR_TypeSystem.CorDebugClassFromTypeSpec(rtv.Type, appDomain);
+                }
+                else
+                {
+                    cls = builtInType.GetClass(appDomain);
+
+                    if (cls == null)
+                    {
+                        cls = new CorDebugClass(builtInType.GetAssembly(appDomain), builtInType.TokenCLR);
+                    }
+                }
+            }
             else
             {
-                cls = nanoCLR_TypeSystem.CorDebugClassFromTypeIndex(rtv.Type, appDomain); ;
+                cls = nanoCLR_TypeSystem.CorDebugClassFromTypeIndex( rtv.Type, appDomain );
             }
 
             if (objBuiltInKey != null)

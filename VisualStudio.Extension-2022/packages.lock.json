@@ -317,9 +317,9 @@
       },
       "nanoFramework.Tools.Debugger.Net": {
         "type": "Direct",
-        "requested": "[2.5.10, )",
-        "resolved": "2.5.10",
-        "contentHash": "ETpK8oihKti7iCV6GkJhvExj3FT66wD8djRj/qWglMl8UaWQhJ4g+j2st5bOqmBrMf2llwOu5qk9wnkTbPAAVA==",
+        "requested": "[3.0.0-preview.1, )",
+        "resolved": "3.0.0-preview.1",
+        "contentHash": "KgoN2ODPlDw/Y4RXSfdLTRVwAuMl4QL2hvOJ38swh46Onk/hSaj/wpF2UvvqC5jp+JsqOLJYrly6IENDXjgwCw==",
         "dependencies": {
           "Polly": "7.2.4",
           "System.IO.Ports": "8.0.0"
@@ -327,9 +327,12 @@
       },
       "nanoFramework.Tools.MetadataProcessor.MsBuildTask": {
         "type": "Direct",
-        "requested": "[3.0.92, )",
-        "resolved": "3.0.92",
-        "contentHash": "IIe8vcAq/0C8D61yzJthtJAImz7dTVPTG1oPxyyf9Y3Of5H0vDZq2uxwnNrroq46xuEK4q9KSiYLRBMtZ9i8uA=="
+        "requested": "[4.0.0-preview.8, )",
+        "resolved": "4.0.0-preview.8",
+        "contentHash": "RFI8Q01POBzRXzaqNFsI6glgHHE/TfpLled+nQMt86j68R9iMZoA+kM7goCzNE5+yeHnItwJKPAitRrA76fnuw==",
+        "dependencies": {
+          "System.Text.Json": "8.0.5"
+        }
       },
       "Nerdbank.GitVersioning": {
         "type": "Direct",

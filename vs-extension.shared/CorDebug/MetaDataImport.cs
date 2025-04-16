@@ -241,7 +241,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
 
         public int GetTypeDefProps(uint td, IntPtr szTypeDef, uint cchTypeDef, IntPtr pchTypeDef, IntPtr pdwTypeDefFlags, IntPtr ptkExtends)
         {
-            uint tk = nanoCLR_TypeSystem.SymbollessSupport.nanoCLRTokenFromTypeDefToken(td);
+            uint tk = nanoCLR_TypeSystem.SymbollessSupport.NanoCLRTokenFromTypeDefToken(td);
             uint index = nanoCLR_TypeSystem.ClassMemberIndexFromnanoCLRToken(td, _assembly);
 
             string name = _engine.GetTypeName(index);
@@ -354,7 +354,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
 
         public int GetMethodProps(uint mb, IntPtr pClass, IntPtr szMethod, uint cchMethod, IntPtr pchMethod, IntPtr pdwAttr, IntPtr ppvSigBlob, IntPtr pcbSigBlob, IntPtr pulCodeRVA, IntPtr pdwImplFlags)
         {
-            uint tk = nanoCLR_TypeSystem.SymbollessSupport.nanoCLRTokenFromMethodDefToken(mb);
+            uint tk = nanoCLR_TypeSystem.SymbollessSupport.NanoCLRTokenFromMethodDefToken(mb);
 
             uint md = nanoCLR_TypeSystem.ClassMemberIndexFromnanoCLRToken(tk, _assembly);
 
@@ -366,8 +366,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
             if (resolvedMethod != null)
             {
                 name = resolvedMethod.m_name;
-                uint tkType = nanoCLR_TypeSystem.nanoCLRTokenFromTypeIndex(resolvedMethod.m_td);
-                tkClass = nanoCLR_TypeSystem.SymbollessSupport.TypeDefTokenFromnanoCLRToken(tkType);
+                uint tkType = nanoCLR_TypeSystem.NanoCLRTokenFromTypeIndex(resolvedMethod.m_td);
+                tkClass = nanoCLR_TypeSystem.SymbollessSupport.TypeDefTokenFromNanoCLRToken(tkType);
             }
 
             Utility.MarshalString(name, cchMethod, pchMethod, szMethod);
@@ -662,7 +662,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
         public int GetAssemblyFromScope(IntPtr ptkAssembly)
         {
             //Only one assembly per MetaDataImport, doesn't matter what token we give them back            
-            NotImpl();
             return COM_HResults.E_NOTIMPL;
         }
 

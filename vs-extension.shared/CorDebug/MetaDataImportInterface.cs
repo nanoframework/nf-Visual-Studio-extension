@@ -1642,18 +1642,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
             return nameParent == "System.Enum";
         }
 
-        //This we should keep in the pdbx?  Kind of annoying to get from here
-        //Don't think this is needed?
-        public static bool ClassIsValueClass(IMetaDataImport mdi, uint tk)
-        {
-            if ((ClassGetProps(mdi, tk) & (uint)MetaData.CorTypeAttr.tdSealed) == 0)
-                return false;
-
-            string nameParent = ClassDerivesFrom(mdi, tk);
-
-            return nameParent == "System.ValueType" || nameParent == "System.Enum";
-        }
-
         public static string ClassGetName(IMetaDataImport mdi, uint tk)
         {
             uint chName;
@@ -1731,20 +1719,40 @@ namespace nanoFramework.Tools.VisualStudio.Extension.MetaData
             return (MethodGetAttributes(mdi, tk) & (int)CorMethodAttr.mdVirtual) != 0;
         }
 
-        //need to parse methodsig
         public static uint MethodGetNumArg(IMetaDataImport mdi, uint tk)
         {
+            return MethodGetArgumentsGenericParamsCount(mdi, tk).Item1;
+        }
+
+        public static uint MethodGetGenericParamCount(IMetaDataImport mdi, uint tk)
+        {
+            return MethodGetArgumentsGenericParamsCount(mdi, tk).Item2;
+        }
+        //need to parse methodsig
+        private static Tuple<uint, uint> MethodGetArgumentsGenericParamsCount(IMetaDataImport mdi, uint tk)
+        {
+            uint genericParamCount = 0;
+
             uint cbSig;
             byte* pSig;
             mdi.GetMethodProps(tk, IntPtr.Zero, IntPtr.Zero, 0, IntPtr.Zero, IntPtr.Zero, (IntPtr)(&pSig), (IntPtr)(&cbSig), IntPtr.Zero, IntPtr.Zero);
 
             byte flags = *pSig++;
+
+            if ((flags & (byte)CorCallingConvention.IMAGE_CEE_CS_CALLCONV_GENERIC) != 0)
+            {
+                // it's a generic instance, has generic parameters count
+                genericParamCount = *pSig++;
+            }
+
             uint cArgs = CorSigUncompressData(ref pSig);
 
             if ((flags & (byte)CorCallingConvention.IMAGE_CEE_CS_CALLCONV_HASTHIS) != 0)
+            {
                 cArgs++;
+            }
 
-            return cArgs;
+            return new Tuple<uint, uint>(cArgs, genericParamCount);
         }
 
         //need to parse localsig -- need to parse IL to get locals sig??!
