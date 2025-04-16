@@ -293,7 +293,7 @@ jobs:
 
         $artifactsCollection = @("./*VS2019.Extension.vsix") | %{ Get-ChildItem -File . -Filter $_ -Recurse}
 
-        (new-object Net.WebClient).DownloadString("https://raw.github.com/madskristensen/ExtensionScripts/master/AppVeyor/vsix.ps1") | iex
+        (new-object Net.WebClient).DownloadString("https://github.com/madskristensen/ExtensionScripts/blob/dec013bad9997a0a33daadcda1321099f97475fe/AppVeyor/vsix.ps1") | iex
 
         foreach($file in $artifactsCollection)
         {
@@ -492,7 +492,7 @@ jobs:
 
         $artifactsCollection = @("./*VS2022.Extension.vsix") | %{ Get-ChildItem -File . -Filter $_ -Recurse}
 
-        (new-object Net.WebClient).DownloadString("https://raw.github.com/madskristensen/ExtensionScripts/master/AppVeyor/vsix.ps1") | iex
+        (new-object Net.WebClient).DownloadString("https://github.com/madskristensen/ExtensionScripts/blob/dec013bad9997a0a33daadcda1321099f97475fe/AppVeyor/vsix.ps1") | iex
 
         foreach($file in $artifactsCollection)
         {
