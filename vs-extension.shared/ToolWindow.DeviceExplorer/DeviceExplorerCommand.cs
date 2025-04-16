@@ -266,20 +266,20 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         private void ShowToolWindow(object sender, EventArgs e)
         {
             _ = package.JoinableTaskFactory.RunAsync(async delegate
+            {
+
+                // Get the instance number 0 of this tool window. This window is single instance so this instance
+                // is actually the only one.
+                // The last flag is set to true so that if the tool window does not exists it will be created.
+                ToolWindowPane toolWindow = await package.ShowToolWindowAsync(typeof(DeviceExplorer), 0, true, package.DisposalToken);
+                if ((null == toolWindow) || (null == toolWindow.Frame))
                 {
+                    throw new NotSupportedException("Cannot create nanoFramework Device Explorer tool window.");
+                }
 
-                    // Get the instance number 0 of this tool window. This window is single instance so this instance
-                    // is actually the only one.
-                    // The last flag is set to true so that if the tool window does not exists it will be created.
-                    ToolWindowPane toolWindow = await package.ShowToolWindowAsync(typeof(DeviceExplorer), 0, true, package.DisposalToken);
-                    if ((null == toolWindow) || (null == toolWindow.Frame))
-                    {
-                        throw new NotSupportedException("Cannot create nanoFramework Device Explorer tool window.");
-                    }
-
-                    //IVsWindowFrame windowFrame = (IVsWindowFrame)toolWindow.Frame;
-                    //ErrorHandler.ThrowOnFailure(windowFrame.Show());
-                });
+                //IVsWindowFrame windowFrame = (IVsWindowFrame)toolWindow.Frame;
+                //ErrorHandler.ThrowOnFailure(windowFrame.Show());
+            });
         }
 
         #region Command button handlers

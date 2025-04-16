@@ -1,4 +1,4 @@
-//
+﻿//
 // Copyright (c) .NET Foundation and Contributors
 // Portions Copyright (c) Microsoft Corporation.  All rights reserved.
 // See LICENSE file in the project root for full license information.
@@ -53,7 +53,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
 
 
-        public CorDebugAssembly( CorDebugProcess process, string name, Pdbx.PdbxFile pdbxFile, uint idx )
+        public CorDebugAssembly(CorDebugProcess process, string name, Pdbx.PdbxFile pdbxFile, uint idx)
         {
             _process = process;
             _appDomain = null;
@@ -66,7 +66,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             _primaryAssembly = null;
             _isFrameworkAssembly = false;
 
-            if(_pdbxAssembly != null)
+            if (_pdbxAssembly != null)
             {
                 if (!string.IsNullOrEmpty(pdbxFile.PdbxPath))
                 {
@@ -82,17 +82,17 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                 _pdbxAssembly.CorDebugAssembly = this;
 
-                foreach(Pdbx.Class c in _pdbxAssembly.Classes)
+                foreach (Pdbx.Class c in _pdbxAssembly.Classes)
                 {
-                    AddTokenToHashtables( c.Token, c );
-                    foreach(Pdbx.Field field in c.Fields)
+                    AddTokenToHashtables(c.Token, c);
+                    foreach (Pdbx.Field field in c.Fields)
                     {
-                        AddTokenToHashtables( field.Token, field );
+                        AddTokenToHashtables(field.Token, field);
                     }
 
-                    foreach(Pdbx.Method method in c.Methods)
+                    foreach (Pdbx.Method method in c.Methods)
                     {
-                        AddTokenToHashtables( method.Token, method );
+                        AddTokenToHashtables(method.Token, method);
                     }
                 }
             }
@@ -120,13 +120,13 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         private FileStream EnsureFileStream()
         {
-            if(IsPrimaryAssembly)
+            if (IsPrimaryAssembly)
             {
-                if(_path != null && _fileStream == null)
+                if (_path != null && _fileStream == null)
                 {
-                    _fileStream = File.OpenRead( _path );
+                    _fileStream = File.OpenRead(_path);
 
-                    _dummyBaseAddress = _process.FakeLoadAssemblyIntoMemory( this );
+                    _dummyBaseAddress = _process.FakeLoadAssemblyIntoMemory(this);
                 }
 
                 return _fileStream;
@@ -139,8 +139,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 return fileStream;
             }
         }
-        
-        public CorDebugAssembly CreateAssemblyInstance( CorDebugAppDomain appDomain )
+
+        public CorDebugAssembly CreateAssemblyInstance(CorDebugAppDomain appDomain)
         {
             //Ensure the metadata import is created.  
             IMetaDataImport iMetaDataImport = MetaDataImport;
@@ -152,35 +152,35 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             return assm;
         }
 
-        internal void ReadMemory( ulong address, uint size, byte[] buffer, out uint read )
+        internal void ReadMemory(ulong address, uint size, byte[] buffer, out uint read)
         {
             FileStream fileStream = EnsureFileStream();
 
             read = 0;
 
-            if(fileStream != null)
+            if (fileStream != null)
             {
-                lock(fileStream)
+                lock (fileStream)
                 {
                     fileStream.Position = (long)address;
-                    read = (uint)fileStream.Read( buffer, 0, (int)size );
+                    read = (uint)fileStream.Read(buffer, 0, (int)size);
                 }
             }
         }
 
-        public static CorDebugAssembly AssemblyFromIdx( uint idx, ArrayList assemblies )
+        public static CorDebugAssembly AssemblyFromIdx(uint idx, ArrayList assemblies)
         {
-            foreach(CorDebugAssembly assembly in assemblies)
+            foreach (CorDebugAssembly assembly in assemblies)
             {
-                if(assembly.Idx == idx)
+                if (assembly.Idx == idx)
                     return assembly;
             }
             return null;
         }
 
-        public static CorDebugAssembly AssemblyFromIndex( uint index, ArrayList assemblies )
+        public static CorDebugAssembly AssemblyFromIndex(uint index, ArrayList assemblies)
         {
-            return AssemblyFromIdx( nanoCLR_TypeSystem.IdxAssemblyFromIndex( index ), assemblies );
+            return AssemblyFromIdx(nanoCLR_TypeSystem.IdxAssemblyFromIndex(index), assemblies);
         }
 
         public string Name
@@ -193,7 +193,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             get { return _pdbxAssembly != null; }
         }
 
-        private void AddTokenToHashtables( Pdbx.Token token, object o )
+        private void AddTokenToHashtables(Pdbx.Token token, object o)
         {
             _htTokenCLRToPdbx[token.CLR] = o;
             _htTokennanoCLRToPdbx[token.nanoCLR] = o;
@@ -228,20 +228,20 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         private IMetaDataImport FindMetadataImport()
         {
-            Debug.Assert( _iMetaDataImport == null );
+            Debug.Assert(_iMetaDataImport == null);
 
             IMetaDataDispenser mdd = new CorMetaDataDispenser() as IMetaDataDispenser;
             object pImport = null;
-            Guid iid = typeof( IMetaDataImport ).GUID;
+            Guid iid = typeof(IMetaDataImport).GUID;
             IMetaDataImport metaDataImport = null;
 
             try
             {
                 string path = FindAssemblyOnDisk();
 
-                if(path != null)
+                if (path != null)
                 {
-                    mdd.OpenScope( path, (int)MetaData.CorOpenFlags.ofRead, ref iid, out pImport );
+                    mdd.OpenScope(path, (int)MetaData.CorOpenFlags.ofRead, ref iid, out pImport);
                     metaDataImport = pImport as IMetaDataImport;
                 }
             }
@@ -257,18 +257,18 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         {
             get
             {
-                if(_iMetaDataImport == null)
+                if (_iMetaDataImport == null)
                 {
-                    if(HasSymbols)
+                    if (HasSymbols)
                     {
                         _iMetaDataImport = FindMetadataImport();
                     }
 
-                    if(_iMetaDataImport == null)
+                    if (_iMetaDataImport == null)
                     {
                         _pdbxFile = null;
                         _pdbxAssembly = null;
-                        _iMetaDataImport = new MetaDataImport( this );
+                        _iMetaDataImport = new MetaDataImport(this);
                     }
                 }
 
@@ -294,75 +294,75 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             get { return _idx; }
         }
 
-        private CorDebugFunction GetFunctionFromToken( uint tk, Hashtable ht )
+        private CorDebugFunction GetFunctionFromToken(uint tk, Hashtable ht)
         {
             CorDebugFunction function = null;
             Pdbx.Method method = ht[tk] as Pdbx.Method;
-            if(method != null)
+            if (method != null)
             {
-                CorDebugClass c = new CorDebugClass( this, method.Class );
-                function = new CorDebugFunction( c, method );
+                CorDebugClass c = new CorDebugClass(this, method.Class);
+                function = new CorDebugFunction(c, method);
             }
 
-            Debug.Assert( function != null );
+            Debug.Assert(function != null);
             return function;
         }
 
-        public CorDebugFunction GetFunctionFromTokenCLR( uint tk )
+        public CorDebugFunction GetFunctionFromTokenCLR(uint tk)
         {
-            return GetFunctionFromToken( tk, _htTokenCLRToPdbx );
+            return GetFunctionFromToken(tk, _htTokenCLRToPdbx);
         }
 
-        public CorDebugFunction GetFunctionFromTokennanoCLR( uint tk )
+        public CorDebugFunction GetFunctionFromTokennanoCLR(uint tk)
         {
-            if(HasSymbols)
+            if (HasSymbols)
             {
-                return GetFunctionFromToken( tk, _htTokennanoCLRToPdbx );
+                return GetFunctionFromToken(tk, _htTokennanoCLRToPdbx);
             }
             else
             {
-                uint index = nanoCLR_TypeSystem.ClassMemberIndexFromnanoCLRToken( tk, this );
+                uint index = nanoCLR_TypeSystem.ClassMemberIndexFromnanoCLRToken(tk, this);
 
                 Debugger.WireProtocol.Commands.Debugging_Resolve_Method.Result resolvedMethod = Process.Engine.ResolveMethod(index);
-                Debug.Assert( nanoCLR_TypeSystem.IdxAssemblyFromIndex( resolvedMethod.m_td ) == Idx);
+                Debug.Assert(nanoCLR_TypeSystem.IdxAssemblyFromIndex(resolvedMethod.m_td) == Idx);
 
-                uint tkMethod = nanoCLR_TypeSystem.SymbollessSupport.MethodDefTokenFromnanoCLRToken( tk );
-                uint tkClass = nanoCLR_TypeSystem.nanoCLRTokenFromTypeIndex( resolvedMethod.m_td );
+                uint tkMethod = nanoCLR_TypeSystem.SymbollessSupport.MethodDefTokenFromnanoCLRToken(tk);
+                uint tkClass = nanoCLR_TypeSystem.nanoCLRTokenFromTypeIndex(resolvedMethod.m_td);
 
-                CorDebugClass c = GetClassFromTokennanoCLR( tkClass );
+                CorDebugClass c = GetClassFromTokennanoCLR(tkClass);
 
-                return new CorDebugFunction( c, tkMethod );
+                return new CorDebugFunction(c, tkMethod);
             }
         }
 
-        public Pdbx.ClassMember GetPdbxClassMemberFromTokenCLR( uint tk )
+        public Pdbx.ClassMember GetPdbxClassMemberFromTokenCLR(uint tk)
         {
             return _htTokenCLRToPdbx[tk] as Pdbx.ClassMember;
         }
 
-        private CorDebugClass GetClassFromToken( uint tk, Hashtable ht )
+        private CorDebugClass GetClassFromToken(uint tk, Hashtable ht)
         {
             CorDebugClass cls = null;
             Pdbx.Class c = ht[tk] as Pdbx.Class;
-            if(c != null)
+            if (c != null)
             {
-                cls = new CorDebugClass( this, c );
+                cls = new CorDebugClass(this, c);
             }
 
             return cls;
         }
 
-        public CorDebugClass GetClassFromTokenCLR( uint tk )
+        public CorDebugClass GetClassFromTokenCLR(uint tk)
         {
-            return GetClassFromToken( tk, _htTokenCLRToPdbx );
+            return GetClassFromToken(tk, _htTokenCLRToPdbx);
         }
 
-        public CorDebugClass GetClassFromTokennanoCLR( uint tk )
+        public CorDebugClass GetClassFromTokennanoCLR(uint tk)
         {
-            if(HasSymbols)
-                return GetClassFromToken( tk, _htTokennanoCLRToPdbx );
+            if (HasSymbols)
+                return GetClassFromToken(tk, _htTokennanoCLRToPdbx);
             else
-                return new CorDebugClass( this, nanoCLR_TypeSystem.SymbollessSupport.TypeDefTokenFromnanoCLRToken( tk ) );
+                return new CorDebugClass(this, nanoCLR_TypeSystem.SymbollessSupport.TypeDefTokenFromnanoCLRToken(tk));
         }
 
         ~CorDebugAssembly()
@@ -371,7 +371,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             {
                 ((IDisposable)this).Dispose();
             }
-            catch(Exception)
+            catch (Exception)
             {
             }
         }
@@ -380,183 +380,183 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         void IDisposable.Dispose()
         {
-            if(IsPrimaryAssembly)
+            if (IsPrimaryAssembly)
             {
-                if(_iMetaDataImport != null && !(_iMetaDataImport is MetaDataImport))
+                if (_iMetaDataImport != null && !(_iMetaDataImport is MetaDataImport))
                 {
-                    Marshal.ReleaseComObject( _iMetaDataImport );
+                    Marshal.ReleaseComObject(_iMetaDataImport);
                 }
 
                 _iMetaDataImport = null;
 
-                if(_fileStream != null)
+                if (_fileStream != null)
                 {
                     ((IDisposable)_fileStream).Dispose();
                     _fileStream = null;
                 }
             }
 
-            GC.SuppressFinalize( this );
+            GC.SuppressFinalize(this);
         }
 
         #endregion
 
         #region ICorDebugAssembly Members
 
-        int ICorDebugAssembly.GetProcess( out ICorDebugProcess ppProcess )
+        int ICorDebugAssembly.GetProcess(out ICorDebugProcess ppProcess)
         {
             ppProcess = Process;
 
-            return COM_HResults.S_OK;            
+            return COM_HResults.S_OK;
         }
 
-        int ICorDebugAssembly.GetAppDomain( out ICorDebugAppDomain ppAppDomain )
+        int ICorDebugAssembly.GetAppDomain(out ICorDebugAppDomain ppAppDomain)
         {
             ppAppDomain = _appDomain;
 
-            return COM_HResults.S_OK;            
+            return COM_HResults.S_OK;
         }
 
-        int ICorDebugAssembly.EnumerateModules( out ICorDebugModuleEnum ppModules )
+        int ICorDebugAssembly.EnumerateModules(out ICorDebugModuleEnum ppModules)
         {
-            ppModules = new CorDebugEnum( this, typeof( ICorDebugModule ), typeof( ICorDebugModuleEnum ) );
+            ppModules = new CorDebugEnum(this, typeof(ICorDebugModule), typeof(ICorDebugModuleEnum));
 
-            return COM_HResults.S_OK;            
+            return COM_HResults.S_OK;
         }
 
-        int ICorDebugAssembly.GetCodeBase( uint cchName, IntPtr pcchName, IntPtr szName )
+        int ICorDebugAssembly.GetCodeBase(uint cchName, IntPtr pcchName, IntPtr szName)
         {
-            Utility.MarshalString( "", cchName, pcchName, szName );
+            Utility.MarshalString("", cchName, pcchName, szName);
 
-            return COM_HResults.S_OK;            
+            return COM_HResults.S_OK;
         }
 
-        int ICorDebugAssembly.GetName( uint cchName, IntPtr pcchName, IntPtr szName )
+        int ICorDebugAssembly.GetName(uint cchName, IntPtr pcchName, IntPtr szName)
         {
             string name = _path != null ? _path : _name;
 
-            Utility.MarshalString( name, cchName, pcchName, szName );
+            Utility.MarshalString(name, cchName, pcchName, szName);
 
-            return COM_HResults.S_OK;         
+            return COM_HResults.S_OK;
         }
 
         #endregion
 
         #region ICorDebugModule Members
 
-        int ICorDebugModule.GetProcess( out ICorDebugProcess ppProcess )
+        int ICorDebugModule.GetProcess(out ICorDebugProcess ppProcess)
         {
             ppProcess = Process;
 
-            return COM_HResults.S_OK;            
+            return COM_HResults.S_OK;
         }
 
-        int ICorDebugModule.GetBaseAddress( out ulong pAddress )
+        int ICorDebugModule.GetBaseAddress(out ulong pAddress)
         {
             EnsureFileStream();
             pAddress = _dummyBaseAddress;
 
-            return COM_HResults.S_OK;            
+            return COM_HResults.S_OK;
         }
 
-        int ICorDebugModule.GetAssembly( out ICorDebugAssembly ppAssembly )
+        int ICorDebugModule.GetAssembly(out ICorDebugAssembly ppAssembly)
         {
             ppAssembly = this;
 
             return COM_HResults.S_OK;
         }
 
-        int ICorDebugModule.GetName( uint cchName, IntPtr pcchName, IntPtr szName )
+        int ICorDebugModule.GetName(uint cchName, IntPtr pcchName, IntPtr szName)
         {
-            return ICorDebugAssembly.GetName( cchName, pcchName, szName );            
+            return ICorDebugAssembly.GetName(cchName, pcchName, szName);
         }
 
-        int ICorDebugModule.EnableJITDebugging( int bTrackJITInfo, int bAllowJitOpts )
-        {
-            return COM_HResults.S_OK;
-        }
-
-        int ICorDebugModule.EnableClassLoadCallbacks( int bClassLoadCallbacks )
+        int ICorDebugModule.EnableJITDebugging(int bTrackJITInfo, int bAllowJitOpts)
         {
             return COM_HResults.S_OK;
         }
 
-        int ICorDebugModule.GetFunctionFromToken( uint methodDef, out ICorDebugFunction ppFunction )
+        int ICorDebugModule.EnableClassLoadCallbacks(int bClassLoadCallbacks)
         {
-            ppFunction = GetFunctionFromTokenCLR( methodDef );
+            return COM_HResults.S_OK;
+        }
+
+        int ICorDebugModule.GetFunctionFromToken(uint methodDef, out ICorDebugFunction ppFunction)
+        {
+            ppFunction = GetFunctionFromTokenCLR(methodDef);
 
             return COM_HResults.S_OK;
         }
 
-        int ICorDebugModule.GetFunctionFromRVA( ulong rva, out ICorDebugFunction ppFunction )
+        int ICorDebugModule.GetFunctionFromRVA(ulong rva, out ICorDebugFunction ppFunction)
         {
             ppFunction = null;
 
             return COM_HResults.S_OK;
         }
 
-        int ICorDebugModule.GetClassFromToken( uint typeDef, out ICorDebugClass ppClass )
+        int ICorDebugModule.GetClassFromToken(uint typeDef, out ICorDebugClass ppClass)
         {
-            ppClass = GetClassFromTokenCLR( typeDef );
+            ppClass = GetClassFromTokenCLR(typeDef);
 
             return COM_HResults.S_OK;
         }
 
-        int ICorDebugModule.CreateBreakpoint( out ICorDebugModuleBreakpoint ppBreakpoint )
+        int ICorDebugModule.CreateBreakpoint(out ICorDebugModuleBreakpoint ppBreakpoint)
         {
             ppBreakpoint = null;
 
             return COM_HResults.E_NOTIMPL;
         }
 
-        int ICorDebugModule.GetEditAndContinueSnapshot( out ICorDebugEditAndContinueSnapshot ppEditAndContinueSnapshot )
+        int ICorDebugModule.GetEditAndContinueSnapshot(out ICorDebugEditAndContinueSnapshot ppEditAndContinueSnapshot)
         {
             ppEditAndContinueSnapshot = null;
 
             return COM_HResults.S_OK;
         }
 
-        int ICorDebugModule.GetMetaDataInterface( ref Guid riid, out IntPtr ppObj )
+        int ICorDebugModule.GetMetaDataInterface(ref Guid riid, out IntPtr ppObj)
         {
             IntPtr pMetaDataImport = Marshal.GetIUnknownForObject(MetaDataImport);
 
-            Marshal.QueryInterface( pMetaDataImport, ref riid, out ppObj );
-            int cRef = Marshal.Release( pMetaDataImport );
+            Marshal.QueryInterface(pMetaDataImport, ref riid, out ppObj);
+            int cRef = Marshal.Release(pMetaDataImport);
 
-            Debug.Assert( riid == typeof( IMetaDataImport ).GUID || riid == typeof( IMetaDataImport2 ).GUID || riid == typeof( IMetaDataAssemblyImport ).GUID );
-            Debug.Assert(MetaDataImport != null && ppObj != IntPtr.Zero );
+            Debug.Assert(riid == typeof(IMetaDataImport).GUID || riid == typeof(IMetaDataImport2).GUID || riid == typeof(IMetaDataAssemblyImport).GUID);
+            Debug.Assert(MetaDataImport != null && ppObj != IntPtr.Zero);
 
             return COM_HResults.S_OK;
         }
 
-        int ICorDebugModule.GetToken( out uint pToken )
+        int ICorDebugModule.GetToken(out uint pToken)
         {
             pToken = _pdbxAssembly.Token.CLR;
 
             return COM_HResults.S_OK;
         }
 
-        int ICorDebugModule.IsDynamic( out int pDynamic )
+        int ICorDebugModule.IsDynamic(out int pDynamic)
         {
             pDynamic = Boolean.FALSE;
 
             return COM_HResults.S_OK;
         }
 
-        int ICorDebugModule.GetGlobalVariableValue( uint fieldDef, out ICorDebugValue ppValue )
+        int ICorDebugModule.GetGlobalVariableValue(uint fieldDef, out ICorDebugValue ppValue)
         {
             ppValue = null;
 
             return COM_HResults.S_OK;
         }
 
-        int ICorDebugModule.GetSize( out uint pcBytes )
+        int ICorDebugModule.GetSize(out uint pcBytes)
         {
             pcBytes = 0x1000;
 
             FileStream fileStream = EnsureFileStream();
 
-            if(fileStream != null)
+            if (fileStream != null)
             {
                 pcBytes = (uint)fileStream.Length;
             }
@@ -564,9 +564,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             return COM_HResults.S_OK;
         }
 
-        int ICorDebugModule.IsInMemory( out int pInMemory )
+        int ICorDebugModule.IsInMemory(out int pInMemory)
         {
-            pInMemory = Boolean.BoolToInt( !HasSymbols );// Boolean.FALSE;
+            pInMemory = Boolean.BoolToInt(!HasSymbols);// Boolean.FALSE;
 
             return COM_HResults.S_OK;
         }
@@ -575,21 +575,21 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         #region ICorDebugModule2 Members
 
-        int ICorDebugModule2.SetJMCStatus( int bIsJustMyCode, uint cTokens, ref uint pTokens )
+        int ICorDebugModule2.SetJMCStatus(int bIsJustMyCode, uint cTokens, ref uint pTokens)
         {
             Debug.Assert(cTokens == 0);
 
-            bool fJMC = Boolean.IntToBool( bIsJustMyCode );
+            bool fJMC = Boolean.IntToBool(bIsJustMyCode);
 
             int hres = fJMC ? COM_HResults.E_FAIL : COM_HResults.S_OK;
 
-            Debug.Assert( Utility.FImplies( fJMC, HasSymbols) );
+            Debug.Assert(Utility.FImplies(fJMC, HasSymbols));
 
             if (HasSymbols)
             {
                 if (Process.Engine.Info_SetJMC(fJMC, ReflectionDefinition.Kind.REFLECTION_ASSEMBLY, nanoCLR_TypeSystem.IndexFromIdxAssemblyIdx(Idx)))
                 {
-                    if(!_isFrameworkAssembly)
+                    if (!_isFrameworkAssembly)
                     {
                         //now update the debugger JMC state...
                         foreach (Pdbx.Class c in _pdbxAssembly.Classes)
@@ -607,24 +607,24 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             return hres;
         }
 
-        int ICorDebugModule2.ApplyChanges( uint cbMetadata, byte[] pbMetadata, uint cbIL, byte[] pbIL )
+        int ICorDebugModule2.ApplyChanges(uint cbMetadata, byte[] pbMetadata, uint cbIL, byte[] pbIL)
         {
             return COM_HResults.S_OK;
         }
 
-        int ICorDebugModule2.SetJITCompilerFlags( uint dwFlags )
+        int ICorDebugModule2.SetJITCompilerFlags(uint dwFlags)
         {
             return COM_HResults.S_OK;
         }
 
-        int ICorDebugModule2.GetJITCompilerFlags( out uint pdwFlags )
+        int ICorDebugModule2.GetJITCompilerFlags(out uint pdwFlags)
         {
             pdwFlags = (uint)CorDebugJITCompilerFlags.CORDEBUG_JIT_DISABLE_OPTIMIZATION;
 
             return COM_HResults.S_OK;
         }
 
-        int ICorDebugModule2.ResolveAssembly( uint tkAssemblyRef, out ICorDebugAssembly ppAssembly )
+        int ICorDebugModule2.ResolveAssembly(uint tkAssemblyRef, out ICorDebugAssembly ppAssembly)
         {
             ppAssembly = null;
             return COM_HResults.S_OK;
