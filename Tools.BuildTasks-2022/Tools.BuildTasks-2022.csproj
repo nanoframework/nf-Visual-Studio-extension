@@ -69,6 +69,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\Tools.BuildTasks-2019\FixNuGetPackagePropsTargetsImportsTask.cs">
+      <Link>FixNuGetPackagePropsTargetsImportsTask.cs</Link>
+    </Compile>
     <Compile Include="..\Tools.BuildTasks-2019\GenerateBinaryOutputTask.cs">
       <Link>GenerateBinaryOutputTask.cs</Link>
     </Compile>
