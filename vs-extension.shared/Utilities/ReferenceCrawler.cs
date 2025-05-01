@@ -1,15 +1,13 @@
-﻿//
-// Copyright (c) .NET Foundation and Contributors
-// See LICENSE file in the project root for full license information.
-//
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.VisualStudio.ProjectSystem;
-using Microsoft.VisualStudio.ProjectSystem.References;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using Microsoft.VisualStudio.ProjectSystem;
+using Microsoft.VisualStudio.ProjectSystem.References;
 
 namespace nanoFramework.Tools.VisualStudio.Extension
 {
@@ -90,9 +88,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 foreach (IAssemblyReference assemblyReference in
                          await project.Services.AssemblyReferences.GetResolvedReferencesAsync())
                 {
-                    // As assemblyPathsToDeploy is a HashSet, the same path will not occure more than once even if added
-                    // more than once by distinct projects referencing the same NuGet package for example.
-                    assemblyPathsToDeploy.Add(await assemblyReference.GetFullPathAsync());
+                    if (await ShouldDeployToNanoDeviceAsync(assemblyReference))
+                    {
+                        // As assemblyPathsToDeploy is a HashSet, the same path will not occure more than once even if added
+                        // more than once by distinct projects referencing the same NuGet package for example.
+                        assemblyPathsToDeploy.Add(await assemblyReference.GetFullPathAsync());
+                    }
                 }
 
                 // Recursively process referenced projects in the solution:
@@ -123,6 +124,17 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// Find out if a referenced assembly should be included in the deployment or not.
+        /// If the Reference element in the (imported) project file has the property "DeployToNanoDevice" set to false,
+        /// it will not be included. If the property is not present or set to true, it will be included.
+        /// </summary>
+        private static async Task<bool> ShouldDeployToNanoDeviceAsync(IAssemblyReference assembly)
+        {
+            string value = await assembly.Metadata.GetEvaluatedPropertyValueAsync("DeployToNanoDevice");
+            return string.IsNullOrEmpty(value) || !value.Equals("false", StringComparison.OrdinalIgnoreCase);
         }
 
         /// <summary>
