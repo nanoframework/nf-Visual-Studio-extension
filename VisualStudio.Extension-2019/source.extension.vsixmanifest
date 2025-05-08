@@ -13,7 +13,7 @@
         <Preview>true</Preview>
     </Metadata>
     <Installation AllUsers="true">
-        <InstallationTarget Id="Microsoft.VisualStudio.Community" Version="[16.10, 17.0)" />
+        <InstallationTarget Id="Microsoft.VisualStudio.Community" Version="[16.11, 17.0)" />
     </Installation>
     <Dependencies>
         <Dependency Id="Microsoft.Framework.NDP" DisplayName="Microsoft .NET Framework" d:Source="Manual" Version="[4.7.2,)" />
