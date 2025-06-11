@@ -17,7 +17,6 @@ This repo contains .NET **nanoFramework** Visual Studio extension and associated
 | Visual Studio 2017 extension (:warning: Deprecated) | [![Build Status](https://dev.azure.com/nanoframework/Visual-Studio-extension/_apis/build/status/nanoframework.nf-Visual-Studio-extension)](https://dev.azure.com/nanoframework/Visual-Studio-extension/_build/latest?definitionId=17) | [![Visual Studio Marketplace](https://img.shields.io/vscode-marketplace/d/vs-publisher-1470366.nanoFrameworkVS2017Extension.svg)](https://marketplace.visualstudio.com/items?itemName=vs-publisher-1470366.nanoFrameworkVS2017Extension) | | 
 
 ## Feedback and documentation
-
 For documentation, providing feedback, issues and finding out how to contribute please refer to the [Home repo](https://github.com/nanoframework/Home).
 
 Join our Discord community [here](https://discord.gg/gCyBu8T).
