@@ -62,7 +62,9 @@ jobs:
       git config --global user.email "nfbot"
       git config --global user.name "nanoframework@outlook.com"
 
-      $auth = "basic $([System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes(":$(GitHubToken)"))))"
+      # compute authorization header in format "AUTHORIZATION: basic 'encoded token'"
+      # 'encoded token' is the Base64 of the string "nfbot:personal-token"
+      $auth = "basic $([System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes("nfbot:$(GitHubToken)")))"
 
       $commit = Invoke-RestMethod -Uri "https://api.github.com/repos/nanoframework/nf-Visual-Studio-extension/commits/$(Build.SourceVersion)" -Header @{"Authorization"="$auth"} -ContentType "application/json" -Method GET
       Write-host "Files changed:"
