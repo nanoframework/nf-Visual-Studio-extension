@@ -36,11 +36,13 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         public static async System.Threading.Tasks.Task InitializeAsync(AsyncPackage package, string name)
         {
+            // Switch to the UI thread before retrieving these STA services 
+            // to reduce the # of thread switches needed
+            await package.JoinableTaskFactory.SwitchToMainThreadAsync();
+
             _outputWindow = await package.GetServiceAsync<SVsOutputWindow, IVsOutputWindow>();
             _statusBar = await package.GetServiceAsync<SVsStatusbar, IVsStatusbar>();
             _paneName = name;
-
-            await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
             // get VS debug pane
             Guid tempId = VSConstants.GUID_OutWindowDebugPane;
