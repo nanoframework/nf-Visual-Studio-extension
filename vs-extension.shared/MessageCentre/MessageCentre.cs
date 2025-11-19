@@ -36,15 +36,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         public static async System.Threading.Tasks.Task InitializeAsync(AsyncPackage package, string name)
         {
-            // seems OK to call these API here without switching to the main thread as we are just getting the service not actually accessing the output window
-#pragma warning disable VSTHRD010
-            _outputWindow = await package.GetServiceAsync(typeof(SVsOutputWindow)) as IVsOutputWindow;
-            Assumes.Present(_outputWindow);
-
-            _statusBar = await package.GetServiceAsync(typeof(SVsStatusbar)) as IVsStatusbar;
-            Assumes.Present(_statusBar);
-#pragma warning restore VSTHRD010
-
+            _outputWindow = await package.GetServiceAsync<SVsOutputWindow, IVsOutputWindow>();
+            _statusBar = await package.GetServiceAsync<SVsStatusbar, IVsStatusbar>();
             _paneName = name;
 
             await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
