@@ -34,45 +34,36 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         public static string MessageStartSearchingDevices = "[.NET nanoFramework] Start searching for devices in the background...";
         public static string MessageCompletedDevicesSearch = "[.NET nanoFramework] Devices search completed.";
 
-        public static System.Threading.Tasks.Task InitializeAsync(AsyncPackage package, string name)
+        public static async System.Threading.Tasks.Task InitializeAsync(AsyncPackage package, string name)
         {
-            return ThreadHelper.JoinableTaskFactory.RunAsync(async () =>
-            {
-                // seems OK to call these API here without switching to the main thread as we are just getting the service not actually accessing the output window
-#pragma warning disable VSTHRD010
-                _outputWindow = await package.GetServiceAsync(typeof(SVsOutputWindow)) as IVsOutputWindow;
-                Assumes.Present(_outputWindow);
+            // Switch to the UI thread before retrieving these STA services 
+            // to reduce the # of thread switches needed
+            await package.JoinableTaskFactory.SwitchToMainThreadAsync();
 
-                _statusBar = await package.GetServiceAsync(typeof(SVsStatusbar)) as IVsStatusbar;
-                Assumes.Present(_statusBar);
-#pragma warning restore VSTHRD010
+            _outputWindow = await package.GetServiceAsync<SVsOutputWindow, IVsOutputWindow>();
+            _statusBar = await package.GetServiceAsync<SVsStatusbar, IVsStatusbar>();
+            _paneName = name;
 
-                _paneName = name;
+            // get VS debug pane
+            Guid tempId = VSConstants.GUID_OutWindowDebugPane;
+            _outputWindow.GetPane(ref tempId, out _debugPane);
 
-                await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+            // create nanoFramework pane
+            tempId = s_DeploymentMessagesPaneGuid;
+            _outputWindow.CreatePane(ref tempId, _paneName, 1, 0);
+            _outputWindow.GetPane(ref tempId, out _nanoFrameworkMessagesPane);
 
-                // get VS debug pane
-                Guid tempId = VSConstants.GUID_OutWindowDebugPane;
-                _outputWindow.GetPane(ref tempId, out _debugPane);
+            // create firmware update manager pane
+            tempId = s_FirmwareUpdatManagerPane;
+            _outputWindow.CreatePane(ref tempId, ".NET nanoFramework Firmware Update Manager", 1, 0);
+            _outputWindow.GetPane(ref tempId, out _firmwareUpdatManager);
 
-                // create nanoFramework pane
-                tempId = s_DeploymentMessagesPaneGuid;
-                _outputWindow.CreatePane(ref tempId, _paneName, 1, 0);
-                _outputWindow.GetPane(ref tempId, out _nanoFrameworkMessagesPane);
+            // create virtual device manager pane
+            tempId = s_VirtualDevicePane;
+            _outputWindow.CreatePane(ref tempId, ".NET nanoFramework Virtual Device", 1, 0);
+            _outputWindow.GetPane(ref tempId, out _virtualDevice);
 
-                // create firmware update manager pane
-                tempId = s_FirmwareUpdatManagerPane;
-                _outputWindow.CreatePane(ref tempId, ".NET nanoFramework Firmware Update Manager", 1, 0);
-                _outputWindow.GetPane(ref tempId, out _firmwareUpdatManager);
-
-                // create virtual device manager pane
-                tempId = s_VirtualDevicePane;
-                _outputWindow.CreatePane(ref tempId, ".NET nanoFramework Virtual Device", 1, 0);
-                _outputWindow.GetPane(ref tempId, out _virtualDevice);
-
-                OutputWelcomeMessage();
-
-            }).Task;
+            OutputWelcomeMessage();
         }
 
         private static void OutputWelcomeMessage()
