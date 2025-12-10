@@ -541,7 +541,7 @@
       <Version>3.0.0-preview.1</Version>
     </PackageReference>
     <PackageReference Include="nanoFramework.Tools.MetadataProcessor.MsBuildTask">
-      <Version>4.0.0-preview.62</Version>
+      <Version>4.0.0-preview.63</Version>
     </PackageReference>
     <PackageReference Include="Nerdbank.GitVersioning">
       <Version>3.6.146</Version>
