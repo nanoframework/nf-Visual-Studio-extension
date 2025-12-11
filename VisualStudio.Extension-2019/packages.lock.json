@@ -308,9 +308,9 @@
       },
       "nanoFramework.Tools.MetadataProcessor.MsBuildTask": {
         "type": "Direct",
-        "requested": "[4.0.0-preview.64, )",
-        "resolved": "4.0.0-preview.64",
-        "contentHash": "yZ6FM4O6BdOxMbqFFHoXqXxOPiPshzUMKVCCzWiuyaW3NRpFTcUhre65mfKQbLlle1C0ACSA/Worl8jMUFoxQA==",
+        "requested": "[4.0.0-preview.65, )",
+        "resolved": "4.0.0-preview.65",
+        "contentHash": "9ygg2U06ZWzL+gI4EgopWZgS2Gd3IbJEW/Do0TNHrkaMOqYBnYIjlgaNWye/dWvq0nPow0bNQ+jgTMSJs827Ug==",
         "dependencies": {
           "System.Text.Json": "8.0.5"
         }
