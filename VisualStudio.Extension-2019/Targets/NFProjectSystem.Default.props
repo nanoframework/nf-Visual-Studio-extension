@@ -27,7 +27,7 @@
 
   <!-- set default NF properties for all projects -->
   <PropertyGroup>
-    <LangVersion>9.0</LangVersion>
+    <LangVersion>13.0</LangVersion>
   </PropertyGroup>
   
 </Project>
