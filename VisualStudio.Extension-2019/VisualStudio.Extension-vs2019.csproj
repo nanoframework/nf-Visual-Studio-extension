@@ -102,13 +102,13 @@
     <Compile Include="AutomaticUpdates\UpdateManager.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="$(PkgnanoFramework_CoreLibrary)\nanoFramework.CoreLibrary.2.0.0-preview.6.nupkg">
-      <Link>Packages\nanoFramework.CoreLibrary.2.0.0-preview.6.nupkg</Link>
+    <Content Include="$(PkgnanoFramework_CoreLibrary)\nanoFramework.CoreLibrary.2.0.0-preview.30.nupkg">
+      <Link>Packages\nanoFramework.CoreLibrary.2.0.0-preview.30.nupkg</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
-    <Content Include="$(PkgnanoFramework_TestFramework)\nanoFramework.TestFramework.3.0.77.nupkg">
-      <Link>Packages\nanoFramework.TestFramework.3.0.77.nupkg</Link>
+    <Content Include="$(PkgnanoFramework_TestFramework)\nanoFramework.TestFramework.4.0.0-preview.45.nupkg">
+      <Link>Packages\nanoFramework.TestFramework.4.0.0-preview.45.nupkg</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
@@ -530,15 +530,15 @@
       <Version>16.10.31321.278</Version>
     </PackageReference>
     <PackageReference Include="nanoFramework.CoreLibrary" GeneratePathProperty="true">
-      <Version>2.0.0-preview.6</Version>
+      <Version>2.0.0-preview.30</Version>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="nanoFramework.TestFramework" Version="3.0.77" GeneratePathProperty="true">
+    <PackageReference Include="nanoFramework.TestFramework" Version="4.0.0-preview.45" GeneratePathProperty="true">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="nanoFramework.Tools.Debugger.Net">
-      <Version>3.0.0-preview.1</Version>
+      <Version>3.0.0-preview.5</Version>
     </PackageReference>
     <PackageReference Include="nanoFramework.Tools.MetadataProcessor.MsBuildTask">
       <Version>4.0.0-preview.65</Version>
