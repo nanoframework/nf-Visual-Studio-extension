@@ -308,9 +308,12 @@
       },
       "nanoFramework.Tools.MetadataProcessor.MsBuildTask": {
         "type": "Direct",
-        "requested": "[3.0.100, )",
-        "resolved": "3.0.100",
-        "contentHash": "XST65WeHmVL8VkE925MCkrjapev46I9Va8zIFjl1mgwqX3VYoV3kkEoq/meqY+GOsbfFCSicoTGkz1f6c2B0ZA=="
+        "requested": "[4.0.0-preview.71, )",
+        "resolved": "4.0.0-preview.71",
+        "contentHash": "5PSvdiQHdAODShDnc9wli2J//3rHgi0gOBjftAfpjA195zDTLxuriiIQbzjXXnpCwf/+QA2SyPwCfeitLIZNJQ==",
+        "dependencies": {
+          "System.Text.Json": "8.0.5"
+        }
       },
       "Nerdbank.GitVersioning": {
         "type": "Direct",
@@ -439,8 +442,8 @@
       },
       "Microsoft.Bcl.AsyncInterfaces": {
         "type": "Transitive",
-        "resolved": "7.0.0",
-        "contentHash": "3aeMZ1N0lJoSyzqiP03hqemtb1BijhsJADdobn/4nsMJ8V1H+CrpuduUe4hlRdx+ikBQju1VGjMD1GJ3Sk05Eg==",
+        "resolved": "8.0.0",
+        "contentHash": "3WA9q9yVqJp222P3x1wYIGDAkpjAku0TMUaaQV22g6L67AI0LdOIrVS7Ht2vJfLHGSPVuqN94vIr15qn+HEkHw==",
         "dependencies": {
           "System.Threading.Tasks.Extensions": "4.5.4"
         }
@@ -1685,16 +1688,15 @@
       },
       "System.Text.Json": {
         "type": "Transitive",
-        "resolved": "4.7.0",
-        "contentHash": "IPq/x/d5nAcnD3vIyM3AbPOaTgcqrh0AqPSx7U53UFu3M6k1TH1u/eXc9/h4jm/3mpP1WRUpevlPY4PACd7AWw==",
+        "resolved": "8.0.5",
+        "contentHash": "0f1B50Ss7rqxXiaBJyzUu9bWFOO2/zSlifZ/UNMdiIpDYe4cY4LQQicP4nirK1OS31I43rn062UIJ1Q9bpmHpg==",
         "dependencies": {
-          "Microsoft.Bcl.AsyncInterfaces": "1.1.0",
-          "System.Buffers": "4.5.0",
-          "System.Memory": "4.5.3",
-          "System.Numerics.Vectors": "4.5.0",
-          "System.Runtime.CompilerServices.Unsafe": "4.7.0",
-          "System.Text.Encodings.Web": "4.7.0",
-          "System.Threading.Tasks.Extensions": "4.5.2",
+          "Microsoft.Bcl.AsyncInterfaces": "8.0.0",
+          "System.Buffers": "4.5.1",
+          "System.Memory": "4.5.5",
+          "System.Runtime.CompilerServices.Unsafe": "6.0.0",
+          "System.Text.Encodings.Web": "8.0.0",
+          "System.Threading.Tasks.Extensions": "4.5.4",
           "System.ValueTuple": "4.5.0"
         }
       },
