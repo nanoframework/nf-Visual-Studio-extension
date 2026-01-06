@@ -75,6 +75,10 @@
             <DataSource PersistedName="NFMDP_PE_Verbose" Persistence="UserFile" HasConfigurationCondition="True" Label="nanoFramework" SourceOfDefaultValue="AfterContext"/>
         </BoolProperty.DataSource>
     </BoolProperty>
-
+    <BoolProperty Category="nFAdvanced" Name="NFMDP_PE_VerboseMinimize" DisplayName="Enable output of minimization step" Visible="True" Description="Enable output of minimization step with MDP.">
+        <BoolProperty.DataSource>
+            <DataSource PersistedName="NFMDP_PE_VerboseMinimize" Persistence="UserFile" HasConfigurationCondition="True" Label="nanoFramework" SourceOfDefaultValue="AfterContext"/>
+        </BoolProperty.DataSource>
+    </BoolProperty>
 </Rule>
     
