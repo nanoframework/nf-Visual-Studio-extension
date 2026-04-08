@@ -49,7 +49,11 @@ namespace nanoFramework.Tools
             // get paths for PE files
             // rename extension .dll with .pe
             List<string> peCollection = new List<string>();
-            peCollection = AssemblyReferences?.Select(a => { return a.GetMetadata("FullPath").Replace(".dll", ".pe").Replace(".exe", ".pe"); }).ToList();
+
+            if (AssemblyReferences != null)
+            {
+                peCollection.AddRange(AssemblyReferences.Select(a => a.GetMetadata("FullPath").Replace(".dll", ".pe").Replace(".exe", ".pe")));
+            }
 
             // add executable PE
             peCollection.Add(AssemblyPE);
