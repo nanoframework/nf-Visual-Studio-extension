@@ -98,7 +98,7 @@ namespace nanoFramework.Tools
         /// <summary>
         /// Whether we successfully created the STR class
         /// </summary>
-        internal bool StronglyTypedResourceSuccessfullyCreated { get; } = false;
+        internal bool StronglyTypedResourceSuccessfullyCreated { get; private set; } = false;
 
         /// <summary>
         /// Indicates whether the resource reader should use the source file's
@@ -423,6 +423,56 @@ namespace nanoFramework.Tools
             {
                 throw new ApplicationException(errors[0]);
             }
+
+            StronglyTypedResourceSuccessfullyCreated = true;
+        }
+
+        /// <summary>
+        /// Generates a strongly typed resource class from in-memory .resx content.
+        /// Used by the VS custom tool so that unsaved designer edits are reflected
+        /// immediately without waiting for the file to be written to disk.
+        /// </summary>
+        public void CreateStronglyTypedResources(string inputFileName, string inputFileContent, CodeDomProvider provider, TextWriter writer, string resourceName)
+        {
+            Init();
+
+            ReadResources(inputFileName, inputFileContent, true);
+
+            string[] errors = null;
+
+            CreateStronglyTypedResources(provider, writer, resourceName, out errors);
+
+            if (errors != null && errors.Length > 0)
+            {
+                throw new ApplicationException(errors[0]);
+            }
+
+            StronglyTypedResourceSuccessfullyCreated = true;
+        }
+
+        /// <summary>
+        /// Reads resources from in-memory .resx content. For ResXFileRef entries the
+        /// linked files are still resolved from disk using the directory of
+        /// <paramref name="filename"/> as the base path.
+        /// </summary>
+        public void ReadResources(String filename, string fileContent, bool shouldUseSourcePath)
+        {
+            Format format = GetFormat(filename);
+            if (format == Format.XML)
+            {
+                ResXResourceReader resXReader = assemblyList != null
+                    ? new ResXResourceReader(new StringReader(fileContent), assemblyList)
+                    : new ResXResourceReader(new StringReader(fileContent));
+                if (shouldUseSourcePath)
+                {
+                    resXReader.BasePath = Path.GetDirectoryName(Path.GetFullPath(filename));
+                }
+                ReadResources(resXReader, filename);
+            }
+            else
+            {
+                ReadResources(filename, shouldUseSourcePath);
+            }
         }
 
         private CodeNamespace CreateNamespace(CodeCompileUnit ccu, string ns, Hashtable tableNamespaces)
@@ -678,13 +728,22 @@ namespace nanoFramework.Tools
                 while (resEnum.MoveNext())
                 {
                     string name = (string)resEnum.Key;
-                    // Replace dot in the name with underscore. 
+                    // Replace dot in the name with underscore.
                     // 1. First reason  - this is what desktop resource generator does.
                     // 2. Second reason - Extra dots causes resource generator to create name space and enumerations.
                     //    This complicates the syntax and finally create invalid code if 2 or more dots are present.
                     //    So we just make longer name.
                     name = name.Replace('.', '_');
-                    object value = resEnum.Value;
+                    object value;
+                    try
+                    {
+                        value = resEnum.Value;
+                    }
+                    catch (Exception ex)
+                    {
+                        logger?.LogWarning(null, fileName, 0, 0, 0, 0, "GenerateResource.CannotLoadResource", (string)resEnum.Key, ex.Message);
+                        continue;
+                    }
                     AddResource(name, value, fileName);
                 }
             }
@@ -837,11 +896,18 @@ namespace nanoFramework.Tools
         /// <param name="linePosition">Column number for messages</param>
         private void AddResource(string name, object value, String inputFileName, int lineNumber, int linePosition)
         {
+            if (resourcesHashTable.ContainsKey(name))
+            {
+                logger?.LogWarning(null, inputFileName, lineNumber, linePosition, 0, 0, "GenerateResource.DuplicateResourceName", name);
+                return;
+            }
+
             Entry entry = Entry.CreateEntry(name, value, StronglyTypedNamespace, GenerateNestedEnums ? StronglyTypedClassName : string.Empty);
 
             Debug.Assert(entry.ClassName.Length > 0);
 
             resources.Add(entry);
+            resourcesHashTable[name] = entry;
         }
 
         private void AddResource(string name, object value, String inputFileName)
@@ -944,8 +1010,7 @@ namespace nanoFramework.Tools
                         // Examples  - .wav
                         // this is a binary resource
                         MemoryStream msOther = (MemoryStream)value;
-                        byte[] memoryData = new byte[msOther.Length];
-                        msOther.Read(memoryData, 0, 0);
+                        byte[] memoryData = msOther.ToArray();
                         entry = new BinaryEntry(name, memoryData);
                         break;
                     default:
@@ -954,7 +1019,7 @@ namespace nanoFramework.Tools
 
                 if (entry == null)
                 {
-                    throw new Exception();
+                    throw new Exception($"Resource '{name}' has unsupported type '{value.GetType().FullName}'.");
                 }
 
                 if (entry.Namespace.Length == 0)
