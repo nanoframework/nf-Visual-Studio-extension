@@ -18,6 +18,11 @@ trigger:
       - .gitmodules
       - spelling_exclusion.dic
 
+  tags:
+    include:
+      - v2019*
+      - v2022*
+
 # PR always trigger build
 pr:
   autoCancel: true
