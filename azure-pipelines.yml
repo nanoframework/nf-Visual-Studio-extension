@@ -46,469 +46,593 @@ resources:
       name: nanoframework/nf-tools
       endpoint: nanoframework
 
-jobs:
+variables:
+  # Existing PAT-backed Visual Studio Marketplace service connection.
+  - name: VisualStudioMarketplaceServiceConnection
+    value: 'VSMarketplace-Visual-Studio-extension'
 
-##############################
-- job: Get_Build_Options
-  pool:
-    vmImage: 'windows-latest'
+stages:
+  - stage: Build
+    displayName: Build and package
+    jobs:
+      ##############################
+      - job: Get_Build_Options
+        pool:
+          vmImage: 'windows-latest'
 
-  steps:
-  - checkout: self
-    submodules: false
+        steps:
+          - checkout: self
+            submodules: false
 
-  # check which project(s) have changed
-  - powershell: |
-      git config --global user.email "nfbot"
-      git config --global user.name "nanoframework@outlook.com"
+          # check which project(s) have changed
+          - powershell: |
+              git config --global user.email "nfbot"
+              git config --global user.name "nanoframework@outlook.com"
 
-      # compute authorization header in format "AUTHORIZATION: basic 'encoded token'"
-      # 'encoded token' is the Base64 of the string "nfbot:personal-token"
-      $auth = "basic $([System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes("nfbot:$(GitHubToken)")))"
+              # compute authorization header in format "AUTHORIZATION: basic 'encoded token'"
+              # 'encoded token' is the Base64 of the string "nfbot:personal-token"
+              $auth = "basic $([System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes("nfbot:$(GitHubToken)")))"
 
-      $commit = Invoke-RestMethod -Uri "https://api.github.com/repos/nanoframework/nf-Visual-Studio-extension/commits/$(Build.SourceVersion)" -Header @{"Authorization"="$auth"} -ContentType "application/json" -Method GET
-      Write-host "Files changed:"
-      $commit.files | % {$_.filename}
+              $commit = Invoke-RestMethod -Uri "https://api.github.com/repos/nanoframework/nf-Visual-Studio-extension/commits/$(Build.SourceVersion)" -Header @{"Authorization"="$auth"} -ContentType "application/json" -Method GET
+              Write-host "Files changed:"
+              $commit.files | % {$_.filename}
 
-      # default values 
-      echo "##vso[task.setvariable variable=BUILD_VS2019;isOutput=true]false"  
-      echo "##vso[task.setvariable variable=BUILD_VS2022;isOutput=true]false"  
+              # default values
+              echo "##vso[task.setvariable variable=BUILD_VS2019;isOutput=true]false"
+              echo "##vso[task.setvariable variable=BUILD_VS2022;isOutput=true]false"
 
-      if( ($commit.files.filename -like "*CSharp.AssemblyInfoTemplate*") -Or
-          ($commit.files.filename -like "*CSharp.BlankApplication*") -Or
-          ($commit.files.filename -like "*CSharp.ClassLibrary*") -Or
-          ($commit.files.filename -like "*CSharp.ClassTemplate*") -Or
-          ($commit.files.filename -like "*CSharp.ResourceTemplate*") -Or
-          ($commit.files.filename -like "*CSharp.TestApplication*") -Or
-          ($commit.files.filename -like "*Tools.BuildTasks-2019*") -Or
-          ($commit.files.filename -like "*Tools.BuildTasks-2022*") -Or
-          ($commit.files.filename -like "*vs-extension.shared*") -Or
-          ($commit.files.filename -like "*azure-pipelines.yml")
+              if( ($commit.files.filename -like "*CSharp.AssemblyInfoTemplate*") -Or
+                  ($commit.files.filename -like "*CSharp.BlankApplication*") -Or
+                  ($commit.files.filename -like "*CSharp.ClassLibrary*") -Or
+                  ($commit.files.filename -like "*CSharp.ClassTemplate*") -Or
+                  ($commit.files.filename -like "*CSharp.ResourceTemplate*") -Or
+                  ($commit.files.filename -like "*CSharp.TestApplication*") -Or
+                  ($commit.files.filename -like "*Tools.BuildTasks-2019*") -Or
+                  ($commit.files.filename -like "*Tools.BuildTasks-2022*") -Or
+                  ($commit.files.filename -like "*vs-extension.shared*") -Or
+                  ($commit.files.filename -like "*azure-pipelines.yml")
+                )
+              {
+                  # global changes, build both
+                  echo "##vso[task.setvariable variable=BUILD_VS2019;isOutput=true]true"
+                  echo "##vso[task.setvariable variable=BUILD_VS2022;isOutput=true]true"
+              }
+              else
+              {
+                if( $commit.files.filename -like "*nanoFramework.Tools.VisualStudio.sln")
+                {
+                  # changes here impact VS2022 and VS2019
+                  echo "##vso[task.setvariable variable=BUILD_VS2019;isOutput=true]true"
+                  echo "##vso[task.setvariable variable=BUILD_VS2022;isOutput=true]true"
+                }
+                if( $commit.files.filename -like "*VisualStudio.Extension-2019/*" )
+                {
+                  # changes here only impact VS2019
+                  echo "##vso[task.setvariable variable=BUILD_VS2019;isOutput=true]true"
+                }
+                if( $commit.files.filename -like "*VisualStudio.Extension-2022/*" )
+                {
+                  # changes here only impact VS2022
+                  echo "##vso[task.setvariable variable=BUILD_VS2022;isOutput=true]true"
+                }
+              }
+
+            name: BuildOptions
+            displayName: Get what to build
+            condition: not(startsWith(variables['Build.SourceBranch'], 'refs/tags/v'))
+
+          - powershell: |
+              # read VS2019 manifest file
+              $vs2019Manifest = Get-Content VisualStudio.Extension-2019/source.extension.vsixmanifest -Encoding utf8
+
+              $VersionFormatChecks = $vs2019Manifest | Where-Object {$_.ToString() -match "(?>Version=""\|%CurrentProject%;GetBuildVersion\|"")"}
+              if($null -eq $VersionFormatChecks)
+              {
+                  Write-Host "***************************************************"
+                  Write-Host "* WRONG format on version in VS2019 manifest file *"
+                  Write-Host "***************************************************"
+                  exit 1
+              }
+
+              # read VS2022 manifest file
+              $vs2022Manifest = Get-Content VisualStudio.Extension-2022/source.extension.vsixmanifest -Encoding utf8
+
+              $VersionFormatChecks = $vs2022Manifest | Where-Object {$_.ToString() -match "(?>Version=""\|%CurrentProject%;GetBuildVersion\|"")"}
+              if($null -eq $VersionFormatChecks)
+              {
+                  Write-Host "***************************************************"
+                  Write-Host "* WRONG format on version in VS2022 manifest file *"
+                  Write-Host "***************************************************"
+                  exit 1
+              }
+            displayName: Check proper version format
+
+      ######################
+      - job: VS2019
+        condition: >-
+          or(
+            eq(dependencies.Get_Build_Options.outputs['BuildOptions.BUILD_VS2019'], true),
+            eq(variables['BUILD_VS2019'], 'true'),
+            startsWith(variables['Build.SourceBranch'], 'refs/tags/v2019')
+          )
+        dependsOn:
+          - Get_Build_Options
+
+        pool:
+          vmImage: 'windows-latest'
+
+        variables:
+          - group: sign-client-credentials
+          - name: DOTNET_NOLOGO
+            value: true
+          - name: buildConfiguration
+            value: 'Release'
+          - name: solution
+            value: 'VisualStudio.Extension-2019/VisualStudio.Extension-vs2019.csproj'
+
+        steps:
+          # need this here in order to persist GitHub credentials
+          - checkout: self
+            persistCredentials: true
+
+          - script: |
+              git config --global user.email 'nanoframework@outlook.com'
+              git config --global user.name 'nfbot'
+            displayName: Setup git identity
+
+          - template: azure-pipelines-templates/install-nuget.yml@templates
+
+          - task: Cache@2
+            displayName: Cache NuGet packages
+            condition: >-
+              and(
+                succeeded(),
+                eq(variables['StartReleaseCandidate'], false)
+              )
+            continueOnError: true
+            inputs:
+              key: 'nuget | vs2019 | **/VisualStudio.Extension-2019/packages.lock.json'
+              path: $(UserProfile)/.nuget/packages
+
+          - task: NuGetCommand@2
+            inputs:
+              restoreSolution: 'nanoFramework.Tools.VisualStudio.sln'
+              feedsToUse: config
+              nugetConfigPath: NuGet.config
+              verbosityRestore: quiet
+
+          - task: VSBuild@1
+            inputs:
+              solution: '$(solution)'
+              msbuildArgs: '/p:PublicRelease=true'
+              configuration: '$(buildConfiguration)'
+              maximumCpuCount: true
+
+          # we don't have tests (yet)
+          # - task: VSTest@2
+          #   inputs:
+          #     platform: '$(buildPlatform)'
+          #     configuration: '$(buildConfiguration)'
+
+          - task: PowerShell@2
+            inputs:
+              targetType: 'inline'
+              script: |
+                $versionData = & nbgv get-version -f json -p VisualStudio.Extension-2019
+                $versionData =$versionData | ConvertFrom-Json
+
+                $version = $versionData.AssemblyVersion
+
+                Write-Host "VS2019 build version $version"
+
+                echo "##vso[task.setvariable variable=BUILD_VERSION;isOutput=true]$version"
+            condition: succeeded()
+            name: VS2019_Build
+            displayName: Store VS2019 build version
+
+          - task: CopyFiles@1
+            inputs:
+              sourceFolder: $(Build.SourcesDirectory)
+              Contents: |
+                **\*VS2019.Extension.vsix
+                **\vs2019-extension-manifest.json
+                **\vs2019-marketplace-overview.md
+                **\vs2019\debug-session.png
+                **\vs2019\starting-new-project.png
+              TargetFolder: '$(Build.ArtifactStagingDirectory)\vs2019'
+              flattenFolders: true
+            condition: succeeded()
+            displayName: Collecting VS2019 deployable artifacts
+
+          - task: DotNetCoreCLI@2
+            displayName: Install SignTool tool
+            condition: >-
+              and(
+                succeeded(),
+                eq(variables['System.PullRequest.PullRequestId'], '')
+              )
+            inputs:
+              command: custom
+              custom: tool
+              arguments: install --tool-path . sign --version 0.9.1-beta.24529.1
+
+          - pwsh: |
+              .\sign code azure-key-vault `
+              "**/*.vsix" `
+              --base-directory "$(Build.ArtifactStagingDirectory)\vs2019" `
+              --description ".NET nanoFramework VS2019 Extension" `
+              --description-url "https://github.com/$env:Build_Repository_Name" `
+              --azure-key-vault-tenant-id "$(SignTenantId)" `
+              --azure-key-vault-client-id "$(SignClientId)" `
+              --azure-key-vault-client-secret "$(SignClientSecret)" `
+              --azure-key-vault-certificate "$(SignKeyVaultCertificate)" `
+              --azure-key-vault-url "$(SignKeyVaultUrl)" `
+              --timestamp-url http://timestamp.digicert.com
+            displayName: Sign VS2019 packages
+            continueOnError: true
+            condition: >-
+              and(
+                succeeded(),
+                eq(variables['System.PullRequest.PullRequestId'], '')
+              )
+
+          # publish artifacts (only possible if this is not a PR originated on a fork)
+          - task: PublishBuildArtifacts@1
+            inputs:
+              PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+              ArtifactName: deployables
+              ArtifactType: Container
+            condition: and( succeeded(), ne(variables['system.pullrequest.isfork'], true) )
+            displayName: Publish deployables artifacts
+
+          - task: PublishPipelineArtifact@1
+            displayName: Publish VS2019 Marketplace artifact
+            condition: >-
+              and(
+                succeeded(),
+                eq(variables['System.PullRequest.PullRequestId'], ''),
+                or(
+                  eq(variables['Build.SourceBranch'], 'refs/heads/main'),
+                  startsWith(variables['Build.SourceBranch'], 'refs/heads/release-'),
+                  startsWith(variables['Build.SourceBranch'], 'refs/tags/v2019'),
+                  startsWith(variables['Build.SourceBranch'], 'refs/tags/v2022')
+                )
+              )
+            inputs:
+              targetPath: '$(Build.ArtifactStagingDirectory)\vs2019'
+              artifact: 'vs2019-marketplace'
+
+          # create or update GitHub release
+          # this is to create a draft release, changelog is generated by github action 'generate-changelog-vs2019.json'
+          - task: GithubRelease@1
+            condition: >-
+              and(
+                succeeded(),
+                eq(variables['System.PullRequest.PullRequestId'], ''),
+                not(startsWith(variables['Build.SourceBranch'], 'refs/tags/v'))
+              )
+            displayName: Create/Update GitHub release
+            inputs:
+              gitHubConnection: 'github.com_nano-$(System.TeamProject)'
+              tagSource: userSpecifiedTag
+              tag: v$(VS2019_Build.BUILD_VERSION)
+              title: '.NET nanoFramework VS Extension v$(VS2019_Build.BUILD_VERSION)'
+              assets: '$(Build.ArtifactStagingDirectory)/**/*.vsix'
+              assetUploadMode: replace
+              isPreRelease: false
+              isDraft: true
+              addChangeLog: true
+              changeLogType: issueBased
+              changeLogCompareToRelease: lastNonDraftReleaseByTag
+              changeLogCompareToReleaseTag: 'v2019\.[\d.]+'
+              changeLogLabels: |
+                [
+                  { "label" : "Type: bug", "displayName" : "Bugs fixed", "state" : "closed" },
+                  { "label" : "Type: enhancement", "displayName" : "Enhancements and new features", "state" : "closed" },
+                  { "label" : "Breaking-Change", "displayName" : "Breaking Changes", "state" : "closed" },
+                  { "label" : "Type: dependencies", "displayName" : "Dependencies updated", "state" : "closed" },
+                  { "label" : "Type: documentation", "displayName" : "Documentation", "state" : "closed" }
+                ]
+
+      ######################
+      - job: VS2022
+        condition: >-
+          or(
+            eq(dependencies.Get_Build_Options.outputs['BuildOptions.BUILD_VS2022'], true),
+            eq(variables['BUILD_VS2022'], 'true'),
+            startsWith(variables['Build.SourceBranch'], 'refs/tags/v2022')
+          )
+        dependsOn:
+          - Get_Build_Options
+
+        pool:
+          vmImage: 'windows-latest'
+
+        variables:
+          - group: sign-client-credentials
+          - name: DOTNET_NOLOGO
+            value: true
+          - name: buildConfiguration
+            value: 'Release'
+          - name: solution
+            value: 'VisualStudio.Extension-2022/VisualStudio.Extension-vs2022.csproj'
+
+        steps:
+          # need this here in order to persist GitHub credentials
+          - checkout: self
+            persistCredentials: true
+
+          - script: |
+              git config --global user.email 'nanoframework@outlook.com'
+              git config --global user.name 'nfbot'
+            displayName: Setup git identity
+
+          - template: azure-pipelines-templates/install-nuget.yml@templates
+
+          - task: Cache@2
+            displayName: Cache NuGet packages
+            condition: >-
+              and(
+                succeeded(),
+                eq(variables['StartReleaseCandidate'], false)
+              )
+            continueOnError: true
+            inputs:
+              key: 'nuget | vs2022 | **/VisualStudio.Extension-2022/packages.lock.json'
+              path: $(UserProfile)/.nuget/packages
+
+          - task: NuGetCommand@2
+            inputs:
+              restoreSolution: 'nanoFramework.Tools.VisualStudio.sln'
+              feedsToUse: config
+              nugetConfigPath: NuGet.config
+              verbosityRestore: quiet
+
+          - task: VSBuild@1
+            inputs:
+              solution: '$(solution)'
+              msbuildArgs: '/p:PublicRelease=true'
+              configuration: '$(buildConfiguration)'
+              maximumCpuCount: true
+              msbuildArchitecture: 'x64'
+              platform: 'x64'
+
+          # we don't have tests (yet)
+          # - task: VSTest@2
+          #   inputs:
+          #     platform: '$(buildPlatform)'
+          #     configuration: '$(buildConfiguration)'
+
+          - task: PowerShell@2
+            inputs:
+              targetType: 'inline'
+              script: |
+                $versionData = & nbgv get-version -f json -p VisualStudio.Extension-2022
+                $versionData =$versionData | ConvertFrom-Json
+
+                $version = $versionData.AssemblyVersion
+
+                Write-Host "VS2022 build version $version"
+
+                echo "##vso[task.setvariable variable=BUILD_VERSION;isOutput=true]$version"
+            condition: succeeded()
+            name: VS2022_Build
+            displayName: Store VS2022 build version
+
+          - task: CopyFiles@1
+            inputs:
+              sourceFolder: $(Build.SourcesDirectory)
+              Contents: |
+                **\*VS2022.Extension.vsix
+                **\vs2022-extension-manifest.json
+                **\vs2022-marketplace-overview.md
+                **\vs2022\debug-session.png
+                **\vs2022\starting-new-project.png
+              TargetFolder: '$(Build.ArtifactStagingDirectory)\vs2022'
+              flattenFolders: true
+            condition: succeeded()
+            displayName: Collecting VS2022 deployable artifacts
+
+          - task: DotNetCoreCLI@2
+            displayName: Install SignTool tool
+            condition: >-
+              and(
+                succeeded(),
+                eq(variables['System.PullRequest.PullRequestId'], '')
+              )
+            inputs:
+              command: custom
+              custom: tool
+              arguments: install --tool-path . sign --version 0.9.1-beta.24529.1
+
+          - pwsh: |
+              .\sign code azure-key-vault `
+              "**/*.vsix" `
+              --base-directory "$(Build.ArtifactStagingDirectory)\vs2022" `
+              --description ".NET nanoFramework VS2022 Extension" `
+              --description-url "https://github.com/$env:Build_Repository_Name" `
+              --azure-key-vault-tenant-id "$(SignTenantId)" `
+              --azure-key-vault-client-id "$(SignClientId)" `
+              --azure-key-vault-client-secret "$(SignClientSecret)" `
+              --azure-key-vault-certificate "$(SignKeyVaultCertificate)" `
+              --azure-key-vault-url "$(SignKeyVaultUrl)" `
+              --timestamp-url http://timestamp.digicert.com
+            displayName: Sign VS2022 packages
+            continueOnError: true
+            condition: >-
+              and(
+                succeeded(),
+                eq(variables['System.PullRequest.PullRequestId'], '')
+              )
+
+          # publish artifacts (only possible if this is not a PR originated on a fork)
+          - task: PublishBuildArtifacts@1
+            inputs:
+              PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+              ArtifactName: deployables
+              ArtifactType: Container
+            condition: and( succeeded(), ne(variables['system.pullrequest.isfork'], true) )
+            displayName: Publish deployables artifacts
+
+          - task: PublishPipelineArtifact@1
+            displayName: Publish VS2022 Marketplace artifact
+            condition: >-
+              and(
+                succeeded(),
+                eq(variables['System.PullRequest.PullRequestId'], ''),
+                or(
+                  eq(variables['Build.SourceBranch'], 'refs/heads/main'),
+                  startsWith(variables['Build.SourceBranch'], 'refs/heads/release-'),
+                  startsWith(variables['Build.SourceBranch'], 'refs/tags/v2019'),
+                  startsWith(variables['Build.SourceBranch'], 'refs/tags/v2022')
+                )
+              )
+            inputs:
+              targetPath: '$(Build.ArtifactStagingDirectory)\vs2022'
+              artifact: 'vs2022-marketplace'
+
+          # create or update GitHub release
+          # this is to create a draft release, changelog is generated by github action 'generate-changelog-vs2022.json'
+          - task: GithubRelease@1
+            condition: >-
+              and(
+                succeeded(),
+                eq(variables['System.PullRequest.PullRequestId'], ''),
+                not(startsWith(variables['Build.SourceBranch'], 'refs/tags/v'))
+              )
+            displayName: Create/Update GitHub release
+            inputs:
+              gitHubConnection: 'github.com_nano-$(System.TeamProject)'
+              tagSource: userSpecifiedTag
+              tag: v$(VS2022_Build.BUILD_VERSION)
+              title: '.NET nanoFramework VS Extension v$(VS2022_Build.BUILD_VERSION)'
+              assets: '$(Build.ArtifactStagingDirectory)/**/*.vsix'
+              assetUploadMode: replace
+              isDraft: true
+              isPreRelease: false
+              addChangeLog: true
+              changeLogType: issueBased
+              changeLogCompareToRelease: lastNonDraftReleaseByTag
+              changeLogCompareToReleaseTag: 'v2022\.[\d.]+'
+              changeLogLabels: |
+                [
+                  { "label" : "Type: bug", "displayName" : "Bugs fixed", "state" : "closed" },
+                  { "label" : "Type: enhancement", "displayName" : "Enhancements and new features", "state" : "closed" },
+                  { "label" : "Breaking-Change", "displayName" : "Breaking Changes", "state" : "closed" },
+                  { "label" : "Type: dependencies", "displayName" : "Dependencies updated", "state" : "closed" },
+                  { "label" : "Type: documentation", "displayName" : "Documentation", "state" : "closed" }
+                ]
+
+      ##################################
+      # report build failure to Discord
+      - job: Report_Build_Failure
+        dependsOn:
+          - VS2019
+          - VS2022
+        condition: >-
+          or(
+            failed('VS2019'),
+            failed('VS2022')
+          )
+
+        pool:
+          vmImage: 'windows-latest'
+
+        steps:
+          - checkout: self
+            fetchDepth: 1
+
+          # step from template @ nf-tools repo
+          # report error
+          - template: azure-pipelines-templates/discord-webhook.yml@templates
+            parameters:
+              status: 'failure'
+              webhookUrl: '$(DiscordWebhook)'
+              message: ''
+
+  - stage: Publish
+    displayName: Publish to marketplace
+    dependsOn: Build
+    condition: >-
+      and(
+        succeeded(),
+        eq(variables['System.PullRequest.PullRequestId'], ''),
+        or(
+          eq(variables['Build.SourceBranch'], 'refs/heads/main'),
+          startsWith(variables['Build.SourceBranch'], 'refs/heads/release-'),
+          startsWith(variables['Build.SourceBranch'], 'refs/tags/v2019'),
+          startsWith(variables['Build.SourceBranch'], 'refs/tags/v2022')
         )
-      {
-          # global changes, build both
-          echo "##vso[task.setvariable variable=BUILD_VS2019;isOutput=true]true"
-          echo "##vso[task.setvariable variable=BUILD_VS2022;isOutput=true]true"
-      }
-      else
-      {
-        if( $commit.files.filename -like "*nanoFramework.Tools.VisualStudio.sln")
-        {
-          # changes here impact VS2022 and VS2019
-          echo "##vso[task.setvariable variable=BUILD_VS2019;isOutput=true]true"
-          echo "##vso[task.setvariable variable=BUILD_VS2022;isOutput=true]true"
-        }
-        if( $commit.files.filename -like "*VisualStudio.Extension-2019/*" )
-        {
-          # changes here only impact VS2019
-          echo "##vso[task.setvariable variable=BUILD_VS2019;isOutput=true]true"
-        }
-        if( $commit.files.filename -like "*VisualStudio.Extension-2022/*" )
-        {
-          # changes here only impact VS2022
-          echo "##vso[task.setvariable variable=BUILD_VS2022;isOutput=true]true"
-        }
-      }
-
-    name: BuildOptions
-    displayName: Get what to build
-    condition: not(startsWith(variables['Build.SourceBranch'], 'refs/tags/v'))
-
-  - powershell: |
-      # read VS2019 manifest file
-      $vs2019Manifest = Get-Content VisualStudio.Extension-2019/source.extension.vsixmanifest -Encoding utf8
-
-      $VersionFormatChecks = $vs2019Manifest | Where-Object {$_.ToString() -match "(?>Version=""\|%CurrentProject%;GetBuildVersion\|"")"}
-      if($null -eq $VersionFormatChecks)
-      {
-          Write-Host "***************************************************"
-          Write-Host "* WRONG format on version in VS2019 manifest file *"
-          Write-Host "***************************************************"
-          exit 1
-      }
-
-      # read VS2022 manifest file
-      $vs2022Manifest = Get-Content VisualStudio.Extension-2022/source.extension.vsixmanifest -Encoding utf8
-
-      $VersionFormatChecks = $vs2022Manifest | Where-Object {$_.ToString() -match "(?>Version=""\|%CurrentProject%;GetBuildVersion\|"")"}
-      if($null -eq $VersionFormatChecks)
-      {
-          Write-Host "***************************************************"
-          Write-Host "* WRONG format on version in VS2022 manifest file *"
-          Write-Host "***************************************************"
-          exit 1
-      }
-    displayName: Check proper version format
-
-######################
-- job: VS2019
-  condition: >-
-    or(
-      eq(dependencies.Get_Build_Options.outputs['BuildOptions.BUILD_VS2019'], true),
-      eq(variables['BUILD_VS2019'], 'true'),
-      startsWith(variables['Build.SourceBranch'], 'refs/tags/v2019')
-    )
-  dependsOn:
-  - Get_Build_Options
-
-  pool:
-    vmImage: 'windows-latest'
-
-  variables:
-    - group: sign-client-credentials
-    - name: DOTNET_NOLOGO
-      value: true  
-    - name: buildConfiguration
-      value: 'Release'
-    - name: solution
-      value: 'VisualStudio.Extension-2019/VisualStudio.Extension-vs2019.csproj'
-
-  steps:
-
-  # need this here in order to persist GitHub credentials
-  - checkout: self
-    persistCredentials: true
-
-  - script: |
-      git config --global user.email 'nanoframework@outlook.com'
-      git config --global user.name 'nfbot'
-    displayName: Setup git identity
-    
-  - template: azure-pipelines-templates/install-nuget.yml@templates
-
-  - task: Cache@2
-    displayName: Cache NuGet packages
-    condition: >-
-      and(
-        succeeded(),
-        eq(variables['StartReleaseCandidate'], false)
       )
-    continueOnError: true
-    inputs:
-      key: 'nuget | vs2019 | **/VisualStudio.Extension-2019/packages.lock.json'
-      path: $(UserProfile)/.nuget/packages
+    jobs:
+      - deployment: Publish_VS2019
+        displayName: Publish VS2019 extension
+        condition: >-
+          or(
+            eq(stageDependencies.Build.Get_Build_Options.outputs['BuildOptions.BUILD_VS2019'], 'true'),
+            eq(variables['BUILD_VS2019'], 'true'),
+            startsWith(variables['Build.SourceBranch'], 'refs/tags/v2019')
+          )
+        pool:
+          vmImage: 'windows-latest'
+        environment: 'vs-marketplace-vs2019'
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - download: current
+                  artifact: vs2019-marketplace
 
-  - task: NuGetCommand@2
-    inputs:
-      restoreSolution: 'nanoFramework.Tools.VisualStudio.sln'
-      feedsToUse: config
-      nugetConfigPath: NuGet.config
-      verbosityRestore: quiet
+                - pwsh: |
+                    if ([string]::IsNullOrWhiteSpace("$(VisualStudioMarketplaceServiceConnection)"))
+                    {
+                        throw "VisualStudioMarketplaceServiceConnection must be set to the existing PAT-backed Visual Studio Marketplace service connection."
+                    }
+                  displayName: Validate Marketplace service connection
 
-  - task: VSBuild@1
-    inputs:
-      solution: '$(solution)'
-      msbuildArgs: '/p:PublicRelease=true'
-      configuration: '$(buildConfiguration)'
-      maximumCpuCount: true
+                - task: PublishVisualStudioExtension@5.0.541
+                  displayName: Publish Visual Studio 2019 Extension
+                  continueOnError: true
+                  inputs:
+                    connectTo: VsTeam
+                    connectedServiceName: '$(VisualStudioMarketplaceServiceConnection)'
+                    vsixFile: '$(Pipeline.Workspace)\vs2019-marketplace\*VS2019.Extension.vsix'
+                    manifestFile: '$(Pipeline.Workspace)\vs2019-marketplace\vs2019-extension-manifest.json'
+                    publisherId: nanoframework
+                    ignoreWarnings: 'VSIXValidatorWarning01,VSIXValidatorWarning02,VSIXValidatorWarning08'
 
-  # we don't have tests (yet)
-  # - task: VSTest@2
-  #   inputs:
-  #     platform: '$(buildPlatform)'
-  #     configuration: '$(buildConfiguration)'
+      - deployment: Publish_VS2022
+        displayName: Publish VS2022 extension
+        condition: >-
+          or(
+            eq(stageDependencies.Build.Get_Build_Options.outputs['BuildOptions.BUILD_VS2022'], 'true'),
+            eq(variables['BUILD_VS2022'], 'true'),
+            startsWith(variables['Build.SourceBranch'], 'refs/tags/v2022')
+          )
+        pool:
+          vmImage: 'windows-latest'
+        environment: 'vs-marketplace-vs2022'
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - download: current
+                  artifact: vs2022-marketplace
 
-  - task: PowerShell@2
-    inputs:
-      targetType: 'inline'
-      script: |
-        $versionData = & nbgv get-version -f json -p VisualStudio.Extension-2019
-        $versionData =$versionData | ConvertFrom-Json
-        
-        $version = $versionData.AssemblyVersion
+                - pwsh: |
+                    if ([string]::IsNullOrWhiteSpace("$(VisualStudioMarketplaceServiceConnection)"))
+                    {
+                        throw "VisualStudioMarketplaceServiceConnection must be set to the existing PAT-backed Visual Studio Marketplace service connection."
+                    }
+                  displayName: Validate Marketplace service connection
 
-        Write-Host "VS2019 build version $version"
-          
-        echo "##vso[task.setvariable variable=BUILD_VERSION;isOutput=true]$version" 
-    condition: succeeded()
-    name: VS2019_Build
-    displayName: Store VS2019 build version
-
-  - task: CopyFiles@1
-    inputs:
-      sourceFolder: $(Build.SourcesDirectory)
-      Contents: |
-        **\*VS2019.Extension.vsix
-        **\vs2019-extension-manifest.json
-        **\vs2019-marketplace-overview.md
-        **\vs2019\debug-session.png
-        **\vs2019\starting-new-project.png
-      TargetFolder: '$(Build.ArtifactStagingDirectory)\vs2019'
-      flattenFolders: true
-    condition: succeeded()
-    displayName: Collecting VS2019 deployable artifacts
-
-  - task: DotNetCoreCLI@2
-    displayName: Install SignTool tool
-    condition: >-
-      and(
-        succeeded(),
-        eq(variables['System.PullRequest.PullRequestId'], '')
-      )
-    inputs:
-      command: custom
-      custom: tool
-      arguments: install --tool-path . sign --version 0.9.1-beta.24529.1
-  
-  - pwsh: |
-      .\sign code azure-key-vault `
-      "**/*.vsix" `
-      --base-directory "$(Build.ArtifactStagingDirectory)\vs2019" `
-      --description ".NET nanoFramework VS2019 Extension" `
-      --description-url "https://github.com/$env:Build_Repository_Name" `
-      --azure-key-vault-tenant-id "$(SignTenantId)" `
-      --azure-key-vault-client-id "$(SignClientId)" `
-      --azure-key-vault-client-secret "$(SignClientSecret)" `
-      --azure-key-vault-certificate "$(SignKeyVaultCertificate)" `
-      --azure-key-vault-url "$(SignKeyVaultUrl)" `
-      --timestamp-url http://timestamp.digicert.com
-    displayName: Sign VS2019 packages
-    continueOnError: true
-    condition: >-
-      and(
-        succeeded(),
-        eq(variables['System.PullRequest.PullRequestId'], '')
-      )
-
-  # publish artifacts (only possible if this is not a PR originated on a fork)
-  - task: PublishBuildArtifacts@1
-    inputs:
-      PathtoPublish: '$(Build.ArtifactStagingDirectory)'
-      ArtifactName: deployables
-      ArtifactType: Container
-    condition: and( succeeded(), ne(variables['system.pullrequest.isfork'], true) )
-    displayName: Publish deployables artifacts
-
-  # create or update GitHub release
-  # this is to create a draft release, changelog is generated by github action 'generate-changelog-vs2019.json'
-  - task: GithubRelease@1
-    condition: >-
-      and(
-        succeeded(),
-        eq(variables['System.PullRequest.PullRequestId'], ''),
-        not(startsWith(variables['Build.SourceBranch'], 'refs/tags/v'))
-      )
-    displayName: Create/Update GitHub release
-    inputs:
-      gitHubConnection: 'github.com_nano-$(System.TeamProject)'
-      tagSource: userSpecifiedTag
-      tag: v$(VS2019_Build.BUILD_VERSION)
-      title: '.NET nanoFramework VS Extension v$(VS2019_Build.BUILD_VERSION)'
-      assets: '$(Build.ArtifactStagingDirectory)/**/*.vsix'
-      assetUploadMode: replace
-      isPreRelease: false
-      isDraft: true
-      addChangeLog: true
-      changeLogType: issueBased
-      changeLogCompareToRelease: lastNonDraftReleaseByTag
-      changeLogCompareToReleaseTag: 'v2019\.[\d.]+'
-      changeLogLabels: |
-        [
-          { "label" : "Type: bug", "displayName" : "Bugs fixed", "state" : "closed" },
-          { "label" : "Type: enhancement", "displayName" : "Enhancements and new features", "state" : "closed" },
-          { "label" : "Breaking-Change", "displayName" : "Breaking Changes", "state" : "closed" },
-          { "label" : "Type: dependencies", "displayName" : "Dependencies updated", "state" : "closed" },
-          { "label" : "Type: documentation", "displayName" : "Documentation", "state" : "closed" }
-        ]
-
-######################
-- job: VS2022
-  condition: >-
-    or(
-      eq(dependencies.Get_Build_Options.outputs['BuildOptions.BUILD_VS2022'], true),
-      eq(variables['BUILD_VS2022'], 'true'),
-      startsWith(variables['Build.SourceBranch'], 'refs/tags/v2022')
-    )
-  dependsOn:
-  - Get_Build_Options
-
-  pool:
-    vmImage: 'windows-latest'
-
-  variables:
-    - group: sign-client-credentials
-    - name: DOTNET_NOLOGO
-      value: true  
-    - name: buildConfiguration
-      value: 'Release'
-    - name: solution
-      value: 'VisualStudio.Extension-2022/VisualStudio.Extension-vs2022.csproj'
-
-  steps:
-
-  # need this here in order to persist GitHub credentials
-  - checkout: self
-    persistCredentials: true
-
-  - script: |
-      git config --global user.email 'nanoframework@outlook.com'
-      git config --global user.name 'nfbot'
-    displayName: Setup git identity
-
-  - template: azure-pipelines-templates/install-nuget.yml@templates
-
-  - task: Cache@2
-    displayName: Cache NuGet packages
-    condition: >-
-      and(
-        succeeded(),
-        eq(variables['StartReleaseCandidate'], false)
-      )
-    continueOnError: true
-    inputs:
-      key: 'nuget | vs2022 | **/VisualStudio.Extension-2022/packages.lock.json'
-      path: $(UserProfile)/.nuget/packages
-
-  - task: NuGetCommand@2
-    inputs:
-      restoreSolution: 'nanoFramework.Tools.VisualStudio.sln'
-      feedsToUse: config
-      nugetConfigPath: NuGet.config
-      verbosityRestore: quiet
-
-  - task: VSBuild@1
-    inputs:
-      solution: '$(solution)'
-      msbuildArgs: '/p:PublicRelease=true'
-      configuration: '$(buildConfiguration)'
-      maximumCpuCount: true
-      msbuildArchitecture: 'x64'
-      platform: 'x64'
-
-  # we don't have tests (yet)
-  # - task: VSTest@2
-  #   inputs:
-  #     platform: '$(buildPlatform)'
-  #     configuration: '$(buildConfiguration)'
-
-  - task: PowerShell@2
-    inputs:
-      targetType: 'inline'
-      script: |
-        $versionData = & nbgv get-version -f json -p VisualStudio.Extension-2022
-        $versionData =$versionData | ConvertFrom-Json
-        
-        $version = $versionData.AssemblyVersion
-
-        Write-Host "VS2022 build version $version"
-          
-        echo "##vso[task.setvariable variable=BUILD_VERSION;isOutput=true]$version"
-    condition: succeeded()
-    name: VS2022_Build
-    displayName: Store VS2022 build version
-
-  - task: CopyFiles@1
-    inputs:
-      sourceFolder: $(Build.SourcesDirectory)
-      Contents: |
-        **\*VS2022.Extension.vsix
-        **\vs2022-extension-manifest.json
-        **\vs2022-marketplace-overview.md
-        **\vs2022\debug-session.png
-        **\vs2022\starting-new-project.png
-      TargetFolder: '$(Build.ArtifactStagingDirectory)\vs2022'
-      flattenFolders: true
-    condition: succeeded()
-    displayName: Collecting VS2022 deployable artifacts
-
-  - task: DotNetCoreCLI@2
-    displayName: Install SignTool tool
-    condition: >-
-      and(
-        succeeded(),
-        eq(variables['System.PullRequest.PullRequestId'], '')
-      )
-    inputs:
-      command: custom
-      custom: tool
-      arguments: install --tool-path . sign --version 0.9.1-beta.24529.1
-
-  - pwsh: |
-      .\sign code azure-key-vault `
-      "**/*.vsix" `
-      --base-directory "$(Build.ArtifactStagingDirectory)\vs2022" `
-      --description ".NET nanoFramework VS2022 Extension" `
-      --description-url "https://github.com/$env:Build_Repository_Name" `
-      --azure-key-vault-tenant-id "$(SignTenantId)" `
-      --azure-key-vault-client-id "$(SignClientId)" `
-      --azure-key-vault-client-secret "$(SignClientSecret)" `
-      --azure-key-vault-certificate "$(SignKeyVaultCertificate)" `
-      --azure-key-vault-url "$(SignKeyVaultUrl)" `
-      --timestamp-url http://timestamp.digicert.com
-    displayName: Sign VS2022 packages
-    continueOnError: true
-    condition: >-
-      and(
-        succeeded(),
-        eq(variables['System.PullRequest.PullRequestId'], '')
-      )
-
-  # publish artifacts (only possible if this is not a PR originated on a fork)
-  - task: PublishBuildArtifacts@1
-    inputs:
-      PathtoPublish: '$(Build.ArtifactStagingDirectory)'
-      ArtifactName: deployables
-      ArtifactType: Container
-    condition: and( succeeded(), ne(variables['system.pullrequest.isfork'], true) )
-    displayName: Publish deployables artifacts
-
-  # create or update GitHub release
-  # this is to create a draft release, changelog is generated by github action 'generate-changelog-vs2022.json'
-  - task: GithubRelease@1
-    condition: >-
-      and(
-        succeeded(),
-        eq(variables['System.PullRequest.PullRequestId'], ''),
-        not(startsWith(variables['Build.SourceBranch'], 'refs/tags/v'))
-      )
-    displayName: Create/Update GitHub release
-    inputs:
-      gitHubConnection: 'github.com_nano-$(System.TeamProject)'
-      tagSource: userSpecifiedTag
-      tag: v$(VS2022_Build.BUILD_VERSION)
-      title: '.NET nanoFramework VS Extension v$(VS2022_Build.BUILD_VERSION)'
-      assets: '$(Build.ArtifactStagingDirectory)/**/*.vsix'
-      assetUploadMode: replace
-      isDraft: true
-      isPreRelease: false
-      addChangeLog: true
-      changeLogType: issueBased
-      changeLogCompareToRelease: lastNonDraftReleaseByTag
-      changeLogCompareToReleaseTag: 'v2022\.[\d.]+'
-      changeLogLabels: |
-        [
-          { "label" : "Type: bug", "displayName" : "Bugs fixed", "state" : "closed" },
-          { "label" : "Type: enhancement", "displayName" : "Enhancements and new features", "state" : "closed" },
-          { "label" : "Breaking-Change", "displayName" : "Breaking Changes", "state" : "closed" },
-          { "label" : "Type: dependencies", "displayName" : "Dependencies updated", "state" : "closed" },
-          { "label" : "Type: documentation", "displayName" : "Documentation", "state" : "closed" }
-        ]
-
-##################################
-# report build failure to Discord
-- job: Report_Build_Failure
-
-  dependsOn:
-  - VS2019
-  - VS2022
-  condition: >-
-    or(
-      failed('VS2019'),
-      failed('VS2022')
-    )
-
-  pool:
-    vmImage: 'windows-latest'
-
-  steps:
-
-  - checkout: self
-    fetchDepth: 1
-
-  # step from template @ nf-tools repo
-  # report error
-  - template: azure-pipelines-templates/discord-webhook.yml@templates  
-    parameters:
-      status: 'failure'
-      webhookUrl: '$(DiscordWebhook)'
-      message: ''
+                - task: PublishVisualStudioExtension@5.0.541
+                  displayName: Publish Visual Studio 2022 Extension
+                  continueOnError: true
+                  inputs:
+                    connectTo: VsTeam
+                    connectedServiceName: '$(VisualStudioMarketplaceServiceConnection)'
+                    vsixFile: '$(Pipeline.Workspace)\vs2022-marketplace\*VS2022.Extension.vsix'
+                    manifestFile: '$(Pipeline.Workspace)\vs2022-marketplace\vs2022-extension-manifest.json'
+                    publisherId: nanoframework
+                    ignoreWarnings: 'VSIXValidatorWarning01,VSIXValidatorWarning02,VSIXValidatorWarning08'
