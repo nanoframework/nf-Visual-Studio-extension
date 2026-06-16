@@ -2,6 +2,12 @@
 
 The migration path for the `lib-*` fleet, an automated converter, what breaks, and native co-location.
 
+> **The converter shipped as a tested C# tool** — `NanoMigrate` in the SDK repo. The
+> `nano-migrate.py` below (§7.3) is the original illustrative reference; for the as-built converter,
+> the `migrate`/`clone`/`fleet` commands, and their options, read
+> **[`tools/migrate/README.md`](https://github.com/danielmeza/nanoFramework.Sdk/blob/move-to-sdk/tools/migrate/README.md)**
+> (source of truth). Fleet workflow and PR rendering: [PR-INSTRUCTIONS.md](PR-INSTRUCTIONS.md).
+
 ---
 
 ## 7.1 The fleet and what's uniform about it

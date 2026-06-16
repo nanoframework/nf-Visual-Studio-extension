@@ -21,6 +21,13 @@ description: >-
 > [`skills/nanoframework-sdk-migration`](https://github.com/danielmeza/nanoFramework.Sdk/tree/move-to-sdk/skills/nanoframework-sdk-migration),
 > alongside the `tools/migrate` converter it drives (surfaced as `dotnet nano migrate`).
 > This copy is the plan's narrative; keep the two in sync.
+>
+> **Command/option reference** (source of truth, in the SDK repo):
+> [`tools/migrate/README.md`](https://github.com/danielmeza/nanoFramework.Sdk/blob/move-to-sdk/tools/migrate/README.md)
+> (`migrate`/`clean`/`rollback`/`clone`/`fleet`) and
+> [`tools/nano/README.md`](https://github.com/danielmeza/nanoFramework.Sdk/blob/move-to-sdk/tools/nano/README.md)
+> (the umbrella, plus `flash`). Always confirm the live surface with `dotnet nano --help` /
+> `dotnet nano <command> --help`.
 
 This skill converts a nanoFramework repo from the legacy flavored `.nfproj`
 project system onto an SDK-style MSBuild project that composes over the

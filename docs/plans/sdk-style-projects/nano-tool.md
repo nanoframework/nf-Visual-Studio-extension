@@ -1,5 +1,13 @@
 # The `dotnet-nano` umbrella tool
 
+> **The tool now ships in the SDK repo — its READMEs are the source of truth.** For the
+> as-built command surface, options, install, and external-tool resolution, read the shipped docs:
+> - **[`tools/nano/README.md`](https://github.com/danielmeza/nanoFramework.Sdk/blob/move-to-sdk/tools/nano/README.md)** — the `dotnet nano` umbrella CLI.
+> - **[`tools/migrate/README.md`](https://github.com/danielmeza/nanoFramework.Sdk/blob/move-to-sdk/tools/migrate/README.md)** — the `nano-migrate` converter (`migrate`/`clean`/`rollback`/`clone`/`fleet`).
+>
+> This document is the **design narrative** behind that layout; when it disagrees with the READMEs,
+> the READMEs win.
+
 How the single `dotnet nano` CLI is laid out so it can (1) host built-in managed commands like
 `migrate`, and (2) ship/deploy already-built external tools from other repos (e.g. `nanoff`) under
 the same namespace. Ships with / alongside the nanoFramework SDK. Complements doc
