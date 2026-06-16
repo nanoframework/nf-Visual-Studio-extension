@@ -68,11 +68,30 @@ references with neither a HintPath nor a matching `packages.config` entry (some 
 few WebServer/WiFi samples) are flagged for manual review rather than mapped — needs a broader
 assembly-name → package-id map.
 
+## Samples migration — ✅ COMPLETED
+
+The whole Samples repo was migrated to SDK-style via `dotnet nano migrate` (the hardened
+NanoMigrate, `tools/NanoMigrate`): **153 projects converted, 111 solutions retargeted**,
+`packages.config`/generated `AssemblyInfo` removed, 0 review flags. Spot-built across shapes
+(app, resx, many-package, shared-project, interop, unit-test) — all build.
+
+Notes / follow-ups from the migration:
+- **PE format / v1↔v2.** Migrated **apps compile to NFMRK2** (the SDK pins MDP 4.x). Samples that
+  still reference **v1** packages pull **NFMRK1** dependency `.pe` (the v1 packages ship v1 PE), so
+  for a v2 device the whole graph isn't aligned yet. Making samples v2-device-ready is a separate
+  **fleet package bump** (CoreLibrary + bindings → v2), gated on v2 preview availability across all
+  packages each sample uses — not a migration defect (the conversion faithfully kept each sample's
+  versions).
+- **Source compat.** The SDK now also defines `NANOFRAMEWORK_1_0` (legacy symbol) so existing
+  `#if NANOFRAMEWORK_1_0` source compiles.
+- **Per-sample fixes applied:** `1-Wire/OneWire.TestApp` (added the missing `Hardware.Esp32`
+  reference) and `Interop/test-application` (bin-HintPath sibling → `ProjectReference`).
+- **Left as pre-existing / out-of-scope:** the AMQP samples carry deeply inconsistent legacy
+  package versions (NU1605 downgrade) — needs a coordinated version bump (sample maintenance);
+  the `Desktop*` test helpers are regular .NET Framework projects (not nano), untouched.
+
 ## Remaining Phase 1
 
-- **Bulk-convert** the remaining ~153 samples — mechanical; drive with the `NanoMigrate`
-  converter (now in the nanoFramework.NET.Sdk repo, `tools/NanoMigrate`; see docs
-  [07](07-library-migration.md)/[10](10-tooling-specs.md)) rather than by hand.
 - **CoreLibrary:** adopt `CoreLibrary.Sdk.csproj` as the primary project (maintainer-owned).
 - **Templates:** `dotnet new nanoapp`/`nanolib` (doc 10).
 - **VS Code extension:** detect SDK-style `.csproj` and invoke `dotnet build`; install the SDK
