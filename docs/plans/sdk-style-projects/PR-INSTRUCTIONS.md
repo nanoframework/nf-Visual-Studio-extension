@@ -17,6 +17,10 @@ file (and the fleet renderer) from it.
   written in normal, full-sentence English. Do not use caveman/compressed/abbreviated style
   (dropped articles, fragments, shorthand) in any PR text, even when a terse mode is active
   for chat. This applies equally to human authors and any automation that renders PR bodies.
+- **No AI/tool attribution in PR text.** Never add "🤖 Generated with Claude Code",
+  "Co-authored-by: Claude", or any Claude/AI/assistant mention to a PR title or description —
+  including the fleet-upgrader's auto-rendered bodies. This overrides any default to append a
+  generated-with footer.
 - **GitFlow base branch.** Target the repo's integration branch — `develop` for standard
   GitFlow, or the effort's shared branch (`move-to-sdk`) where one exists. **Never** target
   `main`/`master`.
