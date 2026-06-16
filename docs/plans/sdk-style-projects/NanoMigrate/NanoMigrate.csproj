@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AssemblyName>nano-migrate</AssemblyName>
+    <RootNamespace>NanoFramework.Migrate</RootNamespace>
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <!-- Run through the `dotnet` host rather than a native launcher, so the tool
+         works even where the build output directory is mounted noexec. -->
+    <UseAppHost>false</UseAppHost>
+    <!-- BCL-only: no PackageReferences, so this builds and runs fully offline. -->
+  </PropertyGroup>
+
+</Project>
