@@ -39,6 +39,32 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         [Import]
         IProjectService ProjectService { get; set; }
 
+        // All available engine bindings (AD7 today; Concord stub). The active one
+        // is chosen by configuration in ResolveEngineBinding().
+        [ImportMany]
+        IEnumerable<INanoDebugEngineBinding> EngineBindings { get; set; }
+
+        /// <summary>
+        /// Resolves the active <see cref="INanoDebugEngineBinding"/> by
+        /// configuration, defaulting to the AD7 engine (today's behavior). Set the
+        /// NANOFRAMEWORK_DEBUG_ENGINE environment variable (e.g. "Concord") to
+        /// select another. This is the single point a future AD7 -> Concord swap
+        /// flips; no launch/deploy/project-system code above it changes.
+        /// </summary>
+        private INanoDebugEngineBinding ResolveEngineBinding()
+        {
+            string engineId = Environment.GetEnvironmentVariable("NANOFRAMEWORK_DEBUG_ENGINE");
+
+            if (string.IsNullOrEmpty(engineId))
+            {
+                engineId = Ad7CorDebugEngineBinding.Id;
+            }
+
+            return EngineBindings.FirstOrDefault(
+                       b => string.Equals(b.EngineId, engineId, StringComparison.OrdinalIgnoreCase))
+                   ?? EngineBindings.First(b => b.EngineId == Ad7CorDebugEngineBinding.Id);
+        }
+
         public override async Task<IReadOnlyList<IDebugLaunchSettings>> QueryDebugTargetsAsync(DebugLaunchOptions launchOptions)
         {
             // output information about assembly running this to help debugging
@@ -78,23 +104,16 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                                     false,
                                     true))
                         {
-                            string commandLine = await GetCommandLineForLaunchAsync();
-                            commandLine = string.Format("{0} \"{1}{2}\"", commandLine, CorDebugProcess.DeployDeviceName, deployDeviceName);
+                            // Engine-agnostic: crawl the PE files this launch must load.
+                            IReadOnlyList<string> peFilesToLoad = await CollectPeFilesToLoadAsync();
 
-                            var settings = new DebugLaunchSettings(launchOptions)
-                            {
-                                Executable = typeof(CorDebugProcess).Assembly.Location,
-                                Arguments = commandLine,
-                                LaunchOperation = DebugLaunchOperation.CreateProcess,
-                                PortSupplierGuid = DebugPortSupplier.PortSupplierGuid,
-                                // Use the device chosen for THIS launch (same instance used for the
-                                // command line above), not the global NanoDeviceCommService.Device.
-                                // They're equal for a single device, but the per-device Run-dropdown
-                                // selector needs PortName to follow the chosen device.
-                                PortName = deployDeviceName,
-                                Project = VsHierarchy,
-                                LaunchDebugEngineGuid = CorDebug.EngineGuid
-                            };
+                            // Engine-specific: let the configured binding shape the launch
+                            // settings (engine GUID, port supplier, executable, arguments).
+                            var settings = ResolveEngineBinding().CreateLaunchSettings(
+                                launchOptions,
+                                device,
+                                peFilesToLoad,
+                                VsHierarchy);
 
                             stopDebugEngine = false;
                             return new IDebugLaunchSettings[] { settings };
@@ -130,12 +149,16 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             return TplExtensions.TrueTask;
         }
 
-        private async Task<string> GetCommandLineForLaunchAsync()
+        /// <summary>
+        /// Collects the full set of PE files this launch must load on the device.
+        /// Engine-agnostic: it crawls the startup project's project/NuGet references
+        /// via the shared <see cref="ReferenceCrawler"/> and maps each resolved
+        /// assembly to its corresponding <c>.pe</c>. The active
+        /// <see cref="INanoDebugEngineBinding"/> turns this list into engine-specific
+        /// launch arguments.
+        /// </summary>
+        private async Task<IReadOnlyList<string>> CollectPeFilesToLoadAsync()
         {
-            CommandLineBuilder cb = new CommandLineBuilder();
-
-            cb.AddArguments("/waitfordebugger");
-
             // For a known project output assembly path, this shall contain the corresponding
             // ConfiguredProject:
             Dictionary<string, ConfiguredProject> configuredProjectsByOutputAssemblyPath =
@@ -188,15 +211,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             // build a list with the PE files corresponding to each DLL and EXE
             List<string> peCollection = assemblyList.Distinct().Select(a => a.Replace(".dll", ".pe").Replace(".exe", ".pe")).ToList();
 
-            foreach (string peFile in peCollection)
-            {
-                cb.AddArguments("/load:" + peFile);
-            }
-
-            string commandLine = cb.ToString();
-            commandLine = Environment.ExpandEnvironmentVariables(commandLine);
-
-            return commandLine;
+            return peCollection;
         }
     }
 }
