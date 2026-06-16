@@ -192,6 +192,19 @@ debugger.
 - [ ] Fleet migration (leaf-first) of the `lib-*` repos
 - [ ] Legacy project system deprecated (kept supported during transition)
 
+### Child issues — spec backlog (docs 00–10)
+
+Deliverables from the specification set that were not yet tracked, filed as child issues of this epic
+(2026-06-16). Index + spec mapping: [sdk-migration-backlog-issues.md](sdk-migration-backlog-issues.md).
+
+- [ ] [Home#1787](https://github.com/nanoframework/Home/issues/1787) — build-time ABI checksum gate (C4; doc 04 §4.5, doc 10 §10.3)
+- [ ] [Home#1788](https://github.com/nanoframework/Home/issues/1788) — `Deploy` target + `dotnet nano deploy`/`monitor`/`devices` (C5; doc 05 §5.3)
+- [ ] [Home#1789](https://github.com/nanoframework/Home/issues/1789) — hot inner-loop `dotnet watch` / `dotnet nano watch` (doc 05 §5.4)
+- [ ] [Home#1790](https://github.com/nanoframework/Home/issues/1790) — device selection + `nanoFramework.config.json` (doc 05 §5.5)
+- [ ] [Home#1791](https://github.com/nanoframework/Home/issues/1791) — CLI fast-fail on no device (doc 05 §5.6)
+- [ ] [Home#1792](https://github.com/nanoframework/Home/issues/1792) — fleet CI / Azure Pipelines template rewriter (C8; doc 07 §7.6)
+- [ ] [Home#1793](https://github.com/nanoframework/Home/issues/1793) — fleet auto-PR renderer (PR conventions)
+
 ### POC artifacts — permalinks
 
 The executed POC is archived at tag [`poc-sdk-style-archive`](https://github.com/danielmeza/nf-Visual-Studio-extension/tree/poc-sdk-style-archive)
