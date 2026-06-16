@@ -97,7 +97,10 @@ already; the POC's `[BP-DIAG]` was only diagnostics.) Validated via VS MSBuild o
    + Windows/full `.pdb`. (The full on-hardware F5/breakpoint run was the POC's WS4.)
 3. ✅ **A4** (MDP version) — decision made to **target v2**; `4.0.0-preview.94` + net8.0 (`ecb7c02`).
 4. ✅ **B1–B3 + WS3** in the extension — migrated clean off the POC (`746b408`, `b897f7b`).
-5. ⏳ **Open the upstream PRs** (held for review — see PR strategy).
+5. ✅ **Upstream PRs opened as drafts** — SDK [#2](https://github.com/nanoframework/nanoFramework.Sdk/pull/2),
+   extension [#929](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/929), samples
+   [#463](https://github.com/nanoframework/Samples/pull/463); cross-referenced, linked to `Home#1784`.
+   Held as drafts for maintainer review before marking ready.
 
 ## Validation gates
 
@@ -106,16 +109,24 @@ already; the POC's `[BP-DIAG]` was only diagnostics.) Validated via VS MSBuild o
 - Debug build's `.pdb` magic = `Microsoft C/C++ MSF` (not `BSJB`) under VS MSBuild.
 - On hardware: F5 deploys, a source breakpoint **binds + hits** (not method-entry).
 
-## PR strategy (next step — branches ready, PRs held for review)
+## PR strategy (3 drafts open — opened from the org template, see [PR-INSTRUCTIONS.md](PR-INSTRUCTIONS.md))
 
-> Open every PR from the org pull-request template — see [PR-INSTRUCTIONS.md](PR-INSTRUCTIONS.md)
-> (also the contract the fleet upgrader uses for auto-created PRs).
+All three are **draft**, cross-referenced, and linked to `Home#1784`; mark ready after review
+(`gh pr ready <n> --repo <owner/repo>`).
 
-- **SDK:** PR `danielmeza:move-to-sdk → nanoframework:move-to-sdk`. Title
-  e.g. *"Enable VS debugging for SDK-style projects (full PDB, F5 wiring)"*; link
-  `Home#1784`, the POC `RESULTS.md`/`DEBUGGING-LOG.md`, and the demo (https://youtu.be/9qvXsgXCrjM).
-- **Extension:** PR `danielmeza:move-to-sdk → nanoframework:develop`; scope to B1–B2 + the
-  WS3 engine-binding seam. Already clean of `[BP-DIAG]`.
+- **SDK** [nanoframework/nanoFramework.Sdk#2](https://github.com/nanoframework/nanoFramework.Sdk/pull/2)
+  (`danielmeza:move-to-sdk → move-to-sdk`): full PDB + F5 wiring + v2/NFMRK2.
+- **Extension** [nanoframework/nf-Visual-Studio-extension#929](https://github.com/nanoframework/nf-Visual-Studio-extension/pull/929)
+  (`danielmeza:move-to-sdk → develop`): B1–B2 + the WS3 engine-binding seam.
+- **Samples** [nanoframework/Samples#463](https://github.com/nanoframework/Samples/pull/463)
+  (`danielmeza:move-to-sdk → main`): all samples migrated to SDK-style. **Depends on the SDK
+  publishing** — the dev-local `global.json`/`NuGet.Config` local feed must be swapped for the
+  published SDK before merge.
+
+### Order to land
+1. SDK#2 first (everything consumes the SDK), then publish it.
+2. Extension#929 (productizes VS deploy/debug for SDK-style).
+3. Samples#463 once the SDK is on nuget.org (drop the local feed, pin the published version).
 
 ## Open questions for maintainers
 

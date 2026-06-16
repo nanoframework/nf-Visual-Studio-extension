@@ -90,10 +90,32 @@ Notes / follow-ups from the migration:
   package versions (NU1605 downgrade) — needs a coordinated version bump (sample maintenance);
   the `Desktop*` test helpers are regular .NET Framework projects (not nano), untouched.
 
-## Remaining Phase 1
+## What's done (Phase 1 + tooling)
 
-- **CoreLibrary:** adopt `CoreLibrary.Sdk.csproj` as the primary project (maintainer-owned).
-- **Templates:** `dotnet new nanoapp`/`nanolib` (doc 10).
-- **VS Code extension:** detect SDK-style `.csproj` and invoke `dotnet build`; install the SDK
-  from a feed instead of extracting MSBuild folders from the VSIX (doc 06).
-- **Exit gate:** a pilot set of ~5 pure-managed `lib-*` repos build/pack/test from the CLI.
+- ✅ SDK with the debugging enablers + v2/NFMRK2 (A1–A4); props/targets split into modules.
+- ✅ **NanoMigrate** converter — Core/Cli/Tests, Spectre.Console.Cli, solution-aware (`.sln`/`.slnx`),
+  packages.config-first resolution, CPM support, item/import hardening (69 tests).
+- ✅ **`dotnet nano`** umbrella tool — built-in `migrate` + external-tool (`nanoff`) wrapping.
+- ✅ Samples repo fully migrated (153 projects, 111 solutions).
+- ✅ SDK defines `NANOFRAMEWORK_1_0` for source compat.
+- ✅ Three draft PRs open + cross-referenced (SDK#2, extension#929, Samples#463).
+
+## Next steps (per [09-implementation-strategy.md](09-implementation-strategy.md))
+
+1. **Land the PRs (Phase 3 unlock).** Review → ready → merge SDK#2 first; **publish the SDK** to
+   nuget.org; then extension#929; then Samples#463 (swap its local SDK feed for the published
+   version). See EXECUTION-PLAN.md → PR strategy.
+2. **Templates** (`dotnet new nanoapp`/`nanolib`, doc 10 §10.4) — self-contained; can proceed now.
+3. **VS Code extension** → detect SDK-style `.csproj` + invoke `dotnet build`; install the SDK from
+   a feed instead of extracting MSBuild folders from the VSIX (doc 06).
+4. **CoreLibrary** — adopt `CoreLibrary.Sdk.csproj` as the primary project (maintainer-owned).
+5. **Phase 1 exit gate** — a pilot of ~5 pure-managed `lib-*` repos build/pack/test from the CLI
+   (clone + `dotnet nano migrate`), opening PRs from the org template.
+6. **Phase 4 (fleet)** — bulk-migrate the `lib-*` fleet with `dotnet nano migrate fleet` + the
+   auto-PR contract (docs [07](07-library-migration.md)/[PR-INSTRUCTIONS.md](PR-INSTRUCTIONS.md)).
+
+### Deferred / gated
+- **Samples v2 alignment** — bump samples to v2 packages so the whole graph is NFMRK2 (gated on v2
+  preview availability across every package each sample uses).
+- **`nanoff` download** — the umbrella's external-tool downloader is a stub; implement
+  fetch+verify+cache when wiring real firmware flashing.
