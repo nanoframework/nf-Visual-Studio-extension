@@ -93,7 +93,7 @@ ESP32_S3_OCTAL** (the gate that was thought to block SDK-style):
   migration, NuGet, phasing): [`docs/plans/sdk-style-projects/`](https://github.com/danielmeza/nf-Visual-Studio-extension/tree/b8c2edeb1ff775e3f78ba74af9ed384d1ee5c333/docs/plans/sdk-style-projects)
 - Decision record — every blocker hit and its fix (§1–§6) + dead ends: [`DEBUGGING-LOG.md`](https://github.com/danielmeza/nf-Visual-Studio-extension/blob/b8c2edeb1ff775e3f78ba74af9ed384d1ee5c333/poc-sdk-style/DEBUGGING-LOG.md)
 - Multi-device Run-selection design (MAUI-style `IVsProjectCfgDebugTargetSelection`): [`DEVICE-RUN-DROPDOWN.md`](https://github.com/danielmeza/nf-Visual-Studio-extension/blob/b8c2edeb1ff775e3f78ba74af9ed384d1ee5c333/poc-sdk-style/DEVICE-RUN-DROPDOWN.md)
-- POC branch: [`poc/sdk-style-debugging`](https://github.com/danielmeza/nf-Visual-Studio-extension/tree/poc/sdk-style-debugging) (commit [`b8c2ede`](https://github.com/danielmeza/nf-Visual-Studio-extension/commit/b8c2edeb1ff775e3f78ba74af9ed384d1ee5c333))
+- POC archive: [`poc-sdk-style-archive`](https://github.com/danielmeza/nf-Visual-Studio-extension/tree/poc-sdk-style-archive) (commit [`b8c2ede`](https://github.com/danielmeza/nf-Visual-Studio-extension/commit/b8c2edeb1ff775e3f78ba74af9ed384d1ee5c333))
 
 ### Environment
 

@@ -35,7 +35,7 @@ map.
 > commit SHAs, validation, and the remaining upstream-PR step — is
 > **[EXECUTION-PLAN.md](EXECUTION-PLAN.md)**. This whole plan now lives in the
 > **nf-Visual-Studio-extension** repo (`docs/plans/sdk-style-projects/`) so it travels with
-> the extension changes; the standalone POC harness stays on `poc/sdk-style-debugging`.
+> the extension changes; the standalone POC harness is archived at tag `poc-sdk-style-archive`.
 
 ## The blocker — RESOLVED ✅
 

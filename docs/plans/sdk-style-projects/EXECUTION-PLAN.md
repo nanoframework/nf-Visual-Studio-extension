@@ -27,7 +27,7 @@ branch and present in CoreLibrary upstream). All six forks have `origin/move-to-
 | Repo | Role in the plan | Clone dir | `move-to-sdk` born from |
 |---|---|---|---|
 | **nanoFramework.NET.Sdk** | SDK contribution (A1–A4) | `nanoFramework.Sdk` | the repo's dev branch (it *is* `move-to-sdk`; no `develop`) |
-| **nf-Visual-Studio-extension** | extension fixes (B) + this plan | `nf-Visual-Studio-extension` | `develop` — B1–B3 + WS3 + the plan **migrated** off `poc/sdk-style-debugging` (kept for `#1784` permalinks) |
+| **nf-Visual-Studio-extension** | extension fixes (B) + this plan | `nf-Visual-Studio-extension` | `develop` — B1–B3 + WS3 + the plan **migrated** off the POC; the old branch is deleted, its commit archived at tag `poc-sdk-style-archive` so the `#1784` `b8c2edeb` permalinks still resolve |
 | metadata-processor | MDP build task (A4, only if v2) | `metadata-processor` | `develop` |
 | CoreLibrary | corlib migration + validation | `nanoFramework-CoreLibrary` | tracks the org's `upstream/move-to-sdk`; fork keeps the old name, ~51 behind |
 | Samples | end-to-end validation (deploy/debug a real app) | `Samples` | `main` (repo has no `develop`) |
@@ -79,7 +79,7 @@ already; the POC's `[BP-DIAG]` was only diagnostics.) Validated via VS MSBuild o
 `test/SmokeTest`: PE magic = `NFMRK2`, Debug `.pdb` magic = `Microsoft C/C++ MSF`.
 
 **Extension-side** — **migrated onto the extension's `move-to-sdk`** from the POC
-(`poc/sdk-style-debugging`), without `[BP-DIAG]` and without the POC's diagnostics:
+(archived at tag `poc-sdk-style-archive`), without `[BP-DIAG]` and without the POC's diagnostics:
 
 | # | Change | File | Status |
 |---|---|---|---|

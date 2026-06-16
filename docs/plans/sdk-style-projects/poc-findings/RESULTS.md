@@ -4,7 +4,7 @@ Executed against `nf-Visual-Studio-extension` @ `develop`, on macOS (darwin) wit
 .NET SDK 10.0.300, the `nanoFramework.Tools.MetadataProcessor.MsBuildTask` 3.0.100
 and `nanoFramework.CoreLibrary` **2.0.0-preview.52** (v2 preview). Reproduce with
 [`build-and-verify.sh`](https://github.com/danielmeza/nf-Visual-Studio-extension/blob/b8c2edeb1ff775e3f78ba74af9ed384d1ee5c333/poc-sdk-style/build-and-verify.sh)
-(the standalone POC harness, kept on `poc/sdk-style-debugging`).
+(the standalone POC harness, archived at tag `poc-sdk-style-archive`).
 
 > **v2 preview note:** the v2 CoreLibrary is **republished against `netnano1.0`**
 > (ships `lib/netnano1.0/`), so it restores **natively** — no NU1202, no

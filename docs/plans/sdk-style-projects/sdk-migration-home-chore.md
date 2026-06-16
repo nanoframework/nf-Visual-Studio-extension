@@ -194,7 +194,7 @@ debugger.
 
 ### POC artifacts — permalinks
 
-The executed POC lives on branch `poc/sdk-style-debugging`
+The executed POC is archived at tag [`poc-sdk-style-archive`](https://github.com/danielmeza/nf-Visual-Studio-extension/tree/poc-sdk-style-archive)
 ([danielmeza/nf-Visual-Studio-extension](https://github.com/danielmeza/nf-Visual-Studio-extension)).
 Permalinks pinned to commit
 [`b8c2ede`](https://github.com/danielmeza/nf-Visual-Studio-extension/commit/b8c2edeb1ff775e3f78ba74af9ed384d1ee5c333):
