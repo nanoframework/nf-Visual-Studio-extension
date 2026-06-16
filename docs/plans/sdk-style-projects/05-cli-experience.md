@@ -15,7 +15,7 @@ What `dotnet` verbs work, how `deploy` is implemented, and iterative deployment.
 | `dotnet new nanoapp` / `nanolib` | Templates in the SDK (doc 10 §10.4) | Works |
 | `dotnet build -t:Deploy` | SDK `Deploy` target orchestrates `nanoff` | Works |
 | `dotnet nano deploy` | `dotnet-nano` global/local tool (§5.3) | Preferred UX |
-| `dotnet nano migrate` | `dotnet-nano` tool surfacing the **NanoMigrate** converter (ships in the SDK repo `tools/NanoMigrate`) | Converts legacy `.nfproj` → SDK-style; idempotent + reentrant (§5.7) |
+| `dotnet nano migrate` | `dotnet-nano` tool surfacing the **NanoMigrate** converter (ships in the SDK repo `tools/migrate`) | Converts legacy `.nfproj` → SDK-style; idempotent + reentrant (§5.7) |
 | `dotnet watch` (deploy loop) | `dotnet watch` + `-t:Deploy` MSBuild target | Works (§5.4) |
 
 ## 5.2 Why `deploy` can't *just* be `dotnet deploy`
@@ -97,7 +97,7 @@ Resolution order for the target device, highest priority first:
 ## 5.7 Project migration (`dotnet nano migrate`)
 
 The **NanoMigrate** converter (legacy `.nfproj` → SDK-style `.csproj`) ships in the SDK repo at
-`tools/NanoMigrate` and is surfaced through the `dotnet-nano` tool as `dotnet nano migrate`, so it
+`tools/migrate` and is surfaced through the `dotnet-nano` tool as `dotnet nano migrate`, so it
 sits alongside the other `dotnet nano *` verbs. It is **idempotent + reentrant**: it skips
 projects that are already SDK-style and re-running over a tree is a safe no-op, so a partial or
 repeated migration is never destructive.
@@ -122,6 +122,6 @@ conversion the tool maps `packages.config`/HintPath versions to `PackageReferenc
 and rewrites the `.sln` entry (project-type GUID + `.csproj` path).
 
 For a whole-fleet run across many repos, `dotnet nano migrate` (or the underlying
-`tools/NanoMigrate` `fleet` command) clones and converts each repo and opens PRs from the org
+`tools/migrate` `fleet` command) clones and converts each repo and opens PRs from the org
 template (see [07-library-migration.md](07-library-migration.md) and
 [PR-INSTRUCTIONS.md](PR-INSTRUCTIONS.md)).

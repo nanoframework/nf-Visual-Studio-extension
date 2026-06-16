@@ -230,5 +230,5 @@ Per-repo summary (full rules in PR-INSTRUCTIONS.md §"Fleet-upgrader usage"):
 - **Idempotent**: skip if an open PR already exists for the branch; respect rate limits.
 
 The reference renderer lives next to the converter in the nanoFramework.NET.Sdk repo's
-[`tools/NanoMigrate`](https://github.com/danielmeza/nanoFramework.Sdk/tree/move-to-sdk/tools/NanoMigrate):
+[`tools/migrate`](https://github.com/danielmeza/nanoFramework.Sdk/tree/move-to-sdk/tools/migrate):
 `(repo, homeIssue, types[]) → filled org template → gh pr create --draft`.

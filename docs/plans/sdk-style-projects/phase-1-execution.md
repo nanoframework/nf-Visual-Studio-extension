@@ -71,7 +71,7 @@ assembly-name → package-id map.
 ## Samples migration — ✅ COMPLETED
 
 The whole Samples repo was migrated to SDK-style via `dotnet nano migrate` (the hardened
-NanoMigrate, `tools/NanoMigrate`): **153 projects converted, 111 solutions retargeted**,
+NanoMigrate, `tools/migrate`): **153 projects converted, 111 solutions retargeted**,
 `packages.config`/generated `AssemblyInfo` removed, 0 review flags. Spot-built across shapes
 (app, resx, many-package, shared-project, interop, unit-test) — all build.
 

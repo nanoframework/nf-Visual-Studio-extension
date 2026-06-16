@@ -1,6 +1,6 @@
 # Migration rules reference
 
-The precise rules the converter (`tools/NanoMigrate`) applies, the reasoning
+The precise rules the converter (`tools/migrate`) applies, the reasoning
 behind each, and the edge cases you may meet. Read this when a `MANUAL REVIEW
 NEEDED` item appears, when output looks surprising, or when changing the rules.
 

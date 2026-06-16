@@ -98,7 +98,7 @@ work is **productizing, not feasibility** — see
 ## Tooling
 
 The `.nfproj` → SDK-style **NanoMigrate** converter lives in the **nanoFramework.NET.Sdk** repo at
-[`tools/NanoMigrate`](https://github.com/danielmeza/nanoFramework.Sdk/tree/move-to-sdk/tools/NanoMigrate)
+[`tools/migrate`](https://github.com/danielmeza/nanoFramework.Sdk/tree/move-to-sdk/tools/migrate)
 (C# tool, Spectre.Console CLI, surfaced as `dotnet nano migrate`). The companion installable
 **skill** is at
 [`skills/nanoframework-sdk-migration`](https://github.com/danielmeza/nanoFramework.Sdk/tree/move-to-sdk/skills/nanoframework-sdk-migration).
