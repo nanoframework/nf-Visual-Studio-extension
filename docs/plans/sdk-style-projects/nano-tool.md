@@ -43,7 +43,7 @@ tools/
       Commands/                  # built-in commands: Flash (nanoff), Deploy/Monitor/Devices placeholders
       ExternalTools/             # IExternalTool + providers (NanoffTool, …) + nano-tools.json
     nanoFramework.Tool.Tests/    # tests for the umbrella (external-tool resolution, …)
-  NanoMigrate/
+  migrate/
     src/NanoMigrate.Core/         # conversion logic, NO console (testable, NuGet-ready library)
     src/NanoMigrate.Cli.Commands/ # shared Spectre commands (migrate) — referenced by both CLIs
     src/NanoMigrate.Cli/          # thin standalone CLI (`nano-migrate`)
