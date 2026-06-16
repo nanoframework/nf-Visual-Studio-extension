@@ -18,7 +18,7 @@ description: >-
 
 This skill converts a nanoFramework repo from the legacy flavored `.nfproj`
 project system onto an SDK-style MSBuild project that composes over the
-nanoFramework SDK. It ships a tested C# tool (`scripts/NanoMigrate`) that does
+nanoFramework SDK. It ships a tested C# tool (`tools/NanoMigrate`) that does
 the mechanical conversion, plus the rules and workflows for using it on one repo
 or across the whole library fleet.
 
@@ -71,14 +71,14 @@ Read it when you hit a manual-review item or need to explain a transformation.
 Invoke the tool with `dotnet run` (no separate build step needed):
 
 ```bash
-dotnet run --project scripts/NanoMigrate -- <command> [options]
+dotnet run --project tools/NanoMigrate -- <command> [options]
 ```
 
 For repeated fleet runs, build once and call the dll directly (faster):
 
 ```bash
-dotnet build -c Release scripts/NanoMigrate
-DLL=scripts/NanoMigrate/bin/Release/net8.0/nano-migrate.dll
+dotnet build -c Release tools/NanoMigrate
+DLL=tools/NanoMigrate/bin/Release/net8.0/nano-migrate.dll
 dotnet "$DLL" <command> [options]
 ```
 
@@ -88,11 +88,11 @@ Use this when a maintainer is converting their own library or app.
 
 1. **Always dry-run first** to see what will change and what needs review:
    ```bash
-   dotnet run --project scripts/NanoMigrate -- migrate <repo-or-.nfproj> --dry-run
+   dotnet run --project tools/NanoMigrate -- migrate <repo-or-.nfproj> --dry-run
    ```
 2. **Apply** once the dry-run looks right (writes a `.nfproj.bak` next to each file):
    ```bash
-   dotnet run --project scripts/NanoMigrate -- migrate <repo-or-.nfproj>
+   dotnet run --project tools/NanoMigrate -- migrate <repo-or-.nfproj>
    ```
 3. **Resolve every `MANUAL REVIEW NEEDED` line** before moving on — see
    "Handling review items" below. Do not hand-wave these; each is a real
@@ -112,18 +112,18 @@ Use this to migrate many repos at once, e.g. all `nanoframework/lib-*`.
 
 1. **Clone the fleet** (skips archived repos by default):
    ```bash
-   dotnet run --project scripts/NanoMigrate -- clone ./nano-repos --token $GITHUB_TOKEN
+   dotnet run --project tools/NanoMigrate -- clone ./nano-repos --token $GITHUB_TOKEN
    ```
    Narrow with `--filter` (default `lib-`) or point at a different `--org`.
 2. **Dry-run the whole fleet** and read the report before changing anything:
    ```bash
-   dotnet run --project scripts/NanoMigrate -- fleet ./nano-repos \
+   dotnet run --project tools/NanoMigrate -- fleet ./nano-repos \
      --branch sdk-migration --dry-run --report fleet-report.md
    ```
 3. **Apply per-repo on a branch and commit**, so each repo ends up with a
    ready-to-PR branch:
    ```bash
-   dotnet run --project scripts/NanoMigrate -- fleet ./nano-repos \
+   dotnet run --project tools/NanoMigrate -- fleet ./nano-repos \
      --branch sdk-migration --commit --issue <tracking-issue> --report fleet-report.md
    ```
    `--commit` implies `--no-backup` (git history already preserves the original),
@@ -190,5 +190,5 @@ then confirm the clean set.
   with a real name, and the repo must build clean with tests passing. The full
   checklist is in `references/contributing-compliance.md` — consult it whenever
   the work is destined for an upstream PR.
-- If you change the conversion rules, change them in `scripts/NanoMigrate` and
+- If you change the conversion rules, change them in `tools/NanoMigrate` and
   re-run the dry-run on a known repo to confirm the output is still correct.

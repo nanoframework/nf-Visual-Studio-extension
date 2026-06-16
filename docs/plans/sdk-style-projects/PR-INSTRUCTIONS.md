@@ -136,6 +136,7 @@ be rendered from the template above. Renderer contract:
   before creating; respect GitHub rate limits when fanning out.
 - **Never** put issue/PR references in the title; **never** target `main`.
 
-A reference renderer belongs next to the converter in
-[NanoMigrate/](NanoMigrate/) — it takes `(repo, homeIssue, types[])`, substitutes the slots,
-and shells out to the `gh pr create` recipe above.
+A reference renderer belongs next to the converter in the nanoFramework.NET.Sdk repo's
+[`tools/NanoMigrate`](https://github.com/danielmeza/nanoFramework.Sdk/tree/move-to-sdk/tools/NanoMigrate)
+— it takes `(repo, homeIssue, types[])`, substitutes the slots, and shells out to the
+`gh pr create` recipe above.

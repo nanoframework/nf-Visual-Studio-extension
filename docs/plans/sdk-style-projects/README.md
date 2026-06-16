@@ -96,18 +96,15 @@ work is **productizing, not feasibility** — see
 
 ## Tooling
 
-- [NanoMigrate/nano-migrate.py](NanoMigrate/nano-migrate.py) — a reference
-  `.nfproj` → SDK-style converter (the C# tool in
-  [NanoMigrate/](NanoMigrate/) / the companion `nanoframework-sdk-migration` skill
-  supersedes it for fleet use). It drops defaults, folds `.nuspec` metadata into
-  MSBuild properties,
-  resolves `packages.config` versions into `PackageReference`s (aliasing legacy
-  `mscorlib`/`System` references onto `nanoFramework.CoreLibrary`), drops a
-  hand-written `Properties/AssemblyInfo.cs`, emits `netnano1.0`, and **fails loud**.
-
-  ```
-  python3 scripts/nano-migrate.py path/to/Library.nfproj
-  ```
+The `.nfproj` → SDK-style **NanoMigrate** converter now lives in the
+**nanoFramework.NET.Sdk** repo at
+[`tools/NanoMigrate`](https://github.com/danielmeza/nanoFramework.Sdk/tree/move-to-sdk/tools/NanoMigrate)
+(the C# tool; a reference `nano-migrate.py` and the companion `nanoframework-sdk-migration`
+skill live alongside it). It emits `<Project Sdk="nanoFramework.NET.Sdk">` + `netnano1.0`,
+resolves `packages.config`/HintPath versions into `PackageReference`s, folds `.nuspec`
+metadata into MSBuild properties, deletes a hand-written `Properties/AssemblyInfo.cs`,
+rewrites the `.sln` entry (project-type GUID + `.csproj` path), and is **idempotent +
+reentrant** (skips already-SDK-style projects; re-running is a no-op).
 
 ## Premises worth flagging up front
 

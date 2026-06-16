@@ -45,7 +45,8 @@ ships to nuget.org: drop the `local-sdk` source and pin the published version in
 ## Remaining Phase 1
 
 - **Bulk-convert** the remaining ~153 samples — mechanical; drive with the `NanoMigrate`
-  converter (docs [07](07-library-migration.md)/[10](10-tooling-specs.md)) rather than by hand.
+  converter (now in the nanoFramework.NET.Sdk repo, `tools/NanoMigrate`; see docs
+  [07](07-library-migration.md)/[10](10-tooling-specs.md)) rather than by hand.
 - **CoreLibrary:** adopt `CoreLibrary.Sdk.csproj` as the primary project (maintainer-owned).
 - **Templates:** `dotnet new nanoapp`/`nanolib` (doc 10).
 - **VS Code extension:** detect SDK-style `.csproj` and invoke `dotnet build`; install the SDK
