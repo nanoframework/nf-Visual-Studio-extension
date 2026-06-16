@@ -42,6 +42,32 @@ These assume the sibling-clone layout and the unpublished local SDK build. **Onc
 ships to nuget.org: drop the `local-sdk` source and pin the published version in
 `global.json`.** Legacy `.nfproj` samples are unaffected — they don't consume the msbuild-sdk.
 
+## Cross-cutting validation (tests)
+
+**Central Package Management (CPM)** — ✅ PASSED. `samples/Beginner/Directory.Packages.props`
+(`ManagePackageVersionsCentrally=true`) + versionless `PackageReference`s build to NFMRK2. No
+NU1008: the SDK's injected MetadataProcessor reference is `IsImplicitlyDefined`, which CPM
+exempts — so the nano SDK is CPM-compatible unchanged. Caveat: a *bulk-converted* repo gets
+*versioned* `PackageReference`s, which conflict with CPM. A repo uses **either** CPM
+(versionless + a central props) **or** per-project versions, not both; repo-wide CPM would
+need the converter to emit versionless + aggregate versions into a root `Directory.Packages.props`
+(future enhancement).
+
+**Legacy / SDK coexistence** — ✅ PASSED. A legacy `.nfproj` (VS MSBuild + the installed
+NFProjectSystem targets) and an SDK-style `.csproj` (`dotnet build`) build side by side in one
+solution; both emit NFMRK2. A direct cross-`ProjectReference` requires both projects on the
+**same CoreLibrary version** (different mscorlib = type-identity conflict).
+
+**Fleet conversion (NanoMigrate)** — ✅ PASSED, idempotent + reentrant. Run over a full copy of
+`samples/` (143 `.nfproj`): all converted to SDK-style `.csproj` with correct package ids +
+versions derived from the `packages\<Id>.<Version>\` HintPath, `packages.config` deleted,
+`Properties/AssemblyInfo.cs` deleted (desktop test projects correctly left alone), and `.sln`
+entries rewritten (project-type GUID + `.csproj` path). Re-running is a clean no-op
+(`nothing to convert`); a mixed tree converts only the remaining `.nfproj`. Known gap:
+references with neither a HintPath nor a matching `packages.config` entry (some `System.*` in a
+few WebServer/WiFi samples) are flagged for manual review rather than mapped — needs a broader
+assembly-name → package-id map.
+
 ## Remaining Phase 1
 
 - **Bulk-convert** the remaining ~153 samples — mechanical; drive with the `NanoMigrate`
