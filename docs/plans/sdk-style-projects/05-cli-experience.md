@@ -15,6 +15,7 @@ What `dotnet` verbs work, how `deploy` is implemented, and iterative deployment.
 | `dotnet new nanoapp` / `nanolib` | Templates in the SDK (doc 10 §10.4) | Works |
 | `dotnet build -t:Deploy` | SDK `Deploy` target orchestrates `nanoff` | Works |
 | `dotnet nano deploy` | `dotnet-nano` global/local tool (§5.3) | Preferred UX |
+| `dotnet nano migrate` | `dotnet-nano` tool surfacing the **NanoMigrate** converter (ships in the SDK repo `tools/NanoMigrate`) | Converts legacy `.nfproj` → SDK-style; idempotent + reentrant (§5.7) |
 | `dotnet watch` (deploy loop) | `dotnet watch` + `-t:Deploy` MSBuild target | Works (§5.4) |
 
 ## 5.2 Why `deploy` can't *just* be `dotnet deploy`
@@ -57,6 +58,7 @@ dotnet nano deploy --port COM7
 dotnet nano flash --target ESP32_S3   # nanoff firmware flash (unchanged)
 dotnet nano monitor           # serial monitor / device output
 dotnet nano devices           # list connected devices (device explorer, CLI form)
+dotnet nano migrate ./src     # convert legacy .nfproj to SDK-style (see §5.7)
 ```
 
 Internally `dotnet nano deploy` invokes MSBuild on the project's `Deploy` target (Path A), so there is exactly one deploy code path; the tool just provides device selection and a friendlier UX.
@@ -91,3 +93,29 @@ Resolution order for the target device, highest priority first:
 - CI builds use `dotnet build`/`dotnet pack` only; no device. Deploy/flash verbs require hardware and are excluded from PR builds (as today).
 - The `dotnet nano` tool installs as a **local** tool (`dotnet-tools.json`) so CI pins its version with the rest of the toolchain.
 - `dotnet build -t:Deploy` failing fast with a clear "no device" error (not a hang) fixes a current VS Code pain point where flashing "hangs forever."
+
+## 5.7 Project migration (`dotnet nano migrate`)
+
+The **NanoMigrate** converter (legacy `.nfproj` → SDK-style `.csproj`) ships in the SDK repo at
+`tools/NanoMigrate` and is surfaced through the `dotnet-nano` tool as `dotnet nano migrate`, so it
+sits alongside the other `dotnet nano *` verbs. It is **idempotent + reentrant**: it skips
+projects that are already SDK-style and re-running over a tree is a safe no-op, so a partial or
+repeated migration is never destructive.
+
+```
+dotnet nano migrate ./src --dry-run             # preview only — writes nothing (test first)
+dotnet nano migrate ./src --glob "Beginner/**"  # scope to matching projects (*, **, ? supported)
+dotnet nano migrate ./src                        # convert for real (idempotent; re-runnable)
+```
+
+Recommended workflow (the migration skill enforces this): **test a directory first** with
+`--dry-run` (review the planned `.csproj`, the resolved `PackageReference`s, the files that would
+be removed, and the `.sln` edits), optionally narrow with `--glob`, then run for real. Per
+conversion the tool maps `packages.config`/HintPath versions to `PackageReference`, folds
+`.nuspec` metadata into Pack properties, deletes the hand-written `Properties/AssemblyInfo.cs`,
+and rewrites the `.sln` entry (project-type GUID + `.csproj` path).
+
+For a whole-fleet run across many repos, `dotnet nano migrate` (or the underlying
+`tools/NanoMigrate` `fleet` command) clones and converts each repo and opens PRs from the org
+template (see [07-library-migration.md](07-library-migration.md) and
+[PR-INSTRUCTIONS.md](PR-INSTRUCTIONS.md)).

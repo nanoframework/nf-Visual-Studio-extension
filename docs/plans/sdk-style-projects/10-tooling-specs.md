@@ -18,9 +18,9 @@ selection, toolchain/CoreRuntime packs, and OTA are out of scope.
 | C3 | `GenerateNanoBinary` task | C# task | Modified | re-host of existing MDP task with explicit I/O (doc 04 §4.2) |
 | C4 | `NanoChecksumCheck` task | C# task | New | optional build-time ABI gate (doc 04 §4.5) |
 | C5 | `NanoDeploy` task | C# task | New | wraps `nanoff` push (doc 05) |
-| C6 | `dotnet-nano` tool | .NET tool | New | deploy/flash/monitor verbs (doc 05) |
+| C6 | `dotnet-nano` tool | .NET tool | New | deploy/flash/monitor/**migrate** verbs (doc 05) |
 | C7 | `dotnet new` templates | Template pkg | New | `nanoapp`/`nanolib` (§10.5) |
-| C8 | migration tool + CI template rewriter | Tool | New | fleet conversion (doc 07) |
+| C8 | NanoMigrate converter + CI template rewriter | Tool | New | ships in the SDK repo `tools/NanoMigrate`; surfaced as `dotnet nano migrate`; idempotent + reentrant fleet conversion (doc 07, doc 05 §5.7) |
 | C9 | VS CPS capability + XAML rules | VS extension | Modified | **POC-proven** (doc 09 §9.5) — productize into the shipped extension |
 | C10 | `nanoFramework.Sdk.Corlib` variant | MSBuild SDK | New | mscorlib bootstrap (doc 02 §2.6) |
 | C11 | nanoFramework workload manifest | Workload pkg | New (later) | wraps SDK+templates (doc 02 §2.3 option C) |
