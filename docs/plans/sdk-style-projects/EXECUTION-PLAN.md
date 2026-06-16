@@ -118,6 +118,56 @@ already; the POC's `[BP-DIAG]` was only diagnostics.) Validated via VS MSBuild o
    [#463](https://github.com/nanoframework/Samples/pull/463); cross-referenced, linked to `Home#1784`.
    Held as drafts for maintainer review before marking ready.
 
+## Spec coverage (docs 00–10) — C-components + the developer loop
+
+This effort grew past what the POC-landing tracker above captures. The matrix below maps every
+concrete deliverable from the spec set (doc 10's C1–C11 build-list, doc 05's developer loop, doc 04's
+checksum gate, doc 07's fleet automation) to its real status, so nothing falls between this plan and
+[phase-1-execution.md](phase-1-execution.md). Legend: ✅ done · 🔶 tracked (planned/deferred, not
+done) · ⛔ missing (not built **and** not tracked anywhere). The ⛔ rows have backlog stubs in
+[sdk-migration-backlog-issues.md](sdk-migration-backlog-issues.md).
+
+### SDK build pipeline
+| Item (doc§) | Status | Note |
+|---|---|---|
+| C1 `nanoFramework.NET.Sdk` package (10 §10.1) | ✅ | packs to `artifacts/` |
+| C2 `netnano1.0` TFM moniker props (02 §2.2, C2) | ✅ | `nanoFramework.Tfm.props` |
+| C3 `GenerateNanoBinary` / MDP re-host, incremental (04 §4.2–4.3, C3) | ✅ | `nanoFramework.Mdp.targets`, MDP 4.x/NFMRK2 |
+| **C4 `NanoChecksumCheck` / `NanoValidateChecksum` build-time ABI gate (04 §4.5, 10 §10.3)** | ⛔ | opt-in gate; **listed in the doc-10 MVS Phase 1** but not in `Sdk.targets`. Not B1 (B1 is extension-side deploy). |
+| C10 `nanoFramework.Sdk.Corlib` variant (02 §2.6, C10) | 🔶 | maintainer-owned; `CoreLibrary.Sdk.csproj` exists, not primary |
+| C11 workload manifest (02 §2.3, C11) | 🔶 | explicitly "later" |
+
+### Developer loop (doc 05) + CLI (C6)
+| Item (doc§) | Status | Note |
+|---|---|---|
+| C6 `dotnet nano` umbrella + `migrate`/`flash` (05, C6) | ✅ | shipped |
+| **C5 `NanoDeploy` task + `Deploy` MSBuild target (05 §5.3 Path A, C5)** | ⛔ | no SDK `Deploy` target |
+| **`dotnet nano deploy` / `monitor` / `devices` (05 §5.3)** | ⛔ | shipped as not-implemented placeholders only |
+| **`dotnet watch` / `dotnet nano watch` hot loop (05 §5.4)** | ⛔ | not built, not tracked |
+| **Device-selection order + `nanoFramework.config.json` (05 §5.5)** | ⛔ | not built, not tracked |
+| **CI fast-fail on missing device (05 §5.6)** | ⛔ | not built, not tracked |
+
+### Tooling, fleet & templates
+| Item (doc§) | Status | Note |
+|---|---|---|
+| C8 NanoMigrate converter (07, C8) | ✅ | `migrate`/`clean`/`rollback`/`clone`/`fleet`, 108 tests |
+| **C8 (other half) CI / Azure-pipeline template rewriter (07 §7.6)** | ⛔ | converter done; the per-repo CI rewrite is not built |
+| **Fleet auto-PR renderer (PR-INSTRUCTIONS contract)** | ⛔ | contract documented; reference renderer not built |
+| C7 `dotnet new nanoapp`/`nanolib` templates (10 §10.4, C7) | 🔶 | in MVS; phase-1 "next step", not built |
+
+### IDE
+| Item (doc§) | Status | Note |
+|---|---|---|
+| C9 VS CPS capability + XAML rules (06, C9) | ✅ | in extension PR #929 (productized POC) |
+| VS Code → detect SDK-style `.csproj` + `dotnet build` (06 §6.4) | 🔶 | phase-1 "next step", not started |
+
+### Phase status (doc 09 §9.3)
+Phase 0 ✅ · Phase 1 🔶 (C4/C7 + VS Code + a real ~5-repo `lib-*` pilot still open — Samples is a proxy,
+not a `lib-*`) · Phase 2 ✅ (debugger gate passed on hardware) · Phase 3 🔶 (B1–B3+WS3 drafted in #929,
+not merged) · Phase 4 ⛔ (fleet not started). **Net: the developer inner-loop (05 §5.3–5.6), the C4
+gate, and fleet automation (07 §7.6 + the auto-PR renderer) are the spec areas this plan had not been
+tracking; they are now captured here and in the backlog.**
+
 ## Validation gates
 
 - `dotnet build` an SDK-style lib + app against the packed `nanoFramework.NET.Sdk` →

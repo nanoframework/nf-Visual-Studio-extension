@@ -84,7 +84,8 @@ work is **productizing, not feasibility** — see
 
 | Document | What it covers |
 |----------|----------------|
-| [EXECUTION-PLAN.md](EXECUTION-PLAN.md) | **Live tracker** — how the POC lands upstream: A1–A4 (SDK) + B1–B3 + WS3 (extension), per-task status, commit SHAs, validation gates, PR strategy |
+| [EXECUTION-PLAN.md](EXECUTION-PLAN.md) | **Live tracker** — how the POC lands upstream: A1–A4 (SDK) + B1–B3 + WS3 (extension), per-task status, commit SHAs, validation gates, PR strategy, **and the docs 00–10 spec-coverage matrix (C1–C11 + developer loop)** |
+| [sdk-migration-backlog-issues.md](sdk-migration-backlog-issues.md) | **Backlog** — paste-ready `nanoFramework/Home` issue stubs for the spec deliverables not yet tracked (C4 checksum gate, deploy task/target, watch, device selection, CI fast-fail, fleet CI rewriter, auto-PR renderer) |
 | [phase-1-execution.md](phase-1-execution.md) | **Phase 1 status** — per-repo readiness (SDK/CoreLibrary/Samples/VS Code), the samples conversion pilot (built to NFMRK2), the dev-local build harness, and remaining Phase 1 work |
 | [PR-INSTRUCTIONS.md](PR-INSTRUCTIONS.md) | How to open PRs from the **org pull-request template** (manual + fleet-upgrader auto-PRs); verbatim template, slot-filling contract, `gh` recipe |
 | [nano-tool.md](nano-tool.md) | The `dotnet-nano` umbrella tool layout: built-in managed commands (`migrate`, …) + wrapping prebuilt external tools (`nanoff`); engine-as-library + repo layout; ships with the SDK |
