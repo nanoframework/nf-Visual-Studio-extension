@@ -85,6 +85,7 @@ work is **productizing, not feasibility** — see
 | Document | What it covers |
 |----------|----------------|
 | [EXECUTION-PLAN.md](EXECUTION-PLAN.md) | **Live tracker** — how the POC lands upstream: A1–A4 (SDK) + B1–B3 + WS3 (extension), per-task status, commit SHAs, validation gates, PR strategy |
+| [PR-INSTRUCTIONS.md](PR-INSTRUCTIONS.md) | How to open PRs from the **org pull-request template** (manual + fleet-upgrader auto-PRs); verbatim template, slot-filling contract, `gh` recipe |
 | [poc-sdk-style-debugging-plan.md](poc-sdk-style-debugging-plan.md) | The A+C POC plan: workstreams WS1–WS4, the engine-binding seam, the decision gate |
 | [poc-findings/RESULTS.md](poc-findings/RESULTS.md) | **Executed POC results**: what's proven on a plain machine, the gates hit, WS4 (Layer A/B) runbook + Azure pipeline |
 | [poc-findings/DEBUGGING-LOG.md](poc-findings/DEBUGGING-LOG.md) | **Decision record** — every blocker hit on the way to F5+breakpoints on hardware and its fix (§1 restore loop · §2 PE format · §3 deploy version · §4 F5 console · §5 breakpoint PDB · §6 legacy `.nfproj` load), plus dead ends not to repeat |

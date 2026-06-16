@@ -108,6 +108,9 @@ already; the POC's `[BP-DIAG]` was only diagnostics.) Validated via VS MSBuild o
 
 ## PR strategy (next step — branches ready, PRs held for review)
 
+> Open every PR from the org pull-request template — see [PR-INSTRUCTIONS.md](PR-INSTRUCTIONS.md)
+> (also the contract the fleet upgrader uses for auto-created PRs).
+
 - **SDK:** PR `danielmeza:move-to-sdk → nanoframework:move-to-sdk`. Title
   e.g. *"Enable VS debugging for SDK-style projects (full PDB, F5 wiring)"*; link
   `Home#1784`, the POC `RESULTS.md`/`DEBUGGING-LOG.md`, and the demo (https://youtu.be/9qvXsgXCrjM).

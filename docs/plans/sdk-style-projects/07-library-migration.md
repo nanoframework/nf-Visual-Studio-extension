@@ -210,3 +210,24 @@ A second script rewrites the common Azure Pipelines template:
 ```
 
 Because the pipeline templates are nearly identical across `lib-*`, this is a find/replace on a shared template repo plus per-repo submodule bump — not 100 hand-edits.
+
+## 7.7 Opening the PRs (per repo)
+
+Every auto-created PR **must** be rendered from the org pull-request template — see
+[PR-INSTRUCTIONS.md](PR-INSTRUCTIONS.md) for the verbatim template, the slot-filling
+contract, and the `gh pr create` recipe. Do not invent a bespoke PR body for the fleet.
+
+Per-repo summary (full rules in PR-INSTRUCTIONS.md §"Fleet-upgrader usage"):
+
+- **Title**: uniform, issue-free — `Migrate to SDK-style project system`.
+- **Body**: the org template, *Types of changes* = **Config and build** (+ **Dependencies**
+  if references changed); *Motivation* = `Resolves nanoFramework/Home#NNNN`.
+- **Base**: the migration integration branch (`move-to-sdk`) if present, else `develop`.
+  Never `main`.
+- **Draft** until CI is green, then `gh pr ready`.
+- **Order**: leaf-first (§7.4) — don't open a dependent repo's PR before its dependencies
+  merge/publish.
+- **Idempotent**: skip if an open PR already exists for the branch; respect rate limits.
+
+The reference renderer lives next to the converter in [NanoMigrate/](NanoMigrate/):
+`(repo, homeIssue, types[]) → filled org template → gh pr create --draft`.
