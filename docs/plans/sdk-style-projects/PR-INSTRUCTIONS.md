@@ -13,6 +13,10 @@ file (and the fleet renderer) from it.
 
 ## Rules
 
+- **Plain professional prose — never caveman.** PR titles, descriptions, and bodies are
+  written in normal, full-sentence English. Do not use caveman/compressed/abbreviated style
+  (dropped articles, fragments, shorthand) in any PR text, even when a terse mode is active
+  for chat. This applies equally to human authors and any automation that renders PR bodies.
 - **GitFlow base branch.** Target the repo's integration branch — `develop` for standard
   GitFlow, or the effort's shared branch (`move-to-sdk`) where one exists. **Never** target
   `main`/`master`.
