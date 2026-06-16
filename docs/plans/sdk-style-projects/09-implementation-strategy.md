@@ -65,6 +65,9 @@ debugging remains on the legacy path.
 - `dotnet pack` managed layout (doc 08 §8.2).
 - Templates (`nanoapp`/`nanolib`); the migration tool for the managed long tail.
 - VS Code extension switched to `dotnet build` (doc 06).
+- **Update the Samples repo** to SDK-style: convert a representative set of samples to
+  `<Project Sdk="nanoFramework.NET.Sdk">` so they build/deploy from the CLI and VS — living
+  examples and a continuous smoke test of the SDK against real apps.
 - **Coexistence:** legacy `.nfproj` untouched; SDK opt-in; VS debugging stays legacy.
 - **Exit:** a pilot set of ~5 pure-managed `lib-*` repos build/pack/test from the CLI.
 
