@@ -36,17 +36,25 @@ the same namespace. Ships with / alongside the nanoFramework SDK. Complements do
 ## Repo layout
 
 ```
-src/
-  nanoFramework.Tool/            # the dotnet-nano umbrella (PackAsTool, ToolCommandName=nano)
-    Program.cs                   # Spectre CommandApp host
-    Commands/                    # built-in commands: MigrateCommand (-> NanoMigrate.Core), Deploy, Monitor, Devices
-    ExternalTools/               # IExternalTool + providers (NanoffTool, …) + nano-tools.json
 tools/
+  nano/
+    nanoFramework.Tool/          # the dotnet-nano umbrella (PackAsTool, ToolCommandName=nano)
+      Program.cs                 # Spectre CommandApp host
+      Commands/                  # built-in commands: Flash (nanoff), Deploy/Monitor/Devices placeholders
+      ExternalTools/             # IExternalTool + providers (NanoffTool, …) + nano-tools.json
+    nanoFramework.Tool.Tests/    # tests for the umbrella (external-tool resolution, …)
   NanoMigrate/
-    NanoMigrate.Core/            # conversion logic, NO console (testable, NuGet-ready library)
-    NanoMigrate.Cli/             # thin Spectre CLI (standalone `nano-migrate`); also wrapped by the umbrella's `migrate`
-    NanoMigrate.Tests/           # unit tests against NanoMigrate.Core
+    src/NanoMigrate.Core/         # conversion logic, NO console (testable, NuGet-ready library)
+    src/NanoMigrate.Cli.Commands/ # shared Spectre commands (migrate) — referenced by both CLIs
+    src/NanoMigrate.Cli/          # thin standalone CLI (`nano-migrate`)
+    tests/NanoMigrate.Tests/      # unit tests against NanoMigrate.Core
+# nanoFramework.Tool.slnx (repo root) ties the umbrella + its tests + the NanoMigrate libs together.
 ```
+
+The migrate `migrate` command is the shared `NanoMigrate.Cli.Commands` library (over the
+console-free `NanoMigrate.Core` engine); both the standalone `nano-migrate` CLI and the umbrella's
+`dotnet nano migrate` reference it, so there is one implementation. All CLI projects live under
+`tools/`; `src/` holds only the SDK package and build tasks.
 
 The migrate engine is a **library** (`NanoMigrate.Core`) with no `AnsiConsole`/`Console`
 dependency, so it is unit-testable and packable on its own; both the standalone `nano-migrate`
