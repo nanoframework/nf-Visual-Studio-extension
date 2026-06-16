@@ -104,9 +104,15 @@ repeated migration is never destructive.
 
 ```
 dotnet nano migrate ./src --dry-run             # preview only — writes nothing (test first)
+dotnet nano migrate ./App.slnx                   # convert only that solution's projects + update it
 dotnet nano migrate ./src --glob "Beginner/**"  # scope to matching projects (*, **, ? supported)
 dotnet nano migrate ./src                        # convert for real (idempotent; re-runnable)
 ```
+
+It is **solution-aware** (`.sln` and `.slnx`): pass a solution to convert only its projects and
+retarget the solution; pass a directory and pick which discovered solution(s) to migrate (or none →
+loose conversion of every `.nfproj`); with `--glob` it discovers and updates only the solutions that
+reference the matched projects (confirm / multi-select). `--solution <path>` forces one target.
 
 Recommended workflow (the migration skill enforces this): **test a directory first** with
 `--dry-run` (review the planned `.csproj`, the resolved `PackageReference`s, the files that would
