@@ -16,6 +16,12 @@ description: >-
 
 # nanoFramework SDK-style project migration
 
+> **Canonical, installable skill:** the maintained version of this skill lives in the
+> nanoFramework.NET.Sdk repo at
+> [`skills/nanoframework-sdk-migration`](https://github.com/danielmeza/nanoFramework.Sdk/tree/move-to-sdk/skills/nanoframework-sdk-migration),
+> alongside the `tools/NanoMigrate` converter it drives (surfaced as `dotnet nano migrate`).
+> This copy is the plan's narrative; keep the two in sync.
+
 This skill converts a nanoFramework repo from the legacy flavored `.nfproj`
 project system onto an SDK-style MSBuild project that composes over the
 nanoFramework SDK. It ships a tested C# tool (`tools/NanoMigrate`) that does
