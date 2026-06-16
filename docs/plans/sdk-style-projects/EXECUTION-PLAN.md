@@ -16,6 +16,22 @@ Status of the POC itself: build + deploy + **F5/breakpoints proven on real hardw
 > | Extension B1–B2 (checksum pre-check + SelectedDevice) | `nf-Visual-Studio-extension` @ `746b408` |
 > | Extension WS3 (engine-binding seam) + B3 (no `[BP-DIAG]`) | `nf-Visual-Studio-extension` @ `b897f7b` |
 
+> **Tooling & samples migration (2026-06-16): migration tooling hardened, Samples migrated,
+> tools reorganized, docs shipped.** Building on the enablers above, the migration toolchain
+> and the full Samples conversion are now complete on `move-to-sdk`. The three upstream PRs
+> remain **drafts** held for review (no change to PR status). Detail in
+> [phase-1-execution.md](phase-1-execution.md); the as-built tool docs are the SDK-repo READMEs.
+>
+> | Area | What landed | Where (`danielmeza/*` `move-to-sdk`) |
+> |---|---|---|
+> | **NanoMigrate engine** | Core reorganized into vertical slices; `.sln`/`.slnx` via official `Microsoft.VisualStudio.SolutionPersistence`; CPM support; packages.config/HintPath resolution; idempotent + reentrant | `nanoFramework.Sdk` @ `d72da89`, `ceab679` |
+> | **Migrate features** | `--report` (Markdown/HTML); rollback journal (`.nanomigrate/`) + `rollback`/`clean` commands; post-migration `--verify`; `--no-backup` fully suppresses loose `.bak` | `nanoFramework.Sdk` @ `48d5817`, `b7136f2` |
+> | **`dotnet nano` umbrella** | new tool: built-in `migrate`/`clean`/`rollback` + external `flash` (nanoff); `deploy`/`monitor`/`devices` placeholders | `nanoFramework.Sdk` @ `4a1883f` |
+> | **Repo reorg** | tools moved out of `src/`: `tools/nano` (umbrella) + `tools/migrate` (converter); 108 migrate + 8 umbrella tests pass | `nanoFramework.Sdk` @ `4a1883f`, `967078f` |
+> | **Tool docs** | `tools/nano/README.md` + `tools/migrate/README.md` (as-built, verified vs `--help`); migration skill expanded; plan docs redirect to the READMEs | `nanoFramework.Sdk` @ `7c05b4a` |
+> | **Samples** | whole repo migrated via `dotnet nano migrate`: 153 projects, 111 solutions, 0 review flags; SDK now defines `NANOFRAMEWORK_1_0` for source compat | `Samples` (PR #463), `nanoFramework.Sdk` @ `58b5afd` |
+> | **PR rule** | no AI/tool attribution in PR text (org-template addendum) | both repos |
+
 ## Workspace & repos (all cloned; forks + upstreams wired)
 
 All clones live under `D:\src\nnf\`; each `origin` = a `danielmeza/*` fork, `upstream` =
