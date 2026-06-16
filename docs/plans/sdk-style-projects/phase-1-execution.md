@@ -86,9 +86,17 @@ Notes / follow-ups from the migration:
   `#if NANOFRAMEWORK_1_0` source compiles.
 - **Per-sample fixes applied:** `1-Wire/OneWire.TestApp` (added the missing `Hardware.Esp32`
   reference) and `Interop/test-application` (bin-HintPath sibling → `ProjectReference`).
-- **Left as pre-existing / out-of-scope:** the AMQP samples carry deeply inconsistent legacy
-  package versions (NU1605 downgrade) — needs a coordinated version bump (sample maintenance);
-  the `Desktop*` test helpers are regular .NET Framework projects (not nano), untouched.
+- **Full build sweep:** every SDK-style project built — **152 / 155 pass**. After removing one
+  stray empty project (`AMQP/Azure-ServiceBus-Sender/Sender.csproj`, an orphan `.nfproj` never in a
+  solution), the only failures are the **2 AMQP apps** (Azure-IoT-Hub, Azure-ServiceBus-Sender).
+- **AMQP — pre-existing rot, out of scope.** Their `packages.config` pins very old, mutually
+  inconsistent versions (NU1605 downgrades cascade across CoreLibrary/Runtime.Events/…), and the
+  code is half-modernized: `Program.cs` uses `System.Device.Wifi` + `WifiNetworkHelper`/
+  `NetworkHelper`, but the package refs are the deprecated `Windows.Devices.Wifi` (IoT-Hub) or have
+  no wifi package (Sender), and `NetworkHelper` isn't provided (other samples ship a local
+  `NetworkHelpers.cs`). Fixing them is sample modernization (correct wifi package + the missing
+  helper), not a project-system-migration concern; the conversion was faithful.
+- **`Desktop*` helpers:** regular .NET Framework test projects (not nanoFramework), untouched.
 
 ## What's done (Phase 1 + tooling)
 
