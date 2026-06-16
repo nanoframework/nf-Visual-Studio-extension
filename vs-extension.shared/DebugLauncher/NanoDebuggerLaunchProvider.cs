@@ -87,7 +87,11 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                                 Arguments = commandLine,
                                 LaunchOperation = DebugLaunchOperation.CreateProcess,
                                 PortSupplierGuid = DebugPortSupplier.PortSupplierGuid,
-                                PortName = NanoFrameworkPackage.NanoDeviceCommService.Device.Description,
+                                // Use the device chosen for THIS launch (same instance used for the
+                                // command line above), not the global NanoDeviceCommService.Device.
+                                // They're equal for a single device, but the per-device Run-dropdown
+                                // selector needs PortName to follow the chosen device.
+                                PortName = deployDeviceName,
                                 Project = VsHierarchy,
                                 LaunchDebugEngineGuid = CorDebug.EngineGuid
                             };
