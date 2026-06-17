@@ -124,6 +124,6 @@ Notes / follow-ups from the migration:
 
 ### Deferred / gated
 - **Samples v2 alignment** — bump samples to v2 packages so the whole graph is NFMRK2 (gated on v2
-  preview availability across every package each sample uses).
+  preview availability across every package each sample uses). Tracked: [Home#1802](https://github.com/nanoframework/Home/issues/1802).
 - **`nanoff` download** — the umbrella's external-tool downloader is a stub; implement
-  fetch+verify+cache when wiring real firmware flashing.
+  fetch+verify+cache when wiring real firmware flashing. Tracked: [Home#1801](https://github.com/nanoframework/Home/issues/1801).

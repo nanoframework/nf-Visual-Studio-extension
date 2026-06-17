@@ -21,3 +21,23 @@ Coverage matrix (docs 00–10 mapped to done/tracked/missing): see
 
 The cross-reference comment listing all seven on the epic:
 [Home#1784 (comment)](https://github.com/nanoframework/Home/issues/1784#issuecomment-4724148120).
+
+## Second batch — larger deliverables and infrastructure (filed 2026-06-16)
+
+The bigger spec deliverables and the build/release infrastructure that also lacked a tracking issue,
+filed as further children of [Home#1784](https://github.com/nanoframework/Home/issues/1784).
+
+| Issue | Deliverable | Spec | Phase |
+|---|---|---|---|
+| [Home#1794](https://github.com/nanoframework/Home/issues/1794) | Switch the VS Code extension to the SDK-style `dotnet build` | [06 §6.4](06-ide-integration.md), [vscode-extension-impact.md](vscode-extension-impact.md) | 1/3 |
+| [Home#1795](https://github.com/nanoframework/Home/issues/1795) | CI/CD for the `nanoFramework.NET.Sdk` repo (build/test/pack/publish) | org convention; [EXECUTION-PLAN.md](EXECUTION-PLAN.md) | 1 |
+| [Home#1796](https://github.com/nanoframework/Home/issues/1796) | `dotnet new` templates (`nanoapp`/`nanolib`) | [10 §10.4](10-tooling-specs.md) (C7) | 1 |
+| [Home#1797](https://github.com/nanoframework/Home/issues/1797) | Phase 1 exit pilot: ~5 managed `lib-*` repos | [09 §9.3](09-implementation-strategy.md), [07](07-library-migration.md) | 1 |
+| [Home#1798](https://github.com/nanoframework/Home/issues/1798) | Bulk-migrate the `lib-*` fleet + open PRs | [07](07-library-migration.md), [09](09-implementation-strategy.md) | 4 |
+| [Home#1799](https://github.com/nanoframework/Home/issues/1799) | Adopt the SDK-style CoreLibrary project as primary | [02 §2.6](02-sdk-design.md) (C10) | leaf |
+| [Home#1800](https://github.com/nanoframework/Home/issues/1800) | nanoFramework workload manifest | [02 §2.3](02-sdk-design.md) (C11) | later |
+| [Home#1801](https://github.com/nanoframework/Home/issues/1801) | External-tool downloader for `dotnet nano` (`nanoff`) | [nano-tool.md](nano-tool.md) | — |
+| [Home#1802](https://github.com/nanoframework/Home/issues/1802) | Align the Samples to v2 packages (NFMRK2 graph) | [phase-1-execution.md](phase-1-execution.md) | gated |
+
+Second-batch cross-reference comment on the epic:
+[Home#1784 (comment)](https://github.com/nanoframework/Home/issues/1784#issuecomment-4725212395).

@@ -204,6 +204,15 @@ Deliverables from the specification set that were not yet tracked, filed as chil
 - [ ] [Home#1791](https://github.com/nanoframework/Home/issues/1791) — CLI fast-fail on no device (doc 05 §5.6)
 - [ ] [Home#1792](https://github.com/nanoframework/Home/issues/1792) — fleet CI / Azure Pipelines template rewriter (C8; doc 07 §7.6)
 - [ ] [Home#1793](https://github.com/nanoframework/Home/issues/1793) — fleet auto-PR renderer (PR conventions)
+- [ ] [Home#1794](https://github.com/nanoframework/Home/issues/1794) — switch the VS Code extension to `dotnet build` (doc 06 §6.4)
+- [ ] [Home#1795](https://github.com/nanoframework/Home/issues/1795) — CI/CD for the SDK repo: build/test/pack/publish
+- [ ] [Home#1796](https://github.com/nanoframework/Home/issues/1796) — `dotnet new` templates `nanoapp`/`nanolib` (C7; doc 10 §10.4)
+- [ ] [Home#1797](https://github.com/nanoframework/Home/issues/1797) — Phase 1 exit pilot: ~5 managed `lib-*` repos (doc 09 §9.3)
+- [ ] [Home#1798](https://github.com/nanoframework/Home/issues/1798) — bulk-migrate the `lib-*` fleet + open PRs (Phase 4)
+- [ ] [Home#1799](https://github.com/nanoframework/Home/issues/1799) — adopt the SDK-style CoreLibrary project as primary (C10)
+- [ ] [Home#1800](https://github.com/nanoframework/Home/issues/1800) — nanoFramework workload manifest (C11)
+- [ ] [Home#1801](https://github.com/nanoframework/Home/issues/1801) — external-tool downloader for `dotnet nano` (`nanoff`)
+- [ ] [Home#1802](https://github.com/nanoframework/Home/issues/1802) — align the Samples to v2 packages (NFMRK2 graph)
 
 ### POC artifacts — permalinks
 
