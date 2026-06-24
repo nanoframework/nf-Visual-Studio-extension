@@ -3,6 +3,16 @@
 // Portions Copyright (c) Microsoft Corporation.  All rights reserved.
 // See LICENSE file in the project root for full license information.
 //
+// ******************************************************************************
+// ** IMPORTANT: THIS FILE IS DUPLICATED.                                      **
+// **                                                                           **
+// ** A modified copy exists in the nanoFramework SDK repo:                    **
+// **   nf-nanoFramework.Sdk / nanoFramework.Tools.BuildTasks /                **
+// **   ProcessResourceFiles.cs                                                 **
+// **                                                                           **
+// ** The SDK copy carries #if NETFRAMEWORK guards for cross-platform support.  **
+// ** Any logic change made here MUST be ported there, and vice-versa.         **
+// ******************************************************************************
 
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;

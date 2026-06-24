@@ -1883,12 +1883,6 @@
           "Microsoft.VisualStudio.Interop": "17.13.40008"
         }
       },
-      "nanoFramework.Tools.BuildTasks": {
-        "type": "Project",
-        "dependencies": {
-          "Microsoft.Build.Framework": "[17.12.6, )",
-          "Microsoft.Build.Utilities.Core": "[17.11.4, )"
-        }
       }
     },
     ".NETFramework,Version=v4.7.2/win": {
