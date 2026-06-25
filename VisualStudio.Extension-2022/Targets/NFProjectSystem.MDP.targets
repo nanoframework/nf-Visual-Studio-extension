@@ -235,7 +235,6 @@
         DumpMetadata="$(NFMDP_DUMP_METADATA)"
         DumpExports="$(NFMDP_STUB_DumpExports)"
         GenerateDependency="$(NFMDP_STUB_GenerateDependency)"
-        ExcludeClassByName="@(NFMDP_PE_ExcludeClassByName)"
         LoadHints="@(ReferencePath);@(ReferenceDependencyPaths);@(ReferenceSatellitePaths)"
         Compile="$(NanoFramework_IntermediateAssembly).pe"
         GenerateStubs="$(NFMDP_GENERATE_STUBS)"
@@ -453,7 +452,6 @@
         CreateDatabaseFile="$(NFMDP_PE_CreateDatabaseFile)"
         LoadHints="@(NFMDP_PE_LoadHints)"
         IgnoreAssembly="@(NFMDP_PE_IgnoreAssembly)"
-        ExcludeClassByName="@(NFMDP_PE_ExcludeClassByName)"
         Condition="'$(NFMDP_GENERATE_STUBS)' == 'false'">
       <Output TaskParameter="FilesWritten" ItemName="FileWrites"/>
       <Output TaskParameter="NativeChecksum" PropertyName="NativeChecksum" />
@@ -490,7 +488,6 @@
         CreateDatabaseFile="$(NFMDP_STUB_CreateDatabaseFile)"
         LoadHints="@(ReferencePath);@(ReferenceDependencyPaths);@(ReferenceSatellitePaths)"
         IgnoreAssembly="@(NFMDP_STUB_IgnoreAssembly)"
-        ExcludeClassByName="@(NFMDP_PE_ExcludeClassByName)"
         Condition="'$(NFMDP_GENERATE_STUBS)' == 'true'">
       <Output TaskParameter="FilesWritten" ItemName="FileWrites"/>
       <Output TaskParameter="NativeChecksum" PropertyName="NativeChecksum" />
@@ -567,8 +564,7 @@
         LoadHints="@(ReferencePath);@(ReferenceDependencyPaths);@(ReferenceSatellitePaths)"
         IgnoreAssembly="@(NFMDP_DAT_IgnoreAssembly)"
         Load="@(NFMDP_DAT_Load)"
-        LoadDatabase="@(NFMDP_DAT_LoadDatabase)"
-        ExcludeClassByName="@(NFMDP_DAT_ExcludeClassByName)">
+        LoadDatabase="@(NFMDP_DAT_LoadDatabase)">
       <Output TaskParameter="FilesWritten" ItemName="FileWrites"/>
       <Output TaskParameter="NativeChecksum" PropertyName="NativeChecksum" />
     </MetaDataProcessorTask>
