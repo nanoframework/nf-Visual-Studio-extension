@@ -283,6 +283,13 @@
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
       <VSIXSubPath>ProjectTemplates</VSIXSubPath>
     </ProjectReference>
+    <ProjectReference Include="..\Tools.BuildTasks-2022\Tools.BuildTasks-2022.csproj">
+      <Project>{552c2500-2c53-4148-a422-0ed983ef135d}</Project>
+      <Name>Tools.BuildTasks-2022</Name>
+      <InstallRoot>MSBuild</InstallRoot>
+      <IncludeOutputGroupsInVSIX>BuiltProjectOutputGroup</IncludeOutputGroupsInVSIX>
+      <VSIXSubPath>nanoFramework\v1.0\</VSIXSubPath>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\DeviceDisconnected.16.16.png" />
