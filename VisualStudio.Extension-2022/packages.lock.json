@@ -360,8 +360,8 @@
       },
       "Microsoft.Build.Framework": {
         "type": "Transitive",
-        "resolved": "17.14.7",
-        "contentHash": "mchcwg0iA40ov3mPZ9bSSe5pQyO2G3Fi8PIJiEJbCALiwEQb6giPOKPXuaJgL7im0bBBfHEkmxWfhoTIAbyYQQ==",
+        "resolved": "17.14.28",
+        "contentHash": "wRcyTzGV0LRAtFdrddtioh59Ky4/zbvyraP0cQkDzRSRkhgAQb0K88D/JNC6VHLIXanRi3mtV1jU0uQkBwmiVg==",
         "dependencies": {
           "System.Diagnostics.DiagnosticSource": "9.0.0",
           "System.Memory": "4.6.0",
@@ -392,19 +392,19 @@
       },
       "Microsoft.Build.Utilities.Core": {
         "type": "Transitive",
-        "resolved": "17.6.3",
-        "contentHash": "AcAzoW6r5cMECUmW6JVWL8G/PQ+ex2AEfupFhqvOGp0CY6b5cykzA+RQG414c3hSsiZNfnwwdc8xO8mScD9QWQ==",
+        "resolved": "17.14.28",
+        "contentHash": "rhSdPo8QfLXXWM+rY0x0z1G4KK4ZhMoIbHROyDj8MUBFab9nvHR0NaMnjzOgXldhmD2zi2ir8d6xCatNzlhF5g==",
         "dependencies": {
-          "Microsoft.Build.Framework": "17.6.3",
-          "Microsoft.IO.Redist": "6.0.0",
-          "Microsoft.NET.StringTools": "17.6.3",
-          "Microsoft.VisualStudio.Setup.Configuration.Interop": "3.2.2146",
-          "System.Collections.Immutable": "7.0.0",
-          "System.Configuration.ConfigurationManager": "7.0.0",
-          "System.Memory": "4.5.5",
-          "System.Runtime.CompilerServices.Unsafe": "6.0.0",
-          "System.Security.Permissions": "7.0.0",
-          "System.Security.Principal.Windows": "5.0.0"
+          "Microsoft.Build.Framework": "17.14.28",
+          "Microsoft.IO.Redist": "6.1.0",
+          "Microsoft.NET.StringTools": "17.14.28",
+          "System.Collections.Immutable": "9.0.0",
+          "System.Configuration.ConfigurationManager": "9.0.0",
+          "System.Diagnostics.DiagnosticSource": "9.0.0",
+          "System.Memory": "4.6.0",
+          "System.Runtime.CompilerServices.Unsafe": "6.1.0",
+          "System.Text.Json": "9.0.0",
+          "System.Threading.Tasks.Extensions": "4.6.0"
         }
       },
       "Microsoft.CSharp": {
@@ -432,8 +432,8 @@
       },
       "Microsoft.NET.StringTools": {
         "type": "Transitive",
-        "resolved": "17.14.7",
-        "contentHash": "GZXR/Rtfb6vNZBBiE/AYPSdClHS4/IxFfc9EFaBZn8KyNak9dFSE+5lymX4FB459bQ7leysRvM6HsLi7UujQ6w==",
+        "resolved": "17.14.28",
+        "contentHash": "DMIeWDlxe0Wz0DIhJZ2FMoGQAN2yrGZOi5jjFhRYHWR5ONd0CS6IpAHlRnA7uA/5BF+BADvgsETxW2XrPiFc1A==",
         "dependencies": {
           "System.Memory": "4.6.0",
           "System.Runtime.CompilerServices.Unsafe": "6.1.0"
@@ -1566,11 +1566,8 @@
       },
       "System.Configuration.ConfigurationManager": {
         "type": "Transitive",
-        "resolved": "7.0.0",
-        "contentHash": "WvRUdlL1lB0dTRZSs5XcQOd5q9MYNk90GkbmRmiCvRHThWiojkpGqWdmEDJdXyHbxG/BhE5hmVbMfRLXW9FJVA==",
-        "dependencies": {
-          "System.Security.Permissions": "7.0.0"
-        }
+        "resolved": "9.0.0",
+        "contentHash": "PdkuMrwDhXoKFo/JxISIi9E8L+QGn9Iquj2OKDWHB6Y/HnUOuBouF7uS3R4Hw3FoNmwwMo6hWgazQdyHIIs27A=="
       },
       "System.Diagnostics.DiagnosticSource": {
         "type": "Transitive",
@@ -1830,6 +1827,12 @@
       },
       "csharp.testapplication-vs2022": {
         "type": "Project"
+      },
+      "nanoFramework.Tools.BuildTasks": {
+        "type": "Project",
+        "dependencies": {
+          "Microsoft.Build.Utilities.Core": "[17.14.28, )"
+        }
       }
     },
     ".NETFramework,Version=v4.7.2/win": {
