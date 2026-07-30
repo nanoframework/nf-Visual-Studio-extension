@@ -37,9 +37,16 @@
                Text="Cannot find the Value attribute of the Resources element. imagemanifest cannot be updated."
                Condition="'$(ResourcesValue)' == ''" />
         <PropertyGroup>
-            <LastIndex>$([MSBuild]::Subtract($(ResourcesValue.Split(';').Length), 1))</LastIndex>
-            <LastComponent>$(ResourcesValue.Split(';')[$(LastIndex)])</LastComponent>
-            <ValueToSet>$([System.String]::Concat(/$(AssemblyName);v%(ImageManifests.AssemblyVersion);$(LastComponent)))</ValueToSet>
+            <SegmentsCount>$([System.String]::Copy('$(ResourcesValue)').Split(';').Length)</SegmentsCount>
+            <LastComponent Condition="'$(SegmentsCount)' == '4'">$([System.String]::Copy('$(ResourcesValue)').Split(';')[3])</LastComponent>
+            <LastComponent Condition="'$(SegmentsCount)' == '3'">$([System.String]::Copy('$(ResourcesValue)').Split(';')[2])</LastComponent>
+            <PublicKey Condition="'$(SegmentsCount)' == '4'">$([System.String]::Copy('$(ResourcesValue)').Split(';')[2])</PublicKey>
+            <PublicKey Condition="'$(SegmentsCount)' != '4'"></PublicKey>
+            <SemiPublicKey Condition="'$(PublicKey)' != ''">;$(PublicKey)</SemiPublicKey>
+            <SemiPublicKey Condition="'$(PublicKey)' == ''"></SemiPublicKey>
+            <ValueToSet>
+              $([System.String]::Concat(/$(AssemblyName);v%(ImageManifests.AssemblyVersion)$(SemiPublicKey);$(LastComponent)))
+            </ValueToSet>
         </PropertyGroup>
         <XmlPoke Namespaces="$(Namespace)"
                  XmlInputPath="%(ImageManifests.FullPath)"
