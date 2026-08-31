@@ -51,6 +51,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="FixNuGetPackagePropsTargetsImportsTask.cs" />
     <Compile Include="GenerateBinaryOutputTask.cs" />
     <Compile Include="ProcessResourceFiles.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
