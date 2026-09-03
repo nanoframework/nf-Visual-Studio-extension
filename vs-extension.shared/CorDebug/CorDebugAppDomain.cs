@@ -50,7 +50,33 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         public CorDebugAssembly AssemblyFromIndex(uint index)
         {
-            return CorDebugAssembly.AssemblyFromIndex( index, m_assemblies );            
+            return CorDebugAssembly.AssemblyFromIndex( index, m_assemblies );
+        }
+
+        /// <summary>
+        /// Finds a class by its Cecil full name (for example "MyNamespace.MyType") across every assembly
+        /// loaded in this AppDomain. Used to turn the type arguments spelled out in a TypeSpec name back
+        /// into classes carrying a real TypeDef token.
+        /// </summary>
+        /// <returns>The matching class, or <see langword="null"/> when no assembly declares that name.</returns>
+        internal CorDebugClass ClassFromFullName(string fullName)
+        {
+            if (string.IsNullOrEmpty(fullName))
+            {
+                return null;
+            }
+
+            foreach (CorDebugAssembly assembly in m_assemblies)
+            {
+                CorDebugClass cls = assembly.GetClassFromFullName(fullName);
+
+                if (cls != null)
+                {
+                    return cls;
+                }
+            }
+
+            return null;
         }
 
         public bool UpdateAssemblies()

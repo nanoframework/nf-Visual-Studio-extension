@@ -109,7 +109,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         {
             get
             {
-                uint tk = HasSymbols ? _pdbxClass.Token.NanoCLRToken : _tkSymbolless;
+                uint tk = _pdbxClass != null ? _pdbxClass.Token.NanoCLRToken : _tkSymbolless;
 
                 return nanoCLR_TypeSystem.ClassMemberIndexFromnanoCLRToken(tk, Assembly);
             }
@@ -119,7 +119,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         {
             get
             {
-                uint tk = HasSymbols ? _pdbxTypeSpec.Token.NanoCLRToken : _tkSymbolless;
+                uint tk = _pdbxTypeSpec != null ? _pdbxTypeSpec.Token.NanoCLRToken : _tkSymbolless;
 
                 return nanoCLR_TypeSystem.ClassMemberIndexFromnanoCLRToken(tk, Assembly);
             }
@@ -136,7 +136,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         int ICorDebugClass.GetToken(out uint pTypeDef)
         {
-            pTypeDef = HasSymbols ? _pdbxClass.Token.CLRToken : _tkSymbolless;
+            pTypeDef = _pdbxClass != null ? _pdbxClass.Token.CLRToken : _tkSymbolless;
 
             return COM_HResults.S_OK;
         }

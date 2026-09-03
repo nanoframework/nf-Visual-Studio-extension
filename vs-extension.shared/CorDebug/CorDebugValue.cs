@@ -52,13 +52,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 val = new CorDebugValueString(rtv, appDomain);
                 fIsReference = true;
             }
-            else if (rtv.IsGenericInst)
-            {
-                val = new CorDebugValueBoxedObject(rtv, appDomain);
-                fIsReference = true;
-            }
             else
             {
+                // A generic instance arrives here as DATATYPE_CLASS/DATATYPE_VALUETYPE carrying the
+                // HB_GenericInstance flag (RuntimeValue.IsGenericInstance), so it is handled by this
+                // branch like any other object. It is not boxed, and must not be routed to
+                // CorDebugValueBoxedObject.
                 val = new CorDebugValueObject(rtv, appDomain);
                 fIsReference = !rtv.IsValueType;
             }
@@ -102,26 +101,13 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             {
                 objBuiltInKey = nanoClrDataType.DATATYPE_TRANSPARENT_PROXY;
             }
-            else if (rtv.DataType == nanoClrDataType.DATATYPE_GENERICINST)
-            {
-                CorDebugProcess.BuiltinType builtInType = appDomain.Process.ResolveBuiltInType(nanoClrDataType.DATATYPE_GENERICINST);
-
-                if (builtInType == null)
-                {
-                    cls = nanoCLR_TypeSystem.CorDebugClassFromTypeSpec(rtv.Type, appDomain);
-                }
-                else
-                {
-                    cls = builtInType.GetClass(appDomain);
-
-                    if (cls == null)
-                    {
-                        cls = new CorDebugClass(builtInType.GetAssembly(appDomain), builtInType.TokenCLR);
-                    }
-                }
-            }
             else
             {
+                // For a generic instance rtv.Type is the *open* TypeDef (m_td), and that is what belongs
+                // here: ICorDebugClass.GetToken has to hand back a TypeDef token (0x02......) for
+                // IMetaDataImport.GetTypeDefProps to name the type at all. The closed name is meant to be
+                // composed by the caller from this open class plus ICorDebugType.EnumerateTypeParameters --
+                // resolving to the TypeSpec instead would yield a 0x1B...... token that cannot be named.
                 cls = nanoCLR_TypeSystem.CorDebugClassFromTypeIndex( rtv.Type, appDomain );
             }
 

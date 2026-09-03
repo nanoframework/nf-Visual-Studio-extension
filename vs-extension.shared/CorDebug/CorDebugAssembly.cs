@@ -400,6 +400,29 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             return GetClassFromToken(tk, _clrTokensToPdbx);
         }
 
+        /// <summary>
+        /// Finds a class declared by this assembly by its Cecil full name. Only works when the assembly
+        /// carries symbols, since the name lives in the pdbx.
+        /// </summary>
+        /// <returns>The matching class, or <see langword="null"/> when this assembly does not declare it.</returns>
+        internal CorDebugClass GetClassFromFullName(string fullName)
+        {
+            if (!HasSymbols)
+            {
+                return null;
+            }
+
+            foreach (Class c in _pdbxAssembly.Classes)
+            {
+                if (c.Name == fullName)
+                {
+                    return new CorDebugClass(this, c);
+                }
+            }
+
+            return null;
+        }
+
         public CorDebugClass GetClassFromNanoCLRToken(uint tk)
         {
             if (HasSymbols)
