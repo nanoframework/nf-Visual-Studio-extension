@@ -539,7 +539,7 @@
     </PackageReference>
     <PackageReference Include="nanoFramework.Tools.Debugger.Net" Version="3.0.0-preview.19" />
     <PackageReference Include="nanoFramework.Tools.MetadataProcessor.MsBuildTask">
-      <Version>4.0.0-preview.101</Version>
+      <Version>4.0.0-preview.102</Version>
     </PackageReference>
     <PackageReference Include="Nerdbank.GitVersioning">
       <Version>3.6.146</Version>
