@@ -128,15 +128,10 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             Assembly = assembly;
         }
 
+        // Supplies VS's stock expression evaluator with the closed generic's type arguments, turning
+        // Box`1 into Box<int> in Locals/Watch/Autos. See CorDebug/CLAUDE.md.
         int ICorDebugType.EnumerateTypeParameters(out ICorDebugTypeEnum ppTyParEnum)
         {
-            // VS drives Microsoft's stock managed debug engine over this ICorDebug implementation, and its
-            // expression evaluator builds the displayed name from GetClass (the open TypeDef, named through
-            // IMetaDataImport) plus the arguments enumerated here. Supplying them is what turns Box`1 into
-            // Box<int> in Locals/Watch/Autos.
-            //
-            // Every failure below falls back to E_NOTIMPL, which is exactly the behaviour that shipped
-            // before, so a type we cannot describe still renders as the open type rather than breaking.
             ppTyParEnum = null;
 
             ICorDebugType[] typeParameters = CorDebugTypeParameter.FromRuntimeValue(m_rtv, AppDomain);
@@ -199,20 +194,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         }
     }
 
-    /// <summary>
-    /// One type argument of a closed generic instance, handed to the expression evaluator through
-    /// <see cref="ICorDebugType.EnumerateTypeParameters"/>.
-    /// </summary>
-    /// <remarks>
-    /// The CLR reports a generic instance as DATATYPE_CLASS/DATATYPE_VALUETYPE with HB_GenericInstance set,
-    /// m_td pointing at the open TypeDef and m_ts at the closed TypeSpec. The arguments come from the
-    /// structured <see cref="TypeSpec.GenericArguments"/> the metadata processor now writes for that
-    /// TypeSpec -- each argument is either a primitive (<see cref="TypeSpecArg.PrimitiveType"/>, a
-    /// <c>NanoCLRDataType</c> name) or a class/nested-TypeSpec addressed by NanoCLR token
-    /// (<see cref="TypeSpecArg.TypeToken"/>), with the class's Cecil full name
-    /// (<see cref="TypeSpecArg.ClassName"/>) as a fallback for classes declared outside the assembly
-    /// that owns the TypeSpec. Resolution never touches nanoHelpers.FixTypeNames or any parsed display name.
-    /// </remarks>
+    // One type argument of a closed generic instance, handed to the expression evaluator through
+    // ICorDebugType.EnumerateTypeParameters. See CorDebug/CLAUDE.md "Consumer side".
     public class CorDebugTypeParameter : ICorDebugType
     {
         private readonly CorElementType _elementType;
@@ -224,12 +207,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             _class = cls;
         }
 
-        /// <summary>
-        /// Maps every primitive <c>nanoClrDataType</c> the metadata processor can emit as a
-        /// <see cref="TypeSpecArg.PrimitiveType"/> to the <see cref="CorElementType"/> the expression
-        /// evaluator expects. Anything absent here (a non-primitive DATATYPE_* value) is never produced for
-        /// a primitive argument, so it simply fails to resolve -- see <see cref="Resolve"/>.
-        /// </summary>
+        // Primitive TypeSpecArg.PrimitiveType names to CorElementType. Anything absent fails to resolve.
         private static readonly System.Collections.Generic.Dictionary<nanoClrDataType, CorElementType> _primitiveElementTypes =
             new System.Collections.Generic.Dictionary<nanoClrDataType, CorElementType>
             {
@@ -250,14 +228,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 { nanoClrDataType.DATATYPE_OBJECT, CorElementType.ELEMENT_TYPE_OBJECT },
             };
 
-        /// <summary>
-        /// Builds the type arguments for a runtime value that is a closed generic instance.
-        /// </summary>
-        /// <returns>
-        /// The arguments, or <see langword="null"/> when the value is not a generic instance or when any
-        /// argument cannot be resolved. Callers are expected to report E_NOTIMPL on <see langword="null"/>
-        /// so that the type still renders as the open generic.
-        /// </returns>
+        // Null when rtv is not a generic instance or any argument can't be resolved -- callers report
+        // E_NOTIMPL in that case, so the type renders as the open generic instead.
         internal static ICorDebugType[] FromRuntimeValue(RuntimeValue rtv, CorDebugAppDomain appDomain)
         {
             if (rtv == null || appDomain == null || !rtv.IsGenericInstance)
@@ -265,7 +237,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 return null;
             }
 
-            // m_ts: the closed TypeSpec that carries the structured argument list.
             CorDebugClass typeSpecClass = nanoCLR_TypeSystem.CorDebugClassFromTypeSpec(
                 rtv.GenericTypeSpec,
                 appDomain);
@@ -277,8 +248,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 return null;
             }
 
-            // Class/nested-TypeSpec tokens on each argument are NanoCLR tokens local to the assembly that
-            // owns this TypeSpec -- resolve them against that same assembly, not the appdomain at large.
             CorDebugAssembly owningAssembly = typeSpecClass.Assembly;
 
             ICorDebugType[] arguments = new ICorDebugType[typeSpec.GenericArguments.Count];
@@ -289,8 +258,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                 if (argument == null)
                 {
-                    // Partial answers are worse than none: the evaluator would render a name with holes in
-                    // it. Give up on the whole instance and let it fall back to the open type.
                     return null;
                 }
 
@@ -315,14 +282,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
             if (argument.IsGenericParameter)
             {
-                // An open type parameter (VAR/MVAR), not a closed type -- e.g. the T in Pair<T,int>
-                // inside the generic type that declares T. Nothing to resolve to a class; the whole
-                // instance falls back to the open-type display, same as any other unresolved argument.
                 return null;
             }
 
-            // Prefer the token: it is unambiguous and, for a nested generic instance, is the only way to
-            // resolve it at all (a closed generic instance has no Class/full-name entry of its own).
             CorDebugClass cls = null;
 
             if (argument.TypeToken != null && owningAssembly != null)
@@ -330,9 +292,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 cls = owningAssembly.GetClassFromNanoCLRToken(argument.TypeToken.NanoCLRToken);
             }
 
-            // Fall back to a cross-assembly by-name lookup for an ordinary class declared in a different
-            // assembly than the one that owns this TypeSpec (no token was available for it -- see the
-            // remarks on TypeSpecArg.TypeToken).
             if (cls == null && !string.IsNullOrEmpty(argument.ClassName) && appDomain != null)
             {
                 cls = appDomain.ClassFromFullName(argument.ClassName);
