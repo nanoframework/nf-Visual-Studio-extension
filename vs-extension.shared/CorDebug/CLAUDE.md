@@ -59,6 +59,21 @@ stock expression evaluator is what composes the closed display name, from
 `GetClass` (open TypeDef) plus `EnumerateTypeParameters` (the arguments
 above) — the extension never hands VS a pre-built type-name string.
 
+A *nested* generic-instance argument (`TypeSpecArg.TypeToken` pointing at
+another TypeSpec, §1) resolves through `GetClassFromNanoCLRToken`, which for
+a TypeSpec token constructs `CorDebugClass(assembly, typeSpec)` —
+`_pdbxClass` null, `_pdbxTypeSpec` set. `GetToken()` on that instance used to
+fall through to `_tkSymbolless`, which this constructor never sets (default
+`0`) — an invalid TypeDef token. Fixed to resolve
+`_pdbxTypeSpec.GenericTypeDef` (local assembly, the common case) or, when
+that's null, `GenericTypeDefName` through `ClassFromFullName` and delegate to
+*that* class's own token. The delegate case is an acknowledged partial fix:
+`GetModule()` still returns this assembly, not the foreign one that
+declares the type, so `IMetaDataImport` calls following that token would be
+scoped wrong. Good enough to stop returning an outright invalid token; a full
+fix needs `CorDebugClass` to be able to represent "TypeDef in a different
+assembly" properly, which is a larger change than this bug fix warrants.
+
 ## 3. Why `IsGenericInst` was not reused for the new flag
 
 `RuntimeValue.IsGenericInst` (nf-debugger) reported the old, removed
@@ -75,3 +90,17 @@ flag instead of deleting it would have revived the first of those two
 branches, routing every generic instance through `CorDebugValueBoxedObject`
 — wrong, since a generic instance is not boxed. The new flag has its own
 name for exactly this reason.
+
+## 4. Cross-assembly `ClassFromFullName` ambiguity
+
+`CorDebugAppDomain.ClassFromFullName` has exactly one caller:
+`CorDebugTypeParameter.Resolve`'s fallback for `TypeSpecArg.ClassName` (§1),
+reached only *after* a local-token lookup against the owning assembly has
+already failed — i.e. the class is expected to live in a *different* loaded
+assembly than the one that owns the TypeSpec. Filtering the search to the
+owning assembly's identity would therefore make this fallback always fail;
+`TypeSpecArg.ClassName` carries no assembly identity to filter by anyway (it's
+Cecil's bare `FullName`). Instead, if more than one loaded assembly declares
+a class with that exact name, the method returns `null` (ambiguous) rather
+than silently returning whichever assembly happened to be enumerated first —
+same fail-closed philosophy as §2.
