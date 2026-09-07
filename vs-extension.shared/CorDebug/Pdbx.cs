@@ -87,6 +87,49 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         public bool IsGenericInstance { get; set; } = false;
 
         public List<Member> Members { get; set; }
+
+        // NanoCLR TypeDef token of the open generic (e.g. Box`1), local assembly only.
+        // See CorDebug/CLAUDE.md "Pdbx.cs's TypeSpec/TypeSpecArg model".
+        public Token GenericTypeDef { get; set; }
+
+        // Cross-assembly fallback for GenericTypeDef: Cecil's unmodified FullName.
+        public string GenericTypeDefName { get; set; }
+
+        // Type arguments that close GenericTypeDef, in declaration order.
+        public List<TypeSpecArg> GenericArguments { get; set; }
+    }
+
+    // One type argument of a closed generic instance (TypeSpec.GenericArguments).
+    // See CorDebug/CLAUDE.md "Pdbx.cs's TypeSpec/TypeSpecArg model".
+    public partial class TypeSpecArg
+    {
+        public bool IsPrimitive { get; set; }
+
+        // Set when IsPrimitive: a NanoCLRDataType member name (e.g. "DATATYPE_I4").
+        public string PrimitiveType { get; set; }
+
+        // Local-assembly NanoCLR token (TypeDef or nested TypeSpec). Null for a foreign class --
+        // see ClassName -- or for a generic-parameter argument -- see IsGenericParameter.
+        public Token TypeToken { get; set; }
+
+        // Cross-assembly fallback for TypeToken: Cecil's unmodified FullName.
+        public string ClassName { get; set; }
+
+        // True for a bare VAR/MVAR argument (e.g. T in Pair<T,int> inside the generic type that
+        // declares T) rather than a closed type. TypeToken/ClassName are not used in this case.
+        // See CorDebug/CLAUDE.md "Pdbx.cs's TypeSpec/TypeSpecArg model".
+        public bool IsGenericParameter { get; set; }
+
+        // Set when IsGenericParameter: the NanoCLR TBL_GenericParam token of the parameter's own
+        // declaration.
+        public Token GenericParamToken { get; set; }
+
+        // Set when IsGenericParameter: true for a method type parameter (MVAR), false for a type
+        // parameter (VAR).
+        public bool GenericParamIsMethodOwned { get; set; }
+
+        // Set when IsGenericParameter: zero-based position on its owner.
+        public int GenericParamPosition { get; set; }
     }
 
     public partial class Member

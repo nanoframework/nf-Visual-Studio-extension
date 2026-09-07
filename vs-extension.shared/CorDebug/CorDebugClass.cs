@@ -109,7 +109,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         {
             get
             {
-                uint tk = HasSymbols ? _pdbxClass.Token.NanoCLRToken : _tkSymbolless;
+                uint tk = _pdbxClass != null ? _pdbxClass.Token.NanoCLRToken : _tkSymbolless;
 
                 return nanoCLR_TypeSystem.ClassMemberIndexFromnanoCLRToken(tk, Assembly);
             }
@@ -119,9 +119,24 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         {
             get
             {
-                uint tk = HasSymbols ? _pdbxTypeSpec.Token.NanoCLRToken : _tkSymbolless;
+                uint tk = _pdbxTypeSpec != null ? _pdbxTypeSpec.Token.NanoCLRToken : _tkSymbolless;
 
                 return nanoCLR_TypeSystem.ClassMemberIndexFromnanoCLRToken(tk, Assembly);
+            }
+        }
+
+        // See CorDebug/CLAUDE.md "Consumer side".
+        private CorDebugClass ForeignOpenTypeClass
+        {
+            get
+            {
+                if (_pdbxClass == null && _pdbxTypeSpec != null && _pdbxTypeSpec.GenericTypeDef == null &&
+                    !string.IsNullOrEmpty(_pdbxTypeSpec.GenericTypeDefName))
+                {
+                    return _assembly.AppDomain.ClassFromFullName(_pdbxTypeSpec.GenericTypeDefName);
+                }
+
+                return null;
             }
         }
 
@@ -129,6 +144,13 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         int ICorDebugClass.GetModule(out ICorDebugModule pModule)
         {
+            CorDebugClass openClass = ForeignOpenTypeClass;
+
+            if (openClass != null)
+            {
+                return ((ICorDebugClass)openClass).GetModule(out pModule);
+            }
+
             pModule = _assembly;
 
             return COM_HResults.S_OK;
@@ -136,7 +158,27 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         int ICorDebugClass.GetToken(out uint pTypeDef)
         {
-            pTypeDef = HasSymbols ? _pdbxClass.Token.CLRToken : _tkSymbolless;
+            // Must be a TypeDef token (IMetaDataImport has no TypeSpec lookup) -- never
+            // _pdbxTypeSpec.Token. See CorDebug/CLAUDE.md "Consumer side".
+            if (_pdbxClass != null)
+            {
+                pTypeDef = _pdbxClass.Token.CLRToken;
+            }
+            else if (_pdbxTypeSpec != null && _pdbxTypeSpec.GenericTypeDef != null)
+            {
+                pTypeDef = _pdbxTypeSpec.GenericTypeDef.CLRToken;
+            }
+            else
+            {
+                CorDebugClass openClass = ForeignOpenTypeClass;
+
+                if (openClass != null)
+                {
+                    return ((ICorDebugClass)openClass).GetToken(out pTypeDef);
+                }
+
+                pTypeDef = _tkSymbolless;
+            }
 
             return COM_HResults.S_OK;
         }
