@@ -125,10 +125,32 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             }
         }
 
+        // See CorDebug/CLAUDE.md "Consumer side".
+        private CorDebugClass ForeignOpenTypeClass
+        {
+            get
+            {
+                if (_pdbxClass == null && _pdbxTypeSpec != null && _pdbxTypeSpec.GenericTypeDef == null &&
+                    !string.IsNullOrEmpty(_pdbxTypeSpec.GenericTypeDefName))
+                {
+                    return _assembly.AppDomain.ClassFromFullName(_pdbxTypeSpec.GenericTypeDefName);
+                }
+
+                return null;
+            }
+        }
+
         #region ICorDebugClass Members
 
         int ICorDebugClass.GetModule(out ICorDebugModule pModule)
         {
+            CorDebugClass openClass = ForeignOpenTypeClass;
+
+            if (openClass != null)
+            {
+                return ((ICorDebugClass)openClass).GetModule(out pModule);
+            }
+
             pModule = _assembly;
 
             return COM_HResults.S_OK;
@@ -146,19 +168,15 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             {
                 pTypeDef = _pdbxTypeSpec.GenericTypeDef.CLRToken;
             }
-            else if (_pdbxTypeSpec != null && !string.IsNullOrEmpty(_pdbxTypeSpec.GenericTypeDefName))
+            else
             {
-                CorDebugClass openClass = _assembly.AppDomain.ClassFromFullName(_pdbxTypeSpec.GenericTypeDefName);
+                CorDebugClass openClass = ForeignOpenTypeClass;
 
                 if (openClass != null)
                 {
                     return ((ICorDebugClass)openClass).GetToken(out pTypeDef);
                 }
 
-                pTypeDef = _tkSymbolless;
-            }
-            else
-            {
                 pTypeDef = _tkSymbolless;
             }
 

@@ -66,9 +66,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 return null;
             }
 
-            // No assembly identity to disambiguate with here (see CorDebug/CLAUDE.md "Cross-assembly
-            // ClassFromFullName ambiguity") -- if more than one loaded assembly declares this name, fail
-            // closed rather than silently picking whichever came first in m_assemblies.
+            // See CorDebug/CLAUDE.md "Cross-assembly ClassFromFullName ambiguity".
             CorDebugClass match = null;
 
             foreach (CorDebugAssembly assembly in m_assemblies)

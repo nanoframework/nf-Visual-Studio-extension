@@ -62,17 +62,14 @@ above) — the extension never hands VS a pre-built type-name string.
 A *nested* generic-instance argument (`TypeSpecArg.TypeToken` pointing at
 another TypeSpec, §1) resolves through `GetClassFromNanoCLRToken`, which for
 a TypeSpec token constructs `CorDebugClass(assembly, typeSpec)` —
-`_pdbxClass` null, `_pdbxTypeSpec` set. `GetToken()` on that instance used to
-fall through to `_tkSymbolless`, which this constructor never sets (default
-`0`) — an invalid TypeDef token. Fixed to resolve
-`_pdbxTypeSpec.GenericTypeDef` (local assembly, the common case) or, when
-that's null, `GenericTypeDefName` through `ClassFromFullName` and delegate to
-*that* class's own token. The delegate case is an acknowledged partial fix:
-`GetModule()` still returns this assembly, not the foreign one that
-declares the type, so `IMetaDataImport` calls following that token would be
-scoped wrong. Good enough to stop returning an outright invalid token; a full
-fix needs `CorDebugClass` to be able to represent "TypeDef in a different
-assembly" properly, which is a larger change than this bug fix warrants.
+`_pdbxClass` null, `_pdbxTypeSpec` set. `GetToken()`/`GetModule()` on that
+instance resolve `_pdbxTypeSpec.GenericTypeDef` (local assembly, the common
+case) or, when that's null, `GenericTypeDefName` through `ClassFromFullName`
+(`ForeignOpenTypeClass`) and delegate to *that* class — together, so a
+caller always gets a token and a module from the same metadata scope, never
+this assembly's module paired with a foreign token. `ForeignOpenTypeClass`
+can't recurse: `GetClassFromFullName` only ever searches `Classes`
+(TypeDefs), so the class it returns is always `_pdbxClass`-backed, one hop.
 
 ## 3. Why `IsGenericInst` was not reused for the new flag
 
