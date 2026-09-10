@@ -55,7 +55,10 @@
     <Compile Include="$(MSBuildThisFileDirectory)CorDebug\Utility\Utility.MarshalInt.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)CorDebug\Utility\Utility.MarshalString.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)CorDebug\Utility\Utility.XmlDeserialize.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DebugLauncher\Ad7CorDebugEngineBinding.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DebugLauncher\CommandLineBuilder.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DebugLauncher\ConcordEngineBinding.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DebugLauncher\INanoDebugEngineBinding.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DebugLauncher\NanoDebuggerLaunchProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DeployProvider\DeploymentAssembly.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DeployProvider\DeploymentAssemblyDistinctEquality.cs" />

@@ -121,8 +121,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 #pragma warning restore S112 // General exceptions should never be thrown
             }
 
-            // get the device here so we are not always carrying the full path to the device
-            NanoDeviceBase device = NanoDeviceCommService.Device;
+            // Deploy to the device the user selected in Device Explorer — the same source
+            // the debug launcher (NanoDebuggerLaunchProvider) resolves from — so deploy and
+            // debug always agree on the target. With more than one device connected the
+            // global NanoDeviceCommService.Device may not be the chosen target. SelectedDevice
+            // is guaranteed non-null by the check above; the fallback preserves prior behavior.
+            NanoDeviceBase device = deviceExplorer.SelectedDevice ?? NanoDeviceCommService.Device;
 
             // user feedback
             await outputPaneWriter.WriteLineAsync($"Getting things ready to deploy assemblies to .NET nanoFramework device: {device.Description}.");
@@ -496,9 +500,16 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                     if (nativeAssembly.Name != null)
                     {
-                        // matching the checksum and version for this PE
-                        if (nativeAssembly.Checksum == nativeMethodsChecksum
-                            && nativeAssembly.Version.ToString(4) == peItem.NativeVersion)
+                        // Native compatibility is determined by the nativeMethodsChecksum — a CRC
+                        // of the native method signatures. The 4-part native version is only a
+                        // label; per nanoFramework convention the MINOR field is bumped when the
+                        // native ABI changes (so the checksum changes with it). A matching checksum
+                        // therefore means the native ABI is identical and the assembly is deployable
+                        // even when the build/revision differ (e.g. firmware mscorlib 100.22.0.4 and
+                        // package 100.22.0.5 sharing checksum 0x2D5CA905). This mirrors the on-device
+                        // resolver CLR_RT_TypeSystem::FindAssembly, which compares only major.minor.
+                        // CONFIRMED working: device flashes + runs with this relaxation.
+                        if (nativeAssembly.Checksum == nativeMethodsChecksum)
                         {
                             // we are good with this one
                             continue;
