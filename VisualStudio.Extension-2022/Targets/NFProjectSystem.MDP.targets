@@ -5,12 +5,14 @@
     The path is the current directory because we are using the Nuget package build directory to place all these.
   -->
   <!-- Allow overriding the path for nanoFramework MSBuildTasks if environment variable is set. -->
-  <UsingTask TaskName="ResolveRuntimeDependenciesTask"  Condition="'$(NF_MSBUILDTASK_PATH)' == ''" AssemblyFile="$(MSBuildThisFileDirectory)nanoFramework.Tools.BuildTasks.dll" />
-  <UsingTask TaskName="ResolveRuntimeDependenciesTask"  Condition="'$(NF_MSBUILDTASK_PATH)' != ''" AssemblyFile="$(NF_MSBUILDTASK_PATH)\nanoFramework.Tools.BuildTasks.dll" />
-  <UsingTask TaskName="GenerateNanoResourceTask"        Condition="'$(NF_MSBUILDTASK_PATH)' == ''" AssemblyFile="$(MSBuildThisFileDirectory)nanoFramework.Tools.BuildTasks.dll" />
-  <UsingTask TaskName="GenerateNanoResourceTask"        Condition="'$(NF_MSBUILDTASK_PATH)' != ''" AssemblyFile="$(NF_MSBUILDTASK_PATH)\nanoFramework.Tools.BuildTasks.dll" />
-  <UsingTask TaskName="GenerateBinaryOutputTask"        Condition="'$(NF_MSBUILDTASK_PATH)' == ''" AssemblyFile="$(MSBuildThisFileDirectory)nanoFramework.Tools.BuildTasks.dll" />
-  <UsingTask TaskName="GenerateBinaryOutputTask"        Condition="'$(NF_MSBUILDTASK_PATH)' != ''" AssemblyFile="$(NF_MSBUILDTASK_PATH)\nanoFramework.Tools.BuildTasks.dll"/>
+  <UsingTask TaskName="ResolveRuntimeDependenciesTask"         Condition="'$(NF_MSBUILDTASK_PATH)' == ''" AssemblyFile="$(MSBuildThisFileDirectory)nanoFramework.Tools.BuildTasks.dll" />
+  <UsingTask TaskName="ResolveRuntimeDependenciesTask"         Condition="'$(NF_MSBUILDTASK_PATH)' != ''" AssemblyFile="$(NF_MSBUILDTASK_PATH)\nanoFramework.Tools.BuildTasks.dll" />
+  <UsingTask TaskName="GenerateNanoResourceTask"               Condition="'$(NF_MSBUILDTASK_PATH)' == ''" AssemblyFile="$(MSBuildThisFileDirectory)nanoFramework.Tools.BuildTasks.dll" />
+  <UsingTask TaskName="GenerateNanoResourceTask"               Condition="'$(NF_MSBUILDTASK_PATH)' != ''" AssemblyFile="$(NF_MSBUILDTASK_PATH)\nanoFramework.Tools.BuildTasks.dll" />
+  <UsingTask TaskName="GenerateBinaryOutputTask"               Condition="'$(NF_MSBUILDTASK_PATH)' == ''" AssemblyFile="$(MSBuildThisFileDirectory)nanoFramework.Tools.BuildTasks.dll" />
+  <UsingTask TaskName="GenerateBinaryOutputTask"               Condition="'$(NF_MSBUILDTASK_PATH)' != ''" AssemblyFile="$(NF_MSBUILDTASK_PATH)\nanoFramework.Tools.BuildTasks.dll"/>
+  <UsingTask TaskName="FixNuGetPackagePropsTargetsImportsTask" Condition="'$(NF_MSBUILDTASK_PATH)' == ''" AssemblyFile="$(MSBuildThisFileDirectory)nanoFramework.Tools.BuildTasks.dll" />
+  <UsingTask TaskName="FixNuGetPackagePropsTargetsImportsTask" Condition="'$(NF_MSBUILDTASK_PATH)' != ''" AssemblyFile="$(NF_MSBUILDTASK_PATH)\nanoFramework.Tools.BuildTasks.dll"/>
 
   <!--MSBuild task for MDP-->
   <UsingTask TaskName="MetaDataProcessorTask" Condition="'$(NF_MDP_MSBUILDTASK_PATH)' == ''" AssemblyFile="$(MSBuildThisFileDirectory)nanoFramework.Tools.MetadataProcessor.MsBuildTask.dll" />
@@ -39,6 +41,10 @@
     <NanoFramework_IntermediateAssembly>$(ProjectDir)$(IntermediateOutputPath)$(TargetName)</NanoFramework_IntermediateAssembly>
     <NanoFramework_Assembly>$(OutDir)$(TargetName)</NanoFramework_Assembly>
   </PropertyGroup>
+
+  <Target Name="FixNuGetPackagePropsTargetsImports" BeforeTargets="BeforeBuild" Condition="Exists('$(MSBuildProjectDirectory)\packages.config')">
+    <FixNuGetPackagePropsTargetsImportsTask ProjectFile="$(MSBuildProjectFile)" />
+  </Target>
 
   <!-- 
     ############################################################################
