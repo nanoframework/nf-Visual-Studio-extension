@@ -10,26 +10,19 @@ namespace nanoFramework.Tools.VisualStudio.Extension
     public class DeploymentAssembly
     {
         /// <summary>
-        /// Path to the EXE or DLL file.
+        /// Path to the PE file.
         /// </summary>
         public string Path { get; set; }
 
         /// <summary>
-        /// Assembly version of the EXE or DLL.
+        /// Assembly version, as stored in the PE header.
         /// </summary>
         public string Version { get; set; }
 
-        /// <summary>
-        /// Required version of the native implementation of the class library.
-        /// Only used in class libraries. Can be empty on the core library and user EXE and DLLs.
-        /// </summary>
-        public string NativeVersion { get; set; }
-
-        public DeploymentAssembly(string path, string version, string nativeVersion)
+        public DeploymentAssembly(string path, string version)
         {
             Path = path;
             Version = version;
-            NativeVersion = nativeVersion;
         }
     }
 }

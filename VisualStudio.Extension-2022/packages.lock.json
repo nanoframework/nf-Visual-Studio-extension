@@ -26,17 +26,6 @@
           "System.Runtime.CompilerServices.Unsafe": "6.0.0"
         }
       },
-      "ICSharpCode.Decompiler": {
-        "type": "Direct",
-        "requested": "[7.2.1.6856, )",
-        "resolved": "7.2.1.6856",
-        "contentHash": "0YtLSmDhFJb79+K4c/unBWT5ZHu9ov++k0gCfxIB6+uM/n5TEYjZMKSiEQDB6FeaeLPmduxB3SYxasLIDjuhEQ==",
-        "dependencies": {
-          "Microsoft.Win32.Registry": "5.0.0",
-          "System.Collections.Immutable": "5.0.0",
-          "System.Reflection.Metadata": "5.0.0"
-        }
-      },
       "Microsoft.Extensions.DependencyInjection": {
         "type": "Direct",
         "requested": "[8.0.1, )",

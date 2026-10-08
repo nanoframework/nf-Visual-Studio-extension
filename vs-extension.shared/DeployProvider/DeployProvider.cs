@@ -7,15 +7,13 @@ using System.ComponentModel.Composition;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text.RegularExpressions;
 using System.Threading;
 using CommunityToolkit.Mvvm.DependencyInjection;
-using ICSharpCode.Decompiler;
-using ICSharpCode.Decompiler.CSharp;
 using Microsoft.VisualStudio.ProjectSystem;
 using Microsoft.VisualStudio.ProjectSystem.Build;
 using Microsoft.VisualStudio.Shell;
 using nanoFramework.Tools.Debugger;
+using nanoFramework.Tools.Debugger.Compatibility;
 using nanoFramework.Tools.Debugger.NFDevice;
 using nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel;
 using Task = System.Threading.Tasks.Task;
@@ -227,63 +225,52 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         assemblyPathsToDeploy,
                         Properties.ConfiguredProject);
 
-                    // build a list with the full path for each DLL, referenced DLL and EXE
+                    // build a list with the PE file corresponding to each DLL, referenced DLL and EXE
                     List<DeploymentAssembly> assemblyList = new List<DeploymentAssembly>();
-
-                    // set decompiler options
-                    // - don't load assembly in memory (causes issues with next solution rebuild)
-                    // - don't throw resolution errors as we are not interested on this, just the assembly metadata
-                    var decompilerSettings = new DecompilerSettings
-                    {
-                        LoadInMemory = false,
-                        ThrowOnAssemblyResolveErrors = false
-                    };
 
                     foreach (string assemblyPath in assemblyPathsToDeploy)
                     {
-                        // load assembly in order to get the versions
-                        var decompiler = new CSharpDecompiler(assemblyPath, decompilerSettings);
-                        var assemblyProperties = decompiler.DecompileModuleAndAssemblyAttributesToString();
+                        string pePath = Path.ChangeExtension(assemblyPath, ".pe");
 
-                        // read attributes using a RegEx
+                        // read the assembly version from the PE header
+                        PeAssemblyInfo peAssembly;
 
-                        // AssemblyVersion
-                        string pattern = @"(?<=AssemblyVersion\("")(.*)(?=\""\)])";
-                        var match = Regex.Matches(assemblyProperties, pattern, RegexOptions.IgnoreCase);
-                        string assemblyVersion = match[0].Value;
-
-                        // AssemblyNativeVersion
-                        pattern = @"(?<=AssemblyNativeVersion\("")(.*)(?=\""\)])";
-                        match = Regex.Matches(assemblyProperties, pattern, RegexOptions.IgnoreCase);
-
-                        // only class libs have this attribute, therefore sanity check is required
-                        string nativeVersion = "";
-                        if (match.Count == 1)
+                        try
                         {
-                            nativeVersion = match[0].Value;
+                            peAssembly = PeFileReader.ReadFile(pePath)[0];
+                        }
+                        catch (InvalidDataException ex)
+                        {
+                            MessageCentre.InternalErrorWriteLine($"*** ERROR: {ex.Message} ***");
+
+                            throw new DeploymentException($"Deploy failed. {ex.Message} Please rebuild the solution.");
                         }
 
-                        assemblyList.Add(new DeploymentAssembly(assemblyPath, assemblyVersion, nativeVersion));
+                        assemblyList.Add(new DeploymentAssembly(pePath, peAssembly.Version.ToString(4)));
                     }
 
                     // if there are referenced projects, the assembly list contains repeated assemblies so need to use Linq Distinct()
                     // an IEqualityComparer is required implementing the proper comparison
-                    List<DeploymentAssembly> distinctAssemblyList = assemblyList.Distinct(new DeploymentAssemblyDistinctEquality()).ToList();
-
-                    // build a list with the PE files corresponding to each DLL and EXE
-                    List<DeploymentAssembly> peCollection = distinctAssemblyList.Select(a => new DeploymentAssembly(a.Path.Replace(".dll", ".pe").Replace(".exe", ".pe"), a.Version, a.NativeVersion)).ToList();
-
-                    // build a list with the PE files corresponding to a DLL for native support checking
-                    // only need to check libraries because EXEs don't have native counterpart
-                    List<DeploymentAssembly> peCollectionToCheck = distinctAssemblyList.Where(i => i.Path.EndsWith(".dll")).Select(a => new DeploymentAssembly(a.Path.Replace(".dll", ".pe"), a.Version, a.NativeVersion)).ToList();
+                    List<DeploymentAssembly> peCollection = assemblyList.Distinct(new DeploymentAssemblyDistinctEquality()).ToList();
 
                     await Task.Yield();
 
-                    var checkAssembliesResult = await CheckNativeAssembliesAvailabilityAsync(device.DeviceInfo.NativeAssemblies, peCollectionToCheck);
-                    if (checkAssembliesResult != "")
+                    // check that the device firmware has the native assemblies required by the PEs to deploy
+                    // and that all the assembly references can be resolved with the PEs to deploy
+                    // (the PE format required is the one reported by the device firmware)
+                    CompatibilityCheckResult compatibility = DeploymentCompatibility.Check(
+                        peCollection.Select(a => a.Path),
+                        device);
+
+                    if (!compatibility.IsCompatible)
                     {
+                        foreach (CompatibilityIssue issue in compatibility.Issues)
+                        {
+                            MessageCentre.InternalErrorWriteLine(issue.Description);
+                        }
+
                         // can't deploy
-                        throw new DeploymentException(checkAssembliesResult);
+                        throw new DeploymentException(compatibility.FormatMessage());
                     }
 
                     await Task.Yield();
@@ -458,107 +445,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                 MessageCentre.StopProgressMessage();
             }
-        }
-
-        private async System.Threading.Tasks.Task<string> CheckNativeAssembliesAvailabilityAsync(
-            List<CLRCapabilities.NativeAssemblyProperties> nativeAssemblies,
-            List<DeploymentAssembly> peCollection)
-        {
-            string errorMessage = string.Empty;
-            string wrongAssemblies = "The connected target has the wrong version for the following assembly(ies):" + Environment.NewLine + Environment.NewLine;
-            string missingAssemblies = "The connected target does not have support for the following assembly(ies):" + Environment.NewLine + Environment.NewLine;
-            int wrongAssembliesCount = 0;
-            int missingAssembliesCount = 0;
-
-            // loop through each PE to deploy...
-            foreach (var peItem in peCollection)
-            {
-                // open the PE file and load content
-                using (FileStream fs = File.Open(peItem.Path, FileMode.Open, FileAccess.Read))
-                {
-                    CLRCapabilities.NativeAssemblyProperties nativeAssembly;
-
-                    // read the PE checksum from the byte array at position 0x14
-                    byte[] buffer = new byte[4];
-                    fs.Position = 0x14;
-                    await fs.ReadAsync(buffer, 0, 4);
-                    var nativeMethodsChecksum = BitConverter.ToUInt32(buffer, 0);
-
-                    if (nativeMethodsChecksum == 0)
-                    {
-                        // PEs with native methods checksum equal to 0 DO NOT require native support 
-                        // OK to move to the next one
-                        continue;
-                    }
-
-                    // try to find a native assembly...
-                    nativeAssembly = nativeAssemblies.Find(a => a.Name == Path.GetFileNameWithoutExtension(peItem.Path));
-
-                    if (nativeAssembly.Name != null)
-                    {
-                        // matching the checksum and version for this PE
-                        if (nativeAssembly.Checksum == nativeMethodsChecksum
-                            && nativeAssembly.Version.ToString(4) == peItem.NativeVersion)
-                        {
-                            // we are good with this one
-                            continue;
-                        }
-
-                        wrongAssembliesCount++;
-
-                        // no suitable native assembly found build a (hopefully) helpful message to the developer
-                        wrongAssemblies += $"    '{Path.GetFileNameWithoutExtension(peItem.Path)}' requires native v{peItem.NativeVersion}, checksum 0x{nativeMethodsChecksum:X8}." + Environment.NewLine +
-                                        $"    Connected target has v{nativeAssembly.Version.ToString(4)}, checksum 0x{nativeAssembly.Checksum:X8}." + Environment.NewLine + Environment.NewLine;
-
-                        MessageCentre.InternalErrorWriteLine($"Version mismatch for {Path.GetFileNameWithoutExtension(peItem.Path)}. Need v{peItem.Version}, checksum 0x{nativeMethodsChecksum:X8}.");
-                        MessageCentre.InternalErrorWriteLine($"The connected target has v{nativeAssembly.Version.ToString(4)}, checksum 0x{nativeAssembly.Checksum:X8}.");
-                    }
-                    else
-                    {
-                        missingAssembliesCount++;
-
-                        // no suitable native assembly found build a (hopefully) helpful message to the developer
-                        missingAssemblies += $"    '{Path.GetFileNameWithoutExtension(peItem.Path)}'" + Environment.NewLine;
-
-                        MessageCentre.InternalErrorWriteLine($"The connected target does not have support for {Path.GetFileNameWithoutExtension(peItem.Path)}.");
-                    }
-                }
-            }
-
-            if (wrongAssembliesCount > 0 ||
-                missingAssembliesCount > 0)
-            {
-                // init error message
-                errorMessage = "Deploy failed." + Environment.NewLine + Environment.NewLine +
-                                "***************************************************************************" + Environment.NewLine + Environment.NewLine;
-            }
-
-            if (wrongAssembliesCount > 0)
-            {
-                errorMessage += wrongAssemblies;
-                errorMessage += $"Please check: " + Environment.NewLine +
-                               $"  1) if the target is running the most updated image." + Environment.NewLine +
-                               $"  2) if the project is referring the appropriate version of the NuGet package." + Environment.NewLine;
-            }
-
-            if (missingAssembliesCount > 0)
-            {
-                errorMessage += Environment.NewLine + missingAssemblies;
-                errorMessage += Environment.NewLine + "Please check: " + Environment.NewLine +
-                                    "  1) if the target is running the most updated image." + Environment.NewLine +
-                                    "  2) if the target image was built to include support for all referenced assemblies." + Environment.NewLine;
-            }
-
-            // close error message, if needed
-            if (!string.IsNullOrEmpty(errorMessage))
-            {
-                errorMessage += "" + Environment.NewLine;
-                errorMessage += "Our Visual Studio FAQ has a troubleshooting guide: https://docs.nanoframework.net/content/faq/working-with-vs-extension.html" + Environment.NewLine;
-                errorMessage += "" + Environment.NewLine;
-                errorMessage += "***************************************************************************" + Environment.NewLine;
-            }
-
-            return errorMessage;
         }
 
         public bool IsDeploySupported

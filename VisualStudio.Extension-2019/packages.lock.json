@@ -27,17 +27,6 @@
           "System.Runtime.CompilerServices.Unsafe": "6.0.0"
         }
       },
-      "ICSharpCode.Decompiler": {
-        "type": "Direct",
-        "requested": "[7.2.1.6856, )",
-        "resolved": "7.2.1.6856",
-        "contentHash": "0YtLSmDhFJb79+K4c/unBWT5ZHu9ov++k0gCfxIB6+uM/n5TEYjZMKSiEQDB6FeaeLPmduxB3SYxasLIDjuhEQ==",
-        "dependencies": {
-          "Microsoft.Win32.Registry": "5.0.0",
-          "System.Collections.Immutable": "5.0.0",
-          "System.Reflection.Metadata": "5.0.0"
-        }
-      },
       "MessagePack": {
         "type": "Direct",
         "requested": "[2.3.112, )",
@@ -1595,10 +1584,10 @@
       },
       "System.Reflection.Metadata": {
         "type": "Transitive",
-        "resolved": "5.0.0",
-        "contentHash": "5NecZgXktdGg34rh1OenY1rFNDCI8xSjFr+Z4OU4cU06AQHUdRnIIEeWENu3Wl4YowbzkymAIMvi3WyK9U53pQ==",
+        "resolved": "1.6.0",
+        "contentHash": "COC1aiAJjCoA5GBF+QKL2uLqEBew4JsCkQmoHKbN3TlOZKa2fKLz5CpiRQKDz0RsAOEGsVKqOD5bomsXq/4STQ==",
         "dependencies": {
-          "System.Collections.Immutable": "5.0.0"
+          "System.Collections.Immutable": "1.5.0"
         }
       },
       "System.Reflection.TypeExtensions": {

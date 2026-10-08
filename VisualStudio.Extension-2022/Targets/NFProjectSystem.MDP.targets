@@ -244,16 +244,16 @@
         SkeletonWithoutInterop="$(NFMDP_STUB_SkeletonWithoutInterop)"
         ImportResources="@(NanoFramework_Resources)">
       <Output TaskParameter="FilesWritten" ItemName="FileWrites" />
-      <Output TaskParameter="NativeChecksum" PropertyName="NativeChecksum" />
+      <Output TaskParameter="NativeContractHash" PropertyName="NativeContractHash" />
     </MetaDataProcessorTask>
 
     <CallTarget Targets="NanoGenerateBinaryOutput"/>
 
     <!--Output native checksum to pipeline-->
     <!--Azure Pipelines-->
-    <Message Text="##vso[task.setvariable variable=NF_NATIVE_ASSEMBLY_CHECKSUM;]$(NativeChecksum)" Condition="'$(TF_BUILD)' == 'True' and '$(NativeChecksum)' != '' and '$(NativeChecksum)' != '0x00000000'" />
+    <Message Text="##vso[task.setvariable variable=NF_NATIVE_CONTRACT_HASH;]$(NativeContractHash)" Condition="'$(TF_BUILD)' == 'True' and '$(NativeContractHash)' != '' and '$(NativeContractHash)' != '0x00000000'" />
     <!--GitHub Actions-->
-    <WriteLinesToFile File="$(GITHUB_ENV)" Lines="NF_NATIVE_ASSEMBLY_CHECKSUM=$(NativeChecksum)" Condition="'$(GITHUB_ACTIONS)' == 'True' and '$(NativeChecksum)' != '' and '$(NativeChecksum)' != '0x00000000'" />
+    <WriteLinesToFile File="$(GITHUB_ENV)" Lines="NF_NATIVE_CONTRACT_HASH=$(NativeContractHash)" Condition="'$(GITHUB_ACTIONS)' == 'True' and '$(NativeContractHash)' != '' and '$(NativeContractHash)' != '0x00000000'" />
 
     <!-- Report MDP overridden if that's the case-->
     <Message Importance="high" Text="*** Metadata processor location overridden with: $(NF_MDP_MSBUILDTASK_PATH)" Condition="'$(NF_MDP_MSBUILDTASK_PATH)' != ''" />
@@ -454,14 +454,14 @@
         IgnoreAssembly="@(NFMDP_PE_IgnoreAssembly)"
         Condition="'$(NFMDP_GENERATE_STUBS)' == 'false'">
       <Output TaskParameter="FilesWritten" ItemName="FileWrites"/>
-      <Output TaskParameter="NativeChecksum" PropertyName="NativeChecksum" />
+      <Output TaskParameter="NativeContractHash" PropertyName="NativeContractHash" />
     </MetaDataProcessorTask>
 
     <!--Output native checksum to pipeline-->
     <!--Azure Pipelines-->
-    <Message Text="##vso[task.setvariable variable=NF_NATIVE_ASSEMBLY_CHECKSUM;]$(NativeChecksum)" Condition="'$(TF_BUILD)' == 'True' and '$(NativeChecksum)' != '' and '$(NativeChecksum)' != '0x00000000'" />
+    <Message Text="##vso[task.setvariable variable=NF_NATIVE_CONTRACT_HASH;]$(NativeContractHash)" Condition="'$(TF_BUILD)' == 'True' and '$(NativeContractHash)' != '' and '$(NativeContractHash)' != '0x00000000'" />
     <!--GitHub Actions-->
-    <WriteLinesToFile File="$(GITHUB_ENV)" Lines="NF_NATIVE_ASSEMBLY_CHECKSUM=$(NativeChecksum)" Condition="'$(GITHUB_ACTIONS)' == 'True' and '$(NativeChecksum)' != '' and '$(NativeChecksum)' != '0x00000000'" />
+    <WriteLinesToFile File="$(GITHUB_ENV)" Lines="NF_NATIVE_CONTRACT_HASH=$(NativeContractHash)" Condition="'$(GITHUB_ACTIONS)' == 'True' and '$(NativeContractHash)' != '' and '$(NativeContractHash)' != '0x00000000'" />
 
     <Message Text="Distilling assemblies to nanoCLR PE files along with stubs and skeleton files..." Condition="'$(NFMDP_GENERATE_STUBS)' == 'true'"/>
 
@@ -490,14 +490,14 @@
         IgnoreAssembly="@(NFMDP_STUB_IgnoreAssembly)"
         Condition="'$(NFMDP_GENERATE_STUBS)' == 'true'">
       <Output TaskParameter="FilesWritten" ItemName="FileWrites"/>
-      <Output TaskParameter="NativeChecksum" PropertyName="NativeChecksum" />
+      <Output TaskParameter="NativeContractHash" PropertyName="NativeContractHash" />
     </MetaDataProcessorTask>
 
     <!--Output native checksum to pipeline-->
     <!--Azure Pipelines-->
-    <Message Text="##vso[task.setvariable variable=NF_NATIVE_ASSEMBLY_CHECKSUM;]$(NativeChecksum)" Condition="'$(TF_BUILD)' == 'True' and '$(NativeChecksum)' != '' and '$(NativeChecksum)' != '0x00000000'" />
+    <Message Text="##vso[task.setvariable variable=NF_NATIVE_CONTRACT_HASH;]$(NativeContractHash)" Condition="'$(TF_BUILD)' == 'True' and '$(NativeContractHash)' != '' and '$(NativeContractHash)' != '0x00000000'" />
     <!--GitHub Actions-->
-    <WriteLinesToFile File="$(GITHUB_ENV)" Lines="NF_NATIVE_ASSEMBLY_CHECKSUM=$(NativeChecksum)" Condition="'$(GITHUB_ACTIONS)' == 'True' and '$(NativeChecksum)' != '' and '$(NativeChecksum)' != '0x00000000'" />
+    <WriteLinesToFile File="$(GITHUB_ENV)" Lines="NF_NATIVE_CONTRACT_HASH=$(NativeContractHash)" Condition="'$(GITHUB_ACTIONS)' == 'True' and '$(NativeContractHash)' != '' and '$(NativeContractHash)' != '0x00000000'" />
 
     <!-- Copy files (dll, pe, pdb and pdbx) to ouput directory -->
     <CallTarget Targets="CopyFilesToOutputDirectory" />
@@ -566,14 +566,14 @@
         Load="@(NFMDP_DAT_Load)"
         LoadDatabase="@(NFMDP_DAT_LoadDatabase)">
       <Output TaskParameter="FilesWritten" ItemName="FileWrites"/>
-      <Output TaskParameter="NativeChecksum" PropertyName="NativeChecksum" />
+      <Output TaskParameter="NativeContractHash" PropertyName="NativeContractHash" />
     </MetaDataProcessorTask>
 
     <!--Output native checksum to pipeline-->
     <!--Azure Pipelines-->
-    <Message Text="##vso[task.setvariable variable=NF_NATIVE_ASSEMBLY_CHECKSUM;]$(NativeChecksum)" Condition="'$(TF_BUILD)' == 'True' and '$(NativeChecksum)' != '' and '$(NativeChecksum)' != '0x00000000'" />
+    <Message Text="##vso[task.setvariable variable=NF_NATIVE_CONTRACT_HASH;]$(NativeContractHash)" Condition="'$(TF_BUILD)' == 'True' and '$(NativeContractHash)' != '' and '$(NativeContractHash)' != '0x00000000'" />
     <!--GitHub Actions-->
-    <WriteLinesToFile File="$(GITHUB_ENV)" Lines="NF_NATIVE_ASSEMBLY_CHECKSUM=$(NativeChecksum)" Condition="'$(GITHUB_ACTIONS)' == 'True' and '$(NativeChecksum)' != '' and '$(NativeChecksum)' != '0x00000000'" />
+    <WriteLinesToFile File="$(GITHUB_ENV)" Lines="NF_NATIVE_CONTRACT_HASH=$(NativeContractHash)" Condition="'$(GITHUB_ACTIONS)' == 'True' and '$(NativeContractHash)' != '' and '$(NativeContractHash)' != '0x00000000'" />
 
     <!-- Report MDP overridden if that's the case-->
     <Message Importance="high" Text="*** Metadata processor location overridden with: $(NF_MDP_MSBUILDTASK_PATH)" Condition="'$(NF_MDP_MSBUILDTASK_PATH)' != ''" />
