@@ -489,16 +489,16 @@
       <Version>2.3.112</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.Build">
-      <Version>16.11.0</Version>
+      <Version>16.11.6</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.Build.Framework">
-      <Version>16.11.0</Version>
+      <Version>16.11.6</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.Build.Tasks.Core">
-      <Version>16.11.0</Version>
+      <Version>16.11.6</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.Build.Utilities.Core">
-      <Version>16.11.0</Version>
+      <Version>16.11.6</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.CodeAnalysis.BannedApiAnalyzers">
       <Version>3.3.3</Version>
@@ -540,12 +540,12 @@
     <PackageReference Include="nanoFramework.Tools.Debugger.Net" Version="2.5.28" />
     <PackageReference Include="nanoFramework.Tools.MetadataProcessor.MsBuildTask" Version="3.0.104" />
     <PackageReference Include="Nerdbank.GitVersioning">
-      <Version>3.6.146</Version>
+      <Version>3.10.94</Version>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Newtonsoft.Json">
-      <Version>13.0.3</Version>
+      <Version>13.0.4</Version>
     </PackageReference>
     <PackageReference Include="NuGet.VisualStudio">
       <Version>5.11.6</Version>
@@ -562,7 +562,7 @@
     <PackageReference Include="Microsoft.VisualStudio.SDK" Version="16.10.31321.278" ExcludeAssets="runtime">
       <IncludeAssets>compile; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.VSSDK.BuildTools" Version="16.11.35" PrivateAssets="all" IncludeAssets="runtime; build; native; contentfiles; analyzers" />
+    <PackageReference Include="Microsoft.VSSDK.BuildTools" Version="16.11.69" PrivateAssets="all" IncludeAssets="runtime; build; native; contentfiles; analyzers" />
     <PackageReference Include="System.Text.Encodings.Web">
       <Version>4.7.2</Version>
     </PackageReference>

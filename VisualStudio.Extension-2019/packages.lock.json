@@ -56,11 +56,11 @@
       },
       "Microsoft.Build": {
         "type": "Direct",
-        "requested": "[16.11.0, )",
-        "resolved": "16.11.0",
-        "contentHash": "azKjcFDIGgyVWRtSSYr/Zb42xV1F0iyQyjOzdpg34UEz7HFvGJl7av7HZrNSaQ2hCqqdgfU+e9gTzguJywBofA==",
+        "requested": "[16.11.6, )",
+        "resolved": "16.11.6",
+        "contentHash": "LMI8zw3q8VqNMtfivAAMxOr+Z+vw1vGgv6EZHe1Xyu8Y4WadL3hH6ReZCbKBRl9dDdggNLSVirPCMUlchGsoMQ==",
         "dependencies": {
-          "Microsoft.Build.Framework": "16.11.0",
+          "Microsoft.Build.Framework": "16.11.6",
           "Microsoft.NET.StringTools": "1.0.0",
           "Microsoft.VisualStudio.Setup.Configuration.Interop": "1.16.30",
           "System.Collections.Immutable": "5.0.0",
@@ -72,18 +72,18 @@
       },
       "Microsoft.Build.Framework": {
         "type": "Direct",
-        "requested": "[16.11.0, )",
-        "resolved": "16.11.0",
-        "contentHash": "ZBKk+0W/fstpsYg7j1nNvqUQ4vjl4xetKwRf7/CCp956lckEOKuCpNO9yj0yO/UlmUaNGU+8csF+oYWIdOZGPw=="
+        "requested": "[16.11.6, )",
+        "resolved": "16.11.6",
+        "contentHash": "ExmiblffcaYa8mDo2rTYyGoNASgJtxtWSH4w696d8HTROVa2xPrQ2opoWr2woaEZEy9w6uu8k35kKFljQJoLuQ=="
       },
       "Microsoft.Build.Tasks.Core": {
         "type": "Direct",
-        "requested": "[16.11.0, )",
-        "resolved": "16.11.0",
-        "contentHash": "nEQgJlskVzK0oaBlPNYGbBpU7uPTwTHJ1T2rid3LRc6/CKOuBPtXEWgF1HxsldlHsx5q79sn8AE0RqAhQm7EVQ==",
+        "requested": "[16.11.6, )",
+        "resolved": "16.11.6",
+        "contentHash": "ob0i9YT0oHY+qfNjJopfXbtN8iEcl0+E0YjmBMz3Ud6uf6isBG87ok173KNomPwrnU0v/NSDzaHSu0boVtXhXg==",
         "dependencies": {
-          "Microsoft.Build.Framework": "16.11.0",
-          "Microsoft.Build.Utilities.Core": "16.11.0",
+          "Microsoft.Build.Framework": "16.11.6",
+          "Microsoft.Build.Utilities.Core": "16.11.6",
           "Microsoft.NET.StringTools": "1.0.0",
           "Microsoft.VisualStudio.Setup.Configuration.Interop": "1.16.30",
           "System.Collections.Immutable": "5.0.0",
@@ -93,11 +93,11 @@
       },
       "Microsoft.Build.Utilities.Core": {
         "type": "Direct",
-        "requested": "[16.11.0, )",
-        "resolved": "16.11.0",
-        "contentHash": "qJ02OPuYuCkcJRm3AeUV3GT6vQ1yGg4ChKi6wc+X7bSJqu6yuTxwVn7kSPx/4uD/kPyhJkzOPRi1ez5SLdXFeQ==",
+        "requested": "[16.11.6, )",
+        "resolved": "16.11.6",
+        "contentHash": "93bQaKqmdDfBfR0uFSFCZkq37RAbrhCTfCIvvrqRzZcEHwFu5IIGrSKnA65INb50x5/JnXmOD8e8bywx8jtxxg==",
         "dependencies": {
-          "Microsoft.Build.Framework": "16.11.0",
+          "Microsoft.Build.Framework": "16.11.6",
           "Microsoft.NET.StringTools": "1.0.0",
           "Microsoft.VisualStudio.Setup.Configuration.Interop": "1.16.30",
           "System.Collections.Immutable": "5.0.0",
@@ -277,9 +277,9 @@
       },
       "Microsoft.VSSDK.BuildTools": {
         "type": "Direct",
-        "requested": "[16.11.35, )",
-        "resolved": "16.11.35",
-        "contentHash": "CwQvIcdwRhu4VD3LsmkKMjH2uyZcxD46y16zKfY83ez92FwnHJfRvMgOJa+mK/WpIEM/lbo9ZXkqD+FPPn2+cA==",
+        "requested": "[16.11.69, )",
+        "resolved": "16.11.69",
+        "contentHash": "BVs5hnKzzO/U2Y5SVkLrcst9VBsjmox2nTvgTek8uUoir34XRuKDUpLh3X3IZmuTiz2aWEepTHnz+JQnYKl9hA==",
         "dependencies": {
           "Microsoft.VisualStudio.SDK.Analyzers": "15.8.33"
         }
@@ -314,15 +314,15 @@
       },
       "Nerdbank.GitVersioning": {
         "type": "Direct",
-        "requested": "[3.6.146, )",
-        "resolved": "3.6.146",
-        "contentHash": "W1eQ8hD9Y/cZ2+ilgxECl003xr1hybpN3fMxoTlMqg++BixETBMWzS4y9s08oHJKXgKtudsoxhITNOEf1OR66w=="
+        "requested": "[3.10.94, )",
+        "resolved": "3.10.94",
+        "contentHash": "sn6gFIx6bwFj3Me0XGmek3gLZi/MZC8C4tRLwslXGeBcXcVxvFpZyDrQA93G8TiYgxTS7J7triKB7hj5wXzSxA=="
       },
       "Newtonsoft.Json": {
         "type": "Direct",
-        "requested": "[13.0.3, )",
-        "resolved": "13.0.3",
-        "contentHash": "HrC5BXdl00IP9zeV+0Z848QWPAoCr9P3bDEZguI+gkLcBKAOxix/tLEAAHC+UvDNPv4a2d18lOReHMOagPa+zQ=="
+        "requested": "[13.0.4, )",
+        "resolved": "13.0.4",
+        "contentHash": "pdgNNMai3zv51W5aq268sujXUyx7SNdE2bj1wZcWjAQrKMFZV260lbqYop1d2GM67JI1huLRwxo9ZqnfF/lC6A=="
       },
       "NuGet.VisualStudio": {
         "type": "Direct",
@@ -1849,6 +1849,24 @@
           "VSSDK.DTE": "[7.0.4, 8.0.0)",
           "VSSDK.IDE.12": "[12.0.4, 13.0.0)"
         }
+      },
+      "csharp.assemblyinfotemplate": {
+        "type": "Project"
+      },
+      "csharp.blankapplication-vs2019": {
+        "type": "Project"
+      },
+      "csharp.classlibrary-vs2019": {
+        "type": "Project"
+      },
+      "csharp.classtemplate": {
+        "type": "Project"
+      },
+      "csharp.resourcetemplate": {
+        "type": "Project"
+      },
+      "csharp.testapplication-vs2019": {
+        "type": "Project"
       },
       "nanoFramework.Tools.BuildTasks": {
         "type": "Project",
