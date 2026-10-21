@@ -724,20 +724,28 @@ namespace nanoFramework.Tools
         {
             using (reader)
             {
+                ResXResourceReader resXReader = reader as ResXResourceReader;
+
+                if (resXReader != null)
+                {
+                    // get data nodes instead of the deserialized values so linked files can be read as raw bytes
+                    // regardless of the type that the resource editor declared for them
+                    resXReader.UseResXDataNodes = true;
+                }
+
                 IDictionaryEnumerator resEnum = reader.GetEnumerator();
                 while (resEnum.MoveNext())
                 {
-                    string name = (string)resEnum.Key;
-                    // Replace dot in the name with underscore.
-                    // 1. First reason  - this is what desktop resource generator does.
-                    // 2. Second reason - Extra dots causes resource generator to create name space and enumerations.
-                    //    This complicates the syntax and finally create invalid code if 2 or more dots are present.
-                    //    So we just make longer name.
-                    name = name.Replace('.', '_');
+                    string name = SanitizeResourceName((string)resEnum.Key);
                     object value;
                     try
                     {
                         value = resEnum.Value;
+
+                        if (value is ResXDataNode dataNode)
+                        {
+                            value = GetDataNodeValue(dataNode, resXReader.BasePath, fileName);
+                        }
                     }
                     catch (Exception ex)
                     {
@@ -749,6 +757,65 @@ namespace nanoFramework.Tools
             }
 
             EnsureResourcesIds(resources);
+        }
+
+        /// <summary>
+        /// Makes a resource name usable as an identifier in the strongly typed resource class.
+        /// An optional ";id" suffix is preserved.
+        /// </summary>
+        private static string SanitizeResourceName(string name)
+        {
+            int idSeparator = name.IndexOf(';');
+            string baseName = idSeparator >= 0 ? name.Substring(0, idSeparator) : name;
+            string idSuffix = idSeparator >= 0 ? name.Substring(idSeparator) : string.Empty;
+
+            // Replace dots (and any other character that isn't valid in an identifier) with underscore.
+            // 1. First reason  - this is what desktop resource generator does.
+            // 2. Second reason - Extra dots causes resource generator to create name space and enumerations.
+            //    This complicates the syntax and finally create invalid code if 2 or more dots are present.
+            //    So we just make longer name.
+            // 3. Third reason  - newer VS resource editors keep names as typed (e.g. with '-' or spaces).
+            StringBuilder sanitizedName = new StringBuilder(baseName.Length + 1);
+
+            foreach (char c in baseName)
+            {
+                sanitizedName.Append(char.IsLetterOrDigit(c) || c == '_' ? c : '_');
+            }
+
+            if (sanitizedName.Length > 0 && char.IsDigit(sanitizedName[0]))
+            {
+                sanitizedName.Insert(0, '_');
+            }
+
+            return sanitizedName.ToString() + idSuffix;
+        }
+
+        /// <summary>
+        /// Gets the value of a resx data node.
+        /// Linked files that aren't text are read as raw bytes, ignoring the type declared in the resx.
+        /// Depending on the VS version, the resource editor declares images as System.Drawing.Bitmap or as System.Byte[].
+        /// </summary>
+        private object GetDataNodeValue(ResXDataNode dataNode, string basePath, string fileName)
+        {
+            ResXFileRef fileRef = dataNode.FileRef;
+
+            if (fileRef != null
+                && !fileRef.TypeName.StartsWith(typeof(string).FullName + ",", StringComparison.Ordinal)
+                && fileRef.TypeName != typeof(string).FullName)
+            {
+                string linkedFilePath = fileRef.FileName;
+
+                if (!Path.IsPathRooted(linkedFilePath))
+                {
+                    linkedFilePath = Path.Combine(basePath ?? Path.GetDirectoryName(Path.GetFullPath(fileName)), linkedFilePath);
+                }
+
+                return File.ReadAllBytes(linkedFilePath);
+            }
+
+            return assemblyList != null
+                ? dataNode.GetValue(assemblyList)
+                : dataNode.GetValue((System.ComponentModel.Design.ITypeResolutionService)null);
         }
 
         private static short GenerateIdFromResourceName(string s)
@@ -967,45 +1034,29 @@ namespace nanoFramework.Tools
                         break;
 
                     case "Byte[]":
-                        byte[] rawValue = value as byte[];
-                        Bitmap bitmapImage = null;
-                        bool imageJPeg = false;
-                        bool imageGif = false;
-                        bool imageBmp = false;
-                        try
-                        {
-                            bitmapImage = Image.FromStream(new MemoryStream(rawValue)) as Bitmap;
-                            imageJPeg = bitmapImage.RawFormat.Equals(ImageFormat.Jpeg);
-                            imageGif = bitmapImage.RawFormat.Equals(ImageFormat.Gif);
-                            imageBmp = bitmapImage.RawFormat.Equals(ImageFormat.Bmp);
-                        }
-                        catch
-                        {
-                            // Ignore error if not a known supported bitmap
-                        }
-                        // read raw content so it can be saved as a binary entry resource (byte[])
-                        if (imageJPeg || imageGif || imageBmp)
-                        {
-                            entry = new BitmapEntry(name, bitmapImage);
-    
-                        }
-                        else if (rawValue != null)
-                        {
-                            // This code handles fonts which have a resource header starting with a Magic Number
-                            // followed by a number of resources, e.g. each font letter etc...
-                            entry = NanoResourcesEntry.TryCreateNanoResourcesEntry(name, rawValue);
+                        entry = CreateEntryFromBytes(name, value as byte[]);
+                        break;
 
-                            // If just a byte array, create a Binary Resource
-                            if (entry == null)
-                            {
-                                // Create BinaryEntry
-                                using (var ms = new MemoryStream(rawValue))
-                                {
-                                    entry = new BinaryEntry(name, rawValue);
-                                }
-                            }
+                    case "Bitmap":
+                        // images embedded in the resx (not linked files) that were deserialized as System.Drawing.Bitmap
+                        using (MemoryStream bitmapStream = new MemoryStream())
+                        {
+                            Bitmap bitmapValue = (Bitmap)value;
+                            ImageFormat bitmapFormat = bitmapValue.RawFormat.Equals(ImageFormat.MemoryBmp) ? ImageFormat.Png : bitmapValue.RawFormat;
+                            bitmapValue.Save(bitmapStream, bitmapFormat);
+                            entry = CreateEntryFromBytes(name, bitmapStream.ToArray());
                         }
                         break;
+
+                    case "Icon":
+                        // icons embedded in the resx (not linked files) that were deserialized as System.Drawing.Icon
+                        using (MemoryStream iconStream = new MemoryStream())
+                        {
+                            ((Icon)value).Save(iconStream);
+                            entry = CreateEntryFromBytes(name, iconStream.ToArray());
+                        }
+                        break;
+
                     case "MemoryStream":
                         // Examples  - .wav
                         // this is a binary resource
@@ -1019,7 +1070,7 @@ namespace nanoFramework.Tools
 
                 if (entry == null)
                 {
-                    throw new Exception($"Resource '{name}' has unsupported type '{value.GetType().FullName}'.");
+                    throw new Exception($"Resource '{name}' has unsupported type '{value.GetType().FullName}'. Supported: strings, byte[] and linked files.");
                 }
 
                 if (entry.Namespace.Length == 0)
@@ -1039,6 +1090,41 @@ namespace nanoFramework.Tools
                 }
 
                 return entry;
+            }
+
+            private static Entry CreateEntryFromBytes(string name, byte[] rawValue)
+            {
+                if (rawValue == null)
+                {
+                    return null;
+                }
+
+                Bitmap bitmapImage = null;
+                bool imageJPeg = false;
+                bool imageGif = false;
+                bool imageBmp = false;
+                try
+                {
+                    bitmapImage = Image.FromStream(new MemoryStream(rawValue)) as Bitmap;
+                    imageJPeg = bitmapImage.RawFormat.Equals(ImageFormat.Jpeg);
+                    imageGif = bitmapImage.RawFormat.Equals(ImageFormat.Gif);
+                    imageBmp = bitmapImage.RawFormat.Equals(ImageFormat.Bmp);
+                }
+                catch
+                {
+                    // Ignore error if not a known supported bitmap
+                }
+
+                if (imageJPeg || imageGif || imageBmp)
+                {
+                    return new BitmapEntry(name, bitmapImage);
+                }
+
+                // This code handles fonts which have a resource header starting with a Magic Number
+                // followed by a number of resources, e.g. each font letter etc...
+                // If just a byte array, create a Binary Resource
+                return (Entry)NanoResourcesEntry.TryCreateNanoResourcesEntry(name, rawValue)
+                    ?? new BinaryEntry(name, rawValue);
             }
 
             private bool ParseId(string val, out short id)
