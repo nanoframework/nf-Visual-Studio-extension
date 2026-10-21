@@ -195,6 +195,12 @@ namespace nanoFramework.Tools
                 logger.LogError(null, inFile, xe.LineNumber, xe.LinePosition, 0, 0, "General.InvalidResxFile", xe.Message);
                 return false;
             }
+            catch (Exception e) when (e is IOException || e is UnauthorizedAccessException)
+            {
+                // failed to read a file linked in the resx
+                logger.LogError(null, null, null, inFile, 0, 0, 0, 0, "Cannot read linked resource file: {0}", e.Message);
+                return false;
+            }
 #if MSBUILD_SOURCES
             catch (Exception e)
             {
@@ -736,23 +742,26 @@ namespace nanoFramework.Tools
                 IDictionaryEnumerator resEnum = reader.GetEnumerator();
                 while (resEnum.MoveNext())
                 {
-                    string name = SanitizeResourceName((string)resEnum.Key);
+                    string originalName = (string)resEnum.Key;
+                    string name = SanitizeResourceName(originalName);
                     object value;
                     try
                     {
                         value = resEnum.Value;
-
-                        if (value is ResXDataNode dataNode)
-                        {
-                            value = GetDataNodeValue(dataNode, resXReader.BasePath, fileName);
-                        }
                     }
                     catch (Exception ex)
                     {
-                        logger?.LogWarning(null, fileName, 0, 0, 0, 0, "GenerateResource.CannotLoadResource", (string)resEnum.Key, ex.Message);
+                        logger?.LogWarning(null, null, null, fileName, 0, 0, 0, 0, "Cannot load resource '{0}': {1}", originalName, ex.Message);
                         continue;
                     }
-                    AddResource(name, value, fileName);
+
+                    if (value is ResXDataNode dataNode)
+                    {
+                        // failures reading linked files are errors, let them reach ProcessFile
+                        value = GetDataNodeValue(dataNode, resXReader?.BasePath, fileName);
+                    }
+
+                    AddResource(name, value, fileName, originalName);
                 }
             }
 
@@ -961,11 +970,19 @@ namespace nanoFramework.Tools
         /// <param name="inputFileName">Input file for messages</param>
         /// <param name="lineNumber">Line number for messages</param>
         /// <param name="linePosition">Column number for messages</param>
-        private void AddResource(string name, object value, String inputFileName, int lineNumber, int linePosition)
+        /// <param name="originalName">Resource name before sanitization, for messages</param>
+        private void AddResource(string name, object value, String inputFileName, int lineNumber, int linePosition, string originalName = null)
         {
             if (resourcesHashTable.ContainsKey(name))
             {
-                logger?.LogWarning(null, inputFileName, lineNumber, linePosition, 0, 0, "GenerateResource.DuplicateResourceName", name);
+                if (originalName != null && originalName != name)
+                {
+                    logger?.LogWarning(null, null, null, inputFileName, lineNumber, linePosition, 0, 0, "Duplicate resource name '{0}' (originally '{1}'). Resource ignored.", name, originalName);
+                }
+                else
+                {
+                    logger?.LogWarning(null, null, null, inputFileName, lineNumber, linePosition, 0, 0, "Duplicate resource name '{0}'. Resource ignored.", name);
+                }
                 return;
             }
 
@@ -977,9 +994,9 @@ namespace nanoFramework.Tools
             resourcesHashTable[name] = entry;
         }
 
-        private void AddResource(string name, object value, String inputFileName)
+        private void AddResource(string name, object value, String inputFileName, string originalName = null)
         {
-            AddResource(name, value, inputFileName, 0, 0);
+            AddResource(name, value, inputFileName, 0, 0, originalName);
         }
 
         /// <summary>
@@ -1042,7 +1059,7 @@ namespace nanoFramework.Tools
                         using (MemoryStream bitmapStream = new MemoryStream())
                         {
                             Bitmap bitmapValue = (Bitmap)value;
-                            ImageFormat bitmapFormat = bitmapValue.RawFormat.Equals(ImageFormat.MemoryBmp) ? ImageFormat.Png : bitmapValue.RawFormat;
+                            ImageFormat bitmapFormat = bitmapValue.RawFormat.Equals(ImageFormat.MemoryBmp) ? ImageFormat.Bmp : bitmapValue.RawFormat;
                             bitmapValue.Save(bitmapStream, bitmapFormat);
                             entry = CreateEntryFromBytes(name, bitmapStream.ToArray());
                         }
