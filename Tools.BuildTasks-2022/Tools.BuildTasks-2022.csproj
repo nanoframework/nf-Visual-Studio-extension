@@ -95,14 +95,11 @@
     <None Include="version.json" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.Build.Framework">
-      <Version>17.12.6</Version>
-    </PackageReference>
     <PackageReference Include="Microsoft.Build.Utilities.Core">
-      <Version>17.11.4</Version>
+      <Version>17.14.28</Version>
     </PackageReference>
     <PackageReference Include="Nerdbank.GitVersioning">
-      <Version>3.6.146</Version>
+      <Version>3.10.94</Version>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
