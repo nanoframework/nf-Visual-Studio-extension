@@ -434,6 +434,38 @@ namespace nanoFramework.Tools
         }
 
         /// <summary>
+        /// Generates the C# strongly typed resource class for a .resx file and returns it as a string.
+        /// Used by the build task, which runs this in a separate AppDomain, where a CodeDomProvider
+        /// and TextWriter can't be passed across the boundary.
+        /// </summary>
+        public string CreateStronglyTypedResourcesCode(string inputFileName, string className, string classNamespace)
+        {
+            StronglyTypedClassName = className;
+            StronglyTypedNamespace = classNamespace;
+
+            string resourceName = string.IsNullOrEmpty(classNamespace) ? className : $"{classNamespace}.{className}";
+
+            // CodeDom localizes the auto-generated header to the UI culture, keep it stable regardless of the machine language
+            CultureInfo uiCulture = System.Threading.Thread.CurrentThread.CurrentUICulture;
+            System.Threading.Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
+
+            try
+            {
+                using (CodeDomProvider provider = new Microsoft.CSharp.CSharpCodeProvider())
+                using (StringWriter writer = new StringWriter(CultureInfo.InvariantCulture))
+                {
+                    CreateStronglyTypedResources(inputFileName, provider, writer, resourceName);
+
+                    return writer.ToString();
+                }
+            }
+            finally
+            {
+                System.Threading.Thread.CurrentThread.CurrentUICulture = uiCulture;
+            }
+        }
+
+        /// <summary>
         /// Generates a strongly typed resource class from in-memory .resx content.
         /// Used by the VS custom tool so that unsaved designer edits are reflected
         /// immediately without waiting for the file to be written to disk.

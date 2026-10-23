@@ -9,6 +9,8 @@
   <UsingTask TaskName="ResolveRuntimeDependenciesTask"  Condition="'$(NF_MSBUILDTASK_PATH)' != ''" AssemblyFile="$(NF_MSBUILDTASK_PATH)\nanoFramework.Tools.BuildTasks.dll" />
   <UsingTask TaskName="GenerateNanoResourceTask"        Condition="'$(NF_MSBUILDTASK_PATH)' == ''" AssemblyFile="$(MSBuildThisFileDirectory)nanoFramework.Tools.BuildTasks.dll" />
   <UsingTask TaskName="GenerateNanoResourceTask"        Condition="'$(NF_MSBUILDTASK_PATH)' != ''" AssemblyFile="$(NF_MSBUILDTASK_PATH)\nanoFramework.Tools.BuildTasks.dll" />
+  <UsingTask TaskName="GenerateNanoResourceDesignerTask" Condition="'$(NF_MSBUILDTASK_PATH)' == ''" AssemblyFile="$(MSBuildThisFileDirectory)nanoFramework.Tools.BuildTasks.dll" />
+  <UsingTask TaskName="GenerateNanoResourceDesignerTask" Condition="'$(NF_MSBUILDTASK_PATH)' != ''" AssemblyFile="$(NF_MSBUILDTASK_PATH)\nanoFramework.Tools.BuildTasks.dll" />
   <UsingTask TaskName="GenerateBinaryOutputTask"        Condition="'$(NF_MSBUILDTASK_PATH)' == ''" AssemblyFile="$(MSBuildThisFileDirectory)nanoFramework.Tools.BuildTasks.dll" />
   <UsingTask TaskName="GenerateBinaryOutputTask"        Condition="'$(NF_MSBUILDTASK_PATH)' != ''" AssemblyFile="$(NF_MSBUILDTASK_PATH)\nanoFramework.Tools.BuildTasks.dll"/>
 
@@ -93,6 +95,7 @@
 
     <PrepareResourcesDependsOn>
       PrepareResourceNames;
+      NanoResourceDesignerGenerator;
       ResGen;
       CompileLicxFiles;
       NanoResourceGenerator
@@ -348,7 +351,7 @@
   <PropertyGroup Condition="'$(NF_IsCoreLibrary)' == 'True' ">
     <!--<MetaDataProcessorDependsOn>Compile</MetaDataProcessorDependsOn>-->
     <CoreBuildDependsOn>$(CoreBuildDependsOn);MetaDataProcessorCompile</CoreBuildDependsOn>
-    <PrepareResourcesDependsOn>$(PrepareResourcesDependsOn);NanoResourceGenerator</PrepareResourcesDependsOn>
+    <PrepareResourcesDependsOn>$(PrepareResourcesDependsOn);NanoResourceDesignerGenerator;NanoResourceGenerator</PrepareResourcesDependsOn>
     <CleanDependsOn>$(CleanDependsOn);NanoCLR_CleanExtraFiles</CleanDependsOn>
     <ResolveReferencesDependsOn>$(ResolveReferencesDependsOn);ResolveRuntimeDependencies;</ResolveReferencesDependsOn>
     <BuildingProject Condition=" '$(BuildingProject)'=='' " >false</BuildingProject>
@@ -731,6 +734,48 @@
       <_ReferencedPeFile Include="@(_ReferencedAssemblyDll->'%(RootDir)%(Directory)%(filename).pe')" />
       <ReferencedPeFile Include="%(_ReferencedPeFile.identity)" Condition="EXISTS(%(_ReferencedPeFile.identity))" />
     </ItemGroup>
+
+  </Target>
+
+  <!--
+    Generates the code-behind (Designer.cs) of .resx files that use the .NET nanoFramework custom tool,
+    when it's missing or older than the .resx. This is what the VS custom tool does when the .resx is saved,
+    so the build works even if the custom tool never ran (file deleted, command line builds, etc).
+    Set NF_GenerateResourceDesigner to false to disable it.
+  -->
+  <Target Name="_NanoResourceDesignerPrepare"
+          DependsOnTargets="PrepareResourceNames">
+
+    <ItemGroup>
+      <_NFResxDesigner Include="@(EmbeddedResource)" Condition="'%(EmbeddedResource.Generator)' == 'nFResXFileCodeGenerator' and '%(EmbeddedResource.Extension)' == '.resx' and '%(EmbeddedResource.GenerateResource)' != 'false'" />
+
+      <!-- same class name and namespace that VS hands to the custom tool: file name and default namespace of the item folder -->
+      <_NFResxDesigner>
+        <StronglyTypedClassName>%(Filename)</StronglyTypedClassName>
+        <StronglyTypedNamespace Condition="$([System.String]::Copy('%(ManifestResourceName)').Contains('.'))">$([System.String]::Copy('%(ManifestResourceName)').Substring(0, $([System.String]::Copy('%(ManifestResourceName)').LastIndexOf('.'))))</StronglyTypedNamespace>
+      </_NFResxDesigner>
+      <_NFResxDesigner Condition="'%(_NFResxDesigner.LastGenOutput)' != ''">
+        <StronglyTypedFileName>%(RootDir)%(Directory)%(LastGenOutput)</StronglyTypedFileName>
+      </_NFResxDesigner>
+      <_NFResxDesigner Condition="'%(_NFResxDesigner.LastGenOutput)' == ''">
+        <StronglyTypedFileName>%(RootDir)%(Directory)%(Filename).Designer.cs</StronglyTypedFileName>
+      </_NFResxDesigner>
+
+      <!-- make sure the generated code is compiled, without duplicating what the project already lists -->
+      <_NFResxDesignerCompile Include="@(_NFResxDesigner->'%(StronglyTypedFileName)')" />
+      <_NFResxDesignerCompile Remove="@(Compile->'%(FullPath)')" />
+      <Compile Include="@(_NFResxDesignerCompile)" />
+    </ItemGroup>
+
+  </Target>
+
+  <Target Name="NanoResourceDesignerGenerator"
+          Condition="'@(EmbeddedResource)' != '' and '$(NF_GenerateResourceDesigner)' != 'false' and '$(DesignTimeBuild)' != 'true'"
+          DependsOnTargets="_NanoResourceDesignerPrepare"
+          Inputs="@(_NFResxDesigner)"
+          Outputs="@(_NFResxDesigner->'%(StronglyTypedFileName)')">
+
+    <GenerateNanoResourceDesignerTask Sources="@(_NFResxDesigner)" />
 
   </Target>
 

@@ -72,6 +72,9 @@
     <Compile Include="..\Tools.BuildTasks-2019\GenerateBinaryOutputTask.cs">
       <Link>GenerateBinaryOutputTask.cs</Link>
     </Compile>
+    <Compile Include="..\Tools.BuildTasks-2019\GenerateNanoResourceDesignerTask.cs">
+      <Link>GenerateNanoResourceDesignerTask.cs</Link>
+    </Compile>
     <Compile Include="..\Tools.BuildTasks-2019\GenerateNanoResourceTask.cs">
       <Link>GenerateNanoResourceTask.cs</Link>
     </Compile>

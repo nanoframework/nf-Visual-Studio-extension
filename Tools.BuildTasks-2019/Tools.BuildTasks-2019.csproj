@@ -54,6 +54,7 @@
     <Compile Include="GenerateBinaryOutputTask.cs" />
     <Compile Include="ProcessResourceFiles.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="GenerateNanoResourceDesignerTask.cs" />
     <Compile Include="GenerateNanoResourceTask.cs" />
     <Compile Include="ResolveRuntimeDependenciesTask.cs" />
     <Compile Include="TasksConstants.cs" />
