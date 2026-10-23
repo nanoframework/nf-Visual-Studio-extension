@@ -68,47 +68,11 @@
           "System.Threading.Tasks.Extensions": "4.6.0"
         }
       },
-      "Microsoft.Build.Framework": {
-        "type": "Direct",
-        "requested": "[17.14.28, )",
-        "resolved": "17.14.28",
-        "contentHash": "wRcyTzGV0LRAtFdrddtioh59Ky4/zbvyraP0cQkDzRSRkhgAQb0K88D/JNC6VHLIXanRi3mtV1jU0uQkBwmiVg==",
-        "dependencies": {
-          "System.Diagnostics.DiagnosticSource": "9.0.0",
-          "System.Memory": "4.6.0",
-          "System.Runtime.CompilerServices.Unsafe": "6.1.0",
-          "System.Text.Json": "9.0.0",
-          "System.Threading.Tasks.Extensions": "4.6.0"
-        }
-      },
-      "Microsoft.Build.Tasks.Core": {
-        "type": "Direct",
-        "requested": "[17.14.28, )",
-        "resolved": "17.14.28",
-        "contentHash": "jk3O0tXp9QWPXhLJ7Pl8wm/eGtGgA1++vwHGWEmnwMU6eP//ghtcCUpQh9CQMwEKGDnH0aJf285V1s8yiSlKfQ==",
-        "dependencies": {
-          "Microsoft.Build.Framework": "17.14.28",
-          "Microsoft.Build.Utilities.Core": "17.14.28",
-          "Microsoft.IO.Redist": "6.1.0",
-          "Microsoft.NET.StringTools": "17.14.28",
-          "System.Collections.Immutable": "9.0.0",
-          "System.Configuration.ConfigurationManager": "9.0.0",
-          "System.Diagnostics.DiagnosticSource": "9.0.0",
-          "System.Formats.Nrbf": "9.0.0",
-          "System.Memory": "4.6.0",
-          "System.Reflection.Metadata": "9.0.0",
-          "System.Resources.Extensions": "9.0.0",
-          "System.Runtime.CompilerServices.Unsafe": "6.1.0",
-          "System.Text.Json": "9.0.0",
-          "System.Threading.Tasks.Dataflow": "9.0.0",
-          "System.Threading.Tasks.Extensions": "4.6.0"
-        }
-      },
       "Microsoft.CodeAnalysis.BannedApiAnalyzers": {
         "type": "Direct",
-        "requested": "[3.3.4, )",
-        "resolved": "3.3.4",
-        "contentHash": "0k2Jwpc8eq0hjOtX6TxRkHm9clkJ2PAQ3heEHgqIJZcsfdFosC/iyz18nsgTVDDWpID80rC7aiYK7ripx+Qndg=="
+        "requested": "[5.6.0, )",
+        "resolved": "5.6.0",
+        "contentHash": "Kcobt3pnOdO0A+6CKiMHZdTEluJpsfxiV20axtZdmfBQnDmiWTKPJADlgAfdTuKNAnVarrkJa0UEGwuOo91muw=="
       },
       "Microsoft.Extensions.DependencyInjection": {
         "type": "Direct",
@@ -482,10 +446,37 @@
           "System.Threading.Tasks.Extensions": "4.5.4"
         }
       },
-      "Microsoft.Bcl.HashCode": {
+      "Microsoft.Build.Framework": {
         "type": "Transitive",
-        "resolved": "1.1.1",
-        "contentHash": "MalY0Y/uM/LjXtHfX/26l2VtN4LDNZ2OE3aumNOHDLsT4fNYy2hiHXI4CXCqKpNUNm7iJ2brrc4J89UdaL56FA=="
+        "resolved": "17.14.28",
+        "contentHash": "wRcyTzGV0LRAtFdrddtioh59Ky4/zbvyraP0cQkDzRSRkhgAQb0K88D/JNC6VHLIXanRi3mtV1jU0uQkBwmiVg==",
+        "dependencies": {
+          "System.Diagnostics.DiagnosticSource": "9.0.0",
+          "System.Memory": "4.6.0",
+          "System.Runtime.CompilerServices.Unsafe": "6.1.0",
+          "System.Text.Json": "9.0.0",
+          "System.Threading.Tasks.Extensions": "4.6.0"
+        }
+      },
+      "Microsoft.Build.Tasks.Core": {
+        "type": "Transitive",
+        "resolved": "17.6.3",
+        "contentHash": "93HI+0BthhsWWkab/Y2X6kuZgNo/uI8CeHBPdh5cXXNuAptx4GwYeKeB87COVkA65hYaub2x0u75BPZdK76pjQ==",
+        "dependencies": {
+          "Microsoft.Build.Framework": "17.6.3",
+          "Microsoft.Build.Utilities.Core": "17.6.3",
+          "Microsoft.IO.Redist": "6.0.0",
+          "Microsoft.NET.StringTools": "17.6.3",
+          "Microsoft.VisualStudio.Setup.Configuration.Interop": "3.2.2146",
+          "System.Collections.Immutable": "7.0.0",
+          "System.Configuration.ConfigurationManager": "7.0.0",
+          "System.Memory": "4.5.5",
+          "System.Resources.Extensions": "7.0.0",
+          "System.Runtime.CompilerServices.Unsafe": "6.0.0",
+          "System.Security.Permissions": "7.0.0",
+          "System.Security.Principal.Windows": "5.0.0",
+          "System.Threading.Tasks.Dataflow": "7.0.0"
+        }
       },
       "Microsoft.Build.Utilities.Core": {
         "type": "Transitive",
@@ -1612,16 +1603,6 @@
         "resolved": "9.0.0",
         "contentHash": "PdkuMrwDhXoKFo/JxISIi9E8L+QGn9Iquj2OKDWHB6Y/HnUOuBouF7uS3R4Hw3FoNmwwMo6hWgazQdyHIIs27A=="
       },
-      "System.Formats.Nrbf": {
-        "type": "Transitive",
-        "resolved": "9.0.0",
-        "contentHash": "F/6tNE+ckmdFeSQAyQo26bQOqfPFKEfZcuqnp4kBE6/7jP26diP+QTHCJJ6vpEfaY6bLy+hBLiIQUSxSmNwLkA==",
-        "dependencies": {
-          "Microsoft.Bcl.HashCode": "1.1.1",
-          "System.Reflection.Metadata": "9.0.0",
-          "System.ValueTuple": "4.5.0"
-        }
-      },
       "System.IO.Pipelines": {
         "type": "Transitive",
         "resolved": "9.0.0",
@@ -1682,10 +1663,9 @@
       },
       "System.Resources.Extensions": {
         "type": "Transitive",
-        "resolved": "9.0.0",
-        "contentHash": "tvhuT1D2OwPROdL1kRWtaTJliQo0WdyhvwDpd8RM997G7m3Hya5nhbYhNTS75x6Vu+ypSOgL5qxDCn8IROtCxw==",
+        "resolved": "7.0.0",
+        "contentHash": "65ufm9ABXvxRkQ//hMcUDrQXbGWkC7z0WWZAvHlQ6Qv+JmrIwHH1lmX8aXlNlXpIrT9KxDpuZPqJTVqqwzMD8Q==",
         "dependencies": {
-          "System.Formats.Nrbf": "9.0.0",
           "System.Memory": "4.5.5"
         }
       },
@@ -1700,6 +1680,14 @@
         "contentHash": "AUADIc0LIEQe7MzC+I0cl0rAT8RrTAKFHl53yHjEUzNVIaUlhFY11vc2ebiVJzVBuOzun6F7FBA+8KAbGTTedQ==",
         "dependencies": {
           "System.Security.Principal.Windows": "5.0.0"
+        }
+      },
+      "System.Security.Permissions": {
+        "type": "Transitive",
+        "resolved": "7.0.0",
+        "contentHash": "Vmp0iRmCEno9BWiskOW5pxJ3d9n+jUqKxvX4GhLwFhnQaySZmBN2FuC0N5gjFHgyFMUjC5sfIJ8KZfoJwkcMmA==",
+        "dependencies": {
+          "System.Security.AccessControl": "6.0.0"
         }
       },
       "System.Security.Principal.Windows": {
@@ -1853,8 +1841,7 @@
       "nanoFramework.Tools.BuildTasks": {
         "type": "Project",
         "dependencies": {
-          "Microsoft.Build.Framework": "[17.12.6, )",
-          "Microsoft.Build.Utilities.Core": "[17.11.4, )"
+          "Microsoft.Build.Utilities.Core": "[17.14.28, )"
         }
       }
     },
