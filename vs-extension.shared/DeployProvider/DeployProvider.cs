@@ -121,8 +121,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 #pragma warning restore S112 // General exceptions should never be thrown
             }
 
-            // get the device here so we are not always carrying the full path to the device
-            NanoDeviceBase device = NanoDeviceCommService.Device;
+            // deploy to the device selected in Device Explorer, same as the debug launcher
+            NanoDeviceBase device = deviceExplorer.SelectedDevice;
 
             telemetry
                 .SetProperties(ExtensionTelemetry.DeviceProperties(device))
@@ -145,9 +145,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 MessageCentre.InternalErrorWriteLine("Starting debug engine on nanoDevice");
 
                 // check if debugger engine exists
-                if (NanoDeviceCommService.Device.DebugEngine == null)
+                if (device.DebugEngine == null)
                 {
-                    NanoDeviceCommService.Device.CreateDebugEngine();
+                    device.CreateDebugEngine();
                 }
 
                 await Task.Yield();
