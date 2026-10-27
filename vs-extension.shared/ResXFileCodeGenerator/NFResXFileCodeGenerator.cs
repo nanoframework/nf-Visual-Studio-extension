@@ -102,6 +102,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 Exception reported = ex is TargetInvocationException tie && tie.InnerException != null
                     ? tie.InnerException
                     : ex;
+
+                ExtensionTelemetry.TrackException(reported, "resx.codegen");
+
                 GeneratorErrorCallback(0, 4, reported.Message, 0, 0);
                 pbstrOutputFileContents[0] = IntPtr.Zero;
                 pbstrOutputFileContentSize = 0;

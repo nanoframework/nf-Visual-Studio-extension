@@ -27,6 +27,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         void StopVirtualDevice(bool shutdownProcessing = false);
 
-        Task<bool> StartVirtualDeviceAsync(bool rescanDevices);
+        Task<bool> StartVirtualDeviceAsync(bool rescanDevices, string trigger);
     }
 }

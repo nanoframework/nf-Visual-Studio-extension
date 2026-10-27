@@ -137,6 +137,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension.AutomaticUpdates
                             return;
                         }
 
+                        TelemetryOperation telemetry = null;
+
                         // better wrap this on a try-finally because a lot of things can go wrong in the process
                         try
                         {
@@ -148,6 +150,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension.AutomaticUpdates
 
                             await Task.Yield();
 
+                            telemetry = ExtensionTelemetry.StartOperation("firmware.update")
+                                .SetProperties(ExtensionTelemetry.DeviceProperties(nanoDevice))
+                                .SetProperty("fw_package", fwPackage?.GetType().Name)
+                                .SetProperty("to_version", fwPackage?.Version?.ToString())
+                                .SetProperty("prerelease", NanoFrameworkPackage.SettingIncludePrereleaseUpdates);
+
                             //////////////////////////////
                             // STM32 targets
                             if (fwPackage is Stm32Firmware)
@@ -158,6 +166,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension.AutomaticUpdates
 #if DEBUG
                                     Console.WriteLine($"[Automatic Updates] {nanoDevice.TargetName} debug engine is not ready.");
 #endif
+                                    telemetry.Complete("NoDebugEngine", false);
+
                                     // quit 
                                     return;
                                 }
@@ -202,6 +212,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension.AutomaticUpdates
                                                     {
                                                         MessageCentre.OutputFirmwareUpdateMessage($"[{deviceDescription}] The device is running a version that doesn't support rebooting by software. Please update your device using 'nanoff' tool.");
 
+                                                        telemetry.Complete("SoftRebootUnsupported", false);
+
                                                         await Task.Yield();
                                                     }
                                                 }
@@ -222,6 +234,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension.AutomaticUpdates
 #if DEBUG
                                             Console.WriteLine($"[Automatic Updates] {nanoDevice.TargetName} is not available anymore.");
 #endif
+                                            telemetry.Complete("DeviceRemoved", false);
+
                                             return;
                                         }
 
@@ -237,6 +251,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension.AutomaticUpdates
                                             {
                                                 // CLR addresses don't match, can't proceed with update
                                                 MessageCentre.OutputFirmwareUpdateMessage($"[{deviceDescription}] ERROR: Can't update device. CLR addresses are different. Please update nanoBooter manually.");
+
+                                                telemetry.Complete("AddressMismatch", false);
+
                                                 return;
                                             }
 
@@ -260,8 +277,14 @@ namespace nanoFramework.Tools.VisualStudio.Extension.AutomaticUpdates
 
                                                     MessageCentre.OutputFirmwareUpdateMessage($"[{deviceDescription}] Update successful.");
 
+                                                    telemetry.Complete(TelemetryOperation.ResultOk);
+
                                                     // add it to the list of devices updatED with the update time stamp
                                                     devicesUpdatED.TryAdd(deviceDescription, DateTime.UtcNow);
+                                                }
+                                                else
+                                                {
+                                                    telemetry.Complete("DeployFailed", false);
                                                 }
 
                                                 // if this is the selected device...
@@ -291,6 +314,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension.AutomaticUpdates
                                             }
                                             catch (Exception ex)
                                             {
+                                                telemetry.Fail(ex, "firmware.update");
+
                                                 MessageCentre.OutputFirmwareUpdateMessage($"[{deviceDescription}] ERROR: Exception occurred when performing update ({ex.Message}).");
                                             }
                                         }
@@ -301,10 +326,14 @@ namespace nanoFramework.Tools.VisualStudio.Extension.AutomaticUpdates
                                                 // only report this as an error if the launch was successful
                                                 MessageCentre.OutputFirmwareUpdateMessage($"[{deviceDescription}] ERROR: Failed to launch nanoBooter. Quitting update.");
                                             }
+
+                                            telemetry.Complete(attemptToLaunchBooter ? "BooterNotResponding" : "BooterLaunchFailed", false);
                                         }
                                     }
                                     else
                                     {
+                                        telemetry.Complete("UpToDate", true);
+
                                         // just to make sure that the CLR version is the latest, so we don't check it over and over
                                         if (nanoDevice.DebugEngine.IsConnectedTonanoCLR &&
                                             (fwPackage.Version == nanoDevice.DeviceInfo.ClrBuildVersion))
@@ -317,6 +346,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension.AutomaticUpdates
                                 else
                                 {
                                     MessageCentre.OutputFirmwareUpdateMessage($"[{deviceDescription}] ERROR: Can't connect to device. Quitting update.");
+
+                                    telemetry.Complete("NotConnecting", false);
                                 }
                             }
                             ///////////////////////////////////
@@ -327,6 +358,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension.AutomaticUpdates
                                 // not supported yet
 
                                 MessageCentre.OutputFirmwareUpdateMessage("The ability to update ESP32 targets is not currently available. Yet...");
+
+                                telemetry.Complete("NotSupportedPlatform", false);
 
                                 // add it to the list of devices updatED with the update time stamp
                                 devicesUpdatED.TryAdd(deviceDescription, DateTime.UtcNow);
@@ -340,20 +373,34 @@ namespace nanoFramework.Tools.VisualStudio.Extension.AutomaticUpdates
 
                                 MessageCentre.OutputFirmwareUpdateMessage("The ability to update CC13x26x2 targets is not currently available. Yet...");
 
+                                telemetry.Complete("NotSupportedPlatform", false);
+
                                 // add it to the list of devices updatED with the update time stamp
                                 devicesUpdatED.TryAdd(deviceDescription, DateTime.UtcNow);
                             }
                             else
                             {
                                 // shouldn't be here....
+                                telemetry.Complete("NoPackage", false);
                             }
                         }
                         catch (Exception ex)
                         {
+                            if (telemetry is null)
+                            {
+                                ExtensionTelemetry.TrackException(ex, "firmware.update");
+                            }
+                            else
+                            {
+                                telemetry.Fail(ex, "firmware.update");
+                            }
+
                             MessageCentre.OutputFirmwareUpdateMessage($"[{deviceDescription}] ERROR: Exception occurred when performing update ({ex.Message}).");
                         }
                         finally
                         {
+                            telemetry?.Dispose();
+
                             // remove it from updatING list
                             devicesUpdatING.TryRemove(deviceId, out var dummy);
                         }

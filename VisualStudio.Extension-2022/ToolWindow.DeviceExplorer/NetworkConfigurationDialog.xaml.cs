@@ -203,6 +203,11 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 DeviceExplorerViewModel.SelectedDevice.CreateDebugEngine();
             }
 
+            // upload step being executed and certificates successfully uploaded, for telemetry
+            string uploadStep = "network";
+            bool rootCaUploaded = false;
+            bool deviceCertificateUploaded = false;
+
             // save network configuration to target
             var updateResult = DeviceExplorerViewModel.SelectedDevice.DebugEngine.UpdateDeviceConfiguration(networkConfigurationToSave, 0);
 
@@ -211,6 +216,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 if (DeviceExplorerViewModel.DeviceNetworkConfiguration.InterfaceType == NetworkInterfaceType.Wireless80211)
                 {
                     // save Wi-Fi profile to target
+                    uploadStep = "wireless";
                     updateResult = DeviceExplorerViewModel.SelectedDevice.DebugEngine.UpdateDeviceConfiguration(DeviceExplorerViewModel.DeviceWireless80211Configuration, 0);
                 }
             }
@@ -220,6 +226,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 // update failed
                 MessageCentre.OutputMessage($"Error updating {DeviceExplorerViewModel.SelectedDevice.Description} network configuration. Error: {updateResult}.");
                 MessageCentre.StopProgressMessage();
+
+                TrackNetworkConfigSaved(networkConfigurationToSave, uploadStep, updateResult, rootCaUploaded, deviceCertificateUploaded);
 
                 return;
             }
@@ -242,8 +250,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         MessageCentre.OutputMessage($"Error uploading Root CA file to {(DataContext as DeviceExplorerViewModel).SelectedDevice.Description}. Error: {updateResult}");
                         MessageCentre.StopProgressMessage();
 
+                        TrackNetworkConfigSaved(networkConfigurationToSave, "rootCa", updateResult, rootCaUploaded, deviceCertificateUploaded);
+
                         return;
                     }
+
+                    rootCaUploaded = true;
                 }
 
                 // is there a device certificate to upload?
@@ -261,16 +273,43 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         MessageCentre.OutputMessage($"Error uploading device certificate file to {(DataContext as DeviceExplorerViewModel).SelectedDevice.Description}. Error: {updateResult}");
                         MessageCentre.StopProgressMessage();
 
+                        TrackNetworkConfigSaved(networkConfigurationToSave, "deviceCertificate", updateResult, rootCaUploaded, deviceCertificateUploaded);
+
                         return;
                     }
+
+                    deviceCertificateUploaded = true;
                 }
             }
 
             // stop progress message
             MessageCentre.StopProgressMessage();
 
+            TrackNetworkConfigSaved(networkConfigurationToSave, null, updateResult, rootCaUploaded, deviceCertificateUploaded);
+
             // close on success
             Close();
+        }
+
+        /// <summary>
+        /// Records which kind of configuration was saved. Only flags and the result, never addresses, SSIDs, passwords or certificates.
+        /// </summary>
+        private void TrackNetworkConfigSaved(
+            DeviceConfiguration.NetworkConfigurationProperties configuration,
+            string failedStep,
+            Engine.UpdateDeviceResult result,
+            bool rootCaUploaded,
+            bool deviceCertificateUploaded)
+        {
+            ExtensionTelemetry.TrackEvent("NetworkConfigSaved", new TelemetryProperties
+            {
+                { "dhcp", configuration.StartupAddressMode == AddressMode.DHCP },
+                { "wireless", configuration.InterfaceType == NetworkInterfaceType.Wireless80211 },
+                { "root_ca_uploaded", rootCaUploaded },
+                { "device_cert_uploaded", deviceCertificateUploaded },
+                { "failed_step", failedStep },
+                { "result", result },
+            });
         }
 
         private void ShowShowRootCAFilePicker_Click(object sender, System.Windows.RoutedEventArgs e)

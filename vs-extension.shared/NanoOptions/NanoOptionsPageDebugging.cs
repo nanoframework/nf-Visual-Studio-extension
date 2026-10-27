@@ -19,9 +19,30 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         [DefaultValue(true)]
         public bool ProcessStackTraceOption { get; set; } = true;
 
+        // value loaded from storage, to record only actual changes
+        private bool _loadedProcessStackTraceOption = true;
+
+        public override void LoadSettingsFromStorage()
+        {
+            base.LoadSettingsFromStorage();
+
+            _loadedProcessStackTraceOption = ProcessStackTraceOption;
+        }
+
         public override void SaveSettingsToStorage()
         {
             base.SaveSettingsToStorage();
+
+            if (_loadedProcessStackTraceOption != ProcessStackTraceOption)
+            {
+                _loadedProcessStackTraceOption = ProcessStackTraceOption;
+
+                ExtensionTelemetry.TrackEvent("SettingChanged", new TelemetryProperties
+                {
+                    { "setting", "process_stacktrace" },
+                    { "value", ProcessStackTraceOption },
+                });
+            }
 
             try
             {

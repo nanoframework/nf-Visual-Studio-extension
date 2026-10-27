@@ -107,6 +107,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 return;
             }
 
+            using TelemetryOperation telemetry = ExtensionTelemetry.StartOperation("deploy");
+
             var deviceExplorer = Ioc.Default.GetService<DeviceExplorerViewModel>();
 
             // just in case....
@@ -115,12 +117,17 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 // can't debug
                 // throw exception to signal deployment failure
 #pragma warning disable S112 // OK to use Exception here
-                throw new Exception("There is no device selected. Please select a device in Device Explorer tool window.");
+                throw telemetry.CompleteWith("NoDevice", new Exception("There is no device selected. Please select a device in Device Explorer tool window."));
 #pragma warning restore S112 // General exceptions should never be thrown
             }
 
             // get the device here so we are not always carrying the full path to the device
             NanoDeviceBase device = NanoDeviceCommService.Device;
+
+            telemetry
+                .SetProperties(ExtensionTelemetry.DeviceProperties(device))
+                .SetProperty("deployment_image", NanoFrameworkPackage.SettingGenerateDeploymentImage)
+                .SetProperty("content_files", contents.Count());
 
             // user feedback
             await outputPaneWriter.WriteLineAsync($"Getting things ready to deploy assemblies to .NET nanoFramework device: {device.Description}.");
@@ -131,7 +138,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             MessageCentre.InternalErrorWriteLine("Try to get exclusive access to the nanoDevice");
 
             using var exclusiveAccess = GlobalExclusiveDeviceAccess.TryGet(device, ExclusiveAccessTimeout)
-                ?? throw new DeploymentException($"Couldn't access the device {device.Description}, it is used by another application!");
+                ?? throw telemetry.CompleteWith("NoExclusiveAccess", new DeploymentException($"Couldn't access the device {device.Description}, it is used by another application!"));
 
             try
             {
@@ -158,7 +165,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     && device.Ping() != Debugger.WireProtocol.ConnectionSource.nanoCLR)
                 {
                     // doesn't seem to be... better try to launch it
-                    await NanoFrameworkPackage.VirtualDeviceService.StartVirtualDeviceAsync(false);
+                    await NanoFrameworkPackage.VirtualDeviceService.StartVirtualDeviceAsync(false, "deploy");
                 }
 
                 // connect to the device
@@ -184,7 +191,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         MessageCentre.InternalErrorWriteLine("*** ERROR: device reporting no assemblies loaded. This can not happen. Sanity check failed ***");
 
                         // there are no assemblies deployed?!
-                        throw new DeploymentException($"Couldn't find any native assemblies deployed in {deviceExplorer.SelectedDevice.Description}! If the situation persists reboot the device.");
+                        throw telemetry.CompleteWith("MissingNativeAssembly", new DeploymentException($"Couldn't find any native assemblies deployed in {deviceExplorer.SelectedDevice.Description}! If the situation persists reboot the device."));
                     }
 
                     // For a known project output assembly path, this shall contain the corresponding
@@ -243,7 +250,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         {
                             MessageCentre.InternalErrorWriteLine($"*** ERROR: {ex.Message} ***");
 
-                            throw new DeploymentException($"Deploy failed. {ex.Message} Please rebuild the solution.");
+                            throw telemetry.CompleteWith("BadPe", new DeploymentException($"Deploy failed. {ex.Message} Please rebuild the solution."));
                         }
 
                         assemblyList.Add(new DeploymentAssembly(pePath, peAssembly.Version.ToString(4)));
@@ -270,7 +277,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         }
 
                         // can't deploy
-                        throw new DeploymentException(compatibility.FormatMessage());
+                        throw telemetry.CompleteWith("Incompatible", new DeploymentException(compatibility.FormatMessage()));
                     }
 
                     await Task.Yield();
@@ -305,6 +312,10 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                     await outputPaneWriter.WriteLineAsync($"Deploying {peCollection.Count:N0} assemblies to device... Total size in bytes is {totalSizeOfAssemblies}.");
 
+                    telemetry
+                        .SetProperty("assembly_count", peCollection.Count)
+                        .SetProperty("total_size_kb", (totalSizeOfAssemblies + 1023) / 1024);
+
                     MessageCentre.InternalErrorWriteLine($"Deploying {peCollection.Count:N0} assemblies to device");
 
                     // need to keep a copy of the deployment blob for the second attempt (if needed)
@@ -323,6 +334,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                             logProgressIndicator))
                         {
                             // if the first attempt fails, give it another try
+                            telemetry.SetProperty("retried", true);
 
                             // wait before next pass
                             await Task.Delay(TimeSpan.FromSeconds(1));
@@ -346,7 +358,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                                 MessageCentre.InternalErrorWriteLine("*** ERROR: deployment failed ***");
 
                                 // throw exception to signal deployment failure
-                                throw new DeploymentException("Deploy failed.");
+                                throw telemetry.CompleteWith("DeployFailed", new DeploymentException("Deploy failed."));
                             }
                         }
                     });
@@ -364,6 +376,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                     // deployment successful
                     await outputPaneWriter.WriteLineAsync("Deployment successful!");
+
+                    int failedContentFiles = 0;
 
                     // Now deploying to the internal storage if any
                     if (contents.Any())
@@ -402,12 +416,25 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                             {
                                 await outputPaneWriter.WriteLineAsync($"{file.EvaluatedInclude} deployment error.");
                                 MessageCentre.InternalErrorWriteLine($"{file.EvaluatedInclude} deployment error.");
+
+                                failedContentFiles++;
                             }
                         }
                     }
 
                     // reset the hash for the connected device so the deployment information can be refreshed
                     deviceExplorer.LastDeviceConnectedHash = 0;
+
+                    if (failedContentFiles > 0)
+                    {
+                        telemetry
+                            .SetProperty("content_files_failed", failedContentFiles)
+                            .Complete("ContentFilesFailed", false);
+                    }
+                    else
+                    {
+                        telemetry.Complete(TelemetryOperation.ResultOk);
+                    }
                 }
                 else
                 {
@@ -415,7 +442,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     MessageCentre.InternalErrorWriteLine("*** ERROR: failing to connect to device ***");
 
                     // throw exception to signal deployment failure
-                    throw new DeploymentException($"{deviceExplorer.SelectedDevice.Description} is not responding. Please retry the deployment. If the situation persists reboot the device.");
+                    throw telemetry.CompleteWith("NotConnecting", new DeploymentException($"{deviceExplorer.SelectedDevice.Description} is not responding. Please retry the deployment. If the situation persists reboot the device."));
                 }
             }
             catch (DeploymentException)
@@ -425,6 +452,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             }
             catch (Exception ex)
             {
+                telemetry.Fail(ex, "deploy");
+
                 if (needsToCloseMessageOutput)
                 {
                     MessageCentre.InternalErrorWriteAndCloseMessage("");

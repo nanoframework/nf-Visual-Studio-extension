@@ -76,6 +76,13 @@
     <Compile Include="$(MSBuildThisFileDirectory)ProvideDebugEngineAttribute.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ProvideDebugPortSupplierAttribute.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ResXFileCodeGenerator\NFResXFileCodeGenerator.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Telemetry\ExtensionTelemetry.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Telemetry\ProjectLoadTelemetry.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Telemetry\TelemetryConnection.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Telemetry\TelemetryNotice.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Telemetry\TelemetryScrubber.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Telemetry\TelemetrySetup.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Telemetry\TelemetryStartup.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ToolWindow.DeviceExplorer\DeviceExplorer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ToolWindow.DeviceExplorer\DeviceExplorerCommand.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ToolWindow.DeviceExplorer\Models\ConnectionState.cs" />
