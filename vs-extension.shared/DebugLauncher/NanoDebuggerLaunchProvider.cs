@@ -47,12 +47,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             using TelemetryOperation telemetry = ExtensionTelemetry.StartOperation("debug.launch");
             telemetry.SetProperty("no_debug", launchOptions.HasFlag(DebugLaunchOptions.NoDebug));
 
-            if (Ioc.Default.GetService<DeviceExplorerViewModel>().SelectedDevice != null)
-            {
-                var deployDeviceName = Ioc.Default.GetService<DeviceExplorerViewModel>().SelectedDevice.Description;
+            // get device selected in Device Explorer
+            var device = Ioc.Default.GetService<DeviceExplorerViewModel>().SelectedDevice;
 
-                // get device
-                var device = Ioc.Default.GetService<DeviceExplorerViewModel>().SelectedDevice;
+            if (device != null)
+            {
+                var deployDeviceName = device.Description;
 
                 telemetry.SetProperties(ExtensionTelemetry.DeviceProperties(device));
 
@@ -92,7 +92,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                                 Arguments = commandLine,
                                 LaunchOperation = DebugLaunchOperation.CreateProcess,
                                 PortSupplierGuid = DebugPortSupplier.PortSupplierGuid,
-                                PortName = NanoFrameworkPackage.NanoDeviceCommService.Device.Description,
+                                PortName = deployDeviceName,
                                 Project = VsHierarchy,
                                 LaunchDebugEngineGuid = CorDebug.EngineGuid
                             };
