@@ -206,7 +206,18 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     // can't start/stop virtual device during install
                     CanStartStopVirtualDevice = false;
 
-                    var cliResult = await cmd.ExecuteBufferedAsync(cts1.Token);
+                    BufferedCommandResult cliResult;
+
+                    try
+                    {
+                        cliResult = await cmd.ExecuteBufferedAsync(cts1.Token);
+                    }
+                    catch (Exception ex)
+                    {
+                        telemetry.Fail(ex, "nanoclr.install");
+
+                        throw;
+                    }
 
                     if (cliResult.ExitCode == 0)
                     {
@@ -261,7 +272,18 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 // can't start/stop virtual device during install
                 CanStartStopVirtualDevice = false;
 
-                var cliResult = await cmd.ExecuteBufferedAsync(cts.Token);
+                BufferedCommandResult cliResult;
+
+                try
+                {
+                    cliResult = await cmd.ExecuteBufferedAsync(cts.Token);
+                }
+                catch (Exception ex)
+                {
+                    telemetry.Fail(ex, "nanoclr.update");
+
+                    throw;
+                }
 
                 if (cliResult.ExitCode == 0)
                 {

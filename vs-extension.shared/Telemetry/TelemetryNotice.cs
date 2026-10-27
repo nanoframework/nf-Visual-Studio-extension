@@ -160,13 +160,14 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         {
             Environment.SetEnvironmentVariable(ExtensionTelemetry.OptOutEnvironmentVariable, "1");
 
+            // stop recording right away: this disables telemetry synchronously and doesn't wait for the providers to be disposed
+            TelemetrySetup.Shutdown(TimeSpan.Zero);
+
             MessageCentre.OutputMessage($"Telemetry: opted out. The environment variable {ExtensionTelemetry.OptOutEnvironmentVariable}=1 was set for the current user.");
 
             // setting a user environment variable broadcasts a settings change to all windows, which can take a while
             _ = Task.Run(() =>
             {
-                TelemetrySetup.Shutdown(TimeSpan.Zero);
-
                 try
                 {
                     Environment.SetEnvironmentVariable(ExtensionTelemetry.OptOutEnvironmentVariable, "1", EnvironmentVariableTarget.User);

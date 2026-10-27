@@ -37,7 +37,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         }
 
         /// <summary>
-        /// Records the <c>ExtensionLoaded</c> event and shows the telemetry notice if needed.
+        /// Shows the telemetry notice if needed and then records the <c>ExtensionLoaded</c> event.
         /// Call once the package and the output panes are initialized.
         /// </summary>
         internal static async Task OnPackageLoadedAsync(AsyncPackage package)
@@ -46,6 +46,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             {
                 return;
             }
+
+            // show the notice before sending anything
+            await TelemetryNotice.ShowIfNeededAsync(package, NanoFrameworkPackage.NanoFrameworkExtensionVersion);
 
             await TaskScheduler.Default;
 
@@ -71,8 +74,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             {
                 // telemetry must never break the extension
             }
-
-            await TelemetryNotice.ShowIfNeededAsync(package, NanoFrameworkPackage.NanoFrameworkExtensionVersion);
         }
 
         /// <summary>

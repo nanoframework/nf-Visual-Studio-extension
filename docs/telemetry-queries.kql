@@ -29,9 +29,10 @@
 // ---------------------------------------------------------------------------------------------
 
 // Daily active users, by extension flavor
-customEvents
+// (any activity, not only ExtensionLoaded, so that a Visual Studio session spanning several days counts on each of them)
+union requests, customEvents
 | where timestamp > ago(90d)
-| where cloud_RoleName == "nanoframework-vs" and name == "ExtensionLoaded"
+| where cloud_RoleName == "nanoframework-vs"
 | extend flavor = tostring(customDimensions["nf.ext_flavor"])
 | summarize users = dcount(user_Id) by flavor, day = startofday(timestamp)
 | render timechart
@@ -149,14 +150,25 @@ union
 | summarize uses = count(), users = dcount(user_Id) by command
 | order by uses desc
 
-// Settings adoption (latest snapshot per user)
-customEvents
+// Settings adoption: latest ExtensionLoaded snapshot per user, amended with the SettingChanged events recorded after it
+let settingsSnapshots = customEvents
 | where timestamp > ago(30d)
 | where cloud_RoleName == "nanoframework-vs" and name == "ExtensionLoaded"
 | summarize arg_max(timestamp, customDimensions) by user_Id
 | mv-expand kind = array setting = bag_keys(customDimensions) to typeof(string)
 | where setting !in ("vs.version", "nf.ext_flavor", "os.arch", "os.family", "dotnet.runtime", "enduser.pseudo.id", "microsoft.custom_event.name")
-| summarize users = count(), enabled = countif(tobool(customDimensions[setting])) by setting
+| project user_Id, setting, snapshotTime = timestamp, snapshotValue = tobool(customDimensions[setting]);
+let latestChanges = customEvents
+| where timestamp > ago(30d)
+| where cloud_RoleName == "nanoframework-vs" and name == "SettingChanged"
+| project user_Id, setting = tostring(customDimensions["setting"]), changeTime = timestamp, changedValue = tobool(customDimensions["value"])
+| join kind=inner (settingsSnapshots | distinct user_Id, snapshotTime) on user_Id
+| where changeTime > snapshotTime
+| summarize arg_max(changeTime, changedValue) by user_Id, setting;
+settingsSnapshots
+| join kind=leftouter latestChanges on user_Id, setting
+| extend currentValue = iff(isnotnull(changeTime), changedValue, snapshotValue)
+| summarize users = count(), enabled = countif(currentValue) by setting
 | extend enabledPercent = round(100.0 * enabled / users, 1)
 | order by setting asc
 

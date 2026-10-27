@@ -359,7 +359,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.AutomaticUpdates
 
                                 MessageCentre.OutputFirmwareUpdateMessage("The ability to update ESP32 targets is not currently available. Yet...");
 
-                                telemetry.Complete("NotSupportedPlatform", true);
+                                telemetry.Complete("NotSupportedPlatform", false);
 
                                 // add it to the list of devices updatED with the update time stamp
                                 devicesUpdatED.TryAdd(deviceDescription, DateTime.UtcNow);
@@ -373,7 +373,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.AutomaticUpdates
 
                                 MessageCentre.OutputFirmwareUpdateMessage("The ability to update CC13x26x2 targets is not currently available. Yet...");
 
-                                telemetry.Complete("NotSupportedPlatform", true);
+                                telemetry.Complete("NotSupportedPlatform", false);
 
                                 // add it to the list of devices updatED with the update time stamp
                                 devicesUpdatED.TryAdd(deviceDescription, DateTime.UtcNow);

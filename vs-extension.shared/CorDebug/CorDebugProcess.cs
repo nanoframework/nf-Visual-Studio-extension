@@ -632,7 +632,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             DebugAssert(_cStopped >= 0, "Error on completing execution update: " + _cStopped.ToString());
         }
 
-        private void DispatchEvents()
+        /// <returns><see langword="false"/> if the dispatch failed and the process was terminated.</returns>
+        private bool DispatchEvents()
         {
             MessageCentre.InternalErrorMessage(false, Resources.ResourceStrings.DispatchEvents);
 
@@ -645,13 +646,19 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                     UpdateExecutionIfNecessary();
                 }
+
+                return true;
             }
             catch (Exception e)
             {
+                ExtensionTelemetry.TrackException(e, "debug.dispatch");
+
                 MessageCentre.DebugMessage(Resources.ResourceStrings.DispatchEventsFailed);
 
                 DebugAssert(!(IsAttachedToEngine && !ShuttingDown), "Event dispatch failed:" + e.Message);
                 ICorDebugProcess.Terminate(0);
+
+                return false;
             }
         }
 
@@ -802,9 +809,14 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                         telemetry.SetProperty("clr_started", true);
 
-                        DispatchEvents();
-
-                        telemetry.Complete(TelemetryOperation.ResultOk);
+                        if (DispatchEvents())
+                        {
+                            telemetry.Complete(TelemetryOperation.ResultOk);
+                        }
+                        else
+                        {
+                            telemetry.Complete("DispatchFailed", false);
+                        }
                     }
                     catch (Exception ex)
                     {

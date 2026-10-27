@@ -377,6 +377,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     // deployment successful
                     await outputPaneWriter.WriteLineAsync("Deployment successful!");
 
+                    int failedContentFiles = 0;
+
                     // Now deploying to the internal storage if any
                     if (contents.Any())
                     {
@@ -414,6 +416,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                             {
                                 await outputPaneWriter.WriteLineAsync($"{file.EvaluatedInclude} deployment error.");
                                 MessageCentre.InternalErrorWriteLine($"{file.EvaluatedInclude} deployment error.");
+
+                                failedContentFiles++;
                             }
                         }
                     }
@@ -421,7 +425,16 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     // reset the hash for the connected device so the deployment information can be refreshed
                     deviceExplorer.LastDeviceConnectedHash = 0;
 
-                    telemetry.Complete(TelemetryOperation.ResultOk);
+                    if (failedContentFiles > 0)
+                    {
+                        telemetry
+                            .SetProperty("content_files_failed", failedContentFiles)
+                            .Complete("ContentFilesFailed", false);
+                    }
+                    else
+                    {
+                        telemetry.Complete(TelemetryOperation.ResultOk);
+                    }
                 }
                 else
                 {
