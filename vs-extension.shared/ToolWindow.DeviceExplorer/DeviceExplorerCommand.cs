@@ -265,6 +265,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         /// <param name="e">The event args.</param>
         private void ShowToolWindow(object sender, EventArgs e)
         {
+            ExtensionTelemetry.TrackEvent("DeviceExplorerCommand", new TelemetryProperties { { "command", "show" } });
+
             _ = package.JoinableTaskFactory.RunAsync(async delegate
             {
 
@@ -299,6 +301,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
             await Task.Run(async delegate
             {
+                using TelemetryOperation telemetry = ExtensionTelemetry.StartOperation("deviceexplorer.ping");
+
                 var deviceExplorer = Ioc.Default.GetService<DeviceExplorerViewModel>();
 
                 var descriptionBackup = deviceExplorer.SelectedDevice.Description;
@@ -313,11 +317,15 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     // make sure this device is showing as selected in Device Explorer tree view
                     deviceExplorer.ForceNanoDeviceSelection();
 
+                    telemetry.SetProperties(ExtensionTelemetry.DeviceProperties(deviceExplorer.SelectedDevice));
+
                     // Get exclusive access to the device, but don't wait forever
                     exclusiveAccess = GlobalExclusiveDeviceAccess.TryGet(deviceExplorer.SelectedDevice, ExclusiveAccessTimeout);
                     if (exclusiveAccess is null)
                     {
                         MessageCentre.OutputMessage($"Cannot access {descriptionBackup}, another application is using the device.");
+                        telemetry.Complete("NoExclusiveAccess");
+
                         return;
                     }
 
@@ -332,11 +340,17 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     {
                         MessageCentre.OutputMessage($"{descriptionBackup} is not responding, please reboot the device.");
 
+                        telemetry.Complete("NotConnecting");
+
                         return;
                     }
 
                     // ping device
                     var reply = NanoDeviceCommService.Device.Ping();
+
+                    telemetry
+                        .SetProperty("ping_result", reply)
+                        .Complete(reply == ConnectionSource.Unknown ? "NoReply" : TelemetryOperation.ResultOk);
 
                     if (reply == ConnectionSource.nanoBooter)
                     {
@@ -351,9 +365,10 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         MessageCentre.OutputMessage($"No reply from {descriptionBackup}");
                     }
                 }
-                catch
+                catch (Exception ex)
                 {
                     // OK to catch all
+                    telemetry.Fail(ex, "deviceexplorer.ping");
                 }
                 finally
                 {
@@ -391,6 +406,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
             await Task.Run(async delegate
             {
+                using TelemetryOperation telemetry = ExtensionTelemetry.StartOperation("deviceexplorer.capabilities");
+
                 GlobalExclusiveDeviceAccess exclusiveAccess = null;
                 try
                 {
@@ -400,6 +417,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     // make sure this device is showing as selected in Device Explorer tree view
                     deviceExplorer.ForceNanoDeviceSelection();
 
+                    telemetry.SetProperties(ExtensionTelemetry.DeviceProperties(deviceExplorer.SelectedDevice));
+
                     // only query device if it's different 
                     if (descriptionBackup.GetHashCode() != deviceExplorer.LastDeviceConnectedHash)
                     {
@@ -408,6 +427,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         if (exclusiveAccess is null)
                         {
                             MessageCentre.OutputMessage($"Cannot access {descriptionBackup}, another application is using the device.");
+
+                            telemetry.Complete("NoExclusiveAccess");
+
                             return;
                         }
 
@@ -457,6 +479,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                                         // report issue to user
                                         MessageCentre.OutputMessage($"Error retrieving device information from {descriptionBackup}. Please reconnect device.");
 
+                                        telemetry.Complete("DeviceInfoFailed");
+
                                         return;
                                     }
                                 }
@@ -467,6 +491,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                                     // report issue to user
                                     MessageCentre.OutputMessage($"Error retrieving device information from {descriptionBackup}. Please reconnect device.");
+
+                                    telemetry.Complete("DeviceInfoFailed");
 
                                     return;
                                 }
@@ -493,6 +519,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                                         // report issue to user
                                         MessageCentre.OutputMessage($"Error retrieving device information from {descriptionBackup}. Please reconnect device.");
 
+                                        telemetry.Complete("DeviceInfoFailed");
+
                                         return;
                                     }
                                 }
@@ -503,6 +531,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                                     // report issue to user
                                     MessageCentre.OutputMessage($"Error retrieving device information from {descriptionBackup}. Please reconnect device.");
+
+                                    telemetry.Complete("DeviceInfoFailed");
 
                                     return;
                                 }
@@ -515,6 +545,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                             MessageCentre.OutputMessage($"{descriptionBackup} is not responding, please reboot the device.");
 
+                            telemetry.Complete("NotConnecting");
+
                             return;
                         }
                     }
@@ -522,6 +554,10 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     {
 
                     }
+
+                    telemetry
+                        .SetProperty("connection_source", deviceExplorer.LastDeviceConnectionSource)
+                        .Complete(TelemetryOperation.ResultOk);
 
                     if (deviceExplorer.LastDeviceConnectionSource == ConnectionSource.nanoCLR)
                     {
@@ -559,9 +595,10 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         // shouldn't get here...
                     }
                 }
-                catch
+                catch (Exception ex)
                 {
                     // OK to catch all
+                    telemetry.Fail(ex, "deviceexplorer.capabilities");
                 }
                 finally
                 {
@@ -603,6 +640,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
             await Task.Run(async delegate
             {
+                using TelemetryOperation telemetry = ExtensionTelemetry.StartOperation("deviceexplorer.erase");
+
                 GlobalExclusiveDeviceAccess exclusiveAccess = null;
                 try
                 {
@@ -612,11 +651,15 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     // make sure this device is showing as selected in Device Explorer tree view
                     deviceExplorer.ForceNanoDeviceSelection();
 
+                    telemetry.SetProperties(ExtensionTelemetry.DeviceProperties(deviceExplorer.SelectedDevice));
+
                     // Get exclusive access to the device, but don't wait forever
                     exclusiveAccess = GlobalExclusiveDeviceAccess.TryGet(deviceExplorer.SelectedDevice, ExclusiveAccessTimeout);
                     if (exclusiveAccess is null)
                     {
                         MessageCentre.OutputMessage($"Cannot access {descriptionBackup}, another application is using the device.");
+                        telemetry.Complete("NoExclusiveAccess");
+
                         return;
                     }
 
@@ -638,6 +681,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                             {
                                 MessageCentre.OutputMessage($"{descriptionBackup} deployment area erased.");
 
+                                telemetry.Complete(TelemetryOperation.ResultOk);
+
                                 // reset the hash for the connected device so the deployment information can be refreshed, if and when requested
                                 deviceExplorer.LastDeviceConnectedHash = 0;
 
@@ -648,10 +693,14 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                             {
                                 // report issue to user
                                 MessageCentre.OutputMessage($"Error erasing {descriptionBackup} deployment area.");
+
+                                telemetry.Complete(TelemetryOperation.ResultFailed);
                             }
                         }
-                        catch
+                        catch (Exception ex)
                         {
+                            telemetry.Fail(ex, "deviceexplorer.erase");
+
                             // report issue to user
                             MessageCentre.OutputMessage($"Error erasing {descriptionBackup} deployment area.");
 
@@ -665,12 +714,15 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                         MessageCentre.OutputMessage($"{descriptionBackup} is not responding, please reboot the device.");
 
+                        telemetry.Complete("NotConnecting");
+
                         return;
                     }
                 }
-                catch
+                catch (Exception ex)
                 {
                     // OK to catch all
+                    telemetry.Fail(ex, "deviceexplorer.erase");
                 }
                 finally
                 {
@@ -707,6 +759,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
             await Task.Run(async delegate
             {
+                using TelemetryOperation telemetry = ExtensionTelemetry.StartOperation("deviceexplorer.networkconfig");
+
                 GlobalExclusiveDeviceAccess exclusiveAccess = null;
                 try
                 {
@@ -716,6 +770,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     // make sure this device is showing as selected in Device Explorer tree view
                     deviceExplorer.ForceNanoDeviceSelection();
 
+                    telemetry.SetProperties(ExtensionTelemetry.DeviceProperties(deviceExplorer.SelectedDevice));
+
                     // Get exclusive access to the device, but don't wait forever
                     exclusiveAccess = GlobalExclusiveDeviceAccess.TryGet(deviceExplorer.SelectedDevice, ExclusiveAccessTimeout);
                     if (exclusiveAccess is null)
@@ -724,6 +780,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                                             ".NET nanoFramework Device Explorer",
                                             MessageBoxButton.OK,
                                             MessageBoxImage.Error);
+
+                        telemetry.Complete("NoExclusiveAccess");
+
                         return;
                     }
 
@@ -779,6 +838,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                                    MessageBoxButton.OK,
                                    MessageBoxImage.Information);
 
+                                telemetry.Complete("NoNetworkCapabilities", true);
+
                                 // done here
                                 return;
                             }
@@ -790,9 +851,15 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                                 HasMaximizeButton = false
                             };
                             networkConfigDialog.ShowModal();
+
+                            telemetry
+                                .SetProperty("wireless", wirellesConfigurations.Count > 0)
+                                .Complete(TelemetryOperation.ResultOk);
                         }
-                        catch
+                        catch (Exception ex)
                         {
+                            telemetry.Fail(ex, "deviceexplorer.networkconfig");
+
                             // report issue to user
                             MessageCentre.OutputMessage($"Error reading {descriptionBackup} configurations.");
 
@@ -803,12 +870,15 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     {
                         MessageCentre.OutputMessage($"{descriptionBackup} is not responding, please reboot the device.");
 
+                        telemetry.Complete("NotConnecting");
+
                         return;
                     }
                 }
-                catch
+                catch (Exception ex)
                 {
                     // OK to catch all
+                    telemetry.Fail(ex, "deviceexplorer.networkconfig");
                 }
                 finally
                 {
@@ -841,6 +911,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
             await Task.Run(async delegate
             {
+                using TelemetryOperation telemetry = ExtensionTelemetry.StartOperation("deviceexplorer.reboot");
+
                 GlobalExclusiveDeviceAccess exclusiveAccess = null;
                 try
                 {
@@ -852,11 +924,15 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     // make sure this device is showing as selected in Device Explorer tree view
                     deviceExplorer.ForceNanoDeviceSelection();
 
+                    telemetry.SetProperties(ExtensionTelemetry.DeviceProperties(deviceExplorer.SelectedDevice));
+
                     // Get exclusive access to the device, but don't wait forever
                     exclusiveAccess = GlobalExclusiveDeviceAccess.TryGet(deviceExplorer.SelectedDevice, ExclusiveAccessTimeout);
                     if (exclusiveAccess is null)
                     {
                         MessageCentre.OutputMessage($"Cannot access {deviceExplorer.SelectedDevice.Description}, another application is using the device.");
+                        telemetry.Complete("NoExclusiveAccess");
+
                         return;
                     }
 
@@ -915,14 +991,20 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                             NanoDeviceCommService.Device.DebugEngine.RebootDevice(rebootOption);
 
+                            telemetry
+                                .SetProperty("reboot_type", rebootOption)
+                                .Complete(TelemetryOperation.ResultOk);
+
                             // yield to give the UI thread a chance to respond to user input
                             await Task.Yield();
 
                             // reset property to force that device capabilities are retrieved on next connection
                             deviceExplorer.LastDeviceConnectedHash = 0;
                         }
-                        catch
+                        catch (Exception ex)
                         {
+                            telemetry.Fail(ex, "deviceexplorer.reboot");
+
                             // report issue to user
                             MessageCentre.OutputMessage($"Error sending reboot command to {previousSelectedDeviceDescription}.");
 
@@ -936,12 +1018,15 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                         MessageCentre.OutputMessage($"{previousSelectedDeviceDescription} is not responding, please reboot the device.");
 
+                        telemetry.Complete("NotConnecting");
+
                         return;
                     }
                 }
-                catch
+                catch (Exception ex)
                 {
                     // OK to catch all
+                    telemetry.Fail(ex, "deviceexplorer.reboot");
                 }
                 finally
                 {
@@ -975,6 +1060,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 // disable the button
                 (sender as MenuCommand).Enabled = false;
 
+                ExtensionTelemetry.TrackEvent("DeviceExplorerCommand", new TelemetryProperties { { "command", "rescan" } });
+
                 try
                 {
                     NanoDeviceCommService.DebugClient.ReScanDevices();
@@ -984,9 +1071,10 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     // don't enable the button here to prevent compulsive developers to click it when the operation is still ongoing
                     // it will be enabled back at NanoDevicesCollectionChangedHandlerAsync
                 }
-                catch
+                catch (Exception ex)
                 {
                     // empty on purpose, exceptions can happen during rescan
+                    ExtensionTelemetry.TrackException(ex, "deviceexplorer.rescan");
 
                     // OK to enable button here, in case an exception occurs
                     (sender as MenuCommand).Enabled = true;
@@ -1001,6 +1089,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             // this is more a "changing" event rather then a "changed" one
             NanoFrameworkPackage.OptionShowInternalErrors = !(sender as MenuCommand).Checked;
 
+            ExtensionTelemetry.TrackEvent("DeviceExplorerCommand", new TelemetryProperties
+            {
+                { "command", "showInternalErrors" },
+                { "value", NanoFrameworkPackage.OptionShowInternalErrors },
+            });
+
             // toggle button checked state
             var currentCheckState = (sender as MenuCommand).Checked;
             (sender as MenuCommand).Checked = !currentCheckState;
@@ -1012,6 +1106,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             // the "Checked" property reflects the current state, the final value is the current one negated 
             // this is more a "changing" event rather then a "changed" one
             NanoFrameworkPackage.OptionDisableDeviceWatchers = !(sender as MenuCommand).Checked;
+
+            ExtensionTelemetry.TrackEvent("DeviceExplorerCommand", new TelemetryProperties
+            {
+                { "command", "disableDeviceWatchers" },
+                { "value", NanoFrameworkPackage.OptionDisableDeviceWatchers },
+            });
 
             var currentCheckState = (sender as MenuCommand).Checked;
 
@@ -1075,6 +1175,10 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 // disable the button
                 (sender as MenuCommand).Enabled = false;
 
+                ExtensionTelemetry.TrackEvent("DeviceExplorerCommand", new TelemetryProperties { { "command", "settings" } });
+
+                TelemetryProperties settingsBefore = TelemetryStartup.GetSettingsSnapshot();
+
                 // show settings dialogue
                 var allSettingsDialog = new SettingsDialog
                 {
@@ -1082,10 +1186,13 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     HasMaximizeButton = false
                 };
                 allSettingsDialog.ShowModal();
+
+                TelemetryStartup.TrackSettingsChanges(settingsBefore, TelemetryStartup.GetSettingsSnapshot());
             }
-            catch
+            catch (Exception ex)
             {
                 // OK to catch all
+                ExtensionTelemetry.TrackException(ex, "deviceexplorer.settings");
             }
             finally
             {

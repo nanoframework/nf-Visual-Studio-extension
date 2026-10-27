@@ -258,7 +258,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 }
                 else
                 {
-                    if (await NanoFrameworkPackage.VirtualDeviceService.StartVirtualDeviceAsync(true))
+                    if (await NanoFrameworkPackage.VirtualDeviceService.StartVirtualDeviceAsync(true, "settings"))
                     {
                         StartStopDevice.Content = _stopVirtualDeviceLabel;
                         VirtualDeviceSerialPort.IsEnabled = false;

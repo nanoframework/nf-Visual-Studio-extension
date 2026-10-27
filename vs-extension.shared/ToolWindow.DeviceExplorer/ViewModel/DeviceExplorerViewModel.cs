@@ -27,6 +27,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
         public const int WRITE_TO_OUTPUT_TOKEN = 1;
         public const int SELECTED_NULL_TOKEN = 2;
 
+        // devices already reported as connected in this session, see TrackDeviceConnected
+        private static readonly HashSet<Guid> s_devicesSeen = new HashSet<Guid>();
+
         private ConnectionSource _lastDeviceConnectionSource;
 
         private bool _initialDeviceEnumerationCompleted;
@@ -119,6 +122,28 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
             MessageCentre.StopProgressMessage();
         }
 
+        /// <summary>
+        /// Records the first arrival of each device in this Visual Studio session.
+        /// The device unique ID is only kept in memory to avoid duplicates, it's never sent.
+        /// </summary>
+        private static void TrackDeviceConnected(NanoDeviceBase device)
+        {
+            if (device is null)
+            {
+                return;
+            }
+
+            lock (s_devicesSeen)
+            {
+                if (!s_devicesSeen.Add(device.DeviceUniqueId))
+                {
+                    return;
+                }
+            }
+
+            ExtensionTelemetry.TrackEvent("DeviceConnected", ExtensionTelemetry.DeviceProperties(device));
+        }
+
         public void NanoFrameworkDevices_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
             // handle this according to the selected device type 
@@ -145,6 +170,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
                 foreach (var d in e.NewItems)
                 {
                     WeakReferenceMessenger.Default.Send(new LaunchFirmwareUpdateForNanoDeviceMessage((d as NanoDeviceBase).DeviceUniqueId.ToString()));
+
+                    TrackDeviceConnected(d as NanoDeviceBase);
                 }
             }
 

@@ -54,7 +54,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             string page = uri.AbsoluteUri;
             VsShellUtilities.OpenSystemBrowser(page);
 
-            // TODO: add telemetry for clicks 
+            ExtensionTelemetry.TrackHyperlinkClicked(uri);
         }
 
         private void DevicesTreeView_SelectedItemChanged(object sender, System.Windows.RoutedPropertyChangedEventArgs<object> e)

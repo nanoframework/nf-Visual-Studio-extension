@@ -195,6 +195,31 @@ jobs:
       nugetConfigPath: NuGet.config
       verbosityRestore: quiet
 
+  # replace the telemetry connection string placeholder
+  - task: PowerShell@2
+    displayName: Set telemetry connection string
+    condition: >-
+      and(
+        succeeded(),
+        eq(variables['System.PullRequest.PullRequestId'], '')
+      )
+    env:
+      NF_TELEMETRY_CONNECTION_STRING: $(InstrumentKey)
+    inputs:
+      targetType: 'inline'
+      script: |
+        $connectionString = $env:NF_TELEMETRY_CONNECTION_STRING
+
+        if ([string]::IsNullOrEmpty($connectionString) -or $connectionString.StartsWith('$('))
+        {
+            Write-Host "InstrumentKey variable not set, telemetry will be disabled in this build"
+            exit 0
+        }
+
+        $file = "$(System.DefaultWorkingDirectory)/vs-extension.shared/Telemetry/TelemetryConnection.cs"
+
+        (Get-Content $file -Raw).Replace('"TELEMETRY_CONNECTION_STRING"', '"' + $connectionString + '"') | Set-Content $file -NoNewline -Encoding UTF8
+
   - task: VSBuild@1
     inputs:
       solution: '$(solution)'
@@ -391,6 +416,31 @@ jobs:
       feedsToUse: config
       nugetConfigPath: NuGet.config
       verbosityRestore: quiet
+
+  # replace the telemetry connection string placeholder
+  - task: PowerShell@2
+    displayName: Set telemetry connection string
+    condition: >-
+      and(
+        succeeded(),
+        eq(variables['System.PullRequest.PullRequestId'], '')
+      )
+    env:
+      NF_TELEMETRY_CONNECTION_STRING: $(InstrumentKey)
+    inputs:
+      targetType: 'inline'
+      script: |
+        $connectionString = $env:NF_TELEMETRY_CONNECTION_STRING
+
+        if ([string]::IsNullOrEmpty($connectionString) -or $connectionString.StartsWith('$('))
+        {
+            Write-Host "InstrumentKey variable not set, telemetry will be disabled in this build"
+            exit 0
+        }
+
+        $file = "$(System.DefaultWorkingDirectory)/vs-extension.shared/Telemetry/TelemetryConnection.cs"
+
+        (Get-Content $file -Raw).Replace('"TELEMETRY_CONNECTION_STRING"', '"' + $connectionString + '"') | Set-Content $file -NoNewline -Encoding UTF8
 
   - task: VSBuild@1
     inputs:

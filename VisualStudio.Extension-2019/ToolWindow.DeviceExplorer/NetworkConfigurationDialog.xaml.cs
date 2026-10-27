@@ -221,6 +221,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 MessageCentre.OutputMessage($"Error updating {DeviceExplorerViewModel.SelectedDevice.Description} network configuration. Error: {updateResult}.");
                 MessageCentre.StopProgressMessage();
 
+                TrackNetworkConfigSaved(networkConfigurationToSave, "network", updateResult);
+
                 return;
             }
             else
@@ -242,6 +244,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         MessageCentre.OutputMessage($"Error uploading Root CA file to {(DataContext as DeviceExplorerViewModel).SelectedDevice.Description}. Error: {updateResult}");
                         MessageCentre.StopProgressMessage();
 
+                        TrackNetworkConfigSaved(networkConfigurationToSave, "rootCa", updateResult);
+
                         return;
                     }
                 }
@@ -261,6 +265,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         MessageCentre.OutputMessage($"Error uploading device certificate file to {(DataContext as DeviceExplorerViewModel).SelectedDevice.Description}. Error: {updateResult}");
                         MessageCentre.StopProgressMessage();
 
+                        TrackNetworkConfigSaved(networkConfigurationToSave, "deviceCertificate", updateResult);
+
                         return;
                     }
                 }
@@ -269,8 +275,26 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             // stop progress message
             MessageCentre.StopProgressMessage();
 
+            TrackNetworkConfigSaved(networkConfigurationToSave, null, updateResult);
+
             // close on success
             Close();
+        }
+
+        /// <summary>
+        /// Records which kind of configuration was saved. Only flags and the result, never addresses, SSIDs, passwords or certificates.
+        /// </summary>
+        private void TrackNetworkConfigSaved(DeviceConfiguration.NetworkConfigurationProperties configuration, string failedStep, Engine.UpdateDeviceResult result)
+        {
+            ExtensionTelemetry.TrackEvent("NetworkConfigSaved", new TelemetryProperties
+            {
+                { "dhcp", configuration.StartupAddressMode == AddressMode.DHCP },
+                { "wireless", configuration.InterfaceType == NetworkInterfaceType.Wireless80211 },
+                { "root_ca_uploaded", DeviceExplorerViewModel.CaCertificateBundle != null },
+                { "device_cert_uploaded", DeviceExplorerViewModel.DeviceCertificate != null },
+                { "failed_step", failedStep },
+                { "result", result },
+            });
         }
 
         private void ShowShowRootCAFilePicker_Click(object sender, System.Windows.RoutedEventArgs e)

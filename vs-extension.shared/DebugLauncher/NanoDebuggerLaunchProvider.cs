@@ -44,6 +44,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             // output information about assembly running this to help debugging
             MessageCentre.InternalErrorWriteLine($"Launching debugger provider from v{_informationalVersionAttribute.InformationalVersion}");
 
+            using TelemetryOperation telemetry = ExtensionTelemetry.StartOperation("debug.launch");
+            telemetry.SetProperty("no_debug", launchOptions.HasFlag(DebugLaunchOptions.NoDebug));
+
             if (Ioc.Default.GetService<DeviceExplorerViewModel>().SelectedDevice != null)
             {
                 var deployDeviceName = Ioc.Default.GetService<DeviceExplorerViewModel>().SelectedDevice.Description;
@@ -51,11 +54,13 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 // get device
                 var device = Ioc.Default.GetService<DeviceExplorerViewModel>().SelectedDevice;
 
+                telemetry.SetProperties(ExtensionTelemetry.DeviceProperties(device));
+
                 var exclusiveAccess = GlobalExclusiveDeviceAccess.TryGet(device, ExclusiveAccessTimeout);
                 if (exclusiveAccess is null)
                 {
 #pragma warning disable S112 // OK to use Exception here
-                    throw new Exception($"Can't get access to {deployDeviceName}, another application is using the device!");
+                    throw telemetry.CompleteWith("NoExclusiveAccess", new Exception($"Can't get access to {deployDeviceName}, another application is using the device!"));
 #pragma warning restore S112 // General exceptions should never be thrown            
                 }
                 else
@@ -93,8 +98,17 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                             };
 
                             stopDebugEngine = false;
+
+                            telemetry.Complete(TelemetryOperation.ResultOk);
+
                             return new IDebugLaunchSettings[] { settings };
                         }
+                    }
+                    catch (Exception ex)
+                    {
+                        telemetry.Fail(ex, "debug.launch");
+
+                        throw;
                     }
                     finally
                     {
@@ -110,13 +124,13 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 }
 
 #pragma warning disable S112 // OK to use Exception here
-                throw new Exception($"Can't connect to {deployDeviceName}!");
+                throw telemetry.CompleteWith("NotConnecting", new Exception($"Can't connect to {deployDeviceName}!"));
 #pragma warning restore S112 // General exceptions should never be thrown            
             }
             else
             {
 #pragma warning disable S112 // OK to use Exception here
-                throw new Exception("There is no device selected. Please select a device in Device Explorer tool window.");
+                throw telemetry.CompleteWith("NoDevice", new Exception("There is no device selected. Please select a device in Device Explorer tool window."));
 #pragma warning restore S112 // General exceptions should never be thrown            
             }
         }

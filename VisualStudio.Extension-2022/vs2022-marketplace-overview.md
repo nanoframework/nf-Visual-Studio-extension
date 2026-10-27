@@ -45,4 +45,8 @@ An open-source platform for running managed C# on constrained devices, such as I
 - 🐞 [Report an issue](https://github.com/nanoframework/Home/issues)
 - 💬 [Join us on Discord](https://discord.gg/gCyBu8T)
 
+## Telemetry
+
+The extension collects anonymous usage data (features used, boards and firmware versions, operation outcomes and errors) to help improve it. No file paths, project names, serial ports or other personal data are collected. To opt out, set the environment variable `NANOFRAMEWORK_TELEMETRY_OPTOUT=1`. [Read more](https://github.com/nanoframework/nf-Visual-Studio-extension#telemetry).
+
 *Still on Visual Studio 2019? There is also an extension for [VS2019](https://marketplace.visualstudio.com/items?itemName=nanoframework.nanoFramework-VS2019-Extension).*

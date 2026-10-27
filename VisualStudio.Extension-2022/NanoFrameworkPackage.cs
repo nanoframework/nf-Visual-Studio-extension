@@ -54,6 +54,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
     /// </para>
     /// </remarks>
     [PackageRegistration(AllowsBackgroundLoading = true, RegisterUsing = RegistrationMethod.CodeBase, UseManagedResourcesOnly = true)]
+    // the telemetry dependencies (OpenTelemetry, Azure Monitor exporter) are newer than the ones Visual Studio ships, load them from the extension folder
+    [ProvideBindingPath]
     // info that shown on extension catalog
     [Description("Visual Studio 2022 extension for .NET nanoFramework. Enables creating C# Solutions to be deployed to a target board and provides debugging tools.")]
     // menu for ToolWindow
@@ -579,6 +581,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         {
             await base.InitializeAsync(cancellationToken, progress);
 
+            TelemetryStartup.Initialize();
+
             // make sure "our" key exists and it's writable
             s_instance.UserRegistryRoot.CreateSubKey(EXTENSION_SUBKEY, true);
 
@@ -605,6 +609,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
             await DeviceExplorerCommand.InitializeAsync(this);
             VirtualDeviceService.InitVirtualDeviceAsync().FireAndForget(); ;
+            TelemetryStartup.OnPackageLoadedAsync(this).FireAndForget();
         }
 
         #endregion
@@ -672,6 +677,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             if (canClose)
             {
                 VirtualDeviceService?.StopVirtualDevice(true);
+
+                TelemetryStartup.Shutdown();
             }
 
             return res;

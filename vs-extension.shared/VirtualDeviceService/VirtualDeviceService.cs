@@ -84,7 +84,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     }
 
                     // start virtual device
-                    await StartVirtualDeviceAsync(false);
+                    await StartVirtualDeviceAsync(false, "startup");
 
                     if (!NanoFrameworkPackage.OptionDisableDeviceWatchers)
                     {
@@ -103,6 +103,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         public void InstallNanoClrTool()
         {
             MessageCentre.InternalErrorWriteLine($"VirtualDevice: Install/update nanoclr tool");
+
+            using TelemetryOperation telemetry = ExtensionTelemetry.StartOperation("nanoclr.install");
 
             // signal install/update ongoing
             WeakReferenceMessenger.Default.Send(new VirtualDeviceOperationExecutingMessage(true));
@@ -136,6 +138,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                             MessageCentre.InternalErrorWriteLine($"VirtualDevice: Running v{regexResult.Groups["version"].Value}");
                             MessageCentre.OutputVirtualDeviceMessage($"Running nanoclr v{regexResult.Groups["version"].Value}");
 
+                            telemetry.SetProperty("nanoclr_version", regexResult.Groups["version"].Value);
+
                             // compose version
                             Version installedVersion = new Version(regexResult.Groups[1].Value);
 
@@ -155,6 +159,10 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                                 // need to update
                                 performInstallUpdate = true;
                             }
+                            else
+                            {
+                                telemetry.Complete("UpToDate", true);
+                            }
                         }
                         else
                         {
@@ -168,6 +176,14 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     // nanoclr doesn't seem to be installed
                     performInstallUpdate = true;
                     NanoClrIsInstalled = false;
+
+                    telemetry.SetProperty("was_installed", false);
+                }
+                catch (Exception ex)
+                {
+                    telemetry.Fail(ex, "nanoclr.install");
+
+                    throw;
                 }
                 finally
                 {
@@ -200,7 +216,11 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         {
                             MessageCentre.InternalErrorWriteLine($"VirtualDevice: Install/update successful. Running v{regexResult.Groups["version"].Value}");
                             MessageCentre.OutputVirtualDeviceMessage($"Running nanoclr v{regexResult.Groups["version"].Value}");
+
+                            telemetry.SetProperty("nanoclr_version", regexResult.Groups["version"].Value);
                         }
+
+                        telemetry.Complete(NanoClrIsInstalled ? "Updated" : "Installed", true);
                     }
                     else
                     {
@@ -208,6 +228,10 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         MessageCentre.InternalErrorWriteLine($"VirtualDevice: {cliResult.StandardError}");
 
                         MessageCentre.OutputVirtualDeviceMessage($"ERROR: failed to install/update nanoclr. Exit code {cliResult.ExitCode}");
+
+                        telemetry
+                            .SetProperty("exit_code", cliResult.ExitCode)
+                            .Complete(TelemetryOperation.ResultFailed);
 
                         NanoClrIsInstalled = false;
                     }
@@ -230,6 +254,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             // setup cancellation token with a timeout of 1 minute
             using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(20));
 
+            using TelemetryOperation telemetry = ExtensionTelemetry.StartOperation("nanoclr.update");
+
             ThreadHelper.JoinableTaskFactory.Run(async delegate
             {
                 // can't start/stop virtual device during install
@@ -245,10 +271,18 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     {
                         MessageCentre.InternalErrorWriteLine($"VirtualDevice: updated nanoCLR image to v{regexResult.Groups["version"].Value}");
                         MessageCentre.OutputVirtualDeviceMessage($"Updated nanoCLR image to v{regexResult.Groups["version"].Value}");
+
+                        telemetry.SetProperty("clr_image_version", regexResult.Groups["version"].Value);
                     }
+
+                    telemetry.Complete(TelemetryOperation.ResultOk);
                 }
                 else
                 {
+                    telemetry
+                        .SetProperty("exit_code", cliResult.ExitCode)
+                        .Complete(TelemetryOperation.ResultFailed);
+
                     MessageCentre.InternalErrorWriteLine($"VirtualDevice: failed to update the nanoCLR image");
                     MessageCentre.OutputVirtualDeviceMessage("ERROR: failed to update the nanoCLR image");
                 }
@@ -385,11 +419,15 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             }
         }
 
-        public async Task<bool> StartVirtualDeviceAsync(bool rescanDevices)
+        public async Task<bool> StartVirtualDeviceAsync(bool rescanDevices, string trigger)
         {
             bool firstPassRunning = true;
 
             await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync(CancellationToken.None);
+
+            using TelemetryOperation telemetry = ExtensionTelemetry.StartOperation("virtualdevice.start")
+                .SetProperty("trigger", trigger)
+                .SetProperty("custom_clr_instance", NanoFrameworkPackage.SettingLoadNanoClrInstance);
 
             // signal start operation
             WeakReferenceMessenger.Default.Send(new VirtualDeviceOperationExecutingMessage(true));
@@ -438,6 +476,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         MessageCentre.OutputVirtualDeviceMessage($"Please run this at a command prompt: 'nanoclr virtualserial --create {regexResult.Groups["comport"].Value}'");
                         MessageCentre.OutputVirtualDeviceMessage($"Then update the Serial Port input in the Virtual Device tab in the Settings dialog with {regexResult.Groups["comport"].Value}");
                         MessageCentre.OutputVirtualDeviceMessage("");
+
+                        telemetry.Complete("VirtualPortFailed");
 
                         // done here
                         return false;
@@ -521,6 +561,10 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         // set handler for process exited
                         _nanoClrProcess.Exited += VirtualDeviceProcess_Exited;
 
+                        telemetry
+                            .SetProperty("retried", !firstPassRunning)
+                            .Complete(TelemetryOperation.ResultOk);
+
                         // done here
                         return true;
                     }
@@ -533,6 +577,10 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 // failedToStart:
                 // hasn't started
                 MessageCentre.InternalErrorWriteLine($"VirtualDevice: Failed to start. Exit code was: {_nanoClrProcess.ExitCode}");
+
+                telemetry
+                    .SetProperty("exit_code", _nanoClrProcess.ExitCode)
+                    .Complete("StartFailed");
 
                 // check if this is failing because the serial port it's taken
                 if (_nanoClrProcess.ExitCode == NanoClrErrorInstanceAlreadyRunning
@@ -557,6 +605,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             }
             catch (Exception ex)
             {
+                telemetry.Fail(ex, "virtualdevice");
+
                 MessageCentre.InternalErrorWriteLine($"VirtualDevice: Failed to start. Exception was: {ex.Message}");
                 MessageCentre.OutputVirtualDeviceMessage("");
                 MessageCentre.OutputVirtualDeviceMessage("**************************************************");

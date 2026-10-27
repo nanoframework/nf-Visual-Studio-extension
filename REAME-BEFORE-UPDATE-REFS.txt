@@ -4,9 +4,32 @@
 We are pushing the limits of the VS extensibility SDK, and it's very easy to break things. In particular, the most critical symptom to check for with each package update is the ability to start a debug session.
 On failure, a CompositionException is usually silently thrown, and the debugger refuses to start without any further clue on what is wrong.
 
+After any update, also check the Visual Studio activity log (start VS with /log) for "SetSite failed" on the nanoFramework package,
+and that telemetry still starts (the telemetry notice is shown on first run). Telemetry load failures are swallowed by design, so they won't show up otherwise.
+
 VS2022
 
-- Microsoft.Extensions.DependencyInjection can't be updated beyond v8.0.1 (last tested with VS17.3.5)
 - CommunityToolkit.Mvvm can't be updated beyond v8.3.2 (last tested with VS17.3.5)
 - CliWrap can't be updated beyond v3.6.7 (last tested with VS17.3.5)
-- Don't update System libraries beyond v8.0 (last tested with VS17.3.5)
+- Microsoft.Extensions.*, System.Text.Json, System.Diagnostics.DiagnosticSource, System.Memory.Data, Microsoft.Bcl.AsyncInterfaces and other
+  .NET runtime packages are also loaded by Visual Studio itself. devenv.exe.config redirects them to VS's own copy, but only up to the
+  version VS ships: in VS 17.14 that's 10.0.0.8 (VS 18 goes up to 10.0.0.10). If the extension references a higher assembly version, a second
+  copy is loaded next to VS's one, the types don't match and the package fails to load with MissingMethodException (SetSite failed).
+  So all of these must resolve, including transitively, to assembly versions at or below 10.0.0.8. Check packages.lock.json after any update.
+- This is why the telemetry packages are pinned (last tested with VS17.14 and VS18.10):
+  - Azure.Monitor.OpenTelemetry.Exporter v1.8.0: v1.9.0 depends on Azure.Core 1.62, which pulls Microsoft.Extensions.* and System.* v10.0.10.
+  - OpenTelemetry v1.15.3, to match the exporter.
+  - Microsoft.Extensions.DependencyInjection v10.0.3, so that all Microsoft.Extensions.* resolve to v10.0.3 (assembly version 10.0.0.3).
+
+VS2019
+
+- Use the same versions of the telemetry packages, Microsoft.Extensions.* and System.* as VS2022 (currently v10.0.3).
+- VS 2019 (16.11) doesn't redirect Microsoft.Extensions.* or the newer System.* packages. .NET 10 servicing packages bump the assembly
+  version (e.g. 10.0.0.3) while dependent assemblies reference 10.0.0.0, so NanoFrameworkPackage.cs declares ProvideBindingRedirection
+  attributes redirecting them to the shipped versions. When updating any of these packages, update NewVersion and OldVersionUpperBound
+  in those attributes to the new assembly versions, and add one for any new assembly that is referenced with a different version than
+  the one shipped. Last tested with VS16.11.
+- The redirect ranges start at 10.0.0.0, not 0.0.0.0, so that VS components and other extensions using older versions of these
+  assemblies aren't redirected to the extension's copies.
+- System.Text.Json and System.Text.Encodings.Web redirects start at 9.0.0.0 because the MetadataProcessor build task references v9.0.0.0.
+- System.Memory and System.Threading.Tasks.Extensions redirects start just above the versions VS 2019 redirects to itself (4.0.1.1 and 4.2.0.1).

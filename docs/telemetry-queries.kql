@@ -1,0 +1,187 @@
+// Starter queries for the .NET nanoFramework Visual Studio extension telemetry (Application Insights > Logs).
+//
+// Data model (see README "Telemetry" for what is and isn't collected):
+//   requests      one row per operation
+//                 name = deploy | debug.launch | debug.session | firmware.update | virtualdevice.start |
+//                        nanoclr.install | nanoclr.update | deviceexplorer.<command>
+//                 resultCode = outcome (e.g. OK, NoDevice, NotConnecting, Exception), success, duration
+//                 customDimensions: nf.target, nf.platform, nf.transport, nf.is_virtual, nf.clr_version, nf.fw_version,
+//                 nf.has_nanobooter, nf.has_proprietary_booter, plus per operation properties
+//                 (deploy: assembly_count, total_size_kb, content_files, deployment_image, retried;
+//                  debug.launch: no_debug; debug.session: launch, clr_started;
+//                  firmware.update: fw_package, to_version, prerelease;
+//                  virtualdevice.start: trigger, custom_clr_instance, retried, exit_code;
+//                  deviceexplorer.ping: ping_result; deviceexplorer.reboot: reboot_type; ...)
+//   customEvents  name = "ExtensionLoaded": settings snapshot (auto_update, virtual_device, deployment_image, ...)
+//                 name = "DeviceConnected": device properties (once per device per VS session)
+//                 name = "ProjectLoaded": output_type, is_test_project
+//                 name = "SettingChanged": setting, value
+//                 name = "DeviceExplorerCommand": command, value
+//                 name = "HyperlinkClicked": link
+//                 name = "NetworkConfigSaved": dhcp, wireless, root_ca_uploaded, device_cert_uploaded, failed_step, result
+//                 name = "ExceptionThrown": stage, exception.type, exception.inner_type, exception.hresult, exception.stacktrace
+//   Every row: user_Id = anonymous install ID (shared with nanoff), application_Version = extension version,
+//              customDimensions: vs.version, nf.ext_flavor (vs2019/vs2022), os.arch, dotnet.runtime
+//   cloud_RoleName = "nanoframework-vs" (nanoff rows are "nanoff", when both send to the same resource)
+
+// ---------------------------------------------------------------------------------------------
+// Audience
+// ---------------------------------------------------------------------------------------------
+
+// Daily active users, by extension flavor
+customEvents
+| where timestamp > ago(90d)
+| where cloud_RoleName == "nanoframework-vs" and name == "ExtensionLoaded"
+| extend flavor = tostring(customDimensions["nf.ext_flavor"])
+| summarize users = dcount(user_Id) by flavor, day = startofday(timestamp)
+| render timechart
+
+// Visual Studio versions in use
+customEvents
+| where timestamp > ago(30d)
+| where cloud_RoleName == "nanoframework-vs" and name == "ExtensionLoaded"
+| extend vsVersion = tostring(customDimensions["vs.version"])
+| summarize users = dcount(user_Id) by vsVersion
+| order by users desc
+
+// Extension versions in use
+customEvents
+| where timestamp > ago(30d)
+| where cloud_RoleName == "nanoframework-vs" and name == "ExtensionLoaded"
+| summarize users = dcount(user_Id) by application_Version
+| order by users desc
+
+// Users of nanoff only, the extension only, or both
+union requests, customEvents
+| where timestamp > ago(30d)
+| where cloud_RoleName in ("nanoff", "nanoframework-vs")
+| summarize tools = make_set(cloud_RoleName) by user_Id
+| extend usage = iff(array_length(tools) == 2, "both", tostring(tools[0]))
+| summarize users = count() by usage
+
+// ---------------------------------------------------------------------------------------------
+// Boards and firmware
+// ---------------------------------------------------------------------------------------------
+
+// Boards in use (distinct users per target)
+customEvents
+| where timestamp > ago(30d)
+| where cloud_RoleName == "nanoframework-vs" and name == "DeviceConnected"
+| extend target = tostring(customDimensions["nf.target"]), platform = tostring(customDimensions["nf.platform"])
+| summarize users = dcount(user_Id), connections = count() by platform, target
+| order by users desc
+
+// Firmware versions per target, from the operations that queried the device
+requests
+| where timestamp > ago(30d)
+| where cloud_RoleName == "nanoframework-vs"
+| extend target = tostring(customDimensions["nf.target"]), fwVersion = tostring(customDimensions["nf.fw_version"])
+| where isnotempty(fwVersion)
+| summarize users = dcount(user_Id) by target, fwVersion
+| order by target asc, users desc
+
+// Transport and virtual device share
+customEvents
+| where timestamp > ago(30d)
+| where cloud_RoleName == "nanoframework-vs" and name == "DeviceConnected"
+| extend transport = tostring(customDimensions["nf.transport"]), isVirtual = tobool(customDimensions["nf.is_virtual"])
+| summarize users = dcount(user_Id) by transport, isVirtual
+
+// ---------------------------------------------------------------------------------------------
+// Feature usage and reliability
+// ---------------------------------------------------------------------------------------------
+
+// Operation volume and success rate
+requests
+| where timestamp > ago(30d)
+| where cloud_RoleName == "nanoframework-vs"
+| summarize runs = count(), users = dcount(user_Id), successRate = round(100.0 * countif(success == true) / count(), 1), p50 = percentile(duration, 50), p95 = percentile(duration, 95) by name
+| order by runs desc
+
+// Deploy outcomes by target
+requests
+| where timestamp > ago(30d)
+| where cloud_RoleName == "nanoframework-vs" and name == "deploy"
+| extend target = tostring(customDimensions["nf.target"])
+| summarize runs = count() by target, resultCode
+| order by target asc, runs desc
+
+// Deploy success rate by Visual Studio version
+requests
+| where timestamp > ago(30d)
+| where cloud_RoleName == "nanoframework-vs" and name == "deploy"
+| extend vsVersion = tostring(customDimensions["vs.version"])
+| summarize runs = count(), successRate = round(100.0 * countif(success == true) / count(), 1) by vsVersion
+
+// Deploy size distribution
+requests
+| where timestamp > ago(30d)
+| where cloud_RoleName == "nanoframework-vs" and name == "deploy" and success == true
+| extend assemblies = toint(customDimensions["assembly_count"]), sizeKb = toint(customDimensions["total_size_kb"])
+| summarize p50Assemblies = percentile(assemblies, 50), p95Assemblies = percentile(assemblies, 95), p50SizeKb = percentile(sizeKb, 50), p95SizeKb = percentile(sizeKb, 95)
+
+// Debug launch failures
+requests
+| where timestamp > ago(30d)
+| where cloud_RoleName == "nanoframework-vs" and name in ("debug.launch", "debug.session") and success == false
+| summarize failures = count() by name, resultCode, target = tostring(customDimensions["nf.target"])
+| order by failures desc
+
+// Run with vs without debugging
+requests
+| where timestamp > ago(30d)
+| where cloud_RoleName == "nanoframework-vs" and name == "debug.launch"
+| summarize runs = count() by noDebug = tobool(customDimensions["no_debug"])
+
+// Firmware update outcomes
+requests
+| where timestamp > ago(30d)
+| where cloud_RoleName == "nanoframework-vs" and name == "firmware.update"
+| summarize runs = count() by resultCode, platform = tostring(customDimensions["nf.platform"])
+| order by runs desc
+
+// Device Explorer commands
+union
+    (requests | where name startswith "deviceexplorer." | project timestamp, cloud_RoleName, user_Id, command = name),
+    (customEvents | where name == "DeviceExplorerCommand" | project timestamp, cloud_RoleName, user_Id, command = strcat("deviceexplorer.", tostring(customDimensions["command"])))
+| where timestamp > ago(30d)
+| where cloud_RoleName == "nanoframework-vs"
+| summarize uses = count(), users = dcount(user_Id) by command
+| order by uses desc
+
+// Settings adoption (latest snapshot per user)
+customEvents
+| where timestamp > ago(30d)
+| where cloud_RoleName == "nanoframework-vs" and name == "ExtensionLoaded"
+| summarize arg_max(timestamp, customDimensions) by user_Id
+| mv-expand kind = array setting = bag_keys(customDimensions) to typeof(string)
+| where setting !in ("vs.version", "nf.ext_flavor", "os.arch", "os.family", "dotnet.runtime", "enduser.pseudo.id", "microsoft.custom_event.name")
+| summarize users = count(), enabled = countif(tobool(customDimensions[setting])) by setting
+| extend enabledPercent = round(100.0 * enabled / users, 1)
+| order by setting asc
+
+// Project types
+customEvents
+| where timestamp > ago(30d)
+| where cloud_RoleName == "nanoframework-vs" and name == "ProjectLoaded"
+| summarize projects = count(), users = dcount(user_Id) by outputType = tostring(customDimensions["output_type"]), isTestProject = tobool(customDimensions["is_test_project"])
+
+// ---------------------------------------------------------------------------------------------
+// Errors
+// ---------------------------------------------------------------------------------------------
+
+// Top exceptions by stage
+customEvents
+| where timestamp > ago(30d)
+| where cloud_RoleName == "nanoframework-vs" and name == "ExceptionThrown"
+| extend stage = tostring(customDimensions["stage"]), exceptionType = tostring(customDimensions["exception.type"]), innerType = tostring(customDimensions["exception.inner_type"])
+| summarize occurrences = count(), users = dcount(user_Id) by stage, exceptionType, innerType
+| order by occurrences desc
+
+// Stack traces for one exception type
+customEvents
+| where timestamp > ago(7d)
+| where cloud_RoleName == "nanoframework-vs" and name == "ExceptionThrown"
+| where tostring(customDimensions["exception.type"]) == "System.IO.IOException"
+| project timestamp, application_Version, stage = tostring(customDimensions["stage"]), stackTrace = tostring(customDimensions["exception.stacktrace"])
+| take 20

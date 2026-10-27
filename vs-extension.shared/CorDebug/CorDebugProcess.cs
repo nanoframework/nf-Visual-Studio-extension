@@ -787,15 +787,29 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                 _threadDispatch = new Thread(delegate ()
                 {
+                    // the whole debug session, from starting the CLR until the dispatch of events ends
+                    using TelemetryOperation telemetry = ExtensionTelemetry.StartOperation("debug.session");
+
                     try
                     {
+                        telemetry
+                            .SetProperties(ExtensionTelemetry.DeviceProperties(Device))
+                            .SetProperty("launch", fLaunch);
+
                         MessageCentre.StartProgressMessage(Resources.ResourceStrings.DebuggingStarting);
 
                         StartClr();
+
+                        telemetry.SetProperty("clr_started", true);
+
                         DispatchEvents();
+
+                        telemetry.Complete(TelemetryOperation.ResultOk);
                     }
                     catch (Exception ex)
                     {
+                        telemetry.Fail(ex, "debug.session");
+
                         MessageCentre.StopProgressMessage();
 
                         ICorDebugProcess.Terminate(0);
@@ -1575,6 +1589,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             }
             catch (Exception ex)
             {
+                ExtensionTelemetry.TrackException(ex, "debug.stop");
+
                 MessageCentre.InternalErrorMessage(false, "Exception while terminating CorDebugProcess: " + ex.Message);
             }
             finally

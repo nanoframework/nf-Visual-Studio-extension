@@ -135,13 +135,17 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                 return COM_HResults.S_OK;
             }
-            catch (ProcessExitException)
+            catch (ProcessExitException ex)
             {
+                ExtensionTelemetry.TrackException(ex, "debug.launch");
+
                 MessageCentre.DebugMessage(Resources.ResourceStrings.InitializeProcessFailedProcessDied);
                 return COM_HResults.S_FALSE;
             }
             catch (Exception ex)
             {
+                ExtensionTelemetry.TrackException(ex, "debug.launch");
+
                 MessageCentre.DebugMessage(Resources.ResourceStrings.InitializeProcessFailed);
                 MessageCentre.InternalErrorMessage(false, ex.Message);
                 return COM_HResults.S_FALSE;
@@ -171,13 +175,17 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                 return COM_HResults.S_OK;
             }
-            catch (ProcessExitException)
+            catch (ProcessExitException ex)
             {
+                ExtensionTelemetry.TrackException(ex, "debug.attach");
+
                 MessageCentre.DebugMessage(Resources.ResourceStrings.AttachFailedProcessDied);
                 return COM_HResults.S_FALSE;
             }
             catch (Exception ex)
             {
+                ExtensionTelemetry.TrackException(ex, "debug.attach");
+
                 MessageCentre.DebugMessage(Resources.ResourceStrings.AttachFailed);
                 MessageCentre.InternalErrorMessage(false, ex.Message);
                 return COM_HResults.S_FALSE;

@@ -35,6 +35,21 @@ using Task = System.Threading.Tasks.Task;
                                 Capabilities = NanoCSharpProjectUnconfigured.UniqueCapability
                                 )]
 
+// binding redirects for the telemetry dependencies, see REAME-BEFORE-UPDATE-REFS.txt before changing these or the package versions
+[assembly: ProvideBindingRedirection(AssemblyName = "Microsoft.Extensions.Configuration.Abstractions", PublicKeyToken = "adb9793829ddae60", OldVersionLowerBound = "10.0.0.0", OldVersionUpperBound = "10.0.0.3", NewVersion = "10.0.0.3")]
+[assembly: ProvideBindingRedirection(AssemblyName = "Microsoft.Extensions.DependencyInjection", PublicKeyToken = "adb9793829ddae60", OldVersionLowerBound = "10.0.0.0", OldVersionUpperBound = "10.0.0.3", NewVersion = "10.0.0.3")]
+[assembly: ProvideBindingRedirection(AssemblyName = "Microsoft.Extensions.DependencyInjection.Abstractions", PublicKeyToken = "adb9793829ddae60", OldVersionLowerBound = "10.0.0.0", OldVersionUpperBound = "10.0.0.3", NewVersion = "10.0.0.3")]
+[assembly: ProvideBindingRedirection(AssemblyName = "Microsoft.Extensions.Diagnostics.Abstractions", PublicKeyToken = "adb9793829ddae60", OldVersionLowerBound = "10.0.0.0", OldVersionUpperBound = "10.0.0.3", NewVersion = "10.0.0.3")]
+[assembly: ProvideBindingRedirection(AssemblyName = "Microsoft.Extensions.Hosting.Abstractions", PublicKeyToken = "adb9793829ddae60", OldVersionLowerBound = "10.0.0.0", OldVersionUpperBound = "10.0.0.3", NewVersion = "10.0.0.3")]
+[assembly: ProvideBindingRedirection(AssemblyName = "Microsoft.Extensions.Logging.Abstractions", PublicKeyToken = "adb9793829ddae60", OldVersionLowerBound = "10.0.0.0", OldVersionUpperBound = "10.0.0.3", NewVersion = "10.0.0.3")]
+[assembly: ProvideBindingRedirection(AssemblyName = "Microsoft.Extensions.Options", PublicKeyToken = "adb9793829ddae60", OldVersionLowerBound = "10.0.0.0", OldVersionUpperBound = "10.0.0.3", NewVersion = "10.0.0.3")]
+[assembly: ProvideBindingRedirection(AssemblyName = "Microsoft.Extensions.Primitives", PublicKeyToken = "adb9793829ddae60", OldVersionLowerBound = "10.0.0.0", OldVersionUpperBound = "10.0.0.3", NewVersion = "10.0.0.3")]
+[assembly: ProvideBindingRedirection(AssemblyName = "System.Diagnostics.DiagnosticSource", PublicKeyToken = "cc7b13ffcd2ddd51", OldVersionLowerBound = "10.0.0.0", OldVersionUpperBound = "10.0.0.3", NewVersion = "10.0.0.3")]
+[assembly: ProvideBindingRedirection(AssemblyName = "System.Text.Encodings.Web", PublicKeyToken = "cc7b13ffcd2ddd51", OldVersionLowerBound = "9.0.0.0", OldVersionUpperBound = "10.0.0.3", NewVersion = "10.0.0.3")]
+[assembly: ProvideBindingRedirection(AssemblyName = "System.Text.Json", PublicKeyToken = "cc7b13ffcd2ddd51", OldVersionLowerBound = "9.0.0.0", OldVersionUpperBound = "10.0.0.3", NewVersion = "10.0.0.3")]
+[assembly: ProvideBindingRedirection(AssemblyName = "System.Memory", PublicKeyToken = "cc7b13ffcd2ddd51", OldVersionLowerBound = "4.0.1.2", OldVersionUpperBound = "4.0.5.0", NewVersion = "4.0.5.0")]
+[assembly: ProvideBindingRedirection(AssemblyName = "System.Threading.Tasks.Extensions", PublicKeyToken = "cc7b13ffcd2ddd51", OldVersionLowerBound = "4.2.1.0", OldVersionUpperBound = "4.2.4.0", NewVersion = "4.2.4.0")]
+
 namespace nanoFramework.Tools.VisualStudio.Extension
 {
     /// <summary>
@@ -55,6 +70,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
     /// </para>
     /// </remarks>
     [PackageRegistration(AllowsBackgroundLoading = true, RegisterUsing = RegistrationMethod.CodeBase, UseManagedResourcesOnly = true)]
+    // the telemetry dependencies (OpenTelemetry, Azure Monitor exporter) are newer than the ones Visual Studio ships, load them from the extension folder
+    [ProvideBindingPath]
     // info that shown on extension catalog
     [Description("Visual Studio 2019 extension for nanoFramework. Enables creating C# Solutions to be deployed to a target board and provides debugging tools.")]
     // menu for ToolWindow
@@ -579,6 +596,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         /// <returns>A task representing the async work of package initialization, or an already completed task if there is none. Do not return null from this method.</returns>
         protected override async Task InitializeAsync(CancellationToken cancellationToken, IProgress<ServiceProgressData> progress)
         {
+            TelemetryStartup.Initialize();
 
             // make sure "our" key exists and it's writable
             s_instance.UserRegistryRoot.CreateSubKey(EXTENSION_SUBKEY, true);
@@ -606,6 +624,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
             await DeviceExplorerCommand.InitializeAsync(this);
             VirtualDeviceService.InitVirtualDeviceAsync().FireAndForget();
+            TelemetryStartup.OnPackageLoadedAsync(this).FireAndForget();
         }
 
         #endregion
@@ -673,6 +692,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             if (canClose)
             {
                 VirtualDeviceService?.StopVirtualDevice(true);
+
+                TelemetryStartup.Shutdown();
             }
 
             return res;
