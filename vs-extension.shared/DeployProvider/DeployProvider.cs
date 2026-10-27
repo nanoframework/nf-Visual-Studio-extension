@@ -111,8 +111,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
             var deviceExplorer = Ioc.Default.GetService<DeviceExplorerViewModel>();
 
+            // deploy to the device selected in Device Explorer, same as the debug launcher
+            // capture it once so a selection change during deployment can't swap or null it
+            NanoDeviceBase device = deviceExplorer.SelectedDevice;
+
             // just in case....
-            if (deviceExplorer.SelectedDevice == null)
+            if (device == null)
             {
                 // can't debug
                 // throw exception to signal deployment failure
@@ -120,9 +124,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 throw telemetry.CompleteWith("NoDevice", new Exception("There is no device selected. Please select a device in Device Explorer tool window."));
 #pragma warning restore S112 // General exceptions should never be thrown
             }
-
-            // deploy to the device selected in Device Explorer, same as the debug launcher
-            NanoDeviceBase device = deviceExplorer.SelectedDevice;
 
             telemetry
                 .SetProperties(ExtensionTelemetry.DeviceProperties(device))
@@ -191,7 +192,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         MessageCentre.InternalErrorWriteLine("*** ERROR: device reporting no assemblies loaded. This can not happen. Sanity check failed ***");
 
                         // there are no assemblies deployed?!
-                        throw telemetry.CompleteWith("MissingNativeAssembly", new DeploymentException($"Couldn't find any native assemblies deployed in {deviceExplorer.SelectedDevice.Description}! If the situation persists reboot the device."));
+                        throw telemetry.CompleteWith("MissingNativeAssembly", new DeploymentException($"Couldn't find any native assemblies deployed in {device.Description}! If the situation persists reboot the device."));
                     }
 
                     // For a known project output assembly path, this shall contain the corresponding
@@ -442,7 +443,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     MessageCentre.InternalErrorWriteLine("*** ERROR: failing to connect to device ***");
 
                     // throw exception to signal deployment failure
-                    throw telemetry.CompleteWith("NotConnecting", new DeploymentException($"{deviceExplorer.SelectedDevice.Description} is not responding. Please retry the deployment. If the situation persists reboot the device."));
+                    throw telemetry.CompleteWith("NotConnecting", new DeploymentException($"{device.Description} is not responding. Please retry the deployment. If the situation persists reboot the device."));
                 }
             }
             catch (DeploymentException)
