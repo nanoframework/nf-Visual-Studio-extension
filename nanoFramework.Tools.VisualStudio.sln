@@ -42,6 +42,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSharp.TestApplication-vs20
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "vs-extension.shared", "vs-extension.shared\vs-extension.shared.shproj", "{B16737E2-4B5D-4048-A740-2BB1DF462637}"
 EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "vs-extension.shared.vs2019", "VisualStudio.Extension-2019\Shared\vs-extension.shared.vs2019.shproj", "{7AB762FE-3D80-4E8E-8A12-89D4D4A89DD6}"
+EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "CSharp.BlankApplication.Shared", "CSharp.BlankApplication\CSharp.BlankApplication.Shared.shproj", "{C5A2CF84-5591-4C33-8CF7-6C949531BFB1}"
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "CSharp.ClassLibrary.Shared", "CSharp.ClassLibrary\CSharp.ClassLibrary.Shared.shproj", "{FAA194F0-5C3B-46C7-977B-D2A84444BF80}"
@@ -324,7 +326,8 @@ Global
 		CSharp.ClassLibrary\CSharp.ClassLibrary.Shared.projitems*{5dc66510-7529-477b-98a8-733a792ddd14}*SharedItemsImports = 4
 		CSharp.TestApplication\CSharp.TestApplication.Shared.projitems*{6c9aa770-796b-4679-9a0f-f06e430af330}*SharedItemsImports = 4
 		metadata-processor\MetadataProcessor.Shared\MetadataProcessor.Shared.projitems*{81994ead-e817-d953-3bd2-5cea59efd716}*SharedItemsImports = 5
-		vs-extension.shared\vs-extension.shared.projitems*{aed4a7c6-24eb-4ee3-b387-fdadc36a3d1b}*SharedItemsImports = 4
+		VisualStudio.Extension-2019\Shared\vs-extension.shared.vs2019.projitems*{7ab762fe-3d80-4e8e-8a12-89d4d4a89dd6}*SharedItemsImports = 13
+		VisualStudio.Extension-2019\Shared\vs-extension.shared.vs2019.projitems*{aed4a7c6-24eb-4ee3-b387-fdadc36a3d1b}*SharedItemsImports = 4
 		vs-extension.shared\vs-extension.shared.projitems*{b16737e2-4b5d-4048-a740-2bb1df462637}*SharedItemsImports = 13
 		CSharp.BlankApplication\CSharp.BlankApplication.Shared.projitems*{c5a2cf84-5591-4c33-8cf7-6c949531bfb1}*SharedItemsImports = 13
 		CSharp.BlankApplication\CSharp.BlankApplication.Shared.projitems*{cd034c5a-a9eb-4c8e-b163-0ba9619cd122}*SharedItemsImports = 4
