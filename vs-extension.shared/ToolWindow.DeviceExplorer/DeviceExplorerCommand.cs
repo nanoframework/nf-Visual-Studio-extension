@@ -5,7 +5,6 @@ using System;
 using System.ComponentModel.Design;
 using System.Text;
 using System.Windows;
-using CommunityToolkit.Mvvm.DependencyInjection;
 using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.VisualStudio.Shell;
 using nanoFramework.Tools.Debugger;
@@ -146,7 +145,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
             await Instance.CreateToolbarHandlersAsync();
 
-            Ioc.Default.GetService<DeviceExplorerViewModel>().NanoDeviceCommService = Instance.NanoDeviceCommService;
+            NanoFrameworkPackage.DeviceExplorerViewModel.NanoDeviceCommService = Instance.NanoDeviceCommService;
 
             // setup message listeners to be notified of events occurring in the View Model
             WeakReferenceMessenger.Default.Register<SelectedNanoDeviceHasChangedMessage>(Instance, static (r, message) => Instance.SelectedNanoDeviceHasChangedHandlerAsync().ConfigureAwait(false));
@@ -303,7 +302,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             {
                 using TelemetryOperation telemetry = ExtensionTelemetry.StartOperation("deviceexplorer.ping");
 
-                var deviceExplorer = Ioc.Default.GetService<DeviceExplorerViewModel>();
+                var deviceExplorer = NanoFrameworkPackage.DeviceExplorerViewModel;
 
                 var descriptionBackup = deviceExplorer.SelectedDevice.Description;
 
@@ -398,7 +397,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             // yield to give the UI thread a chance to respond to user input
             await Task.Yield();
 
-            var deviceExplorer = Ioc.Default.GetService<DeviceExplorerViewModel>();
+            var deviceExplorer = NanoFrameworkPackage.DeviceExplorerViewModel;
 
             var descriptionBackup = deviceExplorer.SelectedDevice.Description;
 
@@ -629,7 +628,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             // yield to give the UI thread a chance to respond to user input
             await Task.Yield();
 
-            var deviceExplorer = Ioc.Default.GetService<DeviceExplorerViewModel>();
+            var deviceExplorer = NanoFrameworkPackage.DeviceExplorerViewModel;
 
             var descriptionBackup = deviceExplorer.SelectedDevice.Description;
 
@@ -753,7 +752,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             // yield to give the UI thread a chance to respond to user input
             await Task.Yield();
 
-            var deviceExplorer = Ioc.Default.GetService<DeviceExplorerViewModel>();
+            var deviceExplorer = NanoFrameworkPackage.DeviceExplorerViewModel;
 
             var descriptionBackup = deviceExplorer.SelectedDevice.Description;
 
@@ -800,26 +799,18 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                             // for now, just get the 1st network configuration, if exists
                             var networkConfigurations = NanoDeviceCommService.Device.DebugEngine.GetAllNetworkConfigurations();
 
-                            if (networkConfigurations.Count > 0)
-                            {
-                                deviceExplorer.DeviceNetworkConfiguration = networkConfigurations[0];
-                            }
-                            else
-                            {
-                                deviceExplorer.DeviceNetworkConfiguration = new DeviceConfiguration.NetworkConfigurationProperties();
-                            }
+                            deviceExplorer.DeviceNetworkConfiguration = new NetworkConfigurationViewModel(
+                                networkConfigurations.Count > 0
+                                    ? networkConfigurations[0]
+                                    : new DeviceConfiguration.NetworkConfigurationProperties());
 
                             // for now, just get the 1st Wi-Fi configuration, if exists
                             var wirellesConfigurations = NanoDeviceCommService.Device.DebugEngine.GetAllWireless80211Configurations();
 
-                            if (wirellesConfigurations.Count > 0)
-                            {
-                                deviceExplorer.DeviceWireless80211Configuration = wirellesConfigurations[0];
-                            }
-                            else
-                            {
-                                deviceExplorer.DeviceWireless80211Configuration = new DeviceConfiguration.Wireless80211ConfigurationProperties();
-                            }
+                            deviceExplorer.DeviceWireless80211Configuration = new Wireless80211ConfigurationViewModel(
+                                wirellesConfigurations.Count > 0
+                                    ? wirellesConfigurations[0]
+                                    : new DeviceConfiguration.Wireless80211ConfigurationProperties());
 
                             // yield to give the UI thread a chance to respond to user input
                             await Task.Yield();
@@ -845,7 +836,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                             }
 
                             // show network configuration dialogue
-                            var networkConfigDialog = new NetworkConfigurationDialog
+                            var networkConfigDialog = new NetworkConfigurationDialog(deviceExplorer)
                             {
                                 HasMinimizeButton = false,
                                 HasMaximizeButton = false
@@ -919,7 +910,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     // disable buttons
                     await UpdateDeviceDependentToolbarButtonsAsync(false);
 
-                    var deviceExplorer = Ioc.Default.GetService<DeviceExplorerViewModel>();
+                    var deviceExplorer = NanoFrameworkPackage.DeviceExplorerViewModel;
 
                     // make sure this device is showing as selected in Device Explorer tree view
                     deviceExplorer.ForceNanoDeviceSelection();
@@ -1132,7 +1123,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                 NanoDeviceCommService.DebugClient.StopDeviceWatchers();
 
-                var deviceExplorer = Ioc.Default.GetService<DeviceExplorerViewModel>();
+                var deviceExplorer = NanoFrameworkPackage.DeviceExplorerViewModel;
 
                 deviceExplorer.ResetEnumerationFlag();
 
@@ -1232,7 +1223,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         {
             await Task.Run(async delegate
             {
-                var deviceExplorer = Ioc.Default.GetService<DeviceExplorerViewModel>();
+                var deviceExplorer = NanoFrameworkPackage.DeviceExplorerViewModel;
 
                 if (deviceExplorer.SelectedDevice != null)
                 {
@@ -1285,7 +1276,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 // get the menu command service to reach the toolbar commands
                 var menuCommandService = Instance.MenuCommandService;
 
-                var deviceExplorer = Ioc.Default.GetService<DeviceExplorerViewModel>();
+                var deviceExplorer = NanoFrameworkPackage.DeviceExplorerViewModel;
 
                 // are there any devices available
                 if (deviceExplorer.AvailableDevices.Count > 0)
@@ -1341,7 +1332,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         private void UpdateRebootMenuGroup(OleMenuCommandService menuCommandService)
         {
-            var deviceExplorer = Ioc.Default.GetService<DeviceExplorerViewModel>();
+            var deviceExplorer = NanoFrameworkPackage.DeviceExplorerViewModel;
 
             if (deviceExplorer.SelectedDevice != null)
             {
@@ -1378,7 +1369,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 // are there any devices available
                 if (isEnable)
                 {
-                    var deviceExplorer = Ioc.Default.GetService<DeviceExplorerViewModel>();
+                    var deviceExplorer = NanoFrameworkPackage.DeviceExplorerViewModel;
 
                     if (deviceExplorer.AvailableDevices.Count == 0)
                     {

@@ -11,9 +11,7 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
-using CommunityToolkit.Mvvm.DependencyInjection;
 using Microsoft;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.ProjectSystem.VS;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
@@ -485,10 +483,16 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         #endregion
 
         /// <summary>
+        /// The Device Explorer view model, created when the package is initialized.
+        /// To be used by providers and other classes in the package.
+        /// </summary>
+        public static DeviceExplorerViewModel DeviceExplorerViewModel { get; private set; }
+
+        /// <summary>
         /// Provides direct access to <see cref="INanoDeviceCommService"/> service.
         /// To be used by providers and other classes in the package.
         /// </summary>
-        public static INanoDeviceCommService NanoDeviceCommService 
+        public static INanoDeviceCommService NanoDeviceCommService
         {
             get
             {
@@ -586,16 +590,11 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             // make sure "our" key exists and it's writable
             s_instance.UserRegistryRoot.CreateSubKey(EXTENSION_SUBKEY, true);
 
-            // Configure IoC container
-            Ioc.Default.ConfigureServices(
-                new ServiceCollection()
-                .AddSingleton<DeviceExplorerViewModel>()
-                .BuildServiceProvider());
+            // the Device Explorer view model is owned by the package
+            DeviceExplorerViewModel = new DeviceExplorerViewModel { Package = this };
 
             AddService(typeof(NanoDeviceCommService), CreateNanoDeviceCommServiceAsync);
             AddService(typeof(VirtualDeviceService), CreateVirtualDeviceManagerServiceAsync);
-
-            Ioc.Default.GetService<DeviceExplorerViewModel>().Package = this;
 
             await MessageCentre.InitializeAsync(this, ".NET nanoFramework Extension");
 

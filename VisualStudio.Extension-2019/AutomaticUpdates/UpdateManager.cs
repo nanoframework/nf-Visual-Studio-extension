@@ -5,7 +5,6 @@ using System;
 using System.Collections.Concurrent;
 using System.Linq;
 using System.Threading.Tasks;
-using CommunityToolkit.Mvvm.DependencyInjection;
 using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.VisualStudio.Shell;
 using nanoFramework.Tools.Debugger;
@@ -65,7 +64,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.AutomaticUpdates
 
                     var deviceUniqueId = Guid.Parse(deviceId);
 
-                    var deviceExplorer = Ioc.Default.GetService<DeviceExplorerViewModel>();
+                    var deviceExplorer = NanoFrameworkPackage.DeviceExplorerViewModel;
 
                     var nanoDevice = deviceExplorer.AvailableDevices.FirstOrDefault(d => d.DeviceUniqueId == deviceUniqueId);
 

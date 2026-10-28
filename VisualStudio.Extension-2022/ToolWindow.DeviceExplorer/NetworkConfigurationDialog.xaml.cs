@@ -10,7 +10,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension
     using System.Linq;
     using System.Net;
     using System.Windows.Forms;
-    using CommunityToolkit.Mvvm.DependencyInjection;
     using Microsoft.VisualStudio.Package;
     using Microsoft.VisualStudio.PlatformUI;
     using nanoFramework.Tools.Debugger;
@@ -26,11 +25,11 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         private DeviceExplorerViewModel DeviceExplorerViewModel => DataContext as DeviceExplorerViewModel;
 
-        public NetworkConfigurationDialog(string helpTopic) : base(helpTopic)
+        public NetworkConfigurationDialog(DeviceExplorerViewModel viewModel, string helpTopic) : base(helpTopic)
         {
             InitializeComponent();
 
-            DataContext = Ioc.Default.GetService<DeviceExplorerViewModel>();
+            DataContext = viewModel;
 
             InitControls();
         }
@@ -38,11 +37,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         /// <summary>
         /// Initializes a new instance of the <see cref="NetworkConfigurationDialog"/> class.
         /// </summary>
-        public NetworkConfigurationDialog()
+        /// <param name="viewModel">The Device Explorer view model, with the configurations to edit.</param>
+        public NetworkConfigurationDialog(DeviceExplorerViewModel viewModel)
         {
             InitializeComponent();
 
-            DataContext = Ioc.Default.GetService<DeviceExplorerViewModel>();
+            DataContext = viewModel;
 
             InitControls();
         }
@@ -50,7 +50,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         // init controls
         private void InitControls()
         {
-            var networkConfiguration = DeviceExplorerViewModel.DeviceNetworkConfiguration;
+            var networkConfiguration = DeviceExplorerViewModel.DeviceNetworkConfiguration.Model;
 
             // developer note
             // because our IPMaskedTextBox is missing the required properties and events to support
@@ -98,10 +98,10 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             var wifiProfile = DeviceExplorerViewModel.DeviceWireless80211Configuration;
 
             // set pass field if it's available from the model
-            WiFiPassword.Password = wifiProfile?.Password;
+            WiFiPassword.Password = wifiProfile?.Model.Password;
 
             // if there is no valid network interface in the device: enable control for interface type selection
-            if (DeviceExplorerViewModel.DeviceNetworkConfiguration.IsUnknown)
+            if (DeviceExplorerViewModel.DeviceNetworkConfiguration.Model.IsUnknown)
             {
                 InterfaceType.IsEnabled = true;
             }
@@ -123,8 +123,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         private void SaveButton_Click(object sender, System.Windows.RoutedEventArgs e)
         {
+            // copy the values edited through the bindings to the configuration blocks to save
+            DeviceExplorerViewModel.DeviceNetworkConfiguration.ApplyToModel();
+            DeviceExplorerViewModel.DeviceWireless80211Configuration.ApplyToModel();
+
             // setup device network configuration block to save
-            var networkConfigurationToSave = DeviceExplorerViewModel.DeviceNetworkConfiguration;
+            var networkConfigurationToSave = DeviceExplorerViewModel.DeviceNetworkConfiguration.Model;
 
             // IPv4 address options
             if (IPv4Automatic.IsChecked.GetValueOrDefault())
@@ -193,7 +197,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             }
 
             // Wi-Fi config
-            DeviceExplorerViewModel.DeviceWireless80211Configuration.Password = WiFiPassword.Password;
+            DeviceExplorerViewModel.DeviceWireless80211Configuration.Model.Password = WiFiPassword.Password;
 
             MessageCentre.StartProgressMessage($"Uploading network configuration to {DeviceExplorerViewModel.SelectedDevice.Description}...");
 
@@ -217,7 +221,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 {
                     // save Wi-Fi profile to target
                     uploadStep = "wireless";
-                    updateResult = DeviceExplorerViewModel.SelectedDevice.DebugEngine.UpdateDeviceConfiguration(DeviceExplorerViewModel.DeviceWireless80211Configuration, 0);
+                    updateResult = DeviceExplorerViewModel.SelectedDevice.DebugEngine.UpdateDeviceConfiguration(DeviceExplorerViewModel.DeviceWireless80211Configuration.Model, 0);
                 }
             }
 

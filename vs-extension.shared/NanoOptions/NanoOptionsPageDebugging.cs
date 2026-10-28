@@ -4,7 +4,6 @@
 ////
 
 using System.ComponentModel;
-using CommunityToolkit.Mvvm.DependencyInjection;
 using Microsoft.VisualStudio.Shell;
 using nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel;
 using Commands = nanoFramework.Tools.Debugger.WireProtocol.Commands;
@@ -47,7 +46,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             try
             {
                 // update execution conditions in nano device if there is a debug session active
-                var device = Ioc.Default.GetService<DeviceExplorerViewModel>().SelectedDevice;
+                var device = NanoFrameworkPackage.DeviceExplorerViewModel.SelectedDevice;
 
                 if (device?.DebugEngine != null
                     && device.DebugEngine.IsRunning)

@@ -7,7 +7,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 {
     using System;
     using System.Windows.Controls;
-    using CommunityToolkit.Mvvm.DependencyInjection;
     using CommunityToolkit.Mvvm.Messaging;
     using Microsoft.VisualStudio.Shell;
     using nanoFramework.Tools.Debugger;
@@ -25,11 +24,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         /// <summary>
         /// Initializes a new instance of the <see cref="DeviceExplorerControl"/> class.
         /// </summary>
-        public DeviceExplorerControl()
+        /// <param name="viewModel">The Device Explorer view model.</param>
+        public DeviceExplorerControl(DeviceExplorerViewModel viewModel)
         {
             InitializeComponent();
 
-            DataContext = Ioc.Default.GetService<DeviceExplorerViewModel>();
+            DataContext = viewModel;
 
             Loaded += DeviceExplorerControl_Loaded;
 
