@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Messaging;
 using CommunityToolkit.Mvvm.Messaging.Messages;
@@ -67,11 +68,32 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
         }
 
         private ObservableCollection<NanoDeviceBase> _availableDevices;
+
+        // copy of AvailableDevices, replaced on every change, for the code running on other threads
+        private NanoDeviceBase[] _availableDevicesSnapshot = Array.Empty<NanoDeviceBase>();
+
         public ObservableCollection<NanoDeviceBase> AvailableDevices
         {
             get => _availableDevices;
-            set => SetProperty(ref _availableDevices, value);
+            set
+            {
+                if (SetProperty(ref _availableDevices, value))
+                {
+                    PublishAvailableDevicesSnapshot();
+                }
+            }
         }
+
+        /// <summary>
+        /// The devices in <see cref="AvailableDevices"/>, safe to read from any thread.
+        /// </summary>
+        /// <remarks>
+        /// <see cref="AvailableDevices"/> is bound to the UI and changed on the UI thread only: code running on other threads has to use this copy.
+        /// </remarks>
+        public IReadOnlyList<NanoDeviceBase> AvailableDevicesSnapshot => Volatile.Read(ref _availableDevicesSnapshot);
+
+        private void PublishAvailableDevicesSnapshot() =>
+            Volatile.Write(ref _availableDevicesSnapshot, _availableDevices?.ToArray() ?? Array.Empty<NanoDeviceBase>());
 
         private NanoDeviceBase _selectedDevice;
         public NanoDeviceBase SelectedDevice
@@ -102,6 +124,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
                 devices.DeviceRemoved += NanoFrameworkDevices_DeviceRemoved;
 
                 AvailableDevices = new ObservableCollection<NanoDeviceBase>(devices);
+
+                // the enumeration may have completed before the handlers above were attached
+                if (NanoDeviceCommService.DebugClient.IsDevicesEnumerationComplete)
+                {
+                    SerialDebugClient_DeviceEnumerationCompleted(this, EventArgs.Empty);
+                }
             }
         }
 
@@ -192,6 +220,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
             }
 
             AvailableDevices.Add(device);
+            PublishAvailableDevicesSnapshot();
 
             WeakReferenceMessenger.Default.Send(new NanoDevicesCollectionHasChangedMessage());
 
@@ -211,6 +240,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
             {
                 return;
             }
+
+            PublishAvailableDevicesSnapshot();
 
             WeakReferenceMessenger.Default.Send(new NanoDevicesCollectionHasChangedMessage());
 

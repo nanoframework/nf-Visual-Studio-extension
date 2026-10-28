@@ -66,7 +66,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.AutomaticUpdates
 
                     var deviceExplorer = NanoFrameworkPackage.DeviceExplorerViewModel;
 
-                    var nanoDevice = deviceExplorer.AvailableDevices.FirstOrDefault(d => d.DeviceUniqueId == deviceUniqueId);
+                    var nanoDevice = deviceExplorer.AvailableDevicesSnapshot.FirstOrDefault(d => d.DeviceUniqueId == deviceUniqueId);
 
                     // sanity check
                     if (
@@ -228,7 +228,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.AutomaticUpdates
                                         }
 
                                         // check if the device is still there
-                                        if (deviceExplorer.AvailableDevices.FirstOrDefault(d => d.DeviceUniqueId == deviceUniqueId) == null)
+                                        if (deviceExplorer.AvailableDevicesSnapshot.FirstOrDefault(d => d.DeviceUniqueId == deviceUniqueId) == null)
                                         {
 #if DEBUG
                                             Console.WriteLine($"[Automatic Updates] {nanoDevice.TargetName} is not available anymore.");
@@ -301,7 +301,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.AutomaticUpdates
                                                     devicesUpdatING.TryRemove(deviceId, out var dummy);
 
                                                     // check if the device is still there
-                                                    if (deviceExplorer.AvailableDevices.FirstOrDefault(d => d.DeviceUniqueId == Guid.Parse(deviceId)) == null)
+                                                    if (deviceExplorer.AvailableDevicesSnapshot.FirstOrDefault(d => d.DeviceUniqueId == Guid.Parse(deviceId)) == null)
                                                     {
                                                         return;
                                                     }
