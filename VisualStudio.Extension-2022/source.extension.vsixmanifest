@@ -12,7 +12,7 @@
         <Tags>nanoFramework;netnf;netmf;MicroFramework;C#;productivity;microcontroller;I2C;PWM;Serial;SPI;IoT;STM32;ESP32;Cortex-M</Tags>
         <Preview>true</Preview>
     </Metadata>
-    <Installation AllUsers="true">
+    <Installation AllUsers="true" ExtensionType="VSSDK+VisualStudio.Extensibility">
         <InstallationTarget Id="Microsoft.VisualStudio.Community" Version="[17.13,19.0)">
             <ProductArchitecture>amd64</ProductArchitecture>
         </InstallationTarget>

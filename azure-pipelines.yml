@@ -407,7 +407,7 @@ jobs:
       )
     continueOnError: true
     inputs:
-      key: 'nuget | vs2022 | **/VisualStudio.Extension-2022/packages.lock.json'
+      key: 'nuget | vs2022 | **/VisualStudio.Extension-2022/*.csproj'
       path: $(UserProfile)/.nuget/packages
 
   - task: NuGetCommand@2
