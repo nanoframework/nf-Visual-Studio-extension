@@ -8,7 +8,6 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
-using CommunityToolkit.Mvvm.DependencyInjection;
 using Microsoft.VisualStudio.ProjectSystem;
 using Microsoft.VisualStudio.ProjectSystem.Build;
 using Microsoft.VisualStudio.Shell;
@@ -109,7 +108,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
             using TelemetryOperation telemetry = ExtensionTelemetry.StartOperation("deploy");
 
-            var deviceExplorer = Ioc.Default.GetService<DeviceExplorerViewModel>();
+            var deviceExplorer = NanoFrameworkPackage.DeviceExplorerViewModel;
 
             // deploy to the device selected in Device Explorer, same as the debug launcher
             // capture it once so a selection change during deployment can't swap or null it

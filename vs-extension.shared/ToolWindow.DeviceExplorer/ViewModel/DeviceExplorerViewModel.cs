@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Messaging;
 using CommunityToolkit.Mvvm.Messaging.Messages;
@@ -67,11 +68,32 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
         }
 
         private ObservableCollection<NanoDeviceBase> _availableDevices;
+
+        // copy of AvailableDevices, replaced on every change, for the code running on other threads
+        private NanoDeviceBase[] _availableDevicesSnapshot = Array.Empty<NanoDeviceBase>();
+
         public ObservableCollection<NanoDeviceBase> AvailableDevices
         {
             get => _availableDevices;
-            set => SetProperty(ref _availableDevices, value);
+            set
+            {
+                if (SetProperty(ref _availableDevices, value))
+                {
+                    PublishAvailableDevicesSnapshot();
+                }
+            }
         }
+
+        /// <summary>
+        /// The devices in <see cref="AvailableDevices"/>, safe to read from any thread.
+        /// </summary>
+        /// <remarks>
+        /// <see cref="AvailableDevices"/> is bound to the UI and changed on the UI thread only: code running on other threads has to use this copy.
+        /// </remarks>
+        public IReadOnlyList<NanoDeviceBase> AvailableDevicesSnapshot => Volatile.Read(ref _availableDevicesSnapshot);
+
+        private void PublishAvailableDevicesSnapshot() =>
+            Volatile.Write(ref _availableDevicesSnapshot, _availableDevices?.ToArray() ?? Array.Empty<NanoDeviceBase>());
 
         private NanoDeviceBase _selectedDevice;
         public NanoDeviceBase SelectedDevice
@@ -92,11 +114,22 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
         {
             if (NanoDeviceCommService != null)
             {
+                var devices = NanoDeviceCommService.DebugClient.NanoFrameworkDevices;
+
                 NanoDeviceCommService.DebugClient.DeviceEnumerationCompleted += SerialDebugClient_DeviceEnumerationCompleted;
                 NanoDeviceCommService.DebugClient.LogMessageAvailable += DebugClient_LogMessageAvailable;
-                NanoDeviceCommService.DebugClient.NanoFrameworkDevices.CollectionChanged += NanoFrameworkDevices_CollectionChanged;
 
-                AvailableDevices = new ObservableCollection<NanoDeviceBase>(NanoDeviceCommService.DebugClient.NanoFrameworkDevices);
+                // subscribe before loading the current devices, so no change is missed
+                devices.DeviceAdded += NanoFrameworkDevices_DeviceAdded;
+                devices.DeviceRemoved += NanoFrameworkDevices_DeviceRemoved;
+
+                AvailableDevices = new ObservableCollection<NanoDeviceBase>(devices);
+
+                // the enumeration may have completed before the handlers above were attached
+                if (NanoDeviceCommService.DebugClient.IsDevicesEnumerationComplete)
+                {
+                    SerialDebugClient_DeviceEnumerationCompleted(this, EventArgs.Empty);
+                }
             }
         }
 
@@ -105,7 +138,39 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
             MessageCentre.InternalErrorWriteLine(e.EventText);
         }
 
+        // the debug library raises these events on its own threads: AvailableDevices (bound to the UI) is only changed on the main thread
+
         private void SerialDebugClient_DeviceEnumerationCompleted(object sender, EventArgs e)
+        {
+            _ = ThreadHelper.JoinableTaskFactory.RunAsync(async () =>
+            {
+                await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+
+                OnDeviceEnumerationCompleted();
+            });
+        }
+
+        private void NanoFrameworkDevices_DeviceAdded(object sender, NanoDeviceEventArgs e)
+        {
+            _ = ThreadHelper.JoinableTaskFactory.RunAsync(async () =>
+            {
+                await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+
+                OnDeviceAdded(e.Device);
+            });
+        }
+
+        private void NanoFrameworkDevices_DeviceRemoved(object sender, NanoDeviceEventArgs e)
+        {
+            _ = ThreadHelper.JoinableTaskFactory.RunAsync(async () =>
+            {
+                await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+
+                OnDeviceRemoved(e.Device);
+            });
+        }
+
+        private void OnDeviceEnumerationCompleted()
         {
             SelectedTransportType = TransportType.Serial;
 
@@ -144,46 +209,50 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
             ExtensionTelemetry.TrackEvent("DeviceConnected", ExtensionTelemetry.DeviceProperties(device));
         }
 
-        public void NanoFrameworkDevices_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        private void OnDeviceAdded(NanoDeviceBase device)
         {
-            // handle this according to the selected device type 
-            switch (SelectedTransportType)
+            ThreadHelper.ThrowIfNotOnUIThread();
+
+            // the device may already be there, if it was added while loading the initial list
+            if (AvailableDevices.Contains(device))
             {
-                //case TransportType.Usb:
-                //    AvailableDevices = new ObservableCollection<NanoDeviceBase>(UsbDebugService.NanoFrameworkDevices);
-                //    break;
-
-                case TransportType.Serial:
-                    AvailableDevices = new ObservableCollection<NanoDeviceBase>(NanoDeviceCommService.DebugClient.NanoFrameworkDevices);
-                    break;
-
-                default:
-                    // shouldn't get here...
-                    break;
+                return;
             }
+
+            AvailableDevices.Add(device);
+            PublishAvailableDevicesSnapshot();
 
             WeakReferenceMessenger.Default.Send(new NanoDevicesCollectionHasChangedMessage());
 
-            // launch update for arriving devices, if any
-            if (e.NewItems != null)
-            {
-                foreach (var d in e.NewItems)
-                {
-                    WeakReferenceMessenger.Default.Send(new LaunchFirmwareUpdateForNanoDeviceMessage((d as NanoDeviceBase).DeviceUniqueId.ToString()));
+            // launch update for the arriving device
+            WeakReferenceMessenger.Default.Send(new LaunchFirmwareUpdateForNanoDeviceMessage(device.DeviceUniqueId.ToString()));
 
-                    TrackDeviceConnected(d as NanoDeviceBase);
-                }
+            TrackDeviceConnected(device);
+
+            HandleAutoSelect();
+        }
+
+        private void OnDeviceRemoved(NanoDeviceBase device)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+
+            if (!AvailableDevices.Remove(device))
+            {
+                return;
             }
 
-            // signal departure of devices removed, if any
-            if (e.OldItems != null)
-            {
-                foreach (var d in e.OldItems)
-                {
-                    WeakReferenceMessenger.Default.Send(new NanoDeviceHasDepartedMessage((d as NanoDeviceBase).ConnectionId));
-                }
-            }
+            PublishAvailableDevicesSnapshot();
 
+            WeakReferenceMessenger.Default.Send(new NanoDevicesCollectionHasChangedMessage());
+
+            // signal departure of the removed device
+            WeakReferenceMessenger.Default.Send(new NanoDeviceHasDepartedMessage(device.ConnectionId));
+
+            HandleAutoSelect();
+        }
+
+        private void HandleAutoSelect()
+        {
             // handle auto-select option
             if (NanoDeviceCommService.DebugClient.IsDevicesEnumerationComplete)
             {
@@ -308,9 +377,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
 
         #region Network configuration dialog
 
-        public DeviceConfiguration.NetworkConfigurationProperties DeviceNetworkConfiguration { get; set; }
+        public NetworkConfigurationViewModel DeviceNetworkConfiguration { get; set; }
 
-        public DeviceConfiguration.Wireless80211ConfigurationProperties DeviceWireless80211Configuration { get; set; }
+        public Wireless80211ConfigurationViewModel DeviceWireless80211Configuration { get; set; }
 
         public DeviceConfiguration.X509CaRootBundleProperties CaCertificateBundle { get; set; }
         public DeviceConfiguration.X509DeviceCertificatesProperties DeviceCertificate { get; internal set; }

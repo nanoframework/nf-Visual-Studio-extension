@@ -7,7 +7,6 @@ using System.ComponentModel.Composition;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
-using CommunityToolkit.Mvvm.DependencyInjection;
 using Microsoft.VisualStudio.ProjectSystem;
 using Microsoft.VisualStudio.ProjectSystem.Debug;
 using Microsoft.VisualStudio.ProjectSystem.VS.Debug;
@@ -48,7 +47,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             telemetry.SetProperty("no_debug", launchOptions.HasFlag(DebugLaunchOptions.NoDebug));
 
             // get device selected in Device Explorer
-            var device = Ioc.Default.GetService<DeviceExplorerViewModel>().SelectedDevice;
+            var device = NanoFrameworkPackage.DeviceExplorerViewModel.SelectedDevice;
 
             if (device != null)
             {

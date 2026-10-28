@@ -237,11 +237,10 @@
       },
       "nanoFramework.Tools.Debugger.Net": {
         "type": "Direct",
-        "requested": "[3.0.0-preview.28, )",
-        "resolved": "3.0.0-preview.28",
-        "contentHash": "UpEoSgGHKOJwHUwS+k3992nkVeljnlan7hMNX5nXvSSmdrHZkxLgiBjZnfa6Ko7gV43xOgI82CGeNrS1cI+rtA==",
+        "requested": "[3.0.0-preview.29, )",
+        "resolved": "3.0.0-preview.29",
+        "contentHash": "7GTVWevexgAZNMUFzDwK5EZuKRzndxRMHYxJVcC6g6YccrRX0T77z7TsJmHPhMAgoDV7VRX1ghgyHrJy77BkKg==",
         "dependencies": {
-          "Polly": "7.2.4",
           "System.IO.Ports": "8.0.0"
         }
       },
@@ -1684,11 +1683,6 @@
         "dependencies": {
           "OpenTelemetry.PersistentStorage.Abstractions": "1.0.3"
         }
-      },
-      "Polly": {
-        "type": "Transitive",
-        "resolved": "7.2.4",
-        "contentHash": "bw00Ck5sh6ekduDE3mnCo1ohzuad946uslCDEENu3091+6UKnBuKLo4e+yaNcCzXxOZCXWY2gV4a35+K1d4LDA=="
       },
       "stdole": {
         "type": "Transitive",
