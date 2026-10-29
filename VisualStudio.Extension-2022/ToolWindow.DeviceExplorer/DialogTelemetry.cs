@@ -88,7 +88,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 { "duration_s", (int)_stopwatch.Elapsed.TotalSeconds },
                 { "tabs", string.Join(",", _tabs) },
                 { "tab_count", _tabs.Count },
-                { "actions", string.Join(",", _actions) },
+                { "actions", ExtensionTelemetry.ListValue(_actions) },
             });
         }
     }

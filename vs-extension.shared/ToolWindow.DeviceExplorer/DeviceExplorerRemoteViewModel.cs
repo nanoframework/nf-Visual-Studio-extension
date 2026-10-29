@@ -269,20 +269,28 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 return;
             }
 
-            _initialized = true;
-
             // the tool window can be restored before the package is loaded
             await EnsurePackageLoadedAsync(cancellationToken);
 
             await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync(cancellationToken);
 
-            _deviceExplorer = NanoFrameworkPackage.DeviceExplorerViewModel;
-
-            if (_deviceExplorer is null)
+            // checked again on the main thread, another call could have completed the initialization while this one was loading the package
+            if (_initialized)
             {
+                return;
+            }
+
+            var deviceExplorer = NanoFrameworkPackage.DeviceExplorerViewModel;
+
+            if (deviceExplorer is null)
+            {
+                // not initialized, so the next time the control is loaded can try again
                 MessageCentre.InternalErrorWriteLine("Device Explorer: the .NET nanoFramework package isn't initialized.");
                 return;
             }
+
+            _deviceExplorer = deviceExplorer;
+            _initialized = true;
 
             _showInternalErrors = NanoFrameworkPackage.OptionShowInternalErrors;
             _deviceWatchersDisabled = NanoFrameworkPackage.OptionDisableDeviceWatchers;

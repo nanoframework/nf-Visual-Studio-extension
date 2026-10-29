@@ -78,16 +78,17 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         {
             s_nanoDeviceCommService = await package.GetServiceAsync(typeof(NanoDeviceCommService)) as INanoDeviceCommService;
 
+            // setup message listeners to be notified of events occurring in the View Model
+            // before the watchers are started, so the first messages aren't missed
+            WeakReferenceMessenger.Default.Register<SelectedNanoDeviceHasChangedMessage>(s_messageRecipient, static (r, message) => OnSelectedDeviceChanged());
+            WeakReferenceMessenger.Default.Register<NanoDevicesCollectionHasChangedMessage>(s_messageRecipient, static (r, message) => RaiseStateChanged());
+            WeakReferenceMessenger.Default.Register<NanoDeviceEnumerationCompletedMessage>(s_messageRecipient, static (r, message) => OnDeviceEnumerationCompleted());
+
             // this starts the device watchers
             ViewModel.NanoDeviceCommService = s_nanoDeviceCommService;
 
             s_isEnumerating = !NanoFrameworkPackage.OptionDisableDeviceWatchers
                 && !s_nanoDeviceCommService.DebugClient.IsDevicesEnumerationComplete;
-
-            // setup message listeners to be notified of events occurring in the View Model
-            WeakReferenceMessenger.Default.Register<SelectedNanoDeviceHasChangedMessage>(s_messageRecipient, static (r, message) => OnSelectedDeviceChanged());
-            WeakReferenceMessenger.Default.Register<NanoDevicesCollectionHasChangedMessage>(s_messageRecipient, static (r, message) => RaiseStateChanged());
-            WeakReferenceMessenger.Default.Register<NanoDeviceEnumerationCompletedMessage>(s_messageRecipient, static (r, message) => OnDeviceEnumerationCompleted());
         }
 
         #region enable rules
