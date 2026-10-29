@@ -296,20 +296,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
             }
         }
 
-        private void ForceNanoDeviceSelection(NanoDeviceBase nanoDevice)
-        {
-            // select the device
-            SelectedDevice = nanoDevice;
-
-            // request forced selection of device in UI
-            _ = Task.Run(() => { WeakReferenceMessenger.Default.Send(new ForceSelectionOfNanoDeviceMessage()); });
-        }
-
-        public void ForceNanoDeviceSelection()
-        {
-            // request forced selection of device in UI
-            _ = Task.Run(() => { WeakReferenceMessenger.Default.Send(new ForceSelectionOfNanoDeviceMessage()); });
-        }
+        // Device Explorer follows SelectedDevice, there's no need to force the selection in the UI
+        private void ForceNanoDeviceSelection(NanoDeviceBase nanoDevice) => SelectedDevice = nanoDevice;
 
         public void OnSelectedDeviceChanged()
         {
@@ -399,10 +387,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
             public sealed class NanoDevicesCollectionHasChangedMessage
             {
 
-            }
-
-            public sealed class ForceSelectionOfNanoDeviceMessage
-            {
             }
 
             public sealed class LaunchFirmwareUpdateForNanoDeviceMessage : ValueChangedMessage<string>

@@ -17,7 +17,9 @@
 //                 name = "ProjectLoaded": output_type, is_test_project
 //                 name = "SettingChanged": setting, value
 //                 name = "DeviceExplorerCommand": command, value
-//                 name = "HyperlinkClicked": link
+//                 name = "HyperlinkClicked": link, source (deviceExplorer | helpDialog)
+//                 name = "DialogClosed": dialog (settings | networkConfig | help), outcome (closed | cancelled | saved),
+//                        duration_s, tabs, tab_count, actions (e.g. root_ca_selected, virtual_device_started, the links opened)
 //                 name = "NetworkConfigSaved": dhcp, wireless, root_ca_uploaded, device_cert_uploaded, failed_step, result
 //                 name = "ExceptionThrown": stage, exception.type, exception.inner_type, exception.hresult, exception.stacktrace
 //   Every row: user_Id = anonymous install ID (shared with nanoff), application_Version = extension version,
@@ -149,6 +151,34 @@ union
 | where cloud_RoleName == "nanoframework-vs"
 | summarize uses = count(), users = dcount(user_Id) by command
 | order by uses desc
+
+// Dialogs: how often they're opened, how they're closed and how long they stay open
+customEvents
+| where timestamp > ago(30d)
+| where cloud_RoleName == "nanoframework-vs" and name == "DialogClosed"
+| extend dialog = tostring(customDimensions["dialog"]), outcome = tostring(customDimensions["outcome"]), duration = toint(customDimensions["duration_s"])
+| summarize uses = count(), users = dcount(user_Id), p50Seconds = percentile(duration, 50) by dialog, outcome
+| order by dialog asc, uses desc
+
+// Dialogs: tabs viewed and actions used
+customEvents
+| where timestamp > ago(30d)
+| where cloud_RoleName == "nanoframework-vs" and name == "DialogClosed"
+| extend dialog = tostring(customDimensions["dialog"])
+| mv-expand item = array_concat(
+    split(strcat("tab:", replace_string(tostring(customDimensions["tabs"]), ",", ",tab:")), ","),
+    split(strcat("action:", replace_string(tostring(customDimensions["actions"]), ",", ",action:")), ",")) to typeof(string)
+| where item !in ("tab:", "action:")
+| summarize uses = count(), users = dcount(user_Id) by dialog, item
+| order by dialog asc, uses desc
+
+// Links clicked, by where they are
+customEvents
+| where timestamp > ago(30d)
+| where cloud_RoleName == "nanoframework-vs" and name == "HyperlinkClicked"
+| extend link = tostring(customDimensions["link"]), source = coalesce(tostring(customDimensions["source"]), "deviceExplorer")
+| summarize clicks = count(), users = dcount(user_Id) by source, link
+| order by clicks desc
 
 // Settings adoption: latest ExtensionLoaded snapshot per user, amended with the SettingChanged events recorded after it
 let settingsSnapshots = customEvents

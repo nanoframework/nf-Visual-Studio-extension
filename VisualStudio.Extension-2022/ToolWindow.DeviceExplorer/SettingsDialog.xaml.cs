@@ -24,9 +24,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         private const string _startVirtualDeviceLabel = "Start Virtual Device";
         private static IPAddress _InvalidIPv4 = new IPAddress(0x0);
 
+        private DialogTelemetry _telemetry;
+
         public SettingsDialog(string helpTopic) : base(helpTopic)
         {
             InitializeComponent();
+            DialogIcon.Apply(this);
             InitControls();
         }
 
@@ -36,12 +39,15 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         public SettingsDialog()
         {
             InitializeComponent();
+            DialogIcon.Apply(this);
             InitControls();
         }
 
         // init controls
         private void InitControls()
         {
+            _telemetry = DialogTelemetry.Start(this, "settings", AllSettings);
+
             WeakReferenceMessenger.Default.Register<VirtualDeviceOperationExecutingMessage>(this, (r, message) => this.UpdateStartStopAvailabilityAsync(message.Value).ConfigureAwait(false));
 
             // set controls according to stored preferences
@@ -166,6 +172,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 // looks like we have a valid path
                 // save setting
                 NanoFrameworkPackage.SettingPathOfFlashDumpCache = folderBrowserDialog.SelectedPath;
+
+                _telemetry.AddAction("flash_dump_folder_selected");
                 // update UI control too
                 PathOfFlashDumpCache.Text = folderBrowserDialog.SelectedPath;
             }
@@ -252,12 +260,16 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 {
                     NanoFrameworkPackage.VirtualDeviceService.StopVirtualDevice();
 
+                    _telemetry.AddAction("virtual_device_stopped");
+
                     StartStopDevice.Content = _startVirtualDeviceLabel;
 
                     VirtualDeviceSerialPort.IsEnabled = true;
                 }
                 else
                 {
+                    _telemetry.AddAction("virtual_device_started");
+
                     if (await NanoFrameworkPackage.VirtualDeviceService.StartVirtualDeviceAsync(true, "settings"))
                     {
                         StartStopDevice.Content = _stopVirtualDeviceLabel;
@@ -315,6 +327,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 // looks like we have a valid path
                 // save setting
                 NanoFrameworkPackage.SettingPathOfLocalNanoClrInstance = filePickerDialog.FileName;
+
+                _telemetry.AddAction("nanoclr_instance_selected");
                 // update UI control too
                 PathOfLocalNanoClrInstance.Text = filePickerDialog.FileName;
             }

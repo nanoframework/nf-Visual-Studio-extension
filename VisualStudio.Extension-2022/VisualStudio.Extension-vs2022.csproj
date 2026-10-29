@@ -105,6 +105,11 @@
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
 
+    <!-- images for VisualStudio.Extensibility (ImageMoniker.Custom), by file name -->
+    <Content Include="Images\*.png">
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
+
     <!-- MSBuild targets deployed to the MSBuild folder -->
     <Content Include="Targets\*.*">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -137,6 +142,7 @@
   <ItemGroup>
     <Resource Include="Resources\*.xaml" />
     <Resource Include="Resources\*.16.16.png" />
+    <Resource Include="Resources\nF_logo_128.png" />
   </ItemGroup>
 
   <ItemGroup>
@@ -149,7 +155,7 @@
     <Page Update="ToolWindow.DeviceExplorer\NetworkConfigurationDialog.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Update="ToolWindow.DeviceExplorer\DeviceExplorerControl.xaml">
+    <Page Update="ToolWindow.DeviceExplorer\HelpDialog.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>

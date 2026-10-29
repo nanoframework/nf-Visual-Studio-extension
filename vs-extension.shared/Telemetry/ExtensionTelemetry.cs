@@ -185,27 +185,42 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         /// <summary>
         /// Records a click on one of the Device Explorer links, identified by a fixed name (never the URL itself).
         /// </summary>
-        public static void TrackHyperlinkClicked(Uri uri)
+        /// <param name="uri">The link.</param>
+        /// <param name="source">Fixed name of where the link is: <c>deviceExplorer</c> or <c>helpDialog</c>.</param>
+        public static void TrackHyperlinkClicked(Uri uri, string source = "deviceExplorer")
         {
-            string link = "other";
-
-            if (uri is not null)
+            TrackEvent("HyperlinkClicked", new TelemetryProperties
             {
-                string address = uri.Host + uri.AbsolutePath.TrimEnd('/');
+                { "link", GetLinkName(uri) },
+                { "source", source },
+            });
+        }
 
-                link = address.ToLowerInvariant() switch
-                {
-                    "www.nanoframework.net" => "website",
-                    "github.com/nanoframework/samples" => "samples",
-                    "docs.nanoframework.net/api/index.html" => "apiReference",
-                    "docs.nanoframework.net/index.html" => "docs",
-                    "github.com/nanoframework/home/issues" => "issues",
-                    "discord.gg/gcybu8t" => "discord",
-                    _ => "other",
-                };
+        /// <summary>
+        /// The fixed name of one of the Device Explorer links, <c>other</c> for any other link.
+        /// </summary>
+        public static string GetLinkName(Uri uri)
+        {
+            if (uri is null)
+            {
+                return "other";
             }
 
-            TrackEvent("HyperlinkClicked", new TelemetryProperties { { "link", link } });
+            string address = uri.Host + uri.AbsolutePath.TrimEnd('/');
+
+            return address.ToLowerInvariant() switch
+            {
+                "www.nanoframework.net" => "website",
+                "github.com/nanoframework/samples" => "samples",
+                "docs.nanoframework.net/api/index.html" => "apiReference",
+                "docs.nanoframework.net/index.html" => "docs",
+                "github.com/nanoframework/home/issues" => "issues",
+                "github.com/nanoframework/home" => "github",
+                "marketplace.visualstudio.com/items" => "marketplace",
+                "discord.gg/gcybu8t" => "discord",
+                "docs.nanoframework.net/content/getting-started-guides/trouble-shooting-guide.html" => "troubleshooting",
+                _ => "other",
+            };
         }
 
         internal static object SanitizeValue(object value)

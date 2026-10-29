@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.0.31815.197
+# Visual Studio Version 18
+VisualStudioVersion = 18.10.12224.181 stable
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VisualStudio.Extension-vs2022", "VisualStudio.Extension-2022\VisualStudio.Extension-vs2022.csproj", "{E3E5B359-8E18-4B7D-8469-F93C6867D712}"
 EndProject
@@ -94,6 +94,7 @@ Global
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{E3E5B359-8E18-4B7D-8469-F93C6867D712}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{E3E5B359-8E18-4B7D-8469-F93C6867D712}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E3E5B359-8E18-4B7D-8469-F93C6867D712}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
 		{E3E5B359-8E18-4B7D-8469-F93C6867D712}.Debug|x64.ActiveCfg = Debug|x64
 		{E3E5B359-8E18-4B7D-8469-F93C6867D712}.Debug|x64.Build.0 = Debug|x64
 		{E3E5B359-8E18-4B7D-8469-F93C6867D712}.Debug|x86.ActiveCfg = Debug|Any CPU
@@ -325,14 +326,14 @@ Global
 		CSharp.BlankApplication\CSharp.BlankApplication.Shared.projitems*{572121bd-e972-4bf7-abf1-78251dde1181}*SharedItemsImports = 4
 		CSharp.ClassLibrary\CSharp.ClassLibrary.Shared.projitems*{5dc66510-7529-477b-98a8-733a792ddd14}*SharedItemsImports = 4
 		CSharp.TestApplication\CSharp.TestApplication.Shared.projitems*{6c9aa770-796b-4679-9a0f-f06e430af330}*SharedItemsImports = 4
-		metadata-processor\MetadataProcessor.Shared\MetadataProcessor.Shared.projitems*{81994ead-e817-d953-3bd2-5cea59efd716}*SharedItemsImports = 5
 		VisualStudio.Extension-2019\Shared\vs-extension.shared.vs2019.projitems*{7ab762fe-3d80-4e8e-8a12-89d4d4a89dd6}*SharedItemsImports = 13
+		metadata-processor\MetadataProcessor.Shared\MetadataProcessor.Shared.projitems*{81994ead-e817-d953-3bd2-5cea59efd716}*SharedItemsImports = 5
 		VisualStudio.Extension-2019\Shared\vs-extension.shared.vs2019.projitems*{aed4a7c6-24eb-4ee3-b387-fdadc36a3d1b}*SharedItemsImports = 4
 		vs-extension.shared\vs-extension.shared.projitems*{b16737e2-4b5d-4048-a740-2bb1df462637}*SharedItemsImports = 13
 		CSharp.BlankApplication\CSharp.BlankApplication.Shared.projitems*{c5a2cf84-5591-4c33-8cf7-6c949531bfb1}*SharedItemsImports = 13
 		CSharp.BlankApplication\CSharp.BlankApplication.Shared.projitems*{cd034c5a-a9eb-4c8e-b163-0ba9619cd122}*SharedItemsImports = 4
 		metadata-processor\MetadataProcessor.Shared\MetadataProcessor.Shared.projitems*{e32f7d15-2499-440c-8026-4d5ee1c5ec3a}*SharedItemsImports = 4
-		vs-extension.shared\vs-extension.shared.projitems*{e3e5b359-8e18-4b7d-8469-f93c6867d712}*SharedItemsImports = 4
+		vs-extension.shared\vs-extension.shared.projitems*{e3e5b359-8e18-4b7d-8469-f93c6867d712}*SharedItemsImports = 5
 		metadata-processor\MetadataProcessor.Shared\MetadataProcessor.Shared.projitems*{efe862a2-8aa5-4e4d-8aa2-7fe9a8c22069}*SharedItemsImports = 13
 		CSharp.ClassLibrary\CSharp.ClassLibrary.Shared.projitems*{faa194f0-5c3b-46c7-977b-d2a84444bf80}*SharedItemsImports = 13
 	EndGlobalSection

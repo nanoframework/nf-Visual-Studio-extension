@@ -13,6 +13,7 @@
              Foreground="{DynamicResource {x:Static vsp:EnvironmentColors.ToolWindowTextBrushKey}}"
              mc:Ignorable="d"
              WindowStartupLocation="CenterScreen"
+             HasDialogFrame="False"
              Width="413" Height="430"
              x:Name="NetworkConfiguration" Title="Network Configuration">
     <vsp:DialogWindow.Resources>
