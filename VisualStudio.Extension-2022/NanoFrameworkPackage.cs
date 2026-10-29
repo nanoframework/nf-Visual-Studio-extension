@@ -56,10 +56,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
     [ProvideBindingPath]
     // info that shown on extension catalog
     [Description("Visual Studio 2022 extension for .NET nanoFramework. Enables creating C# Solutions to be deployed to a target board and provides debugging tools.")]
-    // menu for ToolWindow
+    // commands for the command line
     [ProvideMenuResource("Menus.ctmenu", 1)]
-    // declaration of Device Explorer ToolWindow that (as default) will show tabbed in Solution Explorer Windows (GUID below)
-    [ProvideToolWindow(typeof(DeviceExplorer), Style = VsDockStyle.Tabbed, Window = "3ae79031-e1bc-11d0-8f78-00a0c9110057")]
     [Guid(PackageGuidString)]
     [ProvideObject(typeof(CorDebug))]
     [ProvideDebugEngine("Managed", typeof(CorDebug), CorDebug.EngineId, setNextStatement: true, hitCountBp: true)]
@@ -606,7 +604,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             // Enable debugger UI context
             UIContext.FromUIContextGuid(CorDebug.EngineGuid).IsActive = true;
 
-            await DeviceExplorerCommand.InitializeAsync(this);
+            await DeviceOperations.InitializeAsync(this);
             VirtualDeviceService.InitVirtualDeviceAsync().FireAndForget(); ;
             TelemetryStartup.OnPackageLoadedAsync(this).FireAndForget();
         }

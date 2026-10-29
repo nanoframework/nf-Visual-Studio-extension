@@ -6,6 +6,8 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
+using System.Text;
 using nanoFramework.Tools.Debugger;
 
 namespace nanoFramework.Tools.VisualStudio.Extension
@@ -44,6 +46,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         private const int MaxStackTraceLength = 8000;
         private const int MaxValueLength = 64;
+        private const int MaxListValueLength = 512;
 
         /// <summary>
         /// Gets a value indicating whether the user has opted out of telemetry through
@@ -185,30 +188,51 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         /// <summary>
         /// Records a click on one of the Device Explorer links, identified by a fixed name (never the URL itself).
         /// </summary>
-        public static void TrackHyperlinkClicked(Uri uri)
+        /// <param name="uri">The link.</param>
+        /// <param name="source">Fixed name of where the link is: <c>deviceExplorer</c> or <c>helpDialog</c>.</param>
+        public static void TrackHyperlinkClicked(Uri uri, string source = "deviceExplorer")
         {
-            string link = "other";
-
-            if (uri is not null)
+            TrackEvent("HyperlinkClicked", new TelemetryProperties
             {
-                string address = uri.Host + uri.AbsolutePath.TrimEnd('/');
-
-                link = address.ToLowerInvariant() switch
-                {
-                    "www.nanoframework.net" => "website",
-                    "github.com/nanoframework/samples" => "samples",
-                    "docs.nanoframework.net/api/index.html" => "apiReference",
-                    "docs.nanoframework.net/index.html" => "docs",
-                    "github.com/nanoframework/home/issues" => "issues",
-                    "discord.gg/gcybu8t" => "discord",
-                    _ => "other",
-                };
-            }
-
-            TrackEvent("HyperlinkClicked", new TelemetryProperties { { "link", link } });
+                { "link", GetLinkName(uri) },
+                { "source", source },
+            });
         }
 
-        internal static object SanitizeValue(object value)
+        /// <summary>
+        /// The fixed name of one of the Device Explorer links, <c>other</c> for any other link.
+        /// </summary>
+        public static string GetLinkName(Uri uri)
+        {
+            if (uri is null)
+            {
+                return "other";
+            }
+
+            string address = uri.Host + uri.AbsolutePath.TrimEnd('/');
+
+            return address.ToLowerInvariant() switch
+            {
+                "www.nanoframework.net" => "website",
+                "github.com/nanoframework/samples" => "samples",
+                "docs.nanoframework.net/api/index.html" => "apiReference",
+                "docs.nanoframework.net/index.html" => "docs",
+                "github.com/nanoframework/home/issues" => "issues",
+                "github.com/nanoframework/home" => "github",
+                "marketplace.visualstudio.com/items" => "marketplace",
+                "discord.gg/gcybu8t" => "discord",
+                "docs.nanoframework.net/content/getting-started-guides/trouble-shooting-guide.html" => "troubleshooting",
+                _ => "other",
+            };
+        }
+
+        /// <summary>
+        /// A list of fixed names, sent comma separated with a longer limit than the other values, so no name is cut.
+        /// </summary>
+        /// <param name="items">The names.</param>
+        public static TelemetryListValue ListValue(IEnumerable<string> items) => new TelemetryListValue(items);
+
+        internal static object SanitizeValue(object value, int maxLength = MaxValueLength)
         {
             switch (value)
             {
@@ -224,11 +248,14 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 case Enum:
                     return value.ToString();
 
+                case TelemetryListValue list:
+                    return list.ToString(MaxListValueLength);
+
                 case string text:
-                    return Truncate(text, MaxValueLength);
+                    return Truncate(text, maxLength);
 
                 default:
-                    return Truncate(Convert.ToString(value, CultureInfo.InvariantCulture), MaxValueLength);
+                    return Truncate(Convert.ToString(value, CultureInfo.InvariantCulture), maxLength);
             }
         }
 
@@ -268,6 +295,48 @@ namespace nanoFramework.Tools.VisualStudio.Extension
     internal sealed class TelemetryProperties : List<KeyValuePair<string, object>>
     {
         public void Add(string key, object value) => Add(new KeyValuePair<string, object>(key, value));
+    }
+
+    /// <summary>
+    /// A list of fixed names for a telemetry property, see <see cref="ExtensionTelemetry.ListValue"/>.
+    /// </summary>
+    internal sealed class TelemetryListValue
+    {
+        private readonly List<string> _items;
+
+        public TelemetryListValue(IEnumerable<string> items)
+        {
+            _items = items?.ToList() ?? new List<string>();
+        }
+
+        public override string ToString() => string.Join(",", _items);
+
+        /// <summary>
+        /// The names, comma separated, leaving out the ones that don't fit in <paramref name="maxLength"/> instead of cutting one.
+        /// </summary>
+        public string ToString(int maxLength)
+        {
+            var text = new StringBuilder();
+
+            foreach (string item in _items)
+            {
+                int length = text.Length + (text.Length > 0 ? 1 : 0) + item.Length;
+
+                if (length > maxLength)
+                {
+                    break;
+                }
+
+                if (text.Length > 0)
+                {
+                    text.Append(',');
+                }
+
+                text.Append(item);
+            }
+
+            return text.ToString();
+        }
     }
 
     /// <summary>

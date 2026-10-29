@@ -294,6 +294,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension.AutomaticUpdates
                                                     deviceExplorer.LastDeviceConnectedHash = 0;
                                                 }
 
+                                                // the firmware is being updated
+                                                DeviceOperations.InvalidateCapabilities();
+
                                                 if (attemptToLaunchBooter)
                                                 {
                                                     // try to reboot target 

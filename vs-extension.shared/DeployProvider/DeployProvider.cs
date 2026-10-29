@@ -424,6 +424,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                     // reset the hash for the connected device so the deployment information can be refreshed
                     deviceExplorer.LastDeviceConnectedHash = 0;
+                    DeviceOperations.InvalidateCapabilities(device);
 
                     if (failedContentFiles > 0)
                     {

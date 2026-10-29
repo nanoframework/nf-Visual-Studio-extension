@@ -1,0 +1,438 @@
+﻿<DataTemplate xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+              xmlns:vs="http://schemas.microsoft.com/visualstudio/extensibility/2022/xaml"
+              xmlns:styles="clr-namespace:Microsoft.VisualStudio.Shell;assembly=Microsoft.VisualStudio.Shell.15.0"
+              xmlns:colors="clr-namespace:Microsoft.VisualStudio.PlatformUI;assembly=Microsoft.VisualStudio.Shell.15.0">
+    <Grid x:Name="RootGrid"
+          Background="{DynamicResource {x:Static colors:EnvironmentColors.ToolWindowBackgroundBrushKey}}"
+          TextElement.Foreground="{DynamicResource {x:Static colors:EnvironmentColors.ToolWindowTextBrushKey}}">
+        <Grid.Resources>
+            <BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
+
+            <!-- flat icon button, like the ones in tool window toolbars -->
+            <Style x:Key="IconButtonStyle" TargetType="ButtonBase">
+                <Setter Property="Background" Value="Transparent" />
+                <Setter Property="Foreground" Value="{DynamicResource {x:Static colors:EnvironmentColors.ToolWindowTextBrushKey}}" />
+                <Setter Property="BorderBrush" Value="Transparent" />
+                <Setter Property="BorderThickness" Value="1" />
+                <Setter Property="Padding" Value="3" />
+                <Setter Property="Margin" Value="0,0,1,0" />
+                <Setter Property="ToolTipService.ShowOnDisabled" Value="True" />
+                <!-- focus rectangle only when navigating with the keyboard, so it isn't mistaken for a checked toggle -->
+                <Setter Property="FocusVisualStyle">
+                    <Setter.Value>
+                        <Style>
+                            <Setter Property="Control.Template">
+                                <Setter.Value>
+                                    <ControlTemplate>
+                                        <Rectangle StrokeThickness="1"
+                                                   StrokeDashArray="1 2"
+                                                   Stroke="{DynamicResource {x:Static colors:EnvironmentColors.ToolWindowTextBrushKey}}"
+                                                   SnapsToDevicePixels="True" />
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </Setter.Value>
+                </Setter>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="ButtonBase">
+                            <Border x:Name="Chrome"
+                                    Background="{TemplateBinding Background}"
+                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                    Padding="{TemplateBinding Padding}"
+                                    SnapsToDevicePixels="True">
+                                <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="Center" />
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <!-- latched toggle: same brushes as the checked buttons in VS toolbars -->
+                                <Trigger Property="ToggleButton.IsChecked" Value="True">
+                                    <Setter TargetName="Chrome" Property="Background" Value="{DynamicResource {x:Static colors:EnvironmentColors.CommandBarSelectedIconBrushKey}}" />
+                                    <Setter TargetName="Chrome" Property="BorderBrush" Value="{DynamicResource {x:Static colors:EnvironmentColors.CommandBarSelectedIconBorderBrushKey}}" />
+                                </Trigger>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="Chrome" Property="Background" Value="{DynamicResource {x:Static colors:EnvironmentColors.CommandBarMouseOverBackgroundBeginBrushKey}}" />
+                                    <Setter TargetName="Chrome" Property="BorderBrush" Value="{DynamicResource {x:Static colors:EnvironmentColors.CommandBarMenuItemMouseOverBorderBrushKey}}" />
+                                </Trigger>
+                                <MultiTrigger>
+                                    <MultiTrigger.Conditions>
+                                        <Condition Property="ToggleButton.IsChecked" Value="True" />
+                                        <Condition Property="IsMouseOver" Value="True" />
+                                    </MultiTrigger.Conditions>
+                                    <Setter TargetName="Chrome" Property="Background" Value="{DynamicResource {x:Static colors:EnvironmentColors.CommandBarHoverOverSelectedIconBrushKey}}" />
+                                    <Setter TargetName="Chrome" Property="BorderBrush" Value="{DynamicResource {x:Static colors:EnvironmentColors.CommandBarHoverOverSelectedIconBorderBrushKey}}" />
+                                </MultiTrigger>
+                                <Trigger Property="IsPressed" Value="True">
+                                    <Setter TargetName="Chrome" Property="Background" Value="{DynamicResource {x:Static colors:EnvironmentColors.CommandBarMouseDownBackgroundBeginBrushKey}}" />
+                                    <Setter TargetName="Chrome" Property="BorderBrush" Value="{DynamicResource {x:Static colors:EnvironmentColors.CommandBarMouseDownBorderBrushKey}}" />
+                                </Trigger>
+                                <Trigger Property="IsEnabled" Value="False">
+                                    <Setter TargetName="Chrome" Property="Opacity" Value="0.4" />
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+            <Style x:Key="IconToggleButtonStyle" TargetType="ToggleButton" BasedOn="{StaticResource IconButtonStyle}" />
+
+            <!-- flat button with icon and text -->
+            <Style x:Key="TextIconButtonStyle" TargetType="ButtonBase" BasedOn="{StaticResource IconButtonStyle}">
+                <Setter Property="Padding" Value="4,2" />
+                <Setter Property="Margin" Value="0,0,4,0" />
+            </Style>
+
+            <!-- the arrow of a split button: a menu with one item, so the items of its drop-down get the data context -->
+            <Style x:Key="DropDownArrowStyle" TargetType="MenuItem">
+                <Setter Property="Foreground" Value="{DynamicResource {x:Static colors:EnvironmentColors.ToolWindowTextBrushKey}}" />
+                <Setter Property="ToolTipService.ShowOnDisabled" Value="True" />
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="MenuItem">
+                            <Grid>
+                                <Border x:Name="Chrome"
+                                        Background="Transparent"
+                                        BorderBrush="Transparent"
+                                        BorderThickness="1"
+                                        Padding="3,0"
+                                        SnapsToDevicePixels="True">
+                                    <Path Data="M 0,0 L 5,0 L 2.5,3 Z"
+                                          Fill="{TemplateBinding Foreground}"
+                                          Width="5"
+                                          Height="3"
+                                          VerticalAlignment="Center" />
+                                </Border>
+                                <Popup x:Name="PART_Popup"
+                                       IsOpen="{Binding IsSubmenuOpen, RelativeSource={RelativeSource TemplatedParent}}"
+                                       Placement="Bottom"
+                                       HorizontalOffset="-24"
+                                       AllowsTransparency="True"
+                                       Focusable="False"
+                                       PopupAnimation="None">
+                                    <Border Background="{DynamicResource {x:Static colors:EnvironmentColors.CommandBarMenuBackgroundGradientBeginBrushKey}}"
+                                            BorderBrush="{DynamicResource {x:Static colors:EnvironmentColors.CommandBarMenuBorderBrushKey}}"
+                                            BorderThickness="1"
+                                            Padding="2">
+                                        <ItemsPresenter KeyboardNavigation.DirectionalNavigation="Cycle" KeyboardNavigation.TabNavigation="Cycle" />
+                                    </Border>
+                                </Popup>
+                            </Grid>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsHighlighted" Value="True">
+                                    <Setter TargetName="Chrome" Property="Background" Value="{DynamicResource {x:Static colors:EnvironmentColors.CommandBarMouseOverBackgroundBeginBrushKey}}" />
+                                    <Setter TargetName="Chrome" Property="BorderBrush" Value="{DynamicResource {x:Static colors:EnvironmentColors.CommandBarMenuItemMouseOverBorderBrushKey}}" />
+                                </Trigger>
+                                <Trigger Property="IsSubmenuOpen" Value="True">
+                                    <Setter TargetName="Chrome" Property="Background" Value="{DynamicResource {x:Static colors:EnvironmentColors.CommandBarMouseOverBackgroundBeginBrushKey}}" />
+                                    <Setter TargetName="Chrome" Property="BorderBrush" Value="{DynamicResource {x:Static colors:EnvironmentColors.CommandBarMenuItemMouseOverBorderBrushKey}}" />
+                                </Trigger>
+                                <Trigger Property="IsEnabled" Value="False">
+                                    <Setter TargetName="Chrome" Property="Opacity" Value="0.4" />
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <!-- the items of a split button drop-down, themed like the VS menus -->
+            <Style x:Key="DropDownItemStyle" TargetType="MenuItem">
+                <Setter Property="Foreground" Value="{DynamicResource {x:Static colors:EnvironmentColors.CommandBarTextActiveBrushKey}}" />
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="MenuItem">
+                            <Border x:Name="Background"
+                                    Background="Transparent"
+                                    BorderBrush="Transparent"
+                                    BorderThickness="1"
+                                    Padding="4,3,24,3"
+                                    MinWidth="170"
+                                    SnapsToDevicePixels="True">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="16" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <ContentPresenter Grid.Column="0" ContentSource="Icon" Width="16" Height="16" VerticalAlignment="Center" />
+                                    <ContentPresenter Grid.Column="1" ContentSource="Header" RecognizesAccessKey="True" Margin="8,0,0,0" VerticalAlignment="Center" />
+                                </Grid>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsHighlighted" Value="True">
+                                    <Setter TargetName="Background" Property="Background" Value="{DynamicResource {x:Static colors:EnvironmentColors.CommandBarMenuItemMouseOverBrushKey}}" />
+                                    <Setter TargetName="Background" Property="BorderBrush" Value="{DynamicResource {x:Static colors:EnvironmentColors.CommandBarMenuItemMouseOverBorderBrushKey}}" />
+                                    <Setter Property="Foreground" Value="{DynamicResource {x:Static colors:EnvironmentColors.CommandBarMenuItemMouseOverTextBrushKey}}" />
+                                </Trigger>
+                                <Trigger Property="IsEnabled" Value="False">
+                                    <Setter Property="Foreground" Value="{DynamicResource {x:Static colors:EnvironmentColors.CommandBarTextInactiveBrushKey}}" />
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <Style x:Key="SeparatorStyle" TargetType="Border">
+                <Setter Property="Width" Value="1" />
+                <Setter Property="Margin" Value="3,3" />
+                <Setter Property="Background" Value="{DynamicResource {x:Static colors:EnvironmentColors.ToolWindowBorderBrushKey}}" />
+            </Style>
+
+        </Grid.Resources>
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" MinHeight="60" />
+        </Grid.RowDefinitions>
+
+        <!-- button strip -->
+        <Border Grid.Row="0"
+                BorderThickness="0,0,0,1"
+                BorderBrush="{DynamicResource {x:Static colors:EnvironmentColors.ToolWindowBorderBrushKey}}"
+                Padding="2">
+            <WrapPanel Orientation="Horizontal"
+                       KeyboardNavigation.TabNavigation="Continue"
+                       AutomationProperties.Name="Device Explorer toolbar">
+                <Button Style="{StaticResource IconButtonStyle}"
+                        Command="{Binding PingCommand}"
+                        ToolTip="Ping device"
+                        AutomationProperties.Name="Ping device">
+                    <vs:Image Source="KnownMonikers.ConnectArrow" Width="16" Height="16" />
+                </Button>
+                <Button Style="{StaticResource IconButtonStyle}"
+                        Command="{Binding CapabilitiesCommand}"
+                        ToolTip="Device capabilities (Output and Properties windows)"
+                        AutomationProperties.Name="Device capabilities">
+                    <vs:Image Source="KnownMonikers.SystemInfo" Width="16" Height="16" />
+                </Button>
+                <Button Style="{StaticResource IconButtonStyle}"
+                        Command="{Binding EraseCommand}"
+                        ToolTip="Erase device deployment area"
+                        AutomationProperties.Name="Erase device deployment area">
+                    <vs:Image Source="KnownMonikers.Eraser" Width="16" Height="16" />
+                </Button>
+                <Button Style="{StaticResource IconButtonStyle}"
+                        Command="{Binding NetworkConfigurationCommand}"
+                        ToolTip="Edit network configuration"
+                        AutomationProperties.Name="Edit network configuration">
+                    <vs:Image Source="KnownMonikers.NetworkAdapterConfiguration" Width="16" Height="16" />
+                </Button>
+                <!-- split button: the default reboot, and the other reboot options in the drop-down -->
+                <StackPanel Orientation="Horizontal" Margin="0,0,1,0">
+                    <Button Style="{StaticResource IconButtonStyle}"
+                            Margin="0"
+                            Command="{Binding RebootCommand}"
+                            ToolTip="Reboot device"
+                            AutomationProperties.Name="Reboot device">
+                        <vs:Image Source="KnownMonikers.Restart" Width="16" Height="16" />
+                    </Button>
+                    <Menu IsMainMenu="False" Background="Transparent" Padding="0" VerticalAlignment="Stretch">
+                        <MenuItem Style="{StaticResource DropDownArrowStyle}"
+                                  ItemContainerStyle="{StaticResource DropDownItemStyle}"
+                                  Height="24"
+                                  ToolTip="More reboot options"
+                                  AutomationProperties.Name="More reboot options">
+                            <MenuItem Header="Reboot _CLR" Command="{Binding RebootClrCommand}" />
+                            <MenuItem Header="Reboot to _nanoBooter" Command="{Binding RebootNanoBooterCommand}" />
+                            <MenuItem Header="Reboot to _bootloader" Command="{Binding RebootBootloaderCommand}" />
+                        </MenuItem>
+                    </Menu>
+                </StackPanel>
+
+                <Border Style="{StaticResource SeparatorStyle}" />
+
+                <!-- latched while the watchers are looking for devices, like the toggles in the VS toolbars -->
+                <ToggleButton Style="{StaticResource IconToggleButtonStyle}"
+                              IsChecked="{Binding DeviceWatchersEnabled, Mode=TwoWay}"
+                              ToolTip="Device watchers: find the devices that are connected"
+                              AutomationProperties.Name="Device watchers">
+                    <vs:Image Source="KnownMonikers.Visible" Width="16" Height="16" />
+                </ToggleButton>
+                <Button Style="{StaticResource IconButtonStyle}"
+                        Command="{Binding RescanCommand}"
+                        ToolTip="Rescan devices"
+                        AutomationProperties.Name="Rescan devices">
+                    <vs:Image Source="KnownMonikers.Search" Width="16" Height="16" />
+                </Button>
+
+                <Border Style="{StaticResource SeparatorStyle}" />
+
+                <ToggleButton Style="{StaticResource IconToggleButtonStyle}"
+                              IsChecked="{Binding ShowInternalErrors, Mode=TwoWay}"
+                              ToolTip="Show internal errors in the Output window"
+                              AutomationProperties.Name="Show internal errors">
+                    <vs:Image Source="KnownMonikers.ErrorSummary" Width="16" Height="16" />
+                </ToggleButton>
+                <Button Style="{StaticResource IconButtonStyle}"
+                        Command="{Binding SettingsCommand}"
+                        ToolTip="Settings"
+                        AutomationProperties.Name="Settings">
+                    <vs:Image Source="KnownMonikers.Settings" Width="16" Height="16" />
+                </Button>
+
+                <Button Style="{StaticResource IconButtonStyle}"
+                        Command="{Binding HelpCommand}"
+                        ToolTip="Help, documentation and community"
+                        AutomationProperties.Name="Help">
+                    <vs:Image Source="KnownMonikers.StatusHelp" Width="16" Height="16" />
+                </Button>
+            </WrapPanel>
+        </Border>
+
+        <!-- info bar for warnings -->
+        <Border Grid.Row="1"
+                Visibility="{Binding ShowInfoBar, Converter={StaticResource BooleanToVisibility}}"
+                Background="{DynamicResource {x:Static colors:InfoBarColors.InfoBarBackgroundBrushKey}}"
+                BorderBrush="{DynamicResource {x:Static colors:InfoBarColors.InfoBarBorderBrushKey}}"
+                BorderThickness="0,0,0,1"
+                Padding="4,3"
+                AutomationProperties.LiveSetting="Assertive">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <vs:Image Grid.Column="0" Source="KnownMonikers.StatusWarning" Width="16" Height="16" VerticalAlignment="Top" Margin="0,1,6,0" />
+                <TextBlock Grid.Column="1" Text="{Binding InfoBarText}" TextWrapping="Wrap" VerticalAlignment="Center" Foreground="{DynamicResource {x:Static colors:InfoBarColors.InfoBarBackgroundTextBrushKey}}" />
+            </Grid>
+        </Border>
+
+        <!-- progress while enumerating devices or running an operation -->
+        <StackPanel Grid.Row="2"
+                    Margin="4,4,4,0"
+                    Visibility="{Binding ShowProgress, Converter={StaticResource BooleanToVisibility}}">
+            <TextBlock Text="{Binding ProgressText}" TextWrapping="Wrap" AutomationProperties.LiveSetting="Polite" />
+            <ProgressBar Style="{DynamicResource {x:Static styles:VsResourceKeys.ProgressBarStyleKey}}"
+                         IsIndeterminate="{Binding ShowProgress}"
+                         Height="4"
+                         Margin="0,2,0,0"
+                         AutomationProperties.Name="{Binding ProgressText}" />
+        </StackPanel>
+
+        <!-- devices -->
+        <ListView Grid.Row="3"
+                  Margin="2,4,2,0"
+                  ItemsSource="{Binding Devices}"
+                  SelectedItem="{Binding SelectedDevice, Mode=TwoWay}"
+                  SelectionMode="Single"
+                  HorizontalContentAlignment="Stretch"
+                  Visibility="{Binding HasDevices, Converter={StaticResource BooleanToVisibility}}"
+                  Style="{DynamicResource {x:Static styles:VsResourceKeys.ThemedDialogListViewStyleKey}}"
+                  AutomationProperties.Name="Devices">
+            <vs:ExtensibilityUICommands.EventHandlers>
+                <vs:EventHandlerCollection>
+                    <vs:EventHandler Event="MouseDoubleClick" Command="{Binding PropertiesCommand}" />
+                </vs:EventHandlerCollection>
+            </vs:ExtensibilityUICommands.EventHandlers>
+            <ListView.ItemContainerStyle>
+                <Style TargetType="ListViewItem" BasedOn="{StaticResource {x:Static styles:VsResourceKeys.ThemedDialogListViewItemStyleKey}}">
+                    <Setter Property="ToolTip" Value="{Binding ToolTip}" />
+                    <Setter Property="AutomationProperties.Name" Value="{Binding Description}" />
+                    <Setter Property="AutomationProperties.ItemType" Value="{Binding Kind}" />
+                    <Setter Property="AutomationProperties.HelpText" Value="{Binding ToolTip}" />
+                </Style>
+            </ListView.ItemContainerStyle>
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <StackPanel Orientation="Horizontal" Margin="0,1">
+                        <vs:Image Source="{Binding Icon}" Width="16" Height="16" Margin="0,0,6,0" VerticalAlignment="Center" />
+                        <TextBlock Text="{Binding Description}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+                    </StackPanel>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+            <ListView.ContextMenu>
+                <ContextMenu Style="{DynamicResource {x:Static styles:VsResourceKeys.ContextMenuStyleKey}}">
+                    <MenuItem Header="_Ping" Command="{Binding PingCommand}">
+                        <MenuItem.Icon>
+                            <vs:Image Source="KnownMonikers.ConnectArrow" />
+                        </MenuItem.Icon>
+                    </MenuItem>
+                    <MenuItem Header="_Reboot">
+                        <MenuItem.Icon>
+                            <vs:Image Source="KnownMonikers.Restart" />
+                        </MenuItem.Icon>
+                        <MenuItem Header="Reboot _CLR" Command="{Binding RebootClrCommand}" />
+                        <MenuItem Header="Reboot to _nanoBooter" Command="{Binding RebootNanoBooterCommand}" />
+                        <MenuItem Header="Reboot to _bootloader" Command="{Binding RebootBootloaderCommand}" />
+                    </MenuItem>
+                    <MenuItem Header="C_apabilities" Command="{Binding CapabilitiesCommand}">
+                        <MenuItem.Icon>
+                            <vs:Image Source="KnownMonikers.SystemInfo" />
+                        </MenuItem.Icon>
+                    </MenuItem>
+                    <MenuItem Header="_Network configuration..." Command="{Binding NetworkConfigurationCommand}">
+                        <MenuItem.Icon>
+                            <vs:Image Source="KnownMonikers.NetworkAdapterConfiguration" />
+                        </MenuItem.Icon>
+                    </MenuItem>
+                    <Separator />
+                    <MenuItem Header="_Copy device details" Command="{Binding CopyDetailsCommand}">
+                        <MenuItem.Icon>
+                            <vs:Image Source="KnownMonikers.Copy" />
+                        </MenuItem.Icon>
+                    </MenuItem>
+                </ContextMenu>
+            </ListView.ContextMenu>
+        </ListView>
+
+        <!-- empty state -->
+        <StackPanel Grid.Row="3"
+                    Margin="8,12,8,0"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Top"
+                    Visibility="{Binding ShowEmptyState, Converter={StaticResource BooleanToVisibility}}">
+            <TextBlock Text="No devices found." HorizontalAlignment="Center" FontWeight="SemiBold" />
+            <TextBlock HorizontalAlignment="Center" Margin="0,2,0,8" TextWrapping="Wrap" TextAlignment="Center">
+                <TextBlock.Style>
+                    <Style TargetType="TextBlock">
+                        <Setter Property="Text" Value="Connect a device, then rescan." />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding DeviceWatchersDisabled}" Value="True">
+                                <Setter Property="Text" Value="Enable the device watchers to search for devices." />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </TextBlock.Style>
+            </TextBlock>
+            <!-- with the watchers disabled there's nothing to rescan: offer to enable them instead -->
+            <Button Command="{Binding RescanCommand}"
+                    HorizontalAlignment="Center"
+                    AutomationProperties.Name="Rescan devices">
+                <Button.Style>
+                    <Style TargetType="ButtonBase" BasedOn="{StaticResource TextIconButtonStyle}">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding DeviceWatchersDisabled}" Value="True">
+                                <Setter Property="Visibility" Value="Collapsed" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
+                <StackPanel Orientation="Horizontal">
+                    <vs:Image Source="KnownMonikers.Search" Width="16" Height="16" Margin="0,0,4,0" />
+                    <TextBlock Text="Rescan" VerticalAlignment="Center" />
+                </StackPanel>
+            </Button>
+            <Button Style="{StaticResource TextIconButtonStyle}"
+                    Command="{Binding EnableDeviceWatchersCommand}"
+                    HorizontalAlignment="Center"
+                    Visibility="{Binding DeviceWatchersDisabled, Converter={StaticResource BooleanToVisibility}}"
+                    AutomationProperties.Name="Enable device watchers">
+                <StackPanel Orientation="Horizontal">
+                    <vs:Image Source="KnownMonikers.Run" Width="16" Height="16" Margin="0,0,4,0" />
+                    <TextBlock Text="Enable device watchers" VerticalAlignment="Center" />
+                </StackPanel>
+            </Button>
+            <TextBlock HorizontalAlignment="Center" Margin="0,8,0,0">
+                <Hyperlink Style="{DynamicResource {x:Static styles:VsResourceKeys.ThemedDialogHyperlinkStyleKey}}"
+                           Command="{Binding OpenLinkCommand}"
+                           CommandParameter="{Binding TroubleshootingLink}"
+                           ToolTip="{Binding TroubleshootingLink}">Device not showing up?</Hyperlink>
+            </TextBlock>
+        </StackPanel>
+    </Grid>
+</DataTemplate>

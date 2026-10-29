@@ -9,6 +9,7 @@
              Foreground="{DynamicResource {x:Static vsp:EnvironmentColors.ToolWindowTextBrushKey}}"
              mc:Ignorable="d"
              WindowStartupLocation="CenterScreen"
+             HasDialogFrame="False"
              Width="326" Height="430"
              x:Name="ShowSettings" Title="Settings">
 

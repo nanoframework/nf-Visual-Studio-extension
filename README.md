@@ -42,7 +42,7 @@ These are the same variables used by [nanoff](https://github.com/nanoframework/n
 | Devices | Target name, platform, transport (serial, network, USB), whether it's the virtual device, nanoCLR and firmware versions and the boot loader type. Recorded once per device per Visual Studio session and with each operation. |
 | Projects | Output type and whether it's a unit test project, once per project per session. |
 | Settings | The extension settings when it loads and when they're changed, as on/off values only. Settings holding paths or port names are only recorded as set or not set. |
-| Device Explorer | Use of the tool window, settings dialog, toggles and which of the links was clicked. |
+| Device Explorer | Use of the tool window, toggles and which of the links was clicked. For the settings, network configuration and help dialogs: how they were closed (saved, cancelled or closed), how long they were open, which tabs were viewed and which actions were used (e.g. a certificate was selected, the virtual device was started), never the values entered or the files chosen. |
 | Errors | Exception type, innermost exception type, HRESULT and stack trace (with user profile paths, user name and machine name removed), plus where in the extension the error occurred. |
 | Environment | Extension version, Visual Studio version, OS architecture, .NET runtime, and an anonymous install ID: a random GUID stored in `~/.nanoFramework/telemetry.id`, shared with nanoff. |
 
