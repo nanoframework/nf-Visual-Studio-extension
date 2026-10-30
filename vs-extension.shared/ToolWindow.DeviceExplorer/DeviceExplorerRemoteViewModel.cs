@@ -13,6 +13,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.Extensibility;
 using Microsoft.VisualStudio.Extensibility.UI;
+using Microsoft.VisualStudio.RpcContracts.Notifications;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Threading;
 using nanoFramework.Tools.Debugger;
@@ -37,6 +38,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         private const string TroubleshootingUrl = "https://docs.nanoframework.net/content/getting-started-guides/trouble-shooting-guide.html";
 
         private readonly object _stateLock = new object();
+        private readonly Func<VisualStudioExtensibility> _getExtensibility;
 
         private DeviceExplorerViewModel _deviceExplorer;
         private bool _initialized;
@@ -60,8 +62,10 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         // the devices being read, or that couldn't be read, when they were selected
         private readonly HashSet<NanoDeviceBase> _devicesRead = new HashSet<NanoDeviceBase>();
 
-        public DeviceExplorerRemoteViewModel()
+        public DeviceExplorerRemoteViewModel(Func<VisualStudioExtensibility> getExtensibility)
         {
+            _getExtensibility = getExtensibility;
+
             PingCommand = new AsyncCommand((parameter, cancellationToken) => DeviceOperations.PingAsync());
             CapabilitiesCommand = new AsyncCommand(async (parameter, cancellationToken) =>
             {
@@ -635,15 +639,39 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         private Task EditNetworkConfigurationAsync()
         {
-            return DeviceOperations.EditNetworkConfigurationAsync(() =>
+            return DeviceOperations.EditNetworkConfigurationAsync(async configuration =>
             {
-                // show network configuration dialogue
-                var networkConfigDialog = new NetworkConfigurationDialog(_deviceExplorer)
+                try
                 {
-                    HasMinimizeButton = false,
-                    HasMaximizeButton = false
-                };
-                networkConfigDialog.ShowModal();
+                    // ownership of the content is transferred to Visual Studio
+#pragma warning disable CA2000 // Dispose objects before losing scope
+                    var content = new NetworkConfigurationContent(configuration);
+#pragma warning restore CA2000 // Dispose objects before losing scope
+
+                    // the dialog has its own OK and Cancel, so OK can be disabled while a value is wrong and the dialog stays open if saving fails:
+                    // it's closed through the cancellation token
+                    await _getExtensibility().Shell().ShowDialogAsync(
+                        content,
+                        configuration.DialogTitle,
+                        new DialogOption(DialogButton.None, DialogResult.None),
+                        configuration.CloseToken);
+                }
+                catch (OperationCanceledException)
+                {
+                    // closed by the dialog content
+                }
+                catch (Exception ex)
+                {
+                    // OK to catch all
+                    MessageCentre.InternalErrorWriteLine($"Error showing the network configuration: {ex}");
+
+                    ExtensionTelemetry.TrackException(ex, "deviceexplorer.networkconfig.dialog");
+                }
+
+                // the device stays connected until a save that is running completes
+                await configuration.WaitForSaveAsync();
+
+                configuration.TrackClosed();
             });
         }
 

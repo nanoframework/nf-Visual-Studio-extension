@@ -421,14 +421,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         }
 
         /// <summary>
-        /// Reads the network configuration of the selected device into the view model and calls <paramref name="editConfiguration"/>
-        /// on the main thread, while the device is still connected, so the configuration can be edited and applied.
+        /// Reads the network configuration of the selected device and calls <paramref name="editConfiguration"/> with it,
+        /// while the device is still connected, so the configuration can be edited and applied.
         /// </summary>
-        /// <param name="editConfiguration">Shows the editor for the network configuration. It's called on the main thread.</param>
-        public static Task EditNetworkConfigurationAsync(Action editConfiguration)
+        /// <param name="editConfiguration">Shows the editor for the network configuration, and completes when it's closed.</param>
+        public static Task EditNetworkConfigurationAsync(Func<NetworkConfigurationViewModel, Task> editConfiguration)
         {
-            var deviceExplorer = ViewModel;
-
             return RunDeviceOperationAsync(
                 "deviceexplorer.networkconfig",
                 "Reading {0} network configuration...",
@@ -443,26 +441,18 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         return;
                     }
 
+                    NetworkConfigurationViewModel configuration;
+
                     try
                     {
-                        // for now, just get the 1st network configuration, if exists
+                        // the 1st network interface, if exists
                         var networkConfigurations = device.DebugEngine.GetAllNetworkConfigurations();
 
-                        deviceExplorer.DeviceNetworkConfiguration = new NetworkConfigurationViewModel(
-                            networkConfigurations.Count > 0
-                                ? networkConfigurations[0]
-                                : new DeviceConfiguration.NetworkConfigurationProperties());
-
-                        // for now, just get the 1st Wi-Fi configuration, if exists
-                        var wirellesConfigurations = device.DebugEngine.GetAllWireless80211Configurations();
-
-                        deviceExplorer.DeviceWireless80211Configuration = new Wireless80211ConfigurationViewModel(
-                            wirellesConfigurations.Count > 0
-                                ? wirellesConfigurations[0]
-                                : new DeviceConfiguration.Wireless80211ConfigurationProperties());
+                        // all the Wi-Fi profiles, in slot order
+                        var wirelessConfigurations = device.DebugEngine.GetAllWireless80211Configurations();
 
                         if (networkConfigurations.Count == 0
-                           && wirellesConfigurations.Count == 0)
+                           && wirelessConfigurations.Count == 0)
                         {
                             // no network configuration available: device doesn't have network capabilities
                             Report($"{description} doesn't have network capabilities. Can't open Network Configuration dialog.", isWarning: true);
@@ -473,18 +463,17 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                             return;
                         }
 
-                        // need to switch to UI main thread
-                        await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
-
-                        // the progress messages are cleared while the user is editing, the operation still runs to keep the device connected
-                        MessageCentre.StopProgressMessage();
-                        SetOperationText(null);
-
-                        editConfiguration();
+                        configuration = new NetworkConfigurationViewModel(
+                            device,
+                            networkConfigurations.Count > 0
+                                ? networkConfigurations[0]
+                                : new DeviceConfiguration.NetworkConfigurationProperties(),
+                            wirelessConfigurations,
+                            device.DebugEngine.Capabilities?.CanChangeMacAddress ?? false);
 
                         telemetry
-                            .SetProperty("wireless", wirellesConfigurations.Count > 0)
-                            .Complete(TelemetryOperation.ResultOk);
+                            .SetProperty("wireless", wirelessConfigurations.Count > 0)
+                            .SetProperty("wifi_profiles", wirelessConfigurations.Count);
                     }
                     catch (Exception ex)
                     {
@@ -492,22 +481,34 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                         // report issue to user
                         Report($"Error reading {description} configurations.", isWarning: true);
+
+                        return;
                     }
+
+                    // the progress messages are cleared while the user is editing, the operation still runs to keep the device connected
+                    MessageCentre.StopProgressMessage();
+                    SetOperationText(null);
+
+                    await editConfiguration(configuration);
+
+                    telemetry.Complete(TelemetryOperation.ResultOk);
                 });
         }
 
         /// <summary>
-        /// Uploads the network configuration being edited in the view model to the selected device.
-        /// Has to be called from the editor shown by <see cref="EditNetworkConfigurationAsync"/>, while the device is connected.
+        /// Writes what was changed in the network configuration dialog to its device: the network interface, the Wi-Fi profiles
+        /// that were edited (each one in its slot) and the certificates.
+        /// Has to be called from the editor shown by <see cref="EditNetworkConfigurationAsync"/>, while the device is connected,
+        /// and away from the UI thread.
         /// </summary>
-        /// <param name="networkConfigurationToSave">The network configuration block to save.</param>
-        /// <returns><see langword="true"/> if the configuration was saved.</returns>
-        public static bool ApplyNetworkConfiguration(DeviceConfiguration.NetworkConfigurationProperties networkConfigurationToSave)
+        /// <param name="configuration">The network configuration being edited. What's written is marked as saved.</param>
+        /// <returns><see langword="null"/> if everything was written, otherwise what failed. The rest can be written again.</returns>
+        public static string ApplyNetworkConfiguration(NetworkConfigurationViewModel configuration)
         {
-            var deviceExplorer = ViewModel;
-            var device = deviceExplorer.SelectedDevice;
+            ThreadHelper.ThrowIfOnUIThread();
 
-            MessageCentre.StartProgressMessage($"Uploading network configuration to {device.Description}...");
+            var device = configuration.Device;
+            var description = configuration.DeviceDescription;
 
             // check if debugger engine exists
             if (device.DebugEngine == null)
@@ -515,89 +516,121 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 device.CreateDebugEngine();
             }
 
-            // upload step being executed and certificates successfully uploaded, for telemetry
-            string uploadStep = "network";
-            bool rootCaUploaded = false;
-            bool deviceCertificateUploaded = false;
+            var networkConfigurationToSave = configuration.BuildNetworkConfiguration();
+            var profilesToSave = configuration.WifiProfilesToSave;
 
-            // save network configuration to target
-            var updateResult = device.DebugEngine.UpdateDeviceConfiguration(networkConfigurationToSave, 0);
+            // what was written, and the step that failed, for telemetry
+            var saved = new NetworkConfigSavedCounts { WifiProfiles = configuration.WifiProfiles.Count };
+            string failedStep = null;
+            string error = null;
+            var updateResult = Engine.UpdateDeviceResult.Sucess;
 
-            if (updateResult == Engine.UpdateDeviceResult.Sucess)
+            try
             {
-                if (deviceExplorer.DeviceNetworkConfiguration.InterfaceType == NetworkInterfaceType.Wireless80211)
+                MessageCentre.StartProgressMessage($"Uploading network configuration to {description}...");
+
+                if (configuration.IsNetworkModified)
                 {
-                    // save Wi-Fi profile to target
-                    uploadStep = "wireless";
-                    updateResult = device.DebugEngine.UpdateDeviceConfiguration(deviceExplorer.DeviceWireless80211Configuration.Model, 0);
-                }
-            }
+                    updateResult = device.DebugEngine.UpdateDeviceConfiguration(networkConfigurationToSave, 0);
 
-            if (updateResult != Engine.UpdateDeviceResult.Sucess)
+                    if (updateResult != Engine.UpdateDeviceResult.Sucess)
+                    {
+                        failedStep = "network";
+                        error = $"The network configuration wasn't saved: {updateResult}.";
+
+                        return error;
+                    }
+
+                    configuration.MarkNetworkSaved();
+                    saved.Network = true;
+
+                    MessageCentre.OutputMessage($"{description} network configuration updated.");
+                }
+
+                foreach (var profile in profilesToSave)
+                {
+                    MessageCentre.StartProgressMessage($"Uploading Wi-Fi profile {profile.SlotText} to {description}...");
+
+                    updateResult = device.DebugEngine.UpdateDeviceConfiguration(profile.ToModel(), profile.Slot);
+
+                    if (updateResult != Engine.UpdateDeviceResult.Sucess)
+                    {
+                        // the profiles written so far are kept, the user can retry the others
+                        failedStep = "wireless";
+                        error = $"The Wi-Fi profile in slot {profile.SlotText} ({profile.Title}) wasn't saved: {updateResult}.";
+
+                        return error;
+                    }
+
+                    profile.MarkSaved();
+                    saved.WifiProfilesSaved++;
+
+                    MessageCentre.OutputMessage($"{description} Wi-Fi profile {profile.SlotText} updated.");
+                }
+
+                // is there a CA certificate bundle to upload, or to clear?
+                if (configuration.RootCaToSave != null)
+                {
+                    MessageCentre.StartProgressMessage($"Uploading Root CA file to {description}...");
+
+                    // at position 0
+                    updateResult = device.DebugEngine.UpdateDeviceConfiguration(configuration.RootCaToSave, 0);
+
+                    if (updateResult != Engine.UpdateDeviceResult.Sucess)
+                    {
+                        failedStep = "rootCa";
+                        error = $"The Root CA wasn't saved: {updateResult}.";
+
+                        return error;
+                    }
+
+                    saved.RootCa = true;
+                }
+
+                // is there a device certificate to upload, or to clear?
+                if (configuration.DeviceCertificateToSave != null)
+                {
+                    MessageCentre.StartProgressMessage($"Uploading device certificate file to {description}...");
+
+                    // at position 0
+                    updateResult = device.DebugEngine.UpdateDeviceConfiguration(configuration.DeviceCertificateToSave, 0);
+
+                    if (updateResult != Engine.UpdateDeviceResult.Sucess)
+                    {
+                        failedStep = "deviceCertificate";
+                        error = $"The device certificate wasn't saved: {updateResult}.";
+
+                        return error;
+                    }
+
+                    saved.DeviceCertificate = true;
+                }
+
+                configuration.MarkCertificatesSaved();
+
+                return null;
+            }
+            catch (Exception ex)
             {
-                // update failed
-                MessageCentre.OutputMessage($"Error updating {device.Description} network configuration. Error: {updateResult}.");
+                // OK to catch all
+                failedStep ??= "exception";
+                error = $"Error saving the network configuration: {ex.Message}";
+
+                ExtensionTelemetry.TrackException(ex, "deviceexplorer.networkconfig.save");
+
+                return error;
+            }
+            finally
+            {
+                if (error != null)
+                {
+                    MessageCentre.OutputMessage($"Error updating {description} network configuration. {error}");
+                }
+
                 MessageCentre.StopProgressMessage();
 
-                TrackNetworkConfigSaved(networkConfigurationToSave, uploadStep, updateResult, rootCaUploaded, deviceCertificateUploaded);
-
-                return false;
+                TrackNetworkConfigSaved(networkConfigurationToSave, failedStep, updateResult, saved);
             }
-
-            // update of network config successful
-            MessageCentre.OutputMessage($"{device.Description} network configuration updated.");
-
-            // is there a CA certificate bundle to upload?
-            if (deviceExplorer.CaCertificateBundle != null)
-            {
-                MessageCentre.StartProgressMessage($"Uploading Root CA file to {device.Description}...");
-
-                // save Root CA file to target
-                // at position 0
-                updateResult = device.DebugEngine.UpdateDeviceConfiguration(deviceExplorer.CaCertificateBundle, 0);
-
-                if (updateResult != Engine.UpdateDeviceResult.Sucess)
-                {
-                    MessageCentre.OutputMessage($"Error uploading Root CA file to {device.Description}. Error: {updateResult}");
-                    MessageCentre.StopProgressMessage();
-
-                    TrackNetworkConfigSaved(networkConfigurationToSave, "rootCa", updateResult, rootCaUploaded, deviceCertificateUploaded);
-
-                    return false;
-                }
-
-                rootCaUploaded = true;
-            }
-
-            // is there a device certificate to upload?
-            if (deviceExplorer.DeviceCertificate != null)
-            {
-                MessageCentre.StartProgressMessage($"Uploading device certificate file to {device.Description}...");
-
-                // save device certificate file to target
-                // at position 0
-                updateResult = device.DebugEngine.UpdateDeviceConfiguration(deviceExplorer.DeviceCertificate, 0);
-
-                if (updateResult != Engine.UpdateDeviceResult.Sucess)
-                {
-                    MessageCentre.OutputMessage($"Error uploading device certificate file to {device.Description}. Error: {updateResult}");
-                    MessageCentre.StopProgressMessage();
-
-                    TrackNetworkConfigSaved(networkConfigurationToSave, "deviceCertificate", updateResult, rootCaUploaded, deviceCertificateUploaded);
-
-                    return false;
-                }
-
-                deviceCertificateUploaded = true;
-            }
-
-            // stop progress message
-            MessageCentre.StopProgressMessage();
-
-            TrackNetworkConfigSaved(networkConfigurationToSave, null, updateResult, rootCaUploaded, deviceCertificateUploaded);
-
-
-            return true;
         }
 
         #endregion
@@ -1244,24 +1277,42 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         }
 
         /// <summary>
-        /// Records which kind of configuration was saved. Only flags and the result, never addresses, SSIDs, passwords or certificates.
+        /// Records which kind of configuration was saved. Only flags, counts and the result, never addresses, SSIDs, passwords or certificates.
         /// </summary>
         private static void TrackNetworkConfigSaved(
             DeviceConfiguration.NetworkConfigurationProperties configuration,
             string failedStep,
             Engine.UpdateDeviceResult result,
-            bool rootCaUploaded,
-            bool deviceCertificateUploaded)
+            NetworkConfigSavedCounts saved)
         {
             ExtensionTelemetry.TrackEvent("NetworkConfigSaved", new TelemetryProperties
             {
                 { "dhcp", configuration.StartupAddressMode == AddressMode.DHCP },
                 { "wireless", configuration.InterfaceType == NetworkInterfaceType.Wireless80211 },
-                { "root_ca_uploaded", rootCaUploaded },
-                { "device_cert_uploaded", deviceCertificateUploaded },
+                { "network_saved", saved.Network },
+                { "wifi_profiles", saved.WifiProfiles },
+                { "wifi_profiles_saved", saved.WifiProfilesSaved },
+                { "root_ca_uploaded", saved.RootCa },
+                { "device_cert_uploaded", saved.DeviceCertificate },
                 { "failed_step", failedStep },
                 { "result", result },
             });
+        }
+
+        /// <summary>
+        /// What a save of the network configuration dialog wrote, for telemetry.
+        /// </summary>
+        private sealed class NetworkConfigSavedCounts
+        {
+            public bool Network { get; set; }
+
+            public int WifiProfiles { get; set; }
+
+            public int WifiProfilesSaved { get; set; }
+
+            public bool RootCa { get; set; }
+
+            public bool DeviceCertificate { get; set; }
         }
 
         private static void ReportNotResponding(string description, TelemetryOperation telemetry)

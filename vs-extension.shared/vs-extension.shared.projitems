@@ -9,14 +9,6 @@
     <Import_RootNamespace>vs_extension.shared</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="$(MSBuildThisFileDirectory)Converters\AuthenticationTypeConverter.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Converters\EncryptionTypeConverter.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Converters\InterfaceTypeToBoolConverters.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Converters\MacAddressConverter.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Converters\NetworkInterfaceTypeConverter.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Converters\RadioTypeConverter.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Converters\Wireless80211_OptionsTypeConverter.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Converters\WirelessAP_OptionsTypeConverter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)CorDebug\COM_HResults.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)CorDebug\ConnectionPoint.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)CorDebug\CorDebug.cs" />
@@ -93,19 +85,20 @@
     <Compile Include="$(MSBuildThisFileDirectory)ToolWindow.DeviceExplorer\DeviceExplorerToolWindow.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ToolWindow.DeviceExplorer\DeviceOperations.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ToolWindow.DeviceExplorer\DeviceProperties.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ToolWindow.DeviceExplorer\NetworkConfigurationContent.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ToolWindow.DeviceExplorer\Models\ConnectionState.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ToolWindow.DeviceExplorer\Models\PingConnectionResult.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ToolWindow.DeviceExplorer\Services\NanoFrameworkService\INFDebugClientBaseService.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ToolWindow.DeviceExplorer\Services\NanoFrameworkService\INFSerialDebugClientService.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ToolWindow.DeviceExplorer\Services\NanoFrameworkService\NFSerialDebugClientService.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ToolWindow.DeviceExplorer\ShowDeviceExplorerCommand.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ToolWindow.DeviceExplorer\ViewModel\ChoiceItem.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ToolWindow.DeviceExplorer\ViewModel\DesignDataService.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ToolWindow.DeviceExplorer\ViewModel\DeviceExplorerViewModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ToolWindow.DeviceExplorer\ViewModel\NetworkConfigurationViewModel.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)ToolWindow.DeviceExplorer\ViewModel\Wireless80211ConfigurationViewModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ToolWindow.DeviceExplorer\ViewModel\WifiProfileViewModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ToolWindow.DeviceExplorer\ViewModel\IDataService.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utilities\DeploymentImageGenerator.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Utilities\EnumToItemsSource.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utilities\ReferenceCrawler.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)VirtualDeviceService\IVirtualDeviceService.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)VirtualDeviceService\VirtualDeviceService.cs" />
@@ -113,5 +106,6 @@
   <ItemGroup>
     <!-- Remote UI data templates are sent to Visual Studio as text: they must not be compiled as WPF pages -->
     <EmbeddedResource Include="$(MSBuildThisFileDirectory)ToolWindow.DeviceExplorer\DeviceExplorerContent.xaml" LogicalName="nanoFramework.Tools.VisualStudio.Extension.DeviceExplorerContent.xaml" />
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)ToolWindow.DeviceExplorer\NetworkConfigurationContent.xaml" LogicalName="nanoFramework.Tools.VisualStudio.Extension.NetworkConfigurationContent.xaml" />
   </ItemGroup>
 </Project>
