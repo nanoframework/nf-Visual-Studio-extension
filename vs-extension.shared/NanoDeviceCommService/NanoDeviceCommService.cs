@@ -23,21 +23,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 if (_debugClient == null)
                 {
                     // grab and parse COM port list
-                    List<string> serialPortList = new List<string>();
-
-                    // need to wrap the processing in a try/catch to deal with bad user input/format
-                    try
-                    {
-                        // grab and parse COM port list
-                        if (!string.IsNullOrEmpty(NanoFrameworkPackage.SettingPortBlackList))
-                        {
-                            serialPortList.AddRange(NanoFrameworkPackage.SettingPortBlackList.Split(';'));
-                        }
-                    }
-                    catch
-                    {
-                        // don't care about bad user input/format/etc 
-                    }
+                    List<string> serialPortList = NanoSettings.GetPortExclusionList();
 
                     // create serial instance with device watchers stopped
                     PortBase serialDebug = PortBase.CreateInstanceForSerial(false, serialPortList);
@@ -49,9 +35,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     // OK to start device watchers, if setting is enabled
                     _debugClient = PortBase.CreateInstanceForComposite(
                         new[] { serialDebug, networkDebug },
-                        !NanoFrameworkPackage.OptionDisableDeviceWatchers);
+                        !NanoSettings.DeviceWatchersDisabled);
 
-                    if (!NanoFrameworkPackage.OptionDisableDeviceWatchers)
+                    if (!NanoSettings.DeviceWatchersDisabled)
                     {
                         // output progress message
                         MessageCentre.StartProgressMessage(MessageCentre.MessageStartSearchingDevices);

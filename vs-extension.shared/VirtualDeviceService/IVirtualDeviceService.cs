@@ -3,6 +3,7 @@
 // See LICENSE file in the project root for full license information.
 ////
 
+using System;
 using System.Threading.Tasks;
 
 namespace nanoFramework.Tools.VisualStudio.Extension
@@ -14,6 +15,10 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         bool VirtualDeviceIsRunning { get; }
 
         bool CanStartStopVirtualDevice { get; }
+
+        bool IsOperationRunning { get; }
+
+        event EventHandler StateChanged;
 
         Task InitVirtualDeviceAsync();
 

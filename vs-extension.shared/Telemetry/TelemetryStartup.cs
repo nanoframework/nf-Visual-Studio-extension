@@ -56,15 +56,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             {
                 TelemetryProperties settings = GetSettingsSnapshot();
 
-                try
-                {
-                    settings.Add("process_stacktrace", NanoFrameworkPackage.DebuggingOptions?.ProcessStackTraceOption);
-                }
-                catch
-                {
-                    // option page not available
-                }
-
                 ExtensionTelemetry.TrackEvent("ExtensionLoaded", settings);
 
                 // projects are usually loaded before the package
@@ -81,18 +72,19 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         /// </summary>
         internal static TelemetryProperties GetSettingsSnapshot() => new TelemetryProperties
         {
-            { "auto_update", NanoFrameworkPackage.SettingAutoUpdateEnable },
-            { "prerelease_updates", NanoFrameworkPackage.SettingIncludePrereleaseUpdates },
-            { "virtual_device", NanoFrameworkPackage.SettingVirtualDeviceEnable },
-            { "vd_autoupdate_clr", NanoFrameworkPackage.SettingVirtualDeviceAutoUpdateNanoClrImage },
-            { "vd_custom_clr", NanoFrameworkPackage.SettingLoadNanoClrInstance },
-            { "vd_port_set", !string.IsNullOrEmpty(NanoFrameworkPackage.SettingVirtualDevicePort) },
-            { "deployment_image", NanoFrameworkPackage.SettingGenerateDeploymentImage },
-            { "config_block_in_image", NanoFrameworkPackage.SettingIncludeConfigBlockInDeploymentImage },
-            { "flash_dump_path_set", !string.IsNullOrEmpty(NanoFrameworkPackage.SettingPathOfFlashDumpCache) },
-            { "disable_watchers", NanoFrameworkPackage.OptionDisableDeviceWatchers },
-            { "show_internal_errors", NanoFrameworkPackage.OptionShowInternalErrors },
-            { "port_blacklist_set", !string.IsNullOrEmpty(NanoFrameworkPackage.SettingPortBlackList) },
+            { "auto_update", NanoSettings.AutoUpdateEnabled },
+            { "prerelease_updates", NanoSettings.IncludePrereleaseUpdates },
+            { "virtual_device", NanoSettings.VirtualDeviceEnabled },
+            { "vd_autoupdate_clr", NanoSettings.VirtualDeviceAutoUpdateNanoClr },
+            { "vd_custom_clr", NanoSettings.VirtualDeviceUseLocalNanoClr },
+            { "vd_port_set", !string.IsNullOrEmpty(NanoSettings.VirtualDevicePort) },
+            { "deployment_image", NanoSettings.GenerateDeploymentImage },
+            { "config_block_in_image", NanoSettings.IncludeConfigBlockInDeploymentImage },
+            { "flash_dump_path_set", !string.IsNullOrEmpty(NanoSettings.FlashDumpCachePath) },
+            { "disable_watchers", NanoSettings.DeviceWatchersDisabled },
+            { "show_internal_errors", NanoSettings.ShowInternalErrors },
+            { "port_blacklist_set", !string.IsNullOrEmpty(NanoSettings.PortExclusionList) },
+            { "process_stacktrace", NanoSettings.ProcessStackTrace },
         };
 
         /// <summary>

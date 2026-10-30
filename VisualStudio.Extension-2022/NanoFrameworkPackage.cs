@@ -67,7 +67,11 @@ namespace nanoFramework.Tools.VisualStudio.Extension
     [ProvideService(typeof(NanoDeviceCommService), IsAsyncQueryable = true)]
     [ProvideService(typeof(VirtualDeviceService), IsAsyncQueryable = true)]
     [ProvideCodeGenerator(typeof(nFResXFileCodeGenerator), nFResXFileCodeGenerator.Name, nFResXFileCodeGenerator.Description, true, ProjectSystem = ProvideCodeGeneratorAttribute.CSharpProjectGuid)]
-    [ProvideOptionPage(typeof(NanoOptionsPageDebugging), ".NET nanoFramework", "Debugging", 0, 0, true)]
+    // the names of the options category and pages are in VSPackage.resx (200-204)
+    [ProvideOptionPage(typeof(NanoOptionsPageGeneral), OptionsCategoryName, "General", 200, 201, true, Sort = 0)]
+    [ProvideOptionPage(typeof(NanoOptionsPageUpdates), OptionsCategoryName, "Updates", 200, 202, true, Sort = 1)]
+    [ProvideOptionPage(typeof(NanoOptionsPageVirtualDevice), OptionsCategoryName, "Virtual Device", 200, 203, true, Sort = 2)]
+    [ProvideOptionPage(typeof(NanoOptionsPageDebugging), OptionsCategoryName, "Debugging", 200, 204, true, Sort = 3)]
     public sealed class NanoFrameworkPackage : AsyncPackage, Microsoft.VisualStudio.OLE.Interop.IOleCommandTarget
     {
         /// <summary>
@@ -85,6 +89,11 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         public const string PackageGuidString = "1b4aea27-9d6e-46a4-9868-f2d9a052c821";
 
         /// <summary>
+        /// The category of the options pages in Tools › Options.
+        /// </summary>
+        public const string OptionsCategoryName = ".NET nanoFramework";
+
+        /// <summary>
         /// Path for nanoFramework Extension directory
         /// </summary>
         public static string NanoFrameworkExtensionDirectory { get; private set; }
@@ -94,391 +103,11 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         /// </summary>
         public static Version NanoFrameworkExtensionVersion { get; private set; }
 
-        #region user options related stuff
-
-        private const string EXTENSION_SUBKEY = "nanoFrameworkExtension";
-
-        private const string SHOW_INTERNAL_ERRORS_KEY = "ShowInternalErrors";
-        private const string DISABLE_DEVICE_WATCHERS_KEY = "DisableDeviceWatchers";
-        private const string SETTINGS_GENERATE_DEPLOYMENT_IMAGE_KEY = "GenerateDeploymentImage";
-        private const string SETTINGS_INCLUDE_CONFIG_BLOCK_IN_DEPLOYMENT_IMAGE_KEY = "IncludeConfigBlockInDeploymentImage";
-        private const string SETTINGS_PATH_OF_FLASH_DUMP_CACHE_IMAGE_KEY = "PathOfFlashDumpCache";
-        private const string SETTINGS_PORT_BLACK_LIST_KEY = "PortBlackList";
-        private const string SETTINGS_AUTO_UPDATE_ENABLE_KEY = "AutoUpdateEnable";
-        private const string SETTINGS_ALLOW_PREVIEW_IMAGES_KEY = "IncludePrereleaseUpdates";
-        private const string SETTINGS_VIRTUAL_DEVICE_ENABLE_KEY = "VirtualDeviceEnable";
-        private const string SETTINGS_VIRTUAL_DEVICE_AUTO_UPDATE_NANOCLR_KEY = "VirtualDeviceAutoUpdateNanoCLR";
-        private const string SETTINGS_VIRTUAL_DEVICE_LOAD_NANOCLR_INSTANCE_KEY = "VirtualDeviceLoadNanoCLRInstance";
-        private const string SETTINGS_VIRTUAL_DEVICE_PATH_OF_NANOCLR_INSTANCE_KEY = "VirtualDevicePathOfNanoCLRInstance";
-        private const string SETTINGS_VIRTUAL_DEVICE_PORT = "VirtualDevicePort";
-
-        private static bool? s_OptionShowInternalErrors;
-        /// <summary>
-        /// User option for outputting internal extension errors to the extension output pane.
-        /// The value is persisted per user.
-        /// Default is false.
-        /// </summary>
-        public static bool OptionShowInternalErrors
-        {
-            get
-            {
-                try
-                {
-                    if (!s_OptionShowInternalErrors.HasValue)
-                    {
-                        s_OptionShowInternalErrors = bool.Parse((string)s_instance.UserRegistryRoot.OpenSubKey(EXTENSION_SUBKEY).GetValue(SHOW_INTERNAL_ERRORS_KEY, "False"));
-                    }
-
-                    return s_OptionShowInternalErrors.Value;
-                }
-                catch
-                {
-                    // default to false
-                    return false;
-                }
-            }
-
-            set
-            {
-                s_instance.UserRegistryRoot.OpenSubKey(EXTENSION_SUBKEY, true).SetValue(SHOW_INTERNAL_ERRORS_KEY, value);
-                s_instance.UserRegistryRoot.OpenSubKey(EXTENSION_SUBKEY, true).Flush();
-
-                s_OptionShowInternalErrors = value;
-            }
-        }
-
-        private static bool? s_OptionDisableDeviceWatchers;
-        /// <summary>
-        /// User option for outputting internal extension errors to the extension output pane.
-        /// The value is persisted per user.
-        /// Default is false.
-        /// </summary>
-        public static bool OptionDisableDeviceWatchers
-        {
-            get
-            {
-                if (!s_OptionDisableDeviceWatchers.HasValue)
-                {
-                    s_OptionDisableDeviceWatchers = bool.Parse((string)s_instance.UserRegistryRoot.OpenSubKey(EXTENSION_SUBKEY).GetValue(DISABLE_DEVICE_WATCHERS_KEY, "False"));
-                }
-
-                return s_OptionDisableDeviceWatchers.Value;
-            }
-
-            set
-            {
-                s_instance.UserRegistryRoot.OpenSubKey(EXTENSION_SUBKEY, true).SetValue(DISABLE_DEVICE_WATCHERS_KEY, value);
-                s_instance.UserRegistryRoot.OpenSubKey(EXTENSION_SUBKEY, true).Flush();
-
-                s_OptionDisableDeviceWatchers = value;
-            }
-        }
-
-        private static bool? s_SettingGenerateDeploymentImage;
-        /// <summary>
-        /// Setting to generate deployment image on deploy.
-        /// The value is persisted per user.
-        /// Default is false.
-        /// </summary>
-        public static bool SettingGenerateDeploymentImage
-        {
-            get
-            {
-                if (!s_SettingGenerateDeploymentImage.HasValue)
-                {
-                    s_SettingGenerateDeploymentImage = bool.Parse((string)s_instance.UserRegistryRoot.OpenSubKey(EXTENSION_SUBKEY).GetValue(SETTINGS_GENERATE_DEPLOYMENT_IMAGE_KEY, "False"));
-                }
-
-                return s_SettingGenerateDeploymentImage.Value;
-            }
-
-            set
-            {
-                s_instance.UserRegistryRoot.OpenSubKey(EXTENSION_SUBKEY, true).SetValue(SETTINGS_GENERATE_DEPLOYMENT_IMAGE_KEY, value);
-                s_instance.UserRegistryRoot.OpenSubKey(EXTENSION_SUBKEY, true).Flush();
-
-                s_SettingGenerateDeploymentImage = value;
-            }
-        }
-
-        private static bool? s_SettingIncludeConfigBlockInDeploymentImage;
-        /// <summary>
-        /// Setting to include configuration block when generating deployment image.
-        /// The value is persisted per user.
-        /// Default is false.
-        /// </summary>
-        public static bool SettingIncludeConfigBlockInDeploymentImage
-        {
-            get
-            {
-                if (!s_SettingIncludeConfigBlockInDeploymentImage.HasValue)
-                {
-                    s_SettingIncludeConfigBlockInDeploymentImage = bool.Parse((string)s_instance.UserRegistryRoot.OpenSubKey(EXTENSION_SUBKEY).GetValue(SETTINGS_INCLUDE_CONFIG_BLOCK_IN_DEPLOYMENT_IMAGE_KEY, "False"));
-                }
-
-                return s_SettingIncludeConfigBlockInDeploymentImage.Value;
-            }
-
-            set
-            {
-                s_instance.UserRegistryRoot.OpenSubKey(EXTENSION_SUBKEY, true).SetValue(SETTINGS_INCLUDE_CONFIG_BLOCK_IN_DEPLOYMENT_IMAGE_KEY, value);
-                s_instance.UserRegistryRoot.OpenSubKey(EXTENSION_SUBKEY, true).Flush();
-
-                s_SettingIncludeConfigBlockInDeploymentImage = value;
-            }
-        }
-
-        private static string s_SettingPathOfFlashDumpCache = null;
-        /// <summary>
-        /// Setting to store path where to cache flash dump. If empty the cache will be the project output path.
-        /// The value is persisted per user.
-        /// Default is empty.
-        /// </summary>
-        public static string SettingPathOfFlashDumpCache
-        {
-            get
-            {
-                if (string.IsNullOrEmpty(s_SettingPathOfFlashDumpCache))
-                {
-                    s_SettingPathOfFlashDumpCache = (string)s_instance.UserRegistryRoot.OpenSubKey(EXTENSION_SUBKEY).GetValue(SETTINGS_PATH_OF_FLASH_DUMP_CACHE_IMAGE_KEY);
-                }
-
-                return s_SettingPathOfFlashDumpCache;
-            }
-
-            set
-            {
-                s_instance.UserRegistryRoot.OpenSubKey(EXTENSION_SUBKEY, true).SetValue(SETTINGS_PATH_OF_FLASH_DUMP_CACHE_IMAGE_KEY, value);
-                s_instance.UserRegistryRoot.OpenSubKey(EXTENSION_SUBKEY, true).Flush();
-
-                s_SettingPathOfFlashDumpCache = value;
-            }
-        }
-
-        private static string s_SettingPortBlackList = null;
-        /// <summary>
-        /// Setting to store COM port black list.
-        /// The value is persisted per user.
-        /// Default is empty.
-        /// </summary>
-        public static string SettingPortBlackList
-        {
-            get
-            {
-                if (string.IsNullOrEmpty(s_SettingPortBlackList))
-                {
-                    s_SettingPortBlackList = (string)s_instance.UserRegistryRoot.OpenSubKey(EXTENSION_SUBKEY).GetValue(SETTINGS_PORT_BLACK_LIST_KEY);
-                }
-
-                return s_SettingPortBlackList;
-            }
-
-            set
-            {
-                s_instance.UserRegistryRoot.OpenSubKey(EXTENSION_SUBKEY, true).SetValue(SETTINGS_PORT_BLACK_LIST_KEY, value);
-                s_instance.UserRegistryRoot.OpenSubKey(EXTENSION_SUBKEY, true).Flush();
-
-                s_SettingPortBlackList = value;
-            }
-        }
-
-        private static bool? s_SettingAutoUpdateEnable = null;
-
-        /// <summary>
-        /// Setting to enable automatic update of target images.
-        /// The value is persisted per user.
-        /// Default is <see langword="true"/>.
-        /// </summary>
-        public static bool SettingAutoUpdateEnable
-        {
-            get
-            {
-                if (!s_SettingAutoUpdateEnable.HasValue)
-                {
-                    s_SettingAutoUpdateEnable = bool.Parse((string)s_instance.UserRegistryRoot.OpenSubKey(EXTENSION_SUBKEY).GetValue(SETTINGS_AUTO_UPDATE_ENABLE_KEY, "False"));
-                }
-
-                return s_SettingAutoUpdateEnable.Value;
-            }
-
-            set
-            {
-                s_instance.UserRegistryRoot.OpenSubKey(EXTENSION_SUBKEY, true).SetValue(SETTINGS_AUTO_UPDATE_ENABLE_KEY, value);
-                s_instance.UserRegistryRoot.OpenSubKey(EXTENSION_SUBKEY, true).Flush();
-
-                s_SettingAutoUpdateEnable = value;
-            }
-        }
-
-        private static bool? s_SettingIncludePrereleaseUpdates = null;
-
-        /// <summary>
-        /// Setting to enable updates with preview images.
-        /// The value is persisted per user.
-        /// Default is <see langword="true"/>.
-        /// </summary>
-        public static bool SettingIncludePrereleaseUpdates
-        {
-            get
-            {
-                if (!s_SettingIncludePrereleaseUpdates.HasValue)
-                {
-                    s_SettingIncludePrereleaseUpdates = bool.Parse((string)s_instance.UserRegistryRoot.OpenSubKey(EXTENSION_SUBKEY).GetValue(SETTINGS_ALLOW_PREVIEW_IMAGES_KEY, "True"));
-                }
-
-                return s_SettingIncludePrereleaseUpdates.Value;
-            }
-
-            set
-            {
-                s_instance.UserRegistryRoot.OpenSubKey(EXTENSION_SUBKEY, true).SetValue(SETTINGS_ALLOW_PREVIEW_IMAGES_KEY, value);
-                s_instance.UserRegistryRoot.OpenSubKey(EXTENSION_SUBKEY, true).Flush();
-
-                s_SettingIncludePrereleaseUpdates = value;
-            }
-        }
-      
-        private static bool? s_SettingVirtualDeviceAutoUpdateNanoClrImage = null;
-        /// <summary>
-        /// Setting to enable auto updating nanoCLR image for the virtual device.
-        /// The value is persisted per user
-        /// Default is <see langword="false"/>
-        /// </summary>
-        public static bool SettingVirtualDeviceAutoUpdateNanoClrImage
-        {
-            get
-            {
-                if (!s_SettingVirtualDeviceAutoUpdateNanoClrImage.HasValue)
-                {
-                    s_SettingVirtualDeviceAutoUpdateNanoClrImage = bool.Parse((string)s_instance.UserRegistryRoot.OpenSubKey(EXTENSION_SUBKEY).GetValue(SETTINGS_VIRTUAL_DEVICE_AUTO_UPDATE_NANOCLR_KEY, "True"));
-                }
-
-                return s_SettingVirtualDeviceAutoUpdateNanoClrImage.Value;
-
-            }
-            set
-            {
-                s_instance.UserRegistryRoot.OpenSubKey(EXTENSION_SUBKEY, true).SetValue(SETTINGS_VIRTUAL_DEVICE_AUTO_UPDATE_NANOCLR_KEY, value);
-                s_instance.UserRegistryRoot.OpenSubKey(EXTENSION_SUBKEY, true).Flush();
-
-                s_SettingVirtualDeviceAutoUpdateNanoClrImage = value;
-
-            }
-        }
-
-        private static bool? s_SettingVirtualDeviceEnable = null;
-        /// <summary>
-        /// Setting to enable the use of a virtual device running on the development machine as a command line interface (CLI)
-        /// The value is persisted per user
-        /// Default is <see langword="false"/>
-        /// </summary>
-        public static bool SettingVirtualDeviceEnable
-        {
-            get
-            {
-                if (!s_SettingVirtualDeviceEnable.HasValue)
-                {
-                    s_SettingVirtualDeviceEnable = bool.Parse((string)s_instance.UserRegistryRoot.OpenSubKey(EXTENSION_SUBKEY).GetValue(SETTINGS_VIRTUAL_DEVICE_ENABLE_KEY, "False"));
-                }
-
-                return s_SettingVirtualDeviceEnable.Value;
-
-            }
-            set
-            {
-                s_instance.UserRegistryRoot.OpenSubKey(EXTENSION_SUBKEY, true).SetValue(SETTINGS_VIRTUAL_DEVICE_ENABLE_KEY, value);
-                s_instance.UserRegistryRoot.OpenSubKey(EXTENSION_SUBKEY, true).Flush();
-
-                s_SettingVirtualDeviceEnable = value;
-
-            }
-        }
-
-        private static bool? s_SettingLoadNanoClrInstance = null;
-        /// <summary>
-        /// Setting to enable loading a nanoCLR instance in the virtual device.
-        /// The value is persisted per user
-        /// Default is <see langword="false"/>
-        /// </summary>
-        public static bool SettingLoadNanoClrInstance
-        {
-            get
-            {
-                if (!s_SettingLoadNanoClrInstance.HasValue)
-                {
-                    s_SettingLoadNanoClrInstance = bool.Parse((string)s_instance.UserRegistryRoot.OpenSubKey(EXTENSION_SUBKEY).GetValue(SETTINGS_VIRTUAL_DEVICE_LOAD_NANOCLR_INSTANCE_KEY, "False"));
-                }
-
-                return s_SettingLoadNanoClrInstance.Value;
-
-            }
-            set
-            {
-                s_instance.UserRegistryRoot.OpenSubKey(EXTENSION_SUBKEY, true).SetValue(SETTINGS_VIRTUAL_DEVICE_LOAD_NANOCLR_INSTANCE_KEY, value);
-                s_instance.UserRegistryRoot.OpenSubKey(EXTENSION_SUBKEY, true).Flush();
-
-                s_SettingLoadNanoClrInstance = value;
-            }
-        }
-
-        private static string s_SettingPathOfLocalNanoClrInstance = null;
-        /// <summary>
-        /// Setting to store path where to load nanoCLR instance from.
-        /// The value is persisted per user.
-        /// Default is empty.
-        /// </summary>
-        public static string SettingPathOfLocalNanoClrInstance
-        {
-            get
-            {
-                if (string.IsNullOrEmpty(s_SettingPathOfFlashDumpCache))
-                {
-                    s_SettingPathOfLocalNanoClrInstance = (string)s_instance.UserRegistryRoot.OpenSubKey(EXTENSION_SUBKEY).GetValue(SETTINGS_VIRTUAL_DEVICE_PATH_OF_NANOCLR_INSTANCE_KEY);
-                }
-
-                return s_SettingPathOfLocalNanoClrInstance;
-            }
-
-            set
-            {
-                s_instance.UserRegistryRoot.OpenSubKey(EXTENSION_SUBKEY, true).SetValue(SETTINGS_VIRTUAL_DEVICE_PATH_OF_NANOCLR_INSTANCE_KEY, value);
-                s_instance.UserRegistryRoot.OpenSubKey(EXTENSION_SUBKEY, true).Flush();
-
-                s_SettingPathOfLocalNanoClrInstance = value;
-            }
-        }
-
-        private static string s_SettingVirtualDevicePort = null;
         private static INanoDeviceCommService _nanoDeviceCommService;
         private static IVirtualDeviceService _virtualDeviceService;
 
-        /// <summary>
-        /// Setting to store COM port for the virtual device
-        /// The value is persisted per user.
-        /// Default is empty.
-        /// </summary>
-        public static string SettingVirtualDevicePort
-        {
-            get
-            {
-                if (string.IsNullOrEmpty(s_SettingVirtualDevicePort))
-                {
-                    s_SettingVirtualDevicePort = (string)s_instance.UserRegistryRoot.OpenSubKey(EXTENSION_SUBKEY).GetValue(SETTINGS_VIRTUAL_DEVICE_PORT, string.Empty);
-                }
-
-                return s_SettingVirtualDevicePort;
-            }
-
-            set
-            {
-                s_instance.UserRegistryRoot.OpenSubKey(EXTENSION_SUBKEY, true).SetValue(SETTINGS_VIRTUAL_DEVICE_PORT, value);
-                s_instance.UserRegistryRoot.OpenSubKey(EXTENSION_SUBKEY, true).Flush();
-
-                s_SettingVirtualDevicePort = value;
-            }
-        }
-
-        #endregion
+        // registry key of the settings before they moved to the Settings Store
+        private const string LegacySettingsSubkey = "nanoFrameworkExtension";
 
         /// <summary>
         /// The Device Explorer view model, created when the package is initialized.
@@ -525,15 +154,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 return _virtualDeviceService;
             }
         }
-
-        /// <summary>
-        /// Gets the debugging options page for the .NET nanoFramework extension.
-        /// </summary>
-        public static NanoOptionsPageDebugging DebuggingOptions => ThreadHelper.JoinableTaskFactory.Run(async delegate
-        {
-            await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
-            return s_instance.GetDialogPage(typeof(NanoOptionsPageDebugging)) as NanoOptionsPageDebugging;
-        });
 
         private static NanoFrameworkPackage s_instance { get; set; }
 
@@ -583,10 +203,14 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         {
             await base.InitializeAsync(cancellationToken, progress);
 
+            // the settings are read by everything that follows
+            await JoinableTaskFactory.SwitchToMainThreadAsync(cancellationToken);
+            NanoSettings.Initialize(this);
+            await TaskScheduler.Default;
+
             TelemetryStartup.Initialize();
 
-            // make sure "our" key exists and it's writable
-            s_instance.UserRegistryRoot.CreateSubKey(EXTENSION_SUBKEY, true);
+            DeleteLegacySettings();
 
             // the Device Explorer view model is owned by the package
             DeviceExplorerViewModel = new DeviceExplorerViewModel { Package = this };
@@ -611,6 +235,29 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         #endregion
 
+        /// <summary>
+        /// Shows an options page of the extension in Tools › Options.
+        /// </summary>
+        /// <typeparam name="T">The options page.</typeparam>
+        public static async Task ShowOptionPageAsync<T>() where T : NanoOptionsPage
+        {
+            await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+
+            s_instance.ShowOptionPage(typeof(T));
+        }
+
+        // the settings were in the registry before, they aren't imported
+        private void DeleteLegacySettings()
+        {
+            try
+            {
+                UserRegistryRoot.DeleteSubKeyTree(LegacySettingsSubkey, false);
+            }
+            catch
+            {
+                // not important, it's left there
+            }
+        }
 
         public async Task<object> CreateNanoDeviceCommServiceAsync(IAsyncServiceContainer container, CancellationToken cancellationToken, Type serviceType)
         {

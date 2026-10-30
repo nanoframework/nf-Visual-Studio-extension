@@ -258,6 +258,14 @@
                         AutomationProperties.Name="Rescan devices">
                     <vs:Image Source="KnownMonikers.Search" Width="16" Height="16" />
                 </Button>
+                <!-- latched while the virtual device is enabled: turning it on starts it, turning it off stops it -->
+                <ToggleButton Style="{StaticResource IconToggleButtonStyle}"
+                              IsChecked="{Binding VirtualDeviceEnabled, Mode=TwoWay}"
+                              IsEnabled="{Binding CanToggleVirtualDevice}"
+                              ToolTip="{Binding VirtualDeviceToolTip}"
+                              AutomationProperties.Name="{Binding VirtualDeviceToggleText}">
+                    <vs:Image Source="KnownMonikers.VirtualMachine" Width="16" Height="16" />
+                </ToggleButton>
 
                 <Border Style="{StaticResource SeparatorStyle}" />
 
@@ -368,6 +376,22 @@
                     <MenuItem Header="_Network configuration..." Command="{Binding NetworkConfigurationCommand}">
                         <MenuItem.Icon>
                             <vs:Image Source="KnownMonikers.NetworkAdapterConfiguration" />
+                        </MenuItem.Icon>
+                    </MenuItem>
+                    <!-- only for the virtual device -->
+                    <Separator Visibility="{Binding SelectedDeviceIsVirtual, Converter={StaticResource BooleanToVisibility}}" />
+                    <MenuItem Header="Re_start virtual device"
+                              Command="{Binding RestartVirtualDeviceCommand}"
+                              Visibility="{Binding SelectedDeviceIsVirtual, Converter={StaticResource BooleanToVisibility}}">
+                        <MenuItem.Icon>
+                            <vs:Image Source="KnownMonikers.Restart" />
+                        </MenuItem.Icon>
+                    </MenuItem>
+                    <MenuItem Header="_Update nanoCLR"
+                              Command="{Binding UpdateNanoClrCommand}"
+                              Visibility="{Binding SelectedDeviceIsVirtual, Converter={StaticResource BooleanToVisibility}}">
+                        <MenuItem.Icon>
+                            <vs:Image Source="KnownMonikers.Download" />
                         </MenuItem.Icon>
                     </MenuItem>
                     <Separator />

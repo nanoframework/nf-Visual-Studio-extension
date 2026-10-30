@@ -37,6 +37,17 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         private static INanoDeviceCommService s_nanoDeviceCommService;
 
+        private static IVirtualDeviceService s_virtualDeviceService;
+
+        // the virtual device is started and stopped one operation at a time
+        private static readonly SemaphoreSlim s_virtualDeviceLock = new SemaphoreSlim(1, 1);
+
+        private static int s_runningVirtualDeviceOperations;
+
+        // set while a virtual device that failed to start is disabled again
+        [ThreadStatic]
+        private static bool s_revertingVirtualDeviceEnabled;
+
         private static int s_runningOperations;
 
         private static string s_operationText;
@@ -87,8 +98,18 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             // this starts the device watchers
             ViewModel.NanoDeviceCommService = s_nanoDeviceCommService;
 
-            s_isEnumerating = !NanoFrameworkPackage.OptionDisableDeviceWatchers
+            s_isEnumerating = !NanoSettings.DeviceWatchersDisabled
                 && !s_nanoDeviceCommService.DebugClient.IsDevicesEnumerationComplete;
+
+            s_virtualDeviceService = await package.GetServiceAsync(typeof(VirtualDeviceService)) as IVirtualDeviceService;
+
+            if (s_virtualDeviceService != null)
+            {
+                s_virtualDeviceService.StateChanged += static (sender, e) => RaiseStateChanged();
+            }
+
+            // the virtual device follows its setting, changed from Device Explorer or from the options page
+            NanoSettings.SettingChanged += OnSettingChanged;
         }
 
         #region enable rules
@@ -132,7 +153,32 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         /// <summary>
         /// Devices can be rescanned when the watchers are enabled and not already looking for devices.
         /// </summary>
-        public static bool CanRescan => !NanoFrameworkPackage.OptionDisableDeviceWatchers && !IsEnumerating;
+        public static bool CanRescan => !NanoSettings.DeviceWatchersDisabled && !IsEnumerating;
+
+        /// <summary>
+        /// <see langword="true"/> while the virtual device is being set up, started or stopped, here or when Visual Studio starts.
+        /// </summary>
+        public static bool IsVirtualDeviceBusy =>
+            Volatile.Read(ref s_runningVirtualDeviceOperations) > 0
+            || (s_virtualDeviceService?.IsOperationRunning ?? false);
+
+        /// <summary>
+        /// The virtual device is running.
+        /// </summary>
+        public static bool IsVirtualDeviceRunning => s_virtualDeviceService?.VirtualDeviceIsRunning ?? false;
+
+        /// <summary>
+        /// The virtual device can be enabled or disabled: nothing is being done to it.
+        /// </summary>
+        public static bool CanToggleVirtualDevice =>
+            s_virtualDeviceService != null
+            && s_virtualDeviceService.CanStartStopVirtualDevice
+            && !IsVirtualDeviceBusy;
+
+        /// <summary>
+        /// The virtual device can be restarted, or its nanoCLR updated: it's enabled and nothing is being done to it.
+        /// </summary>
+        public static bool CanRunVirtualDeviceOperation => CanToggleVirtualDevice && NanoSettings.VirtualDeviceEnabled;
 
         #endregion
 
@@ -594,13 +640,13 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         /// </summary>
         public static void SetDeviceWatchersDisabled(bool disabled)
         {
-            if (NanoFrameworkPackage.OptionDisableDeviceWatchers == disabled)
+            if (NanoSettings.DeviceWatchersDisabled == disabled)
             {
                 return;
             }
 
             // save new status
-            NanoFrameworkPackage.OptionDisableDeviceWatchers = disabled;
+            NanoSettings.DeviceWatchersDisabled = disabled;
 
             ExtensionTelemetry.TrackEvent("DeviceExplorerCommand", new TelemetryProperties
             {
@@ -644,19 +690,203 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         /// </summary>
         public static void SetShowInternalErrors(bool show)
         {
-            if (NanoFrameworkPackage.OptionShowInternalErrors == show)
+            if (NanoSettings.ShowInternalErrors == show)
             {
                 return;
             }
 
             // save new status
-            NanoFrameworkPackage.OptionShowInternalErrors = show;
+            NanoSettings.ShowInternalErrors = show;
 
             ExtensionTelemetry.TrackEvent("DeviceExplorerCommand", new TelemetryProperties
             {
                 { "command", "showInternalErrors" },
                 { "value", show },
             });
+        }
+
+        #endregion
+
+        #region virtual device
+
+        /// <summary>
+        /// Enables or disables the virtual device. The value is persisted per user.
+        /// Enabling it starts it, installing or updating the nanoclr tool first if needed. Disabling it stops it.
+        /// </summary>
+        public static void SetVirtualDeviceEnabled(bool enabled)
+        {
+            if (NanoSettings.VirtualDeviceEnabled == enabled)
+            {
+                return;
+            }
+
+            ExtensionTelemetry.TrackEvent("DeviceExplorerCommand", new TelemetryProperties
+            {
+                { "command", "virtualDevice" },
+                { "value", enabled },
+            });
+
+            // the virtual device is started or stopped when the setting changes
+            NanoSettings.VirtualDeviceEnabled = enabled;
+        }
+
+        /// <summary>
+        /// Stops the virtual device and starts it again.
+        /// </summary>
+        public static Task RestartVirtualDeviceAsync()
+        {
+            ExtensionTelemetry.TrackEvent("DeviceExplorerCommand", new TelemetryProperties { { "command", "restartVirtualDevice" } });
+
+            return RunVirtualDeviceOperationAsync(
+                "Restarting the virtual device...",
+                async service =>
+                {
+                    if (service.VirtualDeviceIsRunning)
+                    {
+                        service.StopVirtualDevice();
+                    }
+
+                    await service.StartVirtualDeviceAsync(true, "deviceexplorer.restart");
+                });
+        }
+
+        /// <summary>
+        /// Updates the nanoclr tool and the nanoCLR image of the virtual device. A running virtual device is stopped during the update and started again.
+        /// </summary>
+        public static Task UpdateNanoClrAsync()
+        {
+            ExtensionTelemetry.TrackEvent("DeviceExplorerCommand", new TelemetryProperties { { "command", "updateNanoClr" } });
+
+            return RunVirtualDeviceOperationAsync(
+                "Updating nanoCLR...",
+                async service =>
+                {
+                    bool wasRunning = service.VirtualDeviceIsRunning;
+
+                    if (wasRunning)
+                    {
+                        service.StopVirtualDevice();
+                    }
+
+                    service.InstallNanoClrTool();
+
+                    if (service.NanoClrIsInstalled)
+                    {
+                        service.UpdateNanoClr();
+                    }
+
+                    if (wasRunning)
+                    {
+                        await service.StartVirtualDeviceAsync(true, "deviceexplorer.update");
+                    }
+                });
+        }
+
+        private static void OnSettingChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(NanoSettings.VirtualDeviceEnabled)
+                && !s_revertingVirtualDeviceEnabled)
+            {
+                _ = ApplyVirtualDeviceEnabledAsync();
+            }
+
+            RaiseStateChanged();
+        }
+
+        // starts or stops the virtual device, to match its setting
+        private static Task ApplyVirtualDeviceEnabledAsync()
+        {
+            bool enable = NanoSettings.VirtualDeviceEnabled;
+
+            return RunVirtualDeviceOperationAsync(
+                enable ? "Starting the virtual device..." : "Stopping the virtual device...",
+                async service =>
+                {
+                    // the setting can have changed again while waiting for the previous operation
+                    enable = NanoSettings.VirtualDeviceEnabled;
+
+                    if (enable && !service.VirtualDeviceIsRunning)
+                    {
+                        service.InstallNanoClrTool();
+
+                        if (!service.NanoClrIsInstalled)
+                        {
+                            MessageCentre.OutputVirtualDeviceMessage("ERROR: the nanoclr tool isn't installed, the virtual device can't be started.");
+                        }
+
+                        if (!service.NanoClrIsInstalled
+                            || !await service.StartVirtualDeviceAsync(true, "deviceexplorer"))
+                        {
+                            // the toggle shows that it isn't running, the reason is in the Output window
+                            // it's already stopped: the change of the setting doesn't need to be applied
+                            s_revertingVirtualDeviceEnabled = true;
+
+                            try
+                            {
+                                NanoSettings.VirtualDeviceEnabled = false;
+                            }
+                            finally
+                            {
+                                s_revertingVirtualDeviceEnabled = false;
+                            }
+                        }
+                    }
+                    else if (!enable && service.VirtualDeviceIsRunning)
+                    {
+                        service.StopVirtualDevice();
+                    }
+                });
+        }
+
+        private static async Task RunVirtualDeviceOperationAsync(string progressText, Func<IVirtualDeviceService, Task> operation)
+        {
+            var service = s_virtualDeviceService;
+
+            if (service is null)
+            {
+                return;
+            }
+
+            Interlocked.Increment(ref s_runningVirtualDeviceOperations);
+            BeginOperation(progressText);
+
+            try
+            {
+                await Task.Run(async delegate
+                {
+                    await s_virtualDeviceLock.WaitAsync();
+
+                    try
+                    {
+                        // the virtual device can still be set up after Visual Studio started
+                        while (service.IsOperationRunning)
+                        {
+                            await Task.Delay(500);
+                        }
+
+                        await operation(service);
+                    }
+                    catch (Exception ex)
+                    {
+                        // OK to catch all
+                        MessageCentre.InternalErrorWriteLine($"VirtualDevice: {ex.Message}");
+
+                        ExtensionTelemetry.TrackException(ex, "deviceexplorer.virtualdevice");
+                    }
+                    finally
+                    {
+                        s_virtualDeviceLock.Release();
+                    }
+                });
+            }
+            finally
+            {
+                // clear status bar
+                MessageCentre.StopProgressMessage();
+
+                Interlocked.Decrement(ref s_runningVirtualDeviceOperations);
+                EndOperation();
+            }
         }
 
         #endregion

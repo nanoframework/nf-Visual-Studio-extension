@@ -126,7 +126,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
             telemetry
                 .SetProperties(ExtensionTelemetry.DeviceProperties(device))
-                .SetProperty("deployment_image", NanoFrameworkPackage.SettingGenerateDeploymentImage)
+                .SetProperty("deployment_image", NanoSettings.GenerateDeploymentImage)
                 .SetProperty("content_files", contents.Count());
 
             // user feedback
@@ -160,7 +160,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                 // if this is a serial virtual device, ping to check if it's responsive
                 // this will happen in case the virtual device setting is ON
-                if (NanoFrameworkPackage.SettingVirtualDeviceEnable
+                if (NanoSettings.VirtualDeviceEnabled
                     && device.Description.StartsWith("Virtual nanoDevice @ COM")
                     && device.Ping() != Debugger.WireProtocol.ConnectionSource.nanoCLR)
                 {
@@ -176,7 +176,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     MessageCentre.InternalErrorWriteAndCloseMessage("OK");
 
                     // do we have to generate a deployment image?
-                    if (NanoFrameworkPackage.SettingGenerateDeploymentImage)
+                    if (NanoSettings.GenerateDeploymentImage)
                     {
                         await Task.Run(async delegate
                         {
@@ -366,7 +366,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     await Task.Yield();
 
                     // do we have to generate a deployment image?
-                    if (NanoFrameworkPackage.SettingGenerateDeploymentImage)
+                    if (NanoSettings.GenerateDeploymentImage)
                     {
                         await Task.Run(async delegate
                         {
