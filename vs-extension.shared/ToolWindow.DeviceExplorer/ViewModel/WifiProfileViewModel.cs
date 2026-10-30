@@ -49,10 +49,11 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
 
             Slot = slot;
 
-            AuthenticationOptions = ChoiceItem.ListFor(model.Authentication);
-            EncryptionOptions = ChoiceItem.ListFor(model.Encryption);
+            // None is a valid choice for these, e.g. an open network
+            AuthenticationOptions = ChoiceItem.ListFor(model.Authentication, includeZero: true);
+            EncryptionOptions = ChoiceItem.ListFor(model.Encryption, includeZero: true);
             RadioOptions = ChoiceItem.ListFor(model.Radio);
-            ConfigurationOptions = ChoiceItem.ListFor(model.Wireless80211Options);
+            ConfigurationOptions = ChoiceItem.ListFor(model.Wireless80211Options, includeZero: true);
 
             _ssid = model.Ssid ?? string.Empty;
             _password = model.Password ?? string.Empty;

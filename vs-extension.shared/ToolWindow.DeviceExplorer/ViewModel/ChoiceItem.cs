@@ -37,15 +37,16 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
         public override string ToString() => DisplayName;
 
         /// <summary>
-        /// Lists the values of <typeparamref name="TEnum"/>, except 0, with their <see cref="DescriptionAttribute"/> as display name.
+        /// Lists the values of <typeparamref name="TEnum"/> with their <see cref="DescriptionAttribute"/> as display name.
         /// </summary>
         /// <typeparam name="TEnum">A debug library enum, with byte values.</typeparam>
         /// <param name="currentValue">The value being edited. It's added to the list if it isn't one of the enum values (e.g. a combination of flags).</param>
-        public static List<ChoiceItem> ListFor<TEnum>(TEnum currentValue) where TEnum : struct, Enum
+        /// <param name="includeZero">List the value 0 too, for enums where it's a valid choice (e.g. no encryption). By default it's left out.</param>
+        public static List<ChoiceItem> ListFor<TEnum>(TEnum currentValue, bool includeZero = false) where TEnum : struct, Enum
         {
             var items = Enum.GetValues(typeof(TEnum))
                 .Cast<TEnum>()
-                .Where(e => Convert.ToByte(e) != 0)
+                .Where(e => includeZero || Convert.ToByte(e) != 0)
                 .Select(e => new ChoiceItem(Convert.ToByte(e), GetDisplayName(e)))
                 .ToList();
 
