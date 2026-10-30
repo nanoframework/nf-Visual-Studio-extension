@@ -36,6 +36,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         private const string TroubleshootingUrl = "https://docs.nanoframework.net/content/getting-started-guides/trouble-shooting-guide.html";
 
+        private readonly object _stateLock = new object();
+
         private DeviceExplorerViewModel _deviceExplorer;
         private bool _initialized;
 
@@ -48,6 +50,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         private bool _showInfoBar;
         private bool _showInternalErrors;
         private bool _deviceWatchersDisabled;
+        private bool _rebootOptionsAvailable;
+        private bool _virtualDeviceEnabled;
+        private bool _canToggleVirtualDevice;
+        private string _virtualDeviceToggleText;
+        private string _virtualDeviceToolTip;
+        private bool _selectedDeviceIsVirtual;
 
         // the devices being read, or that couldn't be read, when they were selected
         private readonly HashSet<NanoDeviceBase> _devicesRead = new HashSet<NanoDeviceBase>();
@@ -78,6 +86,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 DeviceWatchersDisabled = false;
                 return Task.CompletedTask;
             });
+            RestartVirtualDeviceCommand = new AsyncCommand((parameter, cancellationToken) => DeviceOperations.RestartVirtualDeviceAsync());
+            UpdateNanoClrCommand = new AsyncCommand((parameter, cancellationToken) => DeviceOperations.UpdateNanoClrAsync());
             SettingsCommand = new AsyncCommand((parameter, cancellationToken) => ShowSettingsAsync());
             CopyDetailsCommand = new AsyncCommand((parameter, cancellationToken) => CopyDetailsAsync());
             PropertiesCommand = new AsyncCommand(async (parameter, cancellationToken) =>
@@ -209,6 +219,71 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             set => DeviceWatchersDisabled = !value;
         }
 
+        /// <summary>
+        /// The virtual device is enabled: it's started when it's turned on, and stopped when it's turned off.
+        /// </summary>
+        [DataMember]
+        public bool VirtualDeviceEnabled
+        {
+            get => _virtualDeviceEnabled;
+            set
+            {
+                if (SetProperty(ref _virtualDeviceEnabled, value))
+                {
+                    UpdateCommandStates();
+
+                    DeviceOperations.SetVirtualDeviceEnabled(value);
+                }
+            }
+        }
+
+        /// <summary>
+        /// The virtual device toggle is disabled while the virtual device is being set up, started or stopped.
+        /// </summary>
+        [DataMember]
+        public bool CanToggleVirtualDevice
+        {
+            get => _canToggleVirtualDevice;
+            private set => SetProperty(ref _canToggleVirtualDevice, value);
+        }
+
+        /// <summary>
+        /// What the virtual device toggle does, for screen readers.
+        /// </summary>
+        [DataMember]
+        public string VirtualDeviceToggleText
+        {
+            get => _virtualDeviceToggleText;
+            private set => SetProperty(ref _virtualDeviceToggleText, value);
+        }
+
+        [DataMember]
+        public string VirtualDeviceToolTip
+        {
+            get => _virtualDeviceToolTip;
+            private set => SetProperty(ref _virtualDeviceToolTip, value);
+        }
+
+        /// <summary>
+        /// The selected device is the virtual device, its context menu has the virtual device commands.
+        /// </summary>
+        [DataMember]
+        public bool SelectedDeviceIsVirtual
+        {
+            get => _selectedDeviceIsVirtual;
+            private set => SetProperty(ref _selectedDeviceIsVirtual, value);
+        }
+
+        /// <summary>
+        /// At least one of the reboot options of the drop-down can be used.
+        /// </summary>
+        [DataMember]
+        public bool RebootOptionsAvailable
+        {
+            get => _rebootOptionsAvailable;
+            private set => SetProperty(ref _rebootOptionsAvailable, value);
+        }
+
         [DataMember]
         public string TroubleshootingLink => TroubleshootingUrl;
 
@@ -241,6 +316,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         [DataMember]
         public AsyncCommand EnableDeviceWatchersCommand { get; }
+
+        [DataMember]
+        public AsyncCommand RestartVirtualDeviceCommand { get; }
+
+        [DataMember]
+        public AsyncCommand UpdateNanoClrCommand { get; }
 
         [DataMember]
         public AsyncCommand SettingsCommand { get; }
@@ -292,16 +373,19 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             _deviceExplorer = deviceExplorer;
             _initialized = true;
 
-            _showInternalErrors = NanoFrameworkPackage.OptionShowInternalErrors;
-            _deviceWatchersDisabled = NanoFrameworkPackage.OptionDisableDeviceWatchers;
+            _showInternalErrors = NanoSettings.ShowInternalErrors;
+            _deviceWatchersDisabled = NanoSettings.DeviceWatchersDisabled;
+            _virtualDeviceEnabled = NanoSettings.VirtualDeviceEnabled;
             RaiseNotifyPropertyChangedEvent(nameof(ShowInternalErrors));
             RaiseNotifyPropertyChangedEvent(nameof(DeviceWatchersDisabled));
             RaiseNotifyPropertyChangedEvent(nameof(DeviceWatchersEnabled));
+            RaiseNotifyPropertyChangedEvent(nameof(VirtualDeviceEnabled));
 
             _deviceExplorer.PropertyChanged += DeviceExplorer_PropertyChanged;
             _deviceExplorer.AvailableDevices.CollectionChanged += AvailableDevices_CollectionChanged;
 
             DeviceOperations.StateChanged += DeviceOperations_StateChanged;
+            NanoSettings.SettingChanged += NanoSettings_SettingChanged;
 
             SyncDevices();
             SyncSelection();
@@ -312,6 +396,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         public void Dispose()
         {
             DeviceOperations.StateChanged -= DeviceOperations_StateChanged;
+            NanoSettings.SettingChanged -= NanoSettings_SettingChanged;
 
             if (_deviceExplorer != null)
             {
@@ -437,11 +522,33 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             UpdateCommandStates();
         }
 
+        // the settings can be changed from the options pages too
+        private void NanoSettings_SettingChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(NanoSettings.VirtualDeviceEnabled))
+            {
+                // the backing field is set directly, this change doesn't come from the toggle
+                _virtualDeviceEnabled = NanoSettings.VirtualDeviceEnabled;
+                RaiseNotifyPropertyChangedEvent(nameof(VirtualDeviceEnabled));
+
+                UpdateCommandStates();
+            }
+        }
+
         #endregion
 
         #region state
 
         private void UpdateCommandStates()
+        {
+            // the state changes on any thread: one update at a time, so a stale one can't overwrite the latest
+            lock (_stateLock)
+            {
+                UpdateCommandStatesCore();
+            }
+        }
+
+        private void UpdateCommandStatesCore()
         {
             bool canRun = DeviceOperations.CanRunDeviceOperation;
 
@@ -453,19 +560,52 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             RebootClrCommand.CanExecute = DeviceOperations.CanReboot(RebootOptions.ClrOnly);
             RebootNanoBooterCommand.CanExecute = DeviceOperations.CanReboot(RebootOptions.EnterNanoBooter);
             RebootBootloaderCommand.CanExecute = DeviceOperations.CanReboot(RebootOptions.EnterProprietaryBooter);
+            RebootOptionsAvailable = RebootClrCommand.CanExecute || RebootNanoBooterCommand.CanExecute || RebootBootloaderCommand.CanExecute;
             RescanCommand.CanExecute = _deviceExplorer != null && DeviceOperations.CanRescan;
             CopyDetailsCommand.CanExecute = _selectedDevice != null;
             PropertiesCommand.CanExecute = _selectedDevice != null;
+            RestartVirtualDeviceCommand.CanExecute = DeviceOperations.CanRunVirtualDeviceOperation;
+            UpdateNanoClrCommand.CanExecute = DeviceOperations.CanRunVirtualDeviceOperation;
 
             bool hasDevices = Devices.Count > 0;
             bool isEnumerating = DeviceOperations.IsEnumerating;
+            bool virtualDeviceBusy = DeviceOperations.IsVirtualDeviceBusy;
             string operationText = DeviceOperations.OperationText;
 
             HasDevices = hasDevices;
             ShowEmptyState = !hasDevices && !isEnumerating;
+            SelectedDeviceIsVirtual = _selectedDevice?.IsVirtual ?? false;
 
-            ProgressText = operationText ?? (isEnumerating ? "Searching for devices..." : null);
+            UpdateVirtualDeviceToggle(virtualDeviceBusy);
+
+            // the virtual device is also set up when Visual Studio starts, outside of the Device Explorer operations
+            ProgressText = operationText
+                ?? (virtualDeviceBusy ? "Setting up the virtual device..." : null)
+                ?? (isEnumerating ? "Searching for devices..." : null);
             ShowProgress = ProgressText != null;
+        }
+
+        private void UpdateVirtualDeviceToggle(bool busy)
+        {
+            CanToggleVirtualDevice = DeviceOperations.CanToggleVirtualDevice;
+
+            if (busy)
+            {
+                VirtualDeviceToggleText = _virtualDeviceEnabled ? "Stop virtual device" : "Start virtual device";
+                VirtualDeviceToolTip = "Virtual device: busy, wait for the current operation to finish";
+            }
+            else if (_virtualDeviceEnabled)
+            {
+                VirtualDeviceToggleText = "Stop virtual device";
+                VirtualDeviceToolTip = DeviceOperations.IsVirtualDeviceRunning
+                    ? "Virtual device: running. Click to stop it"
+                    : "Virtual device: enabled, not running. Click to disable it";
+            }
+            else
+            {
+                VirtualDeviceToggleText = "Start virtual device";
+                VirtualDeviceToolTip = "Virtual device: stopped. Click to start a virtual device (nanoCLR) on this machine";
+            }
         }
 
         private void UpdateInfoBar()
@@ -515,27 +655,15 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             {
                 ExtensionTelemetry.TrackEvent("DeviceExplorerCommand", new TelemetryProperties { { "command", "settings" } });
 
-                TelemetryProperties settingsBefore = TelemetryStartup.GetSettingsSnapshot();
-
-                // show settings dialogue
-                var allSettingsDialog = new SettingsDialog
-                {
-                    HasMinimizeButton = false,
-                    HasMaximizeButton = false
-                };
-                allSettingsDialog.ShowModal();
-
-                TelemetryStartup.TrackSettingsChanges(settingsBefore, TelemetryStartup.GetSettingsSnapshot());
+                // the changes are recorded by the options pages
+                await NanoFrameworkPackage.ShowOptionPageAsync<NanoOptionsPageGeneral>();
             }
             catch (Exception ex)
             {
                 // OK to catch all
+                MessageCentre.InternalErrorWriteLine($"Error showing the options: {ex}");
+
                 ExtensionTelemetry.TrackException(ex, "deviceexplorer.settings");
-            }
-            finally
-            {
-                // clear status bar
-                MessageCentre.StopProgressMessage();
             }
         }
 
@@ -639,7 +767,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             Description = device.Description;
 
             // virtual devices are on a serial port, but they are identified by their description
-            if (device.Description?.StartsWith("Virtual nanoDevice", StringComparison.Ordinal) ?? false)
+            IsVirtual = device.Description?.StartsWith("Virtual nanoDevice", StringComparison.Ordinal) ?? false;
+
+            if (IsVirtual)
             {
                 Icon = ImageMoniker.KnownValues.Processor;
                 Kind = "Virtual device";
@@ -659,6 +789,11 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         }
 
         public NanoDeviceBase Device { get; }
+
+        /// <summary>
+        /// The device is the virtual device running on this machine.
+        /// </summary>
+        public bool IsVirtual { get; }
 
         [DataMember]
         public string Description { get; }

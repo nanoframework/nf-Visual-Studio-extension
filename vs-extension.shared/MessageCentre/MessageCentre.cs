@@ -84,7 +84,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             OutputMessage(Environment.NewLine);
 
             // check device watchers option
-            if (NanoFrameworkPackage.OptionDisableDeviceWatchers)
+            if (NanoSettings.DeviceWatchersDisabled)
             {
                 OutputMessage(Environment.NewLine);
                 OutputMessage("*******************************************************************************");
@@ -140,7 +140,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         private static void InternalErrorMessage(bool assertion, string message, int skipFrames, bool noNewline, bool sameLine = false)
         {
-            if (!assertion && NanoFrameworkPackage.OptionShowInternalErrors)
+            if (!assertion && NanoSettings.ShowInternalErrors)
             {
                 var outputMessage = new StringBuilder();
         

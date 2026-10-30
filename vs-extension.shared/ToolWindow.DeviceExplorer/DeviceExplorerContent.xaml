@@ -9,6 +9,20 @@
         <Grid.Resources>
             <BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
 
+            <!-- focus rectangle only when navigating with the keyboard, so it isn't mistaken for a checked toggle or a hover -->
+            <Style x:Key="KeyboardFocusVisualStyle">
+                <Setter Property="Control.Template">
+                    <Setter.Value>
+                        <ControlTemplate>
+                            <Rectangle StrokeThickness="1"
+                                       StrokeDashArray="1 2"
+                                       Stroke="{DynamicResource {x:Static colors:EnvironmentColors.ToolWindowTextBrushKey}}"
+                                       SnapsToDevicePixels="True" />
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
             <!-- flat icon button, like the ones in tool window toolbars -->
             <Style x:Key="IconButtonStyle" TargetType="ButtonBase">
                 <Setter Property="Background" Value="Transparent" />
@@ -18,23 +32,7 @@
                 <Setter Property="Padding" Value="3" />
                 <Setter Property="Margin" Value="0,0,1,0" />
                 <Setter Property="ToolTipService.ShowOnDisabled" Value="True" />
-                <!-- focus rectangle only when navigating with the keyboard, so it isn't mistaken for a checked toggle -->
-                <Setter Property="FocusVisualStyle">
-                    <Setter.Value>
-                        <Style>
-                            <Setter Property="Control.Template">
-                                <Setter.Value>
-                                    <ControlTemplate>
-                                        <Rectangle StrokeThickness="1"
-                                                   StrokeDashArray="1 2"
-                                                   Stroke="{DynamicResource {x:Static colors:EnvironmentColors.ToolWindowTextBrushKey}}"
-                                                   SnapsToDevicePixels="True" />
-                                    </ControlTemplate>
-                                </Setter.Value>
-                            </Setter>
-                        </Style>
-                    </Setter.Value>
-                </Setter>
+                <Setter Property="FocusVisualStyle" Value="{StaticResource KeyboardFocusVisualStyle}" />
                 <Setter Property="Template">
                     <Setter.Value>
                         <ControlTemplate TargetType="ButtonBase">
@@ -88,6 +86,7 @@
             <Style x:Key="DropDownArrowStyle" TargetType="MenuItem">
                 <Setter Property="Foreground" Value="{DynamicResource {x:Static colors:EnvironmentColors.ToolWindowTextBrushKey}}" />
                 <Setter Property="ToolTipService.ShowOnDisabled" Value="True" />
+                <Setter Property="FocusVisualStyle" Value="{StaticResource KeyboardFocusVisualStyle}" />
                 <Setter Property="Template">
                     <Setter.Value>
                         <ControlTemplate TargetType="MenuItem">
@@ -120,7 +119,8 @@
                                 </Popup>
                             </Grid>
                             <ControlTemplate.Triggers>
-                                <Trigger Property="IsHighlighted" Value="True">
+                                <!-- the mouse, not IsHighlighted: the item is highlighted when it gets the focus as the tool window is shown -->
+                                <Trigger Property="IsMouseOver" Value="True">
                                     <Setter TargetName="Chrome" Property="Background" Value="{DynamicResource {x:Static colors:EnvironmentColors.CommandBarMouseOverBackgroundBeginBrushKey}}" />
                                     <Setter TargetName="Chrome" Property="BorderBrush" Value="{DynamicResource {x:Static colors:EnvironmentColors.CommandBarMenuItemMouseOverBorderBrushKey}}" />
                                 </Trigger>
@@ -232,6 +232,7 @@
                     </Button>
                     <Menu IsMainMenu="False" Background="Transparent" Padding="0" VerticalAlignment="Stretch">
                         <MenuItem Style="{StaticResource DropDownArrowStyle}"
+                                  IsEnabled="{Binding RebootOptionsAvailable}"
                                   ItemContainerStyle="{StaticResource DropDownItemStyle}"
                                   Height="24"
                                   ToolTip="More reboot options"
@@ -258,6 +259,14 @@
                         AutomationProperties.Name="Rescan devices">
                     <vs:Image Source="KnownMonikers.Search" Width="16" Height="16" />
                 </Button>
+                <!-- latched while the virtual device is enabled: turning it on starts it, turning it off stops it -->
+                <ToggleButton Style="{StaticResource IconToggleButtonStyle}"
+                              IsChecked="{Binding VirtualDeviceEnabled, Mode=TwoWay}"
+                              IsEnabled="{Binding CanToggleVirtualDevice}"
+                              ToolTip="{Binding VirtualDeviceToolTip}"
+                              AutomationProperties.Name="{Binding VirtualDeviceToggleText}">
+                    <vs:Image Source="KnownMonikers.VirtualMachine" Width="16" Height="16" />
+                </ToggleButton>
 
                 <Border Style="{StaticResource SeparatorStyle}" />
 
@@ -368,6 +377,22 @@
                     <MenuItem Header="_Network configuration..." Command="{Binding NetworkConfigurationCommand}">
                         <MenuItem.Icon>
                             <vs:Image Source="KnownMonikers.NetworkAdapterConfiguration" />
+                        </MenuItem.Icon>
+                    </MenuItem>
+                    <!-- only for the virtual device -->
+                    <Separator Visibility="{Binding SelectedDeviceIsVirtual, Converter={StaticResource BooleanToVisibility}}" />
+                    <MenuItem Header="Re_start virtual device"
+                              Command="{Binding RestartVirtualDeviceCommand}"
+                              Visibility="{Binding SelectedDeviceIsVirtual, Converter={StaticResource BooleanToVisibility}}">
+                        <MenuItem.Icon>
+                            <vs:Image Source="KnownMonikers.Restart" />
+                        </MenuItem.Icon>
+                    </MenuItem>
+                    <MenuItem Header="_Update nanoCLR"
+                              Command="{Binding UpdateNanoClrCommand}"
+                              Visibility="{Binding SelectedDeviceIsVirtual, Converter={StaticResource BooleanToVisibility}}">
+                        <MenuItem.Icon>
+                            <vs:Image Source="KnownMonikers.Download" />
                         </MenuItem.Icon>
                     </MenuItem>
                     <Separator />

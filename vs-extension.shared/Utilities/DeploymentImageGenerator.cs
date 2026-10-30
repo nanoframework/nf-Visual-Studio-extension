@@ -60,7 +60,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 try
                 {
                     // preference for flash dump cache
-                    if (string.IsNullOrEmpty(NanoFrameworkPackage.SettingPathOfFlashDumpCache))
+                    if (string.IsNullOrEmpty(NanoSettings.FlashDumpCachePath))
                     {
                         // flash dump is to be saved in project output path
                         cacheLocation = await GetProjectOutputPathAsync(configuredProject);
@@ -68,7 +68,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     else
                     {
                         // flash dump is to be saved in user path
-                        cacheLocation = NanoFrameworkPackage.SettingPathOfFlashDumpCache;
+                        cacheLocation = NanoSettings.FlashDumpCachePath;
                     }
 
                     // build cache file name
@@ -221,7 +221,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     await fs.ReadAsync(flashDumpBuffer, 0, (int)fs.Length);
                 }
 
-                if (!NanoFrameworkPackage.SettingIncludeConfigBlockInDeploymentImage)
+                if (!NanoSettings.IncludeConfigBlockInDeploymentImage)
                 {
                     // config block is not to be included in the deployment image
                     // clear it from flash dump buffer

@@ -406,13 +406,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
             public sealed class SelectedNanoDeviceHasChangedMessage
             {
             }
-
-            public sealed class VirtualDeviceOperationExecutingMessage : ValueChangedMessage<bool>
-            {
-                public VirtualDeviceOperationExecutingMessage(bool value) : base(value)
-                {
-                }
-            }
         }
 
         #endregion

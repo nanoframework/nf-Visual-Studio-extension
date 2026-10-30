@@ -4,13 +4,14 @@
 ////
 
 using System.ComponentModel;
-using Microsoft.VisualStudio.Shell;
-using nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel;
 using Commands = nanoFramework.Tools.Debugger.WireProtocol.Commands;
 
 namespace nanoFramework.Tools.VisualStudio.Extension
 {
-    public class NanoOptionsPageDebugging : DialogPage
+    /// <summary>
+    /// Tools › Options › .NET nanoFramework › Debugging.
+    /// </summary>
+    public class NanoOptionsPageDebugging : NanoOptionsPage
     {
         [Category("General Output Settings")]
         [DisplayName("Process Stack Trace")]
@@ -18,54 +19,33 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         [DefaultValue(true)]
         public bool ProcessStackTraceOption { get; set; } = true;
 
-        // value loaded from storage, to record only actual changes
-        private bool _loadedProcessStackTraceOption = true;
-
-        public override void LoadSettingsFromStorage()
+        protected override void LoadSettings()
         {
-            base.LoadSettingsFromStorage();
-
-            _loadedProcessStackTraceOption = ProcessStackTraceOption;
+            ProcessStackTraceOption = NanoSettings.ProcessStackTrace;
         }
 
-        public override void SaveSettingsToStorage()
+        protected override void SaveSettings()
         {
-            base.SaveSettingsToStorage();
+            NanoSettings.ProcessStackTrace = ProcessStackTraceOption;
+        }
 
-            if (_loadedProcessStackTraceOption != ProcessStackTraceOption)
+        protected override void OnSettingsSaved()
+        {
+            // update execution conditions in nano device if there is a debug session active
+            var device = NanoFrameworkPackage.DeviceExplorerViewModel?.SelectedDevice;
+
+            if (device?.DebugEngine != null
+                && device.DebugEngine.IsRunning)
             {
-                _loadedProcessStackTraceOption = ProcessStackTraceOption;
-
-                ExtensionTelemetry.TrackEvent("SettingChanged", new TelemetryProperties
+                // update execution mode according to option
+                if (ProcessStackTraceOption)
                 {
-                    { "setting", "process_stacktrace" },
-                    { "value", ProcessStackTraceOption },
-                });
-            }
-
-            try
-            {
-                // update execution conditions in nano device if there is a debug session active
-                var device = NanoFrameworkPackage.DeviceExplorerViewModel.SelectedDevice;
-
-                if (device?.DebugEngine != null
-                    && device.DebugEngine.IsRunning)
-                {
-                    // update execution mode according to option
-                    if (ProcessStackTraceOption)
-                    {
-                        _ = device.DebugEngine.SetExecutionMode(0, Commands.DebuggingExecutionChangeConditions.State.NoStackTraceInExceptions);
-                    }
-                    else
-                    {
-                        _ = device.DebugEngine.SetExecutionMode(Commands.DebuggingExecutionChangeConditions.State.NoStackTraceInExceptions, 0);
-                    }
+                    _ = device.DebugEngine.SetExecutionMode(0, Commands.DebuggingExecutionChangeConditions.State.NoStackTraceInExceptions);
                 }
-            }
-            catch
-            {
-                // don't care about any exception here
-                // it's OK to fail silently as we need to make sure that the settings are saved
+                else
+                {
+                    _ = device.DebugEngine.SetExecutionMode(Commands.DebuggingExecutionChangeConditions.State.NoStackTraceInExceptions, 0);
+                }
             }
         }
     }

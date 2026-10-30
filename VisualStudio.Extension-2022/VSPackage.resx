@@ -134,6 +134,26 @@
   <data name="112" xml:space="preserve">
     <value>NanoFrameworkPackage Visual Studio Extension Detailed Info</value>
   </data>
+  <data name="200" xml:space="preserve">
+    <value>.NET nanoFramework</value>
+    <comment>Tools › Options category</comment>
+  </data>
+  <data name="201" xml:space="preserve">
+    <value>General</value>
+    <comment>Tools › Options page</comment>
+  </data>
+  <data name="202" xml:space="preserve">
+    <value>Updates</value>
+    <comment>Tools › Options page</comment>
+  </data>
+  <data name="203" xml:space="preserve">
+    <value>Virtual Device</value>
+    <comment>Tools › Options page</comment>
+  </data>
+  <data name="204" xml:space="preserve">
+    <value>Debugging</value>
+    <comment>Tools › Options page</comment>
+  </data>
   <data name="400" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>Resources\nanoframework.ico;System.Drawing.Icon, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>

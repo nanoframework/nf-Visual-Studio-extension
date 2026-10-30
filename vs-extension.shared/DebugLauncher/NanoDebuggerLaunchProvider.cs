@@ -75,7 +75,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         }
 
                         // update stack trace processing option
-                        device.DebugEngine.NoStackTraceInExceptions = !NanoFrameworkPackage.DebuggingOptions.ProcessStackTraceOption;
+                        device.DebugEngine.NoStackTraceInExceptions = !NanoSettings.ProcessStackTrace;
 
                         // make sure that the device is connected
                         if (device.DebugEngine.Connect(

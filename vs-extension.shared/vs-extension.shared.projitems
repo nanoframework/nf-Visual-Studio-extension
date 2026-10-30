@@ -67,7 +67,12 @@
     <Compile Include="$(MSBuildThisFileDirectory)NanoDeviceCommService\INanoDeviceCommService.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)NanoDeviceCommService\NanoDeviceCommService.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)NanoDeviceCommService\SNanoDeviceCommService.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)NanoOptions\NanoOptionsPage.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)NanoOptions\NanoOptionsPageDebugging.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)NanoOptions\NanoOptionsPageGeneral.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)NanoOptions\NanoOptionsPageUpdates.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)NanoOptions\NanoOptionsPageVirtualDevice.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)NanoOptions\NanoSettings.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ProjectSystem\GlobalPropertiesProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ProjectSystem\NanoCSharpProjectConfigured.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ProjectSystem\NanoCSharpProjectUnconfigured.cs" />

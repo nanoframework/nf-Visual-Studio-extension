@@ -57,7 +57,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.AutomaticUpdates
             _ = Task.Run(async delegate
             {
                 // launch update, if enabled
-                if (NanoFrameworkPackage.SettingAutoUpdateEnable)
+                if (NanoSettings.AutoUpdateEnabled)
                 {
                     await Task.Delay(500);
 
@@ -154,7 +154,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.AutomaticUpdates
                                 .SetProperties(ExtensionTelemetry.DeviceProperties(nanoDevice))
                                 .SetProperty("fw_package", fwPackage?.GetType().Name)
                                 .SetProperty("to_version", fwPackage?.Version?.ToString())
-                                .SetProperty("prerelease", NanoFrameworkPackage.SettingIncludePrereleaseUpdates);
+                                .SetProperty("prerelease", NanoSettings.IncludePrereleaseUpdates);
 
                             //////////////////////////////
                             // STM32 targets
@@ -428,7 +428,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.AutomaticUpdates
                 var fwPackage = new Stm32Firmware(
                     targetName,
                     "",
-                    !NanoFrameworkPackage.SettingIncludePrereleaseUpdates);
+                    !NanoSettings.IncludePrereleaseUpdates);
                 if (await fwPackage.DownloadAndExtractAsync())
                 {
                     return fwPackage;
@@ -439,7 +439,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.AutomaticUpdates
                 var fwPackage = new Esp32Firmware(
                     targetName,
                     "",
-                    !NanoFrameworkPackage.SettingIncludePrereleaseUpdates);
+                    !NanoSettings.IncludePrereleaseUpdates);
 
                 // TODO using this flash size for the moment, will have to figure a way to have this declared in the device caps
                 if (await fwPackage.DownloadAndExtractAsync(0x400000))
