@@ -485,20 +485,20 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
             MessageCentre.InternalErrorWriteLine($"VirtualDevice: Attempting to start virtual device");
 
-            if (_nanoClrProcess != null)
-            {
-                // this shouldn't happen, still...
-
-                _nanoClrProcess.OutputDataReceived -= nanoClrProcess_OutputDataReceived;
-                _nanoClrProcess.Exited -= VirtualDeviceProcess_Exited;
-
-                _nanoClrProcess.Kill();
-
-                _nanoClrProcess = null;
-            }
-
             try
             {
+                if (_nanoClrProcess != null)
+                {
+                    // this shouldn't happen, still...
+
+                    _nanoClrProcess.OutputDataReceived -= nanoClrProcess_OutputDataReceived;
+                    _nanoClrProcess.Exited -= VirtualDeviceProcess_Exited;
+
+                    _nanoClrProcess.Kill();
+
+                    _nanoClrProcess = null;
+                }
+
                 // check virtual serial ports
                 var listOfVirtualSerialPorts = ListVirtualSerialPorts();
 

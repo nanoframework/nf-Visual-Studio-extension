@@ -51,24 +51,59 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         [Editor(typeof(NanoClrInstanceFileNameEditor), typeof(UITypeEditor))]
         public string VirtualDeviceLocalNanoClrPath { get; set; } = string.Empty;
 
+        // the values last read from NanoSettings of the settings also changed outside this page:
+        // the enable by Device Explorer, the port by the virtual device when it creates one
+        private bool _loadedEnabled;
+        private string _loadedPort = string.Empty;
+
         protected override void LoadSettings()
         {
-            VirtualDeviceEnabled = NanoSettings.VirtualDeviceEnabled;
-            VirtualDevicePort = NanoSettings.VirtualDevicePort;
+            VirtualDeviceEnabled = _loadedEnabled = NanoSettings.VirtualDeviceEnabled;
+            VirtualDevicePort = _loadedPort = NanoSettings.VirtualDevicePort;
             VirtualDeviceAutoUpdateNanoClr = NanoSettings.VirtualDeviceAutoUpdateNanoClr;
             VirtualDeviceUseLocalNanoClr = NanoSettings.VirtualDeviceUseLocalNanoClr;
             VirtualDeviceLocalNanoClrPath = NanoSettings.VirtualDeviceLocalNanoClrPath;
         }
 
+        protected override void OnActivate(CancelEventArgs e)
+        {
+            base.OnActivate(e);
+
+            // the page is kept between openings of the Options dialog: show the changes made outside it, unless they were edited here
+            if (VirtualDeviceEnabled == _loadedEnabled)
+            {
+                VirtualDeviceEnabled = NanoSettings.VirtualDeviceEnabled;
+            }
+
+            if (PortEquals(VirtualDevicePort, _loadedPort))
+            {
+                VirtualDevicePort = NanoSettings.VirtualDevicePort;
+            }
+
+            _loadedEnabled = NanoSettings.VirtualDeviceEnabled;
+            _loadedPort = NanoSettings.VirtualDevicePort;
+        }
+
         protected override void SaveSettings()
         {
-            // the other settings first: changing the enable starts or stops the virtual device
-            NanoSettings.VirtualDevicePort = VirtualDevicePort?.Trim();
+            // only what was edited here: an unchanged value mustn't overwrite a change made outside the page
+            if (!PortEquals(VirtualDevicePort, _loadedPort))
+            {
+                NanoSettings.VirtualDevicePort = _loadedPort = VirtualDevicePort?.Trim();
+            }
+
             NanoSettings.VirtualDeviceAutoUpdateNanoClr = VirtualDeviceAutoUpdateNanoClr;
             NanoSettings.VirtualDeviceUseLocalNanoClr = VirtualDeviceUseLocalNanoClr;
             NanoSettings.VirtualDeviceLocalNanoClrPath = VirtualDeviceLocalNanoClrPath?.Trim();
-            NanoSettings.VirtualDeviceEnabled = VirtualDeviceEnabled;
+
+            // the other settings first: changing the enable starts or stops the virtual device
+            if (VirtualDeviceEnabled != _loadedEnabled)
+            {
+                NanoSettings.VirtualDeviceEnabled = _loadedEnabled = VirtualDeviceEnabled;
+            }
         }
+
+        private static bool PortEquals(string port, string other) => string.Equals(port?.Trim() ?? string.Empty, other ?? string.Empty, System.StringComparison.OrdinalIgnoreCase);
 
         /// <summary>
         /// File picker for the nanoCLR instance, a DLL.

@@ -50,6 +50,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         private bool _showInfoBar;
         private bool _showInternalErrors;
         private bool _deviceWatchersDisabled;
+        private bool _rebootOptionsAvailable;
         private bool _virtualDeviceEnabled;
         private bool _canToggleVirtualDevice;
         private string _virtualDeviceToggleText;
@@ -271,6 +272,16 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         {
             get => _selectedDeviceIsVirtual;
             private set => SetProperty(ref _selectedDeviceIsVirtual, value);
+        }
+
+        /// <summary>
+        /// At least one of the reboot options of the drop-down can be used.
+        /// </summary>
+        [DataMember]
+        public bool RebootOptionsAvailable
+        {
+            get => _rebootOptionsAvailable;
+            private set => SetProperty(ref _rebootOptionsAvailable, value);
         }
 
         [DataMember]
@@ -549,6 +560,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             RebootClrCommand.CanExecute = DeviceOperations.CanReboot(RebootOptions.ClrOnly);
             RebootNanoBooterCommand.CanExecute = DeviceOperations.CanReboot(RebootOptions.EnterNanoBooter);
             RebootBootloaderCommand.CanExecute = DeviceOperations.CanReboot(RebootOptions.EnterProprietaryBooter);
+            RebootOptionsAvailable = RebootClrCommand.CanExecute || RebootNanoBooterCommand.CanExecute || RebootBootloaderCommand.CanExecute;
             RescanCommand.CanExecute = _deviceExplorer != null && DeviceOperations.CanRescan;
             CopyDetailsCommand.CanExecute = _selectedDevice != null;
             PropertiesCommand.CanExecute = _selectedDevice != null;
