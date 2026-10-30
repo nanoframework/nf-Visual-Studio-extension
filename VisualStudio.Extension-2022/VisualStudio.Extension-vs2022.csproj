@@ -146,12 +146,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Page Update="IPMaskedTextBox\IPMaskedTextBox.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Update="ToolWindow.DeviceExplorer\NetworkConfigurationDialog.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Update="ToolWindow.DeviceExplorer\HelpDialog.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>

@@ -21,11 +21,14 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         // Solution Explorer: Device Explorer shows tabbed with it, by default
         private static readonly Guid SolutionExplorerGuid = new Guid("3ae79031-e1bc-11d0-8f78-00a0c9110057");
 
-        private readonly DeviceExplorerContent _content = new DeviceExplorerContent();
+        private readonly DeviceExplorerContent _content;
 
         public DeviceExplorerToolWindow()
         {
             Title = "Device Explorer";
+
+            // the dialogs of the tool window are shown through the extensibility object, it's set after construction
+            _content = new DeviceExplorerContent(() => Extensibility);
         }
 
         /// <inheritdoc />

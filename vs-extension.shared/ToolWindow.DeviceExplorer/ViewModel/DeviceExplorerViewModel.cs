@@ -363,19 +363,6 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
 
         #endregion
 
-        #region Network configuration dialog
-
-        public NetworkConfigurationViewModel DeviceNetworkConfiguration { get; set; }
-
-        public Wireless80211ConfigurationViewModel DeviceWireless80211Configuration { get; set; }
-
-        public DeviceConfiguration.X509CaRootBundleProperties CaCertificateBundle { get; set; }
-        public DeviceConfiguration.X509DeviceCertificatesProperties DeviceCertificate { get; internal set; }
-
-        public bool CanChangeMacAddress => SelectedDevice?.DebugEngine?.Capabilities?.CanChangeMacAddress ?? false;
-
-        #endregion
-
         #region messaging tokens
 
         public sealed class Messages

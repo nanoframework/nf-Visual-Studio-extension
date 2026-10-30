@@ -3,8 +3,10 @@
 // See LICENSE file in the project root for full license information.
 //
 
+using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.VisualStudio.Extensibility;
 using Microsoft.VisualStudio.Extensibility.UI;
 
 namespace nanoFramework.Tools.VisualStudio.Extension
@@ -16,8 +18,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension
     {
         private readonly DeviceExplorerRemoteViewModel _viewModel;
 
-        public DeviceExplorerContent()
-            : this(new DeviceExplorerRemoteViewModel())
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DeviceExplorerContent"/> class.
+        /// </summary>
+        /// <param name="getExtensibility">Gets the extensibility object of the tool window, to show dialogs.</param>
+        public DeviceExplorerContent(Func<VisualStudioExtensibility> getExtensibility)
+            : this(new DeviceExplorerRemoteViewModel(getExtensibility))
         {
         }
 
