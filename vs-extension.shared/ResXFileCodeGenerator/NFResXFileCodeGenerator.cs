@@ -71,6 +71,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         public int Generate(string wszInputFilePath, string bstrInputFileContents, string wszDefaultNamespace,
                              IntPtr[] pbstrOutputFileContents, out uint pbstrOutputFileContentSize, IVsGeneratorProgress pGenerateProgress)
         {
+            ThreadHelper.ThrowIfNotOnUIThread();
+
             // wait for debugger on var
             DebuggerHelper.WaitForDebuggerIfEnabled("NFRESXCODEGEN_DEBUG");
 
@@ -140,6 +142,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         {
             get
             {
+                ThreadHelper.ThrowIfNotOnUIThread();
+
                 if (codeDomProvider == null)
                 {
                     IVSMDCodeDomProvider vsmdCodeDomProvider = (IVSMDCodeDomProvider)GetService(CodeDomServiceGuid);
@@ -193,6 +197,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         public override int DefaultExtension(out string ext)
         {
+            ThreadHelper.ThrowIfNotOnUIThread();
+
             CodeDomProvider codeDom = CodeProvider;
             Debug.Assert(codeDom != null, "CodeDomProvider is NULL.");
             string extension = codeDom.FileExtension;
@@ -210,6 +216,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         protected virtual ICodeGenerator GetCodeWriter()
         {
+            ThreadHelper.ThrowIfNotOnUIThread();
+
             CodeDomProvider codeDom = CodeProvider;
             if (codeDom != null)
             {
@@ -328,6 +336,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         public override int DefaultExtension(out string ext)
         {
+            ThreadHelper.ThrowIfNotOnUIThread();
+
             //copied from ResXFileCodeGenerator
             string baseExtension;
             ext = String.Empty;

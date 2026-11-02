@@ -154,7 +154,10 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
             try
             {
+                // deliberate bounded wait on a thread pool task, it doesn't need the main thread to complete
+#pragma warning disable VSTHRD002
                 shutdown.Wait(timeout);
+#pragma warning restore VSTHRD002
             }
             catch
             {

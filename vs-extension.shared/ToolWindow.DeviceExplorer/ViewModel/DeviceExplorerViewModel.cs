@@ -18,6 +18,9 @@ using nanoFramework.Tools.Debugger.WireProtocol;
 using static nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel.DeviceExplorerViewModel.Messages;
 using Task = System.Threading.Tasks.Task;
 
+// the work is deliberately fire and forget, faults are reported with FileAndForget
+#pragma warning disable VSSDK007
+
 namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
 {
     /// <summary>
@@ -142,32 +145,32 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
 
         private void SerialDebugClient_DeviceEnumerationCompleted(object sender, EventArgs e)
         {
-            _ = ThreadHelper.JoinableTaskFactory.RunAsync(async () =>
+            ThreadHelper.JoinableTaskFactory.RunAsync(async () =>
             {
                 await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
                 OnDeviceEnumerationCompleted();
-            });
+            }).FileAndForget("nanoFramework/vs-extension/DeviceExplorerViewModel/1");
         }
 
         private void NanoFrameworkDevices_DeviceAdded(object sender, NanoDeviceEventArgs e)
         {
-            _ = ThreadHelper.JoinableTaskFactory.RunAsync(async () =>
+            ThreadHelper.JoinableTaskFactory.RunAsync(async () =>
             {
                 await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
                 OnDeviceAdded(e.Device);
-            });
+            }).FileAndForget("nanoFramework/vs-extension/DeviceExplorerViewModel/2");
         }
 
         private void NanoFrameworkDevices_DeviceRemoved(object sender, NanoDeviceEventArgs e)
         {
-            _ = ThreadHelper.JoinableTaskFactory.RunAsync(async () =>
+            ThreadHelper.JoinableTaskFactory.RunAsync(async () =>
             {
                 await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
                 OnDeviceRemoved(e.Device);
-            });
+            }).FileAndForget("nanoFramework/vs-extension/DeviceExplorerViewModel/3");
         }
 
         private void OnDeviceEnumerationCompleted()

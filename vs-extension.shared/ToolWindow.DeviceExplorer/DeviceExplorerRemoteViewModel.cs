@@ -22,6 +22,9 @@ using nanoFramework.Tools.Debugger.WireProtocol;
 using nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel;
 using Task = System.Threading.Tasks.Task;
 
+// the work is deliberately fire and forget, faults are reported with FileAndForget
+#pragma warning disable VSSDK007
+
 namespace nanoFramework.Tools.VisualStudio.Extension
 {
     /// <summary>
@@ -477,7 +480,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 RaiseNotifyPropertyChangedEvent(nameof(SelectedDevice));
             }
 
-            _ = ThreadHelper.JoinableTaskFactory.RunAsync(async () =>
+            ThreadHelper.JoinableTaskFactory.RunAsync(async () =>
             {
                 await RefreshSelectedDeviceAsync(showPropertiesWindow: false);
 
@@ -497,7 +500,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                     await RefreshSelectedDeviceAsync(showPropertiesWindow: false);
                 }
-            });
+            }).FileAndForget("nanoFramework/vs-extension/DeviceExplorerRemoteViewModel/1");
 
             UpdateCommandStates();
         }
@@ -510,7 +513,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 return;
             }
 
-            _ = ThreadHelper.JoinableTaskFactory.RunAsync(async () =>
+            ThreadHelper.JoinableTaskFactory.RunAsync(async () =>
             {
                 await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
@@ -519,7 +522,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 {
                     _deviceExplorer.SelectedDevice = item.Device;
                 }
-            });
+            }).FileAndForget("nanoFramework/vs-extension/DeviceExplorerRemoteViewModel/2");
         }
 
         private void DeviceOperations_StateChanged(object sender, EventArgs e)

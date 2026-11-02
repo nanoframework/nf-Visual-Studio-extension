@@ -87,7 +87,10 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         /// <param name="package">Owner package, not null.</param>
         public static async Task InitializeAsync(AsyncPackage package)
         {
-            s_nanoDeviceCommService = await package.GetServiceAsync(typeof(NanoDeviceCommService)) as INanoDeviceCommService;
+            object nanoDeviceCommService = await package.GetServiceAsync(typeof(NanoDeviceCommService));
+            Microsoft.Assumes.Present(nanoDeviceCommService);
+
+            s_nanoDeviceCommService = nanoDeviceCommService as INanoDeviceCommService;
 
             // setup message listeners to be notified of events occurring in the View Model
             // before the watchers are started, so the first messages aren't missed

@@ -17,7 +17,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
     internal sealed class ShowDeviceExplorerCommand : Command
     {
         /// <inheritdoc />
-        public override CommandConfiguration CommandConfiguration => new("Device Explorer")
+        public override CommandConfiguration CommandConfiguration => new("%nanoFramework.DeviceExplorer.ShowCommand.DisplayName%")
         {
             Placements = new[] { CommandPlacement.KnownPlacements.ViewOtherWindowsMenu },
             Icon = new CommandIconConfiguration(ImageMoniker.Custom("NanoFramework"), IconSettings.IconAndText),

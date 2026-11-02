@@ -1247,7 +1247,7 @@ namespace nanoFramework.Tools
 
             public string Name
             {
-                get { return string.Format("{0}.{1}.{2};0x{3}", Namespace, ClassName, field, Id.ToString("X4")); }
+                get { return string.Format("{0}.{1}.{2};0x{3}", Namespace, ClassName, this.field, Id.ToString("X4")); }
             }
 
             public string RawName
@@ -1265,8 +1265,8 @@ namespace nanoFramework.Tools
 
             public string Field
             {
-                get { return field; }
-                set { field = value; }
+                get { return this.field; }
+                set { this.field = value; }
             }
 
             #region IComparable Members

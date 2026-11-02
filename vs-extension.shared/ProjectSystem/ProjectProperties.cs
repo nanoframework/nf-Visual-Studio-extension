@@ -68,6 +68,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         private void ActivateDebugEngine()
         {
+            ThreadHelper.ThrowIfNotOnUIThread();
+
             // The debug engine will not work unless we enable a CmdUIContext using the engine's GUID.
             if (debugEngineCmdUICookie == 0)
             {
