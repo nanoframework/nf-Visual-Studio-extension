@@ -32,21 +32,16 @@
                 <Setter Property="Margin" Value="0,4,0,2" />
             </Style>
 
-            <!-- validation message under a field, hidden while there's no message -->
+            <!-- validation message under a field: the space is always reserved (an empty text block still has MinHeight),
+                 so the layout doesn't move when a message shows or hides -->
             <Style x:Key="ErrorTextStyle" TargetType="TextBlock">
                 <Setter Property="Foreground" Value="{DynamicResource {x:Static colors:ThemedDialogColors.ValidationErrorTextBrushKey}}" />
                 <Setter Property="TextWrapping" Value="Wrap" />
-                <Setter Property="Margin" Value="0,2,0,0" />
+                <Setter Property="Margin" Value="0" />
+                <Setter Property="MinHeight" Value="16" />
                 <Setter Property="AutomationProperties.LiveSetting" Value="Polite" />
-                <Style.Triggers>
-                    <Trigger Property="Text" Value="">
-                        <Setter Property="Visibility" Value="Collapsed" />
-                    </Trigger>
-                    <Trigger Property="Text" Value="{x:Null}">
-                        <Setter Property="Visibility" Value="Collapsed" />
-                    </Trigger>
-                </Style.Triggers>
             </Style>
+
 
             <!-- secondary text, e.g. explanations and the 2nd line of the profiles -->
             <Style x:Key="HintTextStyle" TargetType="TextBlock">
@@ -220,12 +215,29 @@
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
                         <RowDefinition Height="*" />
                         <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
 
+                    <!-- commands on the profiles: they are applied to the device with OK -->
+                    <WrapPanel Grid.Row="0" Grid.Column="0" Margin="0,0,0,6" Orientation="Horizontal">
+                        <Button Content="A_dd" Command="{Binding AddProfileCommand}" Margin="0,0,6,4"
+                                ToolTip="Add a profile. It's stored in the device with OK."
+                                AutomationProperties.Name="Add a Wi-Fi profile" />
+                        <Button Content="Dupl_icate" Command="{Binding DuplicateProfileCommand}" Margin="0,0,6,4"
+                                ToolTip="Add a copy of the selected profile. The password is copied only if it was typed here."
+                                AutomationProperties.Name="Duplicate the selected Wi-Fi profile" />
+                        <Button Content="De_lete" Command="{Binding DeleteProfileCommand}" Margin="0,0,6,4"
+                                ToolTip="Delete the selected profile. It's deleted from the device with OK."
+                                AutomationProperties.Name="Delete the selected Wi-Fi profile" />
+                        <Button Content="Use at start_up" Command="{Binding UseAtStartupCommand}" Margin="0,0,6,4"
+                                ToolTip="The device connects with the selected profile when it starts."
+                                AutomationProperties.Name="Use the selected Wi-Fi profile at startup" />
+                    </WrapPanel>
+
                     <ListView x:Name="ProfilesList"
-                             Grid.Row="0" Grid.Column="0"
+                             Grid.Row="1" Grid.Column="0"
                              ItemsSource="{Binding WifiProfiles}"
                              SelectedItem="{Binding SelectedProfile, Mode=TwoWay}"
                              SelectionMode="Single"
@@ -263,8 +275,25 @@
                                                 Visibility="{Binding IsUsedAtStartup, Converter={StaticResource BooleanToVisibility}}">
                                             <TextBlock Text="Startup" />
                                         </Border>
-                                        <Border Style="{StaticResource BadgeStyle}" ToolTip="Changed, it will be written to the device with OK."
-                                                Visibility="{Binding IsModified, Converter={StaticResource BooleanToVisibility}}">
+                                        <Border Style="{StaticResource BadgeStyle}" ToolTip="New, it will be added to the device with OK."
+                                                Visibility="{Binding IsNew, Converter={StaticResource BooleanToVisibility}}">
+                                            <TextBlock Text="New" />
+                                        </Border>
+                                        <Border ToolTip="Changed, it will be written to the device with OK.">
+                                            <Border.Style>
+                                                <Style TargetType="Border" BasedOn="{StaticResource BadgeStyle}">
+                                                    <Setter Property="Visibility" Value="Collapsed" />
+                                                    <Style.Triggers>
+                                                        <MultiDataTrigger>
+                                                            <MultiDataTrigger.Conditions>
+                                                                <Condition Binding="{Binding IsModified}" Value="True" />
+                                                                <Condition Binding="{Binding IsNew}" Value="False" />
+                                                            </MultiDataTrigger.Conditions>
+                                                            <Setter Property="Visibility" Value="Visible" />
+                                                        </MultiDataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Border.Style>
                                             <TextBlock Text="Modified" />
                                         </Border>
                                     </StackPanel>
@@ -273,10 +302,10 @@
                         </ListView.ItemTemplate>
                     </ListView>
 
-                    <TextBlock Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Margin="0,6,0,0" Style="{StaticResource HintTextStyle}" Text="{Binding WifiProfilesSummary}" />
+                    <TextBlock Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Margin="0,6,0,0" Style="{StaticResource HintTextStyle}" Text="{Binding WifiProfilesSummary}" TextWrapping="Wrap" />
 
                     <!-- editor of the selected profile -->
-                    <TextBlock Grid.Row="0" Grid.Column="1" Margin="16,0,0,0" Text="Select a profile to edit it.">
+                    <TextBlock Grid.Row="0" Grid.RowSpan="2" Grid.Column="1" Margin="16,0,0,0" Text="Select a profile to edit it.">
                         <TextBlock.Style>
                             <Style TargetType="TextBlock" BasedOn="{StaticResource HintTextStyle}">
                                 <Style.Triggers>
@@ -288,7 +317,7 @@
                         </TextBlock.Style>
                     </TextBlock>
 
-                    <ScrollViewer Grid.Row="0" Grid.Column="1" Margin="16,0,0,0"
+                    <ScrollViewer Grid.Row="0" Grid.RowSpan="2" Grid.Column="1" Margin="16,0,0,0"
                                   VerticalScrollBarVisibility="Auto"
                                   Style="{DynamicResource {x:Static styles:VsResourceKeys.ScrollViewerStyleKey}}"
                                   Visibility="{Binding HasSelectedProfile, Converter={StaticResource BooleanToVisibility}}">
@@ -309,18 +338,27 @@
                             </Grid.RowDefinitions>
 
                             <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Margin="0,0,0,6" FontWeight="SemiBold">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsNew}" Value="True">
+                                                <Setter Property="Visibility" Value="Collapsed" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
                                 <Run Text="Slot" /> <Run Text="{Binding SlotText, Mode=OneWay}" />
                             </TextBlock>
+                            <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Margin="0,0,0,6" FontWeight="SemiBold" Text="New profile"
+                                       Visibility="{Binding IsNew, Converter={StaticResource BooleanToVisibility}}" />
 
                             <!-- SSID -->
                             <Label Grid.Row="1" Grid.Column="0" Margin="0,3,0,0" VerticalAlignment="Top" Content="_SSID:" Target="{Binding ElementName=SsidBox}" />
                             <StackPanel Grid.Row="1" Grid.Column="1" Margin="0,3">
-                                <TextBox x:Name="SsidBox" HorizontalAlignment="Left" Width="240" MaxLength="32"
+                                <TextBox x:Name="SsidBox" HorizontalAlignment="Left" Width="240"
                                          Text="{Binding Ssid, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                          AutomationProperties.Name="SSID" />
-                                <TextBlock Style="{StaticResource ErrorTextStyle}" Text="{Binding SsidError}" />
-                                <TextBlock Margin="0,2,0,0" Style="{StaticResource HintTextStyle}" Text="Another profile has the same SSID."
-                                           Visibility="{Binding HasDuplicateSsid, Converter={StaticResource BooleanToVisibility}}" />
+                                <TextBlock Style="{StaticResource ErrorTextStyle}" Text="{Binding SsidMessage}" />
                             </StackPanel>
 
                             <!-- password: a text box, masked by default by drawing bullets over it (Remote UI can't bind a PasswordBox) -->
@@ -329,7 +367,6 @@
                                 <!-- same width as the other text boxes: a longer password scrolls, the bullets are clipped to the box -->
                                 <Grid Width="240" HorizontalAlignment="Left" ClipToBounds="True">
                                     <TextBox x:Name="PasswordTextBox"
-                                             MaxLength="63"
                                              FontFamily="Consolas"
                                              Text="{Binding Password, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                              AutomationProperties.Name="Password">
@@ -358,6 +395,8 @@
                                           IsChecked="{Binding IsPasswordVisible, Mode=TwoWay}"
                                           Style="{DynamicResource {x:Static styles:VsResourceKeys.ThemedDialogCheckBoxStyleKey}}" />
                                 <TextBlock Style="{StaticResource ErrorTextStyle}" Text="{Binding PasswordError}" />
+                                <TextBlock Margin="0,2,0,0" MaxWidth="320" HorizontalAlignment="Left" TextWrapping="Wrap" Style="{StaticResource HintTextStyle}"
+                                           Text="{Binding PasswordHint}" />
                             </StackPanel>
 
                             <!-- security -->
@@ -386,8 +425,7 @@
                                       AutomationProperties.Name="Options" />
 
                             <TextBlock Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="2" Margin="0,8,0,0" Style="{StaticResource HintTextStyle}"
-                                       Text="The device connects with this profile when it starts."
-                                       Visibility="{Binding IsUsedAtStartup, Converter={StaticResource BooleanToVisibility}}" />
+                                       Text="{Binding UsedAtStartupText}" />
                         </Grid>
                     </ScrollViewer>
                 </Grid>
@@ -401,7 +439,7 @@
                     <TextBlock Margin="0,6,0,0" Text="{Binding RootCaStatus}" TextWrapping="Wrap" AutomationProperties.LiveSetting="Polite" />
                     <StackPanel Margin="0,6,0,0" Orientation="Horizontal">
                         <Button Content="_Browse..." Command="{Binding BrowseRootCaCommand}" AutomationProperties.Name="Browse for a Root CA file" />
-                        <Button Margin="6,0,0,0" Content="_Clear" Command="{Binding ClearRootCaCommand}" AutomationProperties.Name="Clear the Root CA stored in the device" />
+                        <Button Margin="6,0,0,0" Content="De_lete" Command="{Binding ClearRootCaCommand}" AutomationProperties.Name="Delete the Root CA stored in the device" />
                         <Button Margin="6,0,0,0" Content="_Don't change" Command="{Binding KeepRootCaCommand}"
                                 Visibility="{Binding HasRootCaToSave, Converter={StaticResource BooleanToVisibility}}"
                                 AutomationProperties.Name="Don't change the Root CA" />
@@ -412,7 +450,7 @@
                     <TextBlock Margin="0,6,0,0" Text="{Binding DeviceCertificateStatus}" TextWrapping="Wrap" AutomationProperties.LiveSetting="Polite" />
                     <StackPanel Margin="0,6,0,0" Orientation="Horizontal">
                         <Button Content="B_rowse..." Command="{Binding BrowseDeviceCertificateCommand}" AutomationProperties.Name="Browse for a device certificate file" />
-                        <Button Margin="6,0,0,0" Content="C_lear" Command="{Binding ClearDeviceCertificateCommand}" AutomationProperties.Name="Clear the device certificate stored in the device" />
+                        <Button Margin="6,0,0,0" Content="Delet_e" Command="{Binding ClearDeviceCertificateCommand}" AutomationProperties.Name="Delete the device certificate stored in the device" />
                         <Button Margin="6,0,0,0" Content="Do_n't change" Command="{Binding KeepDeviceCertificateCommand}"
                                 Visibility="{Binding HasDeviceCertificateToSave, Converter={StaticResource BooleanToVisibility}}"
                                 AutomationProperties.Name="Don't change the device certificate" />
@@ -429,13 +467,21 @@
             </Grid.ColumnDefinitions>
 
             <StackPanel Grid.Column="0" VerticalAlignment="Center" Margin="0,0,12,0">
-                <TextBlock Style="{StaticResource ErrorTextStyle}" Margin="0" Text="{Binding ErrorSummary}" />
-                <TextBlock Text="{Binding StatusText}" TextWrapping="Wrap" AutomationProperties.LiveSetting="Assertive"
-                           Visibility="{Binding HasStatusText, Converter={StaticResource BooleanToVisibility}}" />
+                <TextBlock Style="{StaticResource ErrorTextStyle}" Text="{Binding ErrorSummary}" />
+                <TextBlock Text="{Binding StatusText}" MinHeight="16" TextWrapping="Wrap" AutomationProperties.LiveSetting="Assertive" />
                 <ProgressBar Height="4" Margin="0,3,0,0"
-                             Style="{DynamicResource {x:Static styles:VsResourceKeys.ProgressBarStyleKey}}"
-                             IsIndeterminate="{Binding IsSaving}"
-                             Visibility="{Binding IsSaving, Converter={StaticResource BooleanToVisibility}}" />
+                             IsIndeterminate="{Binding IsSaving}">
+                    <ProgressBar.Style>
+                        <Style TargetType="ProgressBar" BasedOn="{StaticResource {x:Static styles:VsResourceKeys.ProgressBarStyleKey}}">
+                            <Setter Property="Visibility" Value="Hidden" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsSaving}" Value="True">
+                                    <Setter Property="Visibility" Value="Visible" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </ProgressBar.Style>
+                </ProgressBar>
             </StackPanel>
 
             <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Bottom">

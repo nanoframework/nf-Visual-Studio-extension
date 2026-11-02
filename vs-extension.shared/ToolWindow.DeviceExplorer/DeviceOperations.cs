@@ -445,6 +445,19 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                     try
                     {
+                        // the device does every change to its configuration storage: older firmware can't be configured
+                        var storageInfo = device.DebugEngine.GetConfigurationStorageInfo();
+
+                        if (storageInfo is null)
+                        {
+                            Report($"The firmware of {description} can't change its network configuration. Update the firmware of the device.", isWarning: true);
+
+                            telemetry.Complete("FirmwareUpdateRequired", true);
+
+                            // done here
+                            return;
+                        }
+
                         // the 1st network interface, if exists
                         var networkConfigurations = device.DebugEngine.GetAllNetworkConfigurations();
 
@@ -469,6 +482,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                                 ? networkConfigurations[0]
                                 : new DeviceConfiguration.NetworkConfigurationProperties(),
                             wirelessConfigurations,
+                            storageInfo,
                             device.DebugEngine.Capabilities?.CanChangeMacAddress ?? false);
 
                         telemetry
@@ -496,8 +510,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         }
 
         /// <summary>
-        /// Writes what was changed in the network configuration dialog to its device: the network interface, the Wi-Fi profiles
-        /// that were edited (each one in its slot) and the certificates.
+        /// Writes what was changed in the network configuration dialog to its device, with the configuration storage operations
+        /// of the device: the Wi-Fi profiles that were deleted, the network interface, the Wi-Fi profiles that were edited (each
+        /// one in its slot), the ones that were added and the certificates.
         /// Has to be called from the editor shown by <see cref="EditNetworkConfigurationAsync"/>, while the device is connected,
         /// and away from the UI thread.
         /// </summary>
@@ -517,26 +532,55 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             }
 
             var networkConfigurationToSave = configuration.BuildNetworkConfiguration();
+            var profilesToDelete = configuration.WifiProfilesToDelete;
             var profilesToSave = configuration.WifiProfilesToSave;
+            var profilesToAdd = configuration.WifiProfilesToAdd;
 
             // what was written, and the step that failed, for telemetry
             var saved = new NetworkConfigSavedCounts { WifiProfiles = configuration.WifiProfiles.Count };
             string failedStep = null;
             string error = null;
-            var updateResult = Engine.UpdateDeviceResult.Sucess;
+            var result = ConfigurationOperationError.Success;
 
             try
             {
                 MessageCentre.StartProgressMessage($"Uploading network configuration to {description}...");
 
+                // deletes first, from the last slot, so the slots of the ones still to delete don't change
+                foreach (var profile in profilesToDelete.OrderByDescending(p => p.Slot))
+                {
+                    MessageCentre.StartProgressMessage($"Deleting Wi-Fi profile {profile.SlotText} from {description}...");
+
+                    // a profile that the network interface was using can be deleted: the user chose to
+                    var operation = device.DebugEngine.DeleteConfigurationBlock(
+                        DeviceConfiguration.DeviceConfigurationOption.Wireless80211Network,
+                        profile.Slot.Value,
+                        force: true);
+
+                    if (!operation.Success)
+                    {
+                        result = operation.Error;
+                        failedStep = "wireless_delete";
+                        error = $"The Wi-Fi profile in slot {profile.SlotText} ({profile.Title}) wasn't deleted: {DescribeError(operation.Error)}";
+
+                        return error;
+                    }
+
+                    configuration.MarkProfileDeleted(profile);
+                    saved.WifiProfilesDeleted++;
+
+                    MessageCentre.OutputMessage($"{description} Wi-Fi profile {profile.SlotText} deleted.");
+                }
+
                 if (configuration.IsNetworkModified)
                 {
-                    updateResult = device.DebugEngine.UpdateDeviceConfiguration(networkConfigurationToSave, 0);
+                    var operation = device.DebugEngine.ReplaceConfigurationBlock(networkConfigurationToSave, 0);
 
-                    if (updateResult != Engine.UpdateDeviceResult.Sucess)
+                    if (!operation.Success)
                     {
+                        result = operation.Error;
                         failedStep = "network";
-                        error = $"The network configuration wasn't saved: {updateResult}.";
+                        error = $"The network configuration wasn't saved: {DescribeError(operation.Error)}";
 
                         return error;
                     }
@@ -551,35 +595,64 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 {
                     MessageCentre.StartProgressMessage($"Uploading Wi-Fi profile {profile.SlotText} to {description}...");
 
-                    updateResult = device.DebugEngine.UpdateDeviceConfiguration(profile.ToModel(), profile.Slot);
+                    // passwords can't be read back: an empty one keeps the password stored in the device
+                    var operation = device.DebugEngine.ReplaceConfigurationBlock(
+                        profile.ToModel(),
+                        profile.Slot.Value,
+                        keepPassword: profile.KeepsStoredPassword);
 
-                    if (updateResult != Engine.UpdateDeviceResult.Sucess)
+                    if (!operation.Success)
                     {
                         // the profiles written so far are kept, the user can retry the others
+                        result = operation.Error;
                         failedStep = "wireless";
-                        error = $"The Wi-Fi profile in slot {profile.SlotText} ({profile.Title}) wasn't saved: {updateResult}.";
+                        error = $"The Wi-Fi profile in slot {profile.SlotText} ({profile.Title}) wasn't saved: {DescribeError(operation.Error)}";
 
                         return error;
                     }
 
-                    profile.MarkSaved();
+                    profile.MarkSaved(profile.Slot.Value, operation.Id);
                     saved.WifiProfilesSaved++;
 
                     MessageCentre.OutputMessage($"{description} Wi-Fi profile {profile.SlotText} updated.");
                 }
 
-                // is there a CA certificate bundle to upload, or to clear?
+                foreach (var profile in profilesToAdd)
+                {
+                    MessageCentre.StartProgressMessage($"Adding Wi-Fi profile {profile.Title} to {description}...");
+
+                    var operation = device.DebugEngine.AddConfigurationBlock(profile.ToModel());
+
+                    if (!operation.Success)
+                    {
+                        result = operation.Error;
+                        failedStep = "wireless_add";
+                        error = $"The Wi-Fi profile {profile.Title} wasn't added: {DescribeError(operation.Error)}";
+
+                        return error;
+                    }
+
+                    profile.MarkSaved((uint)operation.BlockIndex.GetValueOrDefault(), operation.Id);
+                    saved.WifiProfilesAdded++;
+
+                    MessageCentre.OutputMessage($"{description} Wi-Fi profile {profile.SlotText} added.");
+                }
+
+                // is there a CA certificate bundle to upload, or to delete?
                 if (configuration.RootCaToSave != null)
                 {
                     MessageCentre.StartProgressMessage($"Uploading Root CA file to {description}...");
 
-                    // at position 0
-                    updateResult = device.DebugEngine.UpdateDeviceConfiguration(configuration.RootCaToSave, 0);
+                    var operation = configuration.RootCaToSave.CertificateSize > 0
+                        ? device.DebugEngine.StoreRootCaBundle(configuration.RootCaToSave.Certificate)
+                        : device.DebugEngine.DeleteRootCaBundle();
 
-                    if (updateResult != Engine.UpdateDeviceResult.Sucess)
+                    // nothing to delete is fine
+                    if (!operation.Success && operation.Error != ConfigurationOperationError.NotFound)
                     {
+                        result = operation.Error;
                         failedStep = "rootCa";
-                        error = $"The Root CA wasn't saved: {updateResult}.";
+                        error = $"The Root CA wasn't saved: {DescribeError(operation.Error)}";
 
                         return error;
                     }
@@ -587,18 +660,21 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     saved.RootCa = true;
                 }
 
-                // is there a device certificate to upload, or to clear?
+                // is there a device certificate to upload, or to delete?
                 if (configuration.DeviceCertificateToSave != null)
                 {
                     MessageCentre.StartProgressMessage($"Uploading device certificate file to {description}...");
 
-                    // at position 0
-                    updateResult = device.DebugEngine.UpdateDeviceConfiguration(configuration.DeviceCertificateToSave, 0);
+                    var operation = configuration.DeviceCertificateToSave.CertificateSize > 0
+                        ? device.DebugEngine.StoreDeviceCertificate(configuration.DeviceCertificateToSave.Certificate)
+                        : device.DebugEngine.DeleteDeviceCertificate();
 
-                    if (updateResult != Engine.UpdateDeviceResult.Sucess)
+                    // nothing to delete is fine
+                    if (!operation.Success && operation.Error != ConfigurationOperationError.NotFound)
                     {
+                        result = operation.Error;
                         failedStep = "deviceCertificate";
-                        error = $"The device certificate wasn't saved: {updateResult}.";
+                        error = $"The device certificate wasn't saved: {DescribeError(operation.Error)}";
 
                         return error;
                     }
@@ -629,7 +705,49 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                 MessageCentre.StopProgressMessage();
 
-                TrackNetworkConfigSaved(networkConfigurationToSave, failedStep, updateResult, saved);
+                TrackNetworkConfigSaved(networkConfigurationToSave, failedStep, result, saved);
+            }
+        }
+
+        /// <summary>
+        /// Explains why a configuration operation failed, for the user.
+        /// </summary>
+        private static string DescribeError(ConfigurationOperationError error)
+        {
+            switch (error)
+            {
+                case ConfigurationOperationError.MaxCount:
+                    return "the device can't store more of these.";
+
+                case ConfigurationOperationError.NoSpace:
+                    return "there isn't enough room in the configuration storage of the device.";
+
+                case ConfigurationOperationError.OutOfMemory:
+                    return "the device doesn't have enough memory to do it.";
+
+                case ConfigurationOperationError.InvalidBlock:
+                    return "the device didn't accept the values.";
+
+                case ConfigurationOperationError.DuplicateId:
+                    return "there is already a profile with the same Id.";
+
+                case ConfigurationOperationError.InUse:
+                    return "the network interface is using it.";
+
+                case ConfigurationOperationError.NotSupported:
+                    return "the device doesn't support it.";
+
+                case ConfigurationOperationError.StorageError:
+                    return "the configuration storage of the device reported an error.";
+
+                case ConfigurationOperationError.FirmwareUpdateRequired:
+                    return "the device firmware has to be updated.";
+
+                case ConfigurationOperationError.NoReply:
+                    return "the device didn't reply.";
+
+                default:
+                    return $"{error}.";
             }
         }
 
@@ -1282,7 +1400,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         private static void TrackNetworkConfigSaved(
             DeviceConfiguration.NetworkConfigurationProperties configuration,
             string failedStep,
-            Engine.UpdateDeviceResult result,
+            ConfigurationOperationError result,
             NetworkConfigSavedCounts saved)
         {
             ExtensionTelemetry.TrackEvent("NetworkConfigSaved", new TelemetryProperties
@@ -1292,6 +1410,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 { "network_saved", saved.Network },
                 { "wifi_profiles", saved.WifiProfiles },
                 { "wifi_profiles_saved", saved.WifiProfilesSaved },
+                { "wifi_profiles_added", saved.WifiProfilesAdded },
+                { "wifi_profiles_deleted", saved.WifiProfilesDeleted },
                 { "root_ca_uploaded", saved.RootCa },
                 { "device_cert_uploaded", saved.DeviceCertificate },
                 { "failed_step", failedStep },
@@ -1309,6 +1429,10 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             public int WifiProfiles { get; set; }
 
             public int WifiProfilesSaved { get; set; }
+
+            public int WifiProfilesAdded { get; set; }
+
+            public int WifiProfilesDeleted { get; set; }
 
             public bool RootCa { get; set; }
 
