@@ -213,19 +213,24 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             bool deviceCertificateUploaded = false;
 
             // save network configuration to target
-            var updateResult = DeviceExplorerViewModel.SelectedDevice.DebugEngine.UpdateDeviceConfiguration(networkConfigurationToSave, 0);
+            var updateResult = DeviceExplorerViewModel.SelectedDevice.DebugEngine.ReplaceConfigurationBlock(networkConfigurationToSave, 0).Error;
 
-            if (updateResult == Engine.UpdateDeviceResult.Sucess)
+            if (updateResult == ConfigurationOperationError.Success || updateResult == ConfigurationOperationError.NoChanges)
             {
                 if (DeviceExplorerViewModel.DeviceNetworkConfiguration.InterfaceType == NetworkInterfaceType.Wireless80211)
                 {
-                    // save Wi-Fi profile to target
+                    // save Wi-Fi profile to target: replace the 1st one, or add it if there is none
+                    // (passwords can't be read back: an empty one keeps the password stored in the device)
                     uploadStep = "wireless";
-                    updateResult = DeviceExplorerViewModel.SelectedDevice.DebugEngine.UpdateDeviceConfiguration(DeviceExplorerViewModel.DeviceWireless80211Configuration.Model, 0);
+                    var wirelessProfile = DeviceExplorerViewModel.DeviceWireless80211Configuration.Model;
+
+                    updateResult = DeviceExplorerViewModel.SelectedDevice.DebugEngine.GetAllWireless80211Configurations().Count > 0
+                        ? DeviceExplorerViewModel.SelectedDevice.DebugEngine.ReplaceConfigurationBlock(wirelessProfile, 0, string.IsNullOrEmpty(wirelessProfile.Password)).Error
+                        : DeviceExplorerViewModel.SelectedDevice.DebugEngine.AddConfigurationBlock(wirelessProfile).Error;
                 }
             }
 
-            if (updateResult != Engine.UpdateDeviceResult.Sucess)
+            if (updateResult != ConfigurationOperationError.Success && updateResult != ConfigurationOperationError.NoChanges)
             {
                 // update failed
                 MessageCentre.OutputMessage($"Error updating {DeviceExplorerViewModel.SelectedDevice.Description} network configuration. Error: {updateResult}.");
@@ -247,9 +252,14 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                     // save Root CA file to target
                     // at position 0
-                    updateResult = DeviceExplorerViewModel.SelectedDevice.DebugEngine.UpdateDeviceConfiguration(DeviceExplorerViewModel.CaCertificateBundle, 0);
+                    // (an empty one clears it)
+                    updateResult = (DeviceExplorerViewModel.CaCertificateBundle.CertificateSize > 0
+                        ? DeviceExplorerViewModel.SelectedDevice.DebugEngine.StoreRootCaBundle(DeviceExplorerViewModel.CaCertificateBundle.Certificate)
+                        : DeviceExplorerViewModel.SelectedDevice.DebugEngine.DeleteRootCaBundle()).Error;
 
-                    if (updateResult != Engine.UpdateDeviceResult.Sucess)
+                    if (updateResult != ConfigurationOperationError.Success
+                        && updateResult != ConfigurationOperationError.NoChanges
+                        && updateResult != ConfigurationOperationError.NotFound)
                     {
                         MessageCentre.OutputMessage($"Error uploading Root CA file to {(DataContext as DeviceExplorerViewModel).SelectedDevice.Description}. Error: {updateResult}");
                         MessageCentre.StopProgressMessage();
@@ -270,9 +280,14 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     // save device certificate file to target
                     // at position 0
 
-                    updateResult = DeviceExplorerViewModel.SelectedDevice.DebugEngine.UpdateDeviceConfiguration(DeviceExplorerViewModel.DeviceCertificate, 0);
+                    // (an empty one clears it)
+                    updateResult = (DeviceExplorerViewModel.DeviceCertificate.CertificateSize > 0
+                        ? DeviceExplorerViewModel.SelectedDevice.DebugEngine.StoreDeviceCertificate(DeviceExplorerViewModel.DeviceCertificate.Certificate)
+                        : DeviceExplorerViewModel.SelectedDevice.DebugEngine.DeleteDeviceCertificate()).Error;
 
-                    if (updateResult != Engine.UpdateDeviceResult.Sucess)
+                    if (updateResult != ConfigurationOperationError.Success
+                        && updateResult != ConfigurationOperationError.NoChanges
+                        && updateResult != ConfigurationOperationError.NotFound)
                     {
                         MessageCentre.OutputMessage($"Error uploading device certificate file to {(DataContext as DeviceExplorerViewModel).SelectedDevice.Description}. Error: {updateResult}");
                         MessageCentre.StopProgressMessage();
@@ -301,7 +316,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         private void TrackNetworkConfigSaved(
             DeviceConfiguration.NetworkConfigurationProperties configuration,
             string failedStep,
-            Engine.UpdateDeviceResult result,
+            ConfigurationOperationError result,
             bool rootCaUploaded,
             bool deviceCertificateUploaded)
         {

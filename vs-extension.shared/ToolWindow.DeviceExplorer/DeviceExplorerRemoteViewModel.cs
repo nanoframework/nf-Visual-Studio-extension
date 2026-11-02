@@ -12,6 +12,7 @@ using System.Runtime.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.Extensibility;
+using Microsoft.VisualStudio.Extensibility.Shell;
 using Microsoft.VisualStudio.Extensibility.UI;
 using Microsoft.VisualStudio.RpcContracts.Notifications;
 using Microsoft.VisualStudio.Shell;
@@ -647,6 +648,18 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 #pragma warning disable CA2000 // Dispose objects before losing scope
                     var content = new NetworkConfigurationContent(configuration);
 #pragma warning restore CA2000 // Dispose objects before losing scope
+
+                    // Cancel asks before it discards changes that weren't written to the device.
+                    // Remote UI dialogs can't intercept the title bar close button, nor Esc: those close without asking
+                    configuration.ConfirmDiscardAsync = () => _getExtensibility().Shell().ShowPromptAsync(
+                        "There are unsaved changes. Discard them?",
+                        new PromptOptions<bool>
+                        {
+                            Choices = { { "Discard", true }, { "Keep editing", false } },
+                            DefaultChoiceIndex = 1,
+                            DismissedReturns = false,
+                        },
+                        configuration.CloseToken);
 
                     // the dialog has its own OK and Cancel, so OK can be disabled while a value is wrong and the dialog stays open if saving fails:
                     // it's closed through the cancellation token

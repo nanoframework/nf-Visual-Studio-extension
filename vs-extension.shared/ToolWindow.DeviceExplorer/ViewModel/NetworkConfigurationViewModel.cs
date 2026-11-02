@@ -62,12 +62,18 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
         private string _macAddress;
         private ChoiceItem _interfaceType;
         private WifiProfileViewModel _selectedProfile;
+        private uint? _startupProfileId;
         private DeviceConfiguration.X509CaRootBundleProperties _rootCaToSave;
         private string _rootCaStatus;
         private DeviceConfiguration.X509DeviceCertificatesProperties _deviceCertificateToSave;
         private string _deviceCertificateStatus;
         private bool _isSaving;
         private string _statusText;
+        private bool _isRootCaStored;
+        private bool _isDeviceCertificateStored;
+
+        // stored profiles deleted in the dialog, they are deleted from the device on save
+        private readonly List<WifiProfileViewModel> _deletedProfiles = new List<WifiProfileViewModel>();
 
         // values as read from the device, to tell if the network configuration was modified
         private string _savedNetworkValues;
@@ -78,15 +84,19 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
         /// <param name="device">The device being configured. It's connected while the dialog is open.</param>
         /// <param name="networkConfiguration">The configuration of the network interface, or an empty one.</param>
         /// <param name="wirelessConfigurations">The Wi-Fi profiles stored in the device, in slot order.</param>
+        /// <param name="storageInfo">What the configuration storage of the device has and allows.</param>
         /// <param name="canChangeMacAddress">The device allows changing its MAC address.</param>
         public NetworkConfigurationViewModel(
             NanoDeviceBase device,
             DeviceConfiguration.NetworkConfigurationProperties networkConfiguration,
             IList<DeviceConfiguration.Wireless80211ConfigurationProperties> wirelessConfigurations,
+            ConfigurationStorageInfo storageInfo,
             bool canChangeMacAddress)
         {
             Device = device;
             _model = networkConfiguration;
+
+            WifiProfilesInfo = storageInfo[DeviceConfiguration.DeviceConfigurationOption.Wireless80211Network];
 
             DeviceDescription = device.Description;
             CanChangeMacAddress = canChangeMacAddress;
@@ -111,32 +121,15 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
                 ? string.Empty
                 : string.Join(":", networkConfiguration.MacAddress.Select(b => b.ToString("X2")));
 
+            // the network interface connects with the Wi-Fi profile that has this Id
+            _startupProfileId = networkConfiguration.SpecificConfigId;
+
             _savedNetworkValues = NetworkValues;
 
-            // Wi-Fi profiles, by slot
-            if (wirelessConfigurations.Count == 0)
-            {
-                // nothing stored yet: start with an empty profile in the 1st slot, it's written only if it's edited
-                wirelessConfigurations = new[]
-                {
-                    new DeviceConfiguration.Wireless80211ConfigurationProperties
-                    {
-                        Ssid = string.Empty,
-                        Password = string.Empty,
-                        Authentication = AuthenticationType.WPA2,
-                        Encryption = EncryptionType.WPA2,
-                        Radio = RadioType._802_11n,
-                        Wireless80211Options = Wireless80211_ConfigurationOptions.AutoConnect,
-                    }
-                };
-            }
-
+            // Wi-Fi profiles, by slot (a device can have none)
             for (int slot = 0; slot < wirelessConfigurations.Count; slot++)
             {
-                var profile = new WifiProfileViewModel((uint)slot, wirelessConfigurations[slot]);
-                profile.Changed += (sender, e) => OnProfileChanged();
-
-                WifiProfiles.Add(profile);
+                AddProfileToList(new WifiProfileViewModel((uint)slot, wirelessConfigurations[slot]));
             }
 
             UpdateProfilesUsedAtStartup();
@@ -144,30 +137,42 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
 
             _selectedProfile = WifiProfiles.FirstOrDefault(p => p.IsUsedAtStartup) ?? WifiProfiles.FirstOrDefault();
 
-            _rootCaStatus = CertificateUnchanged;
-            _deviceCertificateStatus = CertificateUnchanged;
+            // certificates can't be read back from the device, only whether there is one
+            _isRootCaStored = storageInfo[DeviceConfiguration.DeviceConfigurationOption.X509Certificate]?.IsStored ?? false;
+            _isDeviceCertificateStored = storageInfo[DeviceConfiguration.DeviceConfigurationOption.X509DeviceCertificates]?.IsStored ?? false;
+
+            _rootCaStatus = RootCaStoredStatus;
+            _deviceCertificateStatus = DeviceCertificateStoredStatus;
 
             OkCommand = new AsyncCommand((parameter, cancellationToken) => SaveAsync());
-            CancelCommand = new AsyncCommand((parameter, cancellationToken) =>
+            CancelCommand = new AsyncCommand(async (parameter, cancellationToken) =>
             {
+                // changes that weren't written to the device are lost: ask first
+                if (HasUnsavedChanges && ConfirmDiscardAsync != null && !await ConfirmDiscardAsync())
+                {
+                    return;
+                }
+
                 Close(OutcomeCancelled);
-                return Task.CompletedTask;
             });
             BrowseRootCaCommand = new AsyncCommand((parameter, cancellationToken) => BrowseRootCaAsync());
             ClearRootCaCommand = new AsyncCommand((parameter, cancellationToken) =>
             {
                 _actions.Add("root_ca_cleared");
 
-                // an empty certificate clears the one stored in the device
+                // an empty certificate deletes the one stored in the device
                 SetRootCaToSave(
                     new DeviceConfiguration.X509CaRootBundleProperties { Certificate = new byte[0], CertificateSize = 0 },
-                    "The Root CA stored in the device will be cleared.");
+                    "The Root CA stored in the device will be deleted.");
 
                 return Task.CompletedTask;
-            });
+            })
+            {
+                CanExecute = _isRootCaStored,
+            };
             KeepRootCaCommand = new AsyncCommand((parameter, cancellationToken) =>
             {
-                SetRootCaToSave(null, CertificateUnchanged);
+                SetRootCaToSave(null, RootCaStoredStatus);
                 return Task.CompletedTask;
             });
             BrowseDeviceCertificateCommand = new AsyncCommand((parameter, cancellationToken) => BrowseDeviceCertificateAsync());
@@ -175,25 +180,86 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
             {
                 _actions.Add("device_cert_cleared");
 
-                // an empty certificate clears the one stored in the device
+                // an empty certificate deletes the one stored in the device
                 SetDeviceCertificateToSave(
                     new DeviceConfiguration.X509DeviceCertificatesProperties { Certificate = new byte[0], CertificateSize = 0 },
-                    "The device certificate stored in the device will be cleared.");
+                    "The device certificate stored in the device will be deleted.");
+
+                return Task.CompletedTask;
+            })
+            {
+                CanExecute = _isDeviceCertificateStored,
+            };
+            KeepDeviceCertificateCommand = new AsyncCommand((parameter, cancellationToken) =>
+            {
+                SetDeviceCertificateToSave(null, DeviceCertificateStoredStatus);
+                return Task.CompletedTask;
+            });
+
+            AddProfileCommand = new AsyncCommand((parameter, cancellationToken) =>
+            {
+                AddProfile(new WifiProfileViewModel(
+                    null,
+                    new DeviceConfiguration.Wireless80211ConfigurationProperties
+                    {
+                        Id = NextProfileId(),
+                        Ssid = string.Empty,
+                        Password = string.Empty,
+                        Authentication = AuthenticationType.WPA2,
+                        Encryption = EncryptionType.WPA2,
+                        Radio = RadioType._802_11n,
+                        Wireless80211Options = Wireless80211_ConfigurationOptions.AutoConnect,
+                    }));
+
+                _actions.Add("profile_added");
 
                 return Task.CompletedTask;
             });
-            KeepDeviceCertificateCommand = new AsyncCommand((parameter, cancellationToken) =>
+            DuplicateProfileCommand = new AsyncCommand((parameter, cancellationToken) =>
             {
-                SetDeviceCertificateToSave(null, CertificateUnchanged);
+                if (_selectedProfile != null)
+                {
+                    AddProfile(_selectedProfile.Duplicate(NextProfileId()));
+
+                    _actions.Add("profile_duplicated");
+                }
+
                 return Task.CompletedTask;
             });
+            DeleteProfileCommand = new AsyncCommand((parameter, cancellationToken) =>
+            {
+                DeleteSelectedProfile();
+                return Task.CompletedTask;
+            });
+            UseAtStartupCommand = new AsyncCommand((parameter, cancellationToken) =>
+            {
+                if (_selectedProfile != null)
+                {
+                    SetNetworkValue(ref _startupProfileId, _selectedProfile.Id, nameof(StartupProfileId));
+
+                    UpdateProfilesUsedAtStartup();
+                    UpdateProfileCommands();
+
+                    _actions.Add("startup_profile_changed");
+                }
+
+                return Task.CompletedTask;
+            });
+
+            UpdateProfileCommands();
 
             _tabsViewed.Add(TabNames[0]);
 
             Validate();
         }
 
-        private static string CertificateUnchanged => "Not changed.";
+        private string RootCaStoredStatus => _isRootCaStored
+            ? "A Root CA is stored in the device. Certificates can't be read back from the device."
+            : "No Root CA is stored in the device.";
+
+        private string DeviceCertificateStoredStatus => _isDeviceCertificateStored
+            ? "A device certificate is stored in the device. Certificates can't be read back from the device."
+            : "No device certificate is stored in the device.";
 
         /// <summary>
         /// The device being configured.
@@ -261,21 +327,21 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
         public string IPv4Address
         {
             get => _ipv4Address;
-            set => SetNetworkValue(ref _ipv4Address, value?.Trim() ?? string.Empty, nameof(IPv4Address));
+            set => SetNetworkText(ref _ipv4Address, value ?? string.Empty, nameof(IPv4Address));
         }
 
         [DataMember]
         public string IPv4NetMask
         {
             get => _ipv4NetMask;
-            set => SetNetworkValue(ref _ipv4NetMask, value?.Trim() ?? string.Empty, nameof(IPv4NetMask));
+            set => SetNetworkText(ref _ipv4NetMask, value ?? string.Empty, nameof(IPv4NetMask));
         }
 
         [DataMember]
         public string IPv4Gateway
         {
             get => _ipv4Gateway;
-            set => SetNetworkValue(ref _ipv4Gateway, value?.Trim() ?? string.Empty, nameof(IPv4Gateway));
+            set => SetNetworkText(ref _ipv4Gateway, value ?? string.Empty, nameof(IPv4Gateway));
         }
 
         [DataMember]
@@ -296,14 +362,14 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
         public string Dns1Address
         {
             get => _dns1Address;
-            set => SetNetworkValue(ref _dns1Address, value?.Trim() ?? string.Empty, nameof(Dns1Address));
+            set => SetNetworkText(ref _dns1Address, value ?? string.Empty, nameof(Dns1Address));
         }
 
         [DataMember]
         public string Dns2Address
         {
             get => _dns2Address;
-            set => SetNetworkValue(ref _dns2Address, value?.Trim() ?? string.Empty, nameof(Dns2Address));
+            set => SetNetworkText(ref _dns2Address, value ?? string.Empty, nameof(Dns2Address));
         }
 
         [DataMember]
@@ -332,7 +398,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
         public string MacAddress
         {
             get => _macAddress;
-            set => SetNetworkValue(ref _macAddress, value?.Trim() ?? string.Empty, nameof(MacAddress));
+            set => SetNetworkText(ref _macAddress, value ?? string.Empty, nameof(MacAddress));
         }
 
         [DataMember]
@@ -379,6 +445,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
                 if (SetProperty(ref _selectedProfile, value))
                 {
                     RaiseNotifyPropertyChangedEvent(nameof(HasSelectedProfile));
+
+                    UpdateProfileCommands();
                 }
             }
         }
@@ -387,7 +455,17 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
         public bool HasSelectedProfile => _selectedProfile != null;
 
         /// <summary>
-        /// Explains how many profiles the device has and which one it connects with.
+        /// What the device allows for the Wi-Fi profiles: limits and operations.
+        /// </summary>
+        public ConfigurationBlockInfo WifiProfilesInfo { get; }
+
+        /// <summary>
+        /// The Id of the profile the network interface connects with when the device starts.
+        /// </summary>
+        public uint? StartupProfileId => _startupProfileId;
+
+        /// <summary>
+        /// Explains how many profiles the device has, how many it can have and which one it connects with.
         /// </summary>
         [DataMember]
         public string WifiProfilesSummary
@@ -395,11 +473,62 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
             get
             {
                 var count = WifiProfiles.Count;
-                var text = count == 1 ? "1 profile is stored in the device." : $"{count} profiles are stored in the device.";
+                var maxCount = WifiProfilesInfo?.MaxCount;
 
-                return WifiProfiles.Any(p => p.IsUsedAtStartup)
-                    ? text + " The device connects with the one marked as used at startup, the others are available to applications."
+                var text = count == 0
+                    ? "There are no profiles. Add one so the device can connect to a Wi-Fi network."
+                    : maxCount.HasValue ? $"{count} of {maxCount} profiles." : count == 1 ? "1 profile." : $"{count} profiles.";
+
+                if (WifiProfiles.Any(p => p.IsUsedAtStartup))
+                {
+                    return text + " The device connects with the one used at startup, the others are available to applications.";
+                }
+
+                return count > 0
+                    ? text + " None is used at startup: select one and choose Use at startup."
                     : text;
+            }
+        }
+
+        [DataMember]
+        public AsyncCommand AddProfileCommand { get; }
+
+        [DataMember]
+        public AsyncCommand DuplicateProfileCommand { get; }
+
+        [DataMember]
+        public AsyncCommand DeleteProfileCommand { get; }
+
+        [DataMember]
+        public AsyncCommand UseAtStartupCommand { get; }
+
+        /// <summary>
+        /// The Wi-Fi profiles stored in the device that were deleted in the dialog.
+        /// </summary>
+        public IList<WifiProfileViewModel> WifiProfilesToDelete => IsWireless
+            ? _deletedProfiles.ToList()
+            : new List<WifiProfileViewModel>();
+
+        /// <summary>
+        /// The Wi-Fi profiles added in the dialog.
+        /// </summary>
+        public IList<WifiProfileViewModel> WifiProfilesToAdd => IsWireless
+            ? WifiProfiles.Where(p => p.IsNew).ToList()
+            : new List<WifiProfileViewModel>();
+
+        /// <summary>
+        /// A stored profile was deleted from the device: the profiles stored after it move down one slot.
+        /// </summary>
+        public void MarkProfileDeleted(WifiProfileViewModel profile)
+        {
+            _deletedProfiles.Remove(profile);
+
+            foreach (var other in WifiProfiles.Concat(_deletedProfiles))
+            {
+                if (other.Slot.HasValue && other.Slot.Value > profile.Slot.Value)
+                {
+                    other.Slot = other.Slot.Value - 1;
+                }
             }
         }
 
@@ -446,12 +575,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
         public AsyncCommand KeepDeviceCertificateCommand { get; }
 
         /// <summary>
-        /// The Root CA bundle to upload, an empty one to clear it, or <see langword="null"/> to leave it.
+        /// The Root CA bundle to upload, an empty one to delete it, or <see langword="null"/> to leave it.
         /// </summary>
         public DeviceConfiguration.X509CaRootBundleProperties RootCaToSave => _rootCaToSave;
 
         /// <summary>
-        /// The device certificate to upload, an empty one to clear it, or <see langword="null"/> to leave it.
+        /// The device certificate to upload, an empty one to delete it, or <see langword="null"/> to leave it.
         /// </summary>
         public DeviceConfiguration.X509DeviceCertificatesProperties DeviceCertificateToSave => _deviceCertificateToSave;
 
@@ -517,15 +646,31 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
         public AsyncCommand CancelCommand { get; }
 
         /// <summary>
+        /// Asks the user to confirm discarding the unsaved changes, completes with <see langword="true"/> to discard them.
+        /// Set by the host of the dialog, which has the means to show a prompt.
+        /// </summary>
+        public Func<Task<bool>> ConfirmDiscardAsync { get; set; }
+
+        /// <summary>
+        /// Something the dialog edits isn't written to the device yet: the network interface, a Wi-Fi profile that was added,
+        /// edited or deleted, or a certificate. Derived from the edits, so it's clear again once they are saved.
+        /// </summary>
+        public bool HasUnsavedChanges => IsNetworkModified
+            || _deletedProfiles.Count > 0
+            || WifiProfiles.Any(p => p.IsModified)
+            || _rootCaToSave != null
+            || _deviceCertificateToSave != null;
+
+        /// <summary>
         /// The network interface configuration was edited.
         /// </summary>
         public bool IsNetworkModified => NetworkValues != _savedNetworkValues;
 
         /// <summary>
-        /// The Wi-Fi profiles to write: the ones that were edited, if the network interface is Wi-Fi.
+        /// The stored Wi-Fi profiles to write: the ones that were edited, if the network interface is Wi-Fi.
         /// </summary>
         public IList<WifiProfileViewModel> WifiProfilesToSave => IsWireless
-            ? WifiProfiles.Where(p => p.IsModified).ToList()
+            ? WifiProfiles.Where(p => !p.IsNew && p.IsModified).ToList()
             : new List<WifiProfileViewModel>();
 
         private string NetworkValues => string.Join(
@@ -538,7 +683,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
             _isDnsManual ? _dns1Address : string.Empty,
             _isDnsManual ? _dns2Address : string.Empty,
             _macAddress,
-            _interfaceType.Value);
+            _interfaceType.Value,
+            _startupProfileId);
 
         /// <summary>
         /// Builds the network interface configuration block to write to the device, with the edited values.
@@ -591,6 +737,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
                 configuration.MacAddress = ParseMacAddress(_macAddress);
             }
 
+            // the Wi-Fi profile used at startup
+            configuration.SpecificConfigId = _startupProfileId;
+
             return configuration;
         }
 
@@ -604,8 +753,20 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
         /// </summary>
         public void MarkCertificatesSaved()
         {
-            SetRootCaToSave(null, CertificateUnchanged);
-            SetDeviceCertificateToSave(null, CertificateUnchanged);
+            if (_rootCaToSave != null)
+            {
+                _isRootCaStored = _rootCaToSave.CertificateSize > 0;
+                ClearRootCaCommand.CanExecute = _isRootCaStored;
+            }
+
+            if (_deviceCertificateToSave != null)
+            {
+                _isDeviceCertificateStored = _deviceCertificateToSave.CertificateSize > 0;
+                ClearDeviceCertificateCommand.CanExecute = _isDeviceCertificateStored;
+            }
+
+            SetRootCaToSave(null, RootCaStoredStatus);
+            SetDeviceCertificateToSave(null, DeviceCertificateStoredStatus);
         }
 
         /// <summary>
@@ -622,6 +783,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
                 { "tab_count", _tabsViewed.Count },
                 { "actions", ExtensionTelemetry.ListValue(_actions) },
                 { "wifi_profiles", WifiProfiles.Count },
+                { "wifi_profiles_max", WifiProfilesInfo?.MaxCount },
             });
         }
 
@@ -695,6 +857,24 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
             return true;
         }
 
+        /// <summary>
+        /// Stores a text typed by the user as it is, without raising the change notification of the property itself:
+        /// the text box already has this text, sending it back would rewrite the box (and move the caret) while the user types.
+        /// </summary>
+        private bool SetNetworkText(ref string field, string value, string propertyName)
+        {
+            if (field == value)
+            {
+                return false;
+            }
+
+            field = value;
+
+            Validate();
+
+            return true;
+        }
+
         private void OnProfileChanged()
         {
             UpdateDuplicateSsids();
@@ -702,13 +882,111 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
             Validate();
         }
 
+        private void AddProfileToList(WifiProfileViewModel profile)
+        {
+            profile.Changed += (sender, e) => OnProfileChanged();
+
+            WifiProfiles.Add(profile);
+        }
+
+        private void AddProfile(WifiProfileViewModel profile)
+        {
+            AddProfileToList(profile);
+
+            SelectedProfile = profile;
+
+            UpdateProfilesUsedAtStartup();
+            UpdateDuplicateSsids();
+            UpdateProfileCommands();
+
+            Validate();
+        }
+
+        private void DeleteSelectedProfile()
+        {
+            var profile = _selectedProfile;
+
+            if (profile is null)
+            {
+                return;
+            }
+
+            var index = WifiProfiles.IndexOf(profile);
+
+            WifiProfiles.Remove(profile);
+
+            // a profile stored in the device is deleted on save, a new one is just dropped
+            if (!profile.IsNew)
+            {
+                _deletedProfiles.Add(profile);
+
+                _actions.Add("profile_deleted");
+            }
+
+            SelectedProfile = WifiProfiles.Count == 0 ? null : WifiProfiles[Math.Min(index, WifiProfiles.Count - 1)];
+
+            // the network interface can't keep pointing to a profile that no longer exists
+            if (_startupProfileId.HasValue && _startupProfileId.Value == profile.Id)
+            {
+                SetNetworkValue(ref _startupProfileId, null, nameof(StartupProfileId));
+            }
+
+            UpdateProfilesUsedAtStartup();
+            UpdateDuplicateSsids();
+            UpdateProfileCommands();
+
+            Validate();
+        }
+
+        /// <summary>
+        /// The Id for a new profile: the lowest one that no profile has (including the ones being deleted, until they are).
+        /// </summary>
+        private uint NextProfileId()
+        {
+            if (WifiProfilesInfo != null && WifiProfilesInfo.Flags.HasFlag(ConfigurationBlockFlags.IdIsSlot))
+            {
+                // the device assigns the Id
+                return DeviceConfiguration.ConfigurationBlockIdAuto;
+            }
+
+            var ids = new HashSet<uint>(WifiProfiles.Concat(_deletedProfiles).Select(p => p.Id));
+
+            uint id = 0;
+
+            while (ids.Contains(id))
+            {
+                id++;
+            }
+
+            return id;
+        }
+
+        private void UpdateProfileCommands()
+        {
+            var info = WifiProfilesInfo;
+            var count = WifiProfiles.Count;
+            var canAdd = info != null
+                         && info.Flags.HasFlag(ConfigurationBlockFlags.CanAdd)
+                         && (!info.MaxCount.HasValue || count < info.MaxCount.Value);
+
+            AddProfileCommand.CanExecute = canAdd;
+            DuplicateProfileCommand.CanExecute = canAdd && _selectedProfile != null;
+            DeleteProfileCommand.CanExecute = _selectedProfile != null
+                                              && (_selectedProfile.IsNew || (info != null && info.CanDelete));
+
+            // with storage assigned Ids, a new profile has no Id until it's stored
+            UseAtStartupCommand.CanExecute = _selectedProfile != null
+                                             && !_selectedProfile.IsUsedAtStartup
+                                             && _selectedProfile.Id != DeviceConfiguration.ConfigurationBlockIdAuto;
+
+            RaiseNotifyPropertyChangedEvent(nameof(WifiProfilesSummary));
+        }
+
         private void UpdateProfilesUsedAtStartup()
         {
-            var specificConfigId = _model.SpecificConfigId;
-
             foreach (var profile in WifiProfiles)
             {
-                profile.IsUsedAtStartup = specificConfigId.HasValue && profile.Id == specificConfigId.Value;
+                profile.IsUsedAtStartup = _startupProfileId.HasValue && profile.Id == _startupProfileId.Value;
             }
 
             RaiseNotifyPropertyChangedEvent(nameof(WifiProfilesSummary));
@@ -976,6 +1254,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
             for (int i = 0; i < 6; i++)
             {
                 if (parts[i].Length != 2
+                    || !parts[i].All(Uri.IsHexDigit)
                     || !byte.TryParse(parts[i], NumberStyles.HexNumber, CultureInfo.InvariantCulture, out bytes[i]))
                 {
                     return null;
