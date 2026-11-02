@@ -925,6 +925,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension.ToolWindow.ViewModel
 
             SelectedProfile = WifiProfiles.Count == 0 ? null : WifiProfiles[Math.Min(index, WifiProfiles.Count - 1)];
 
+            // the network interface can't keep pointing to a profile that no longer exists
+            if (_startupProfileId.HasValue && _startupProfileId.Value == profile.Id)
+            {
+                SetNetworkValue(ref _startupProfileId, null, nameof(StartupProfileId));
+            }
+
             UpdateProfilesUsedAtStartup();
             UpdateDuplicateSsids();
             UpdateProfileCommands();
