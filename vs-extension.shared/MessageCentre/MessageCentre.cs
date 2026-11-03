@@ -13,6 +13,9 @@ using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 using nanoFramework.Tools.Debugger;
 
+// the work is deliberately fire and forget, faults are reported with FileAndForget
+#pragma warning disable VSSDK007
+
 namespace nanoFramework.Tools.VisualStudio.Extension
 {
     public class MessageCentre
@@ -105,11 +108,11 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         public static void ClearDeploymentMessages()
         {
-            _ = ThreadHelper.JoinableTaskFactory.RunAsync(async () =>
+            ThreadHelper.JoinableTaskFactory.RunAsync(async () =>
               {
                   await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
                   _nanoFrameworkMessagesPane.Clear();
-              });
+              }).FileAndForget("nanoFramework/vs-extension/MessageCentre/1");
         }
 
         public static void DeploymentMessage(string message)
@@ -248,7 +251,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 message = "[no message string provided to Message()" + new StackTrace().ToString();
             }
 
-            _ = ThreadHelper.JoinableTaskFactory.RunAsync(async () =>
+            ThreadHelper.JoinableTaskFactory.RunAsync(async () =>
               {
                   await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
@@ -258,12 +261,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                   }
 
                   pane.OutputStringThreadSafe(message);
-              });
+              }).FileAndForget("nanoFramework/vs-extension/MessageCentre/2");
         }
 
         public static void StartProgressMessage(string message)
         {
-            _ = ThreadHelper.JoinableTaskFactory.RunAsync(async () =>
+            ThreadHelper.JoinableTaskFactory.RunAsync(async () =>
               {
                   await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
@@ -284,7 +287,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 // start icon animation
                 _statusBar.Animation(1, ref icon);
 
-              });
+              }).FileAndForget("nanoFramework/vs-extension/MessageCentre/3");
         }
 
         public static void StartMessageWithProgress(MessageWithProgress message)
@@ -292,7 +295,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         //    uint nComplete, 
         //    uint nTotal)
         {
-            _ = ThreadHelper.JoinableTaskFactory.RunAsync(async () =>
+            ThreadHelper.JoinableTaskFactory.RunAsync(async () =>
               {
                   await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
@@ -309,13 +312,13 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 // start progress bar
                 _statusBar.Progress(ref progressCookie, 1, message.Message, message.Current, message.Total);
 
-              });
+              }).FileAndForget("nanoFramework/vs-extension/MessageCentre/4");
         }
 
         public static void StopProgressMessage(string message = null)
         {
 
-            _ = ThreadHelper.JoinableTaskFactory.RunAsync(async () =>
+            ThreadHelper.JoinableTaskFactory.RunAsync(async () =>
               {
                   await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
@@ -350,7 +353,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     // reset cookie
                     progressCookie = 0;
                   }
-              });
+              }).FileAndForget("nanoFramework/vs-extension/MessageCentre/5");
         }
     }
 }

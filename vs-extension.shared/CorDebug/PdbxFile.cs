@@ -62,7 +62,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     }
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
             }
 
