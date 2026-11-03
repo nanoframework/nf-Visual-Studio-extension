@@ -155,14 +155,11 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             {
                 properties
                     .Add(CapabilitiesCategory, "Floating point", YesNo(capabilities.FloatingPoint))
-                    .Add(CapabilitiesCategory, "Source level debugging", YesNo(capabilities.SourceLevelDebugging))
                     .Add(CapabilitiesCategory, "App domains", YesNo(capabilities.AppDomains))
                     .Add(CapabilitiesCategory, "Exception filters", YesNo(capabilities.ExceptionFilters))
-                    .Add(CapabilitiesCategory, "Incremental deployment", YesNo(capabilities.IncrementalDeployment))
                     .Add(CapabilitiesCategory, "Soft reboot", YesNo(capabilities.SoftReboot))
                     .Add(CapabilitiesCategory, "Profiling", YesNo(capabilities.Profiling))
-                    .Add(CapabilitiesCategory, "Can change MAC address", YesNo(capabilities.CanChangeMacAddress))
-                    .Add(CapabilitiesCategory, "Config block requires erase", YesNo(capabilities.ConfigBlockRequiresErase));
+                    .Add(CapabilitiesCategory, "Profiling", YesNo(capabilities.Profiling));
             }
 
             if (data.MemoryMap?.Count > 0)
