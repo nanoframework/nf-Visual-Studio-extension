@@ -1,4 +1,4 @@
-//
+﻿//
 // Copyright (c) .NET Foundation and Contributors
 // See LICENSE file in the project root for full license information.
 //
@@ -85,6 +85,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             { "show_internal_errors", NanoSettings.ShowInternalErrors },
             { "port_blacklist_set", !string.IsNullOrEmpty(NanoSettings.PortExclusionList) },
             { "process_stacktrace", NanoSettings.ProcessStackTrace },
+            { "network_discovery", NanoSettings.NetworkDiscoveryEnabled },
+            { "vd_network", NanoSettings.VirtualDeviceUsesNetwork },
         };
 
         /// <summary>

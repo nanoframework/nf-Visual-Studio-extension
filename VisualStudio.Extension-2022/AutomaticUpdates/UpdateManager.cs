@@ -83,6 +83,12 @@ namespace nanoFramework.Tools.VisualStudio.Extension.AutomaticUpdates
                         return;
                     }
 
+                    if (nanoDevice.Transport == Debugger.WireProtocol.TransportType.TcpIp)
+                    {
+                        // the firmware is updated through nanoBooter, that doesn't have a network connection
+                        return;
+                    }
+
                     // store for later use
                     var deviceDescription = nanoDevice.Description;
 

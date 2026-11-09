@@ -4,7 +4,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using nanoFramework.Tools.Debugger;
+using nanoFramework.Tools.Debugger.PortTcpIp;
 
 namespace nanoFramework.Tools.VisualStudio.Extension
 {
@@ -29,12 +31,18 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     PortBase serialDebug = PortBase.CreateInstanceForSerial(false, serialPortList);
 
                     // create network instance with device watchers stopped
-                    PortBase networkDebug = PortBase.CreateInstanceForNetwork(false);
+                    // the network devices are the ones that announce themselves, with discovery off the UDP listener is never opened and none is listed
+                    _networkManager = new PortTcpIpManager(false, NanoSettings.NetworkDiscoveryPort, NanoSettings.NetworkDiscoveryEnabled);
+
+                    // the tokens are kept by the extension
+                    _networkManager.TokenProvider = NetworkDeviceTokens.GetDeviceToken;
+
+                    var ports = new List<PortBase> { serialDebug, _networkManager };
 
                     // create composite client with all ports
                     // OK to start device watchers, if setting is enabled
                     _debugClient = PortBase.CreateInstanceForComposite(
-                        new[] { serialDebug, networkDebug },
+                        ports,
                         !NanoSettings.DeviceWatchersDisabled);
 
                     if (!NanoSettings.DeviceWatchersDisabled)
@@ -45,6 +53,22 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 }
 
                 return _debugClient;
+            }
+        }
+
+        PortTcpIpManager _networkManager = null;
+
+        /// <summary>
+        /// The manager of the network devices.
+        /// </summary>
+        public PortTcpIpManager NetworkManager
+        {
+            get
+            {
+                // created with the debug client
+                _ = DebugClient;
+
+                return _networkManager;
             }
         }
 

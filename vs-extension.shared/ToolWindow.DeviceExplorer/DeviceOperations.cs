@@ -123,6 +123,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         public static bool CanRunDeviceOperation =>
             !IsBusy
             && ViewModel?.SelectedDevice != null
+            && !IsLocked(ViewModel.SelectedDevice)
             && ViewModel.AvailableDevicesSnapshot.Count > 0;
 
         /// <summary>
@@ -140,6 +141,10 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
             return rebootOption switch
             {
+                // the booters don't have a network connection
+                RebootOptions.EnterNanoBooter when IsNetworkDevice(device) => false,
+                RebootOptions.EnterProprietaryBooter when IsNetworkDevice(device) => false,
+
                 // reboot nanoBooter, if available on target
                 RebootOptions.EnterNanoBooter => device.HasNanoBooter,
 
@@ -320,7 +325,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 (device, description, telemetry) =>
                 {
                     // connect to the device
-                    if (!device.DebugEngine.Connect(false, true))
+                    if (!NetworkDeviceAuthentication.Run(device, () => device.DebugEngine.Connect(false, true)))
                     {
                         // reset property to force that device capabilities are retrieved on next connection
                         deviceExplorer.LastDeviceConnectedHash = 0;
@@ -380,7 +385,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 (device, description, telemetry) =>
                 {
                     // connect to the device
-                    if (!device.DebugEngine.Connect(false, true))
+                    if (!NetworkDeviceAuthentication.Run(device, () => device.DebugEngine.Connect(false, true)))
                     {
                         // reset property to force that device capabilities are retrieved on next connection
                         deviceExplorer.LastDeviceConnectedHash = 0;
@@ -437,7 +442,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 async (device, description, telemetry) =>
                 {
                     // connect to the device
-                    if (!device.DebugEngine.Connect(false, true))
+                    if (!NetworkDeviceAuthentication.Run(device, () => device.DebugEngine.Connect(false, true)))
                     {
                         ReportNotResponding(description, telemetry);
 
@@ -861,6 +866,93 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
         #endregion
 
+        #region network devices
+
+        /// <summary>
+        /// The device is connected through the network.
+        /// </summary>
+        public static bool IsNetworkDevice(NanoDeviceBase device) => device?.Transport == TransportType.TcpIp;
+
+        /// <summary>
+        /// The device doesn't accept the connection because its token is missing or was rejected. It's listed, but it can't be used until it's given the right one.
+        /// </summary>
+        public static bool IsLocked(NanoDeviceBase device) =>
+            device != null
+            && device.AuthenticationState != DeviceAuthenticationState.Authenticated;
+
+        /// <summary>
+        /// The selected device is locked and its token can be entered.
+        /// </summary>
+        public static bool CanEnterDeviceToken => !IsBusy && IsLocked(ViewModel?.SelectedDevice);
+
+        /// <summary>
+        /// Asks for the token of the selected device, which is locked, stores it and authenticates again.
+        /// </summary>
+        public static async Task EnterDeviceTokenAsync()
+        {
+            var device = ViewModel?.SelectedDevice;
+
+            if (!IsLocked(device))
+            {
+                return;
+            }
+
+            ExtensionTelemetry.TrackEvent("DeviceExplorerCommand", new TelemetryProperties
+            {
+                { "command", "enterDeviceToken" },
+                { "state", device.AuthenticationState.ToString() },
+            });
+
+            string description = device.Description;
+            string deviceId = device.ConnectionId;
+
+            BeginOperation($"Authenticating {description}...");
+
+            try
+            {
+                await Task.Run(() =>
+                {
+                    if (!NetworkDeviceAuthentication.PromptAndStore(deviceId, description, wasRejected: device.AuthenticationState == DeviceAuthenticationState.TokenRejected))
+                    {
+                        return;
+                    }
+
+                    // the user gave the token explicitly: it's sent even if it's the one the device rejected before
+                    DeviceAuthenticationState state = device.RetryAuthentication(force: true);
+
+                    switch (state)
+                    {
+                        case DeviceAuthenticationState.Authenticated:
+                            Report($"{device.Description} accepted the token.");
+                            break;
+
+                        case DeviceAuthenticationState.TokenRejected:
+                            Report($"{description} rejected the token. Check it and try again.", isWarning: true);
+                            break;
+
+                        default:
+                            Report($"{description} still requires its token, or it didn't answer. Try again in a few seconds.", isWarning: true);
+                            break;
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                // OK to catch all
+                ExtensionTelemetry.TrackException(ex, "deviceexplorer.enterdevicetoken");
+
+                Report($"Error authenticating {description}: {ex.Message}", isWarning: true);
+            }
+            finally
+            {
+                MessageCentre.StopProgressMessage();
+
+                EndOperation();
+            }
+        }
+
+        #endregion
+
         #region virtual device
 
         /// <summary>
@@ -1218,7 +1310,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     }
 
                     // connect to the device
-                    if (connect && !device.DebugEngine.Connect())
+                    if (connect && !NetworkDeviceAuthentication.Run(device, () => device.DebugEngine.Connect()))
                     {
                         if (!quiet)
                         {
@@ -1328,7 +1420,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             // reset property to force that device capabilities are retrieved on next connection, until they are read
             deviceExplorer.LastDeviceConnectedHash = 0;
 
-            if (!device.DebugEngine.Connect(false, true))
+            if (!NetworkDeviceAuthentication.Run(device, () => device.DebugEngine.Connect(false, true)))
             {
                 return false;
             }

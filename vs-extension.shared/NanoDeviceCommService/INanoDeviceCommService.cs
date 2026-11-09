@@ -7,6 +7,7 @@ using System.Collections.ObjectModel;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using nanoFramework.Tools.Debugger;
+using nanoFramework.Tools.Debugger.PortTcpIp;
 using nanoFramework.Tools.Debugger.WireProtocol;
 
 namespace nanoFramework.Tools.VisualStudio.Extension
@@ -14,6 +15,11 @@ namespace nanoFramework.Tools.VisualStudio.Extension
     public interface INanoDeviceCommService
     {
         PortBase DebugClient { get; }
+
+        /// <summary>
+        /// The manager of the network devices, which are the ones found by discovery.
+        /// </summary>
+        PortTcpIpManager NetworkManager { get; }
 
         NanoDeviceBase Device { get; }
 

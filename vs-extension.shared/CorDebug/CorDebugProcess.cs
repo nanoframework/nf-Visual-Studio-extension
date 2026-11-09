@@ -313,11 +313,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
 
                 MessageCentre.StartProgressMessage(Resources.ResourceStrings.Rebooting);
 
-                // TODO
-                //if (_engine.PortDefinition is PortDefinition_Tcp)
-                //{
-                //    DetachFromEngine();
-                //}
+                // nothing special for a network device: when the device is rebooted, the engine closes the connection and
+                // connects again (authenticating) by itself, which is what the retry loop below relies on to find it back
 
                 for (int retry = 0; retry < maxOperationRetries; retry++)
                 {
@@ -482,7 +479,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     }
                     else
                     {
-                        if (_engine.Connect())
+                        if (NetworkDeviceAuthentication.Run(Device, () => _engine.Connect()))
                         {
                             _engine.ThrowOnCommunicationFailure = true;
 
