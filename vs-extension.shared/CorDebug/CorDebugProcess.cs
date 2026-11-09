@@ -506,6 +506,15 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     // use a back-off strategy of increasing the wait time to accommodate slower or less responsive targets (such as networked ones)
                     Thread.Sleep(initDeviceWaitTimeout * (retry + 1));
                 }
+                catch (DeviceAuthenticationFailedException)
+                {
+                    // the token was asked for and it's still wrong, or the user cancelled: trying again only counts against the 3 failures of the device
+                    DetachFromEngine();
+
+                    MessageCentre.StopProgressMessage();
+
+                    throw;
+                }
                 catch
                 {
                     DetachFromEngine();

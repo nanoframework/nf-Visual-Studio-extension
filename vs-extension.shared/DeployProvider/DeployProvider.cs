@@ -451,6 +451,17 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 // this exception is used to flag a failed deployment to VS, no need to show anything about the exception here
                 throw;
             }
+            catch (DeviceAuthenticationFailedException)
+            {
+                if (needsToCloseMessageOutput)
+                {
+                    MessageCentre.InternalErrorWriteAndCloseMessage("");
+                }
+
+                MessageCentre.InternalErrorWriteLine("*** ERROR: the device didn't accept the authentication token ***");
+
+                throw telemetry.CompleteWith("AuthenticationFailed", new DeploymentException($"{device.Description} requires an authentication token that is missing or wrong. Select the device in Device Explorer, enter the right token and retry the deployment."));
+            }
             catch (Exception ex)
             {
                 telemetry.Fail(ex, "deploy");
