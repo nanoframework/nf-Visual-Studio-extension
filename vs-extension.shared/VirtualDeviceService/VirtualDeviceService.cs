@@ -14,6 +14,7 @@ using CliWrap;
 using CliWrap.Buffered;
 using Microsoft;
 using Microsoft.VisualStudio.Shell;
+using nanoFramework.Tools.Debugger.PortTcpIp;
 using Newtonsoft.Json;
 using Task = System.Threading.Tasks.Task;
 
@@ -499,54 +500,76 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                     _nanoClrProcess = null;
                 }
 
-                // check virtual serial ports
-                var listOfVirtualSerialPorts = ListVirtualSerialPorts();
+                bool useNetwork = NanoSettings.VirtualDeviceUsesNetwork;
 
-                MessageCentre.InternalErrorWriteLine($"VirtualDevice: Virtual Serial Ports listed");
+                telemetry.SetProperty("network", useNetwork);
 
-                if (listOfVirtualSerialPorts.Contains("No virtual serial port pairs found.")
-                    || !listOfVirtualSerialPorts.Contains(NanoSettings.VirtualDevicePort))
+                if (useNetwork)
                 {
-                    MessageCentre.InternalErrorWriteLine($"VirtualDevice: Creating Virtual Serial Port");
+                    // the ports are checked in the settings, still...
+                    string settingsError = ValidateNetworkSettings();
 
-                    // no virtual ports installed or the specified COM port is not there
-                    var executionResult = CreateVirtualSerialPort(NanoSettings.VirtualDevicePort, out string executionLog);
-
-                    var regexResult = Regex.Match(executionLog, "(?>Creating a new Virtual Bridge )(?'comport'COM\\d{1,3})(?>:COM\\d{1,3})");
-                    if (!executionResult || !regexResult.Success)
+                    if (settingsError != null)
                     {
-                        // failed to create virtual device
+                        MessageCentre.InternalErrorWriteLine($"VirtualDevice: {settingsError}");
+                        MessageCentre.OutputVirtualDeviceMessage($"ERROR: {settingsError}");
 
-                        MessageCentre.InternalErrorWriteLine($"VirtualDevice: Failed to create Virtual Serial Port");
+                        telemetry.Complete("InvalidNetworkSettings");
 
-                        // report this and suggest an alternative
-                        MessageCentre.OutputVirtualDeviceMessage("**********************************************");
-                        MessageCentre.OutputVirtualDeviceMessage("*** Failed to create Virtual Serial Device ***");
-                        MessageCentre.OutputVirtualDeviceMessage("**********************************************");
-                        MessageCentre.OutputVirtualDeviceMessage("");
-                        MessageCentre.OutputVirtualDeviceMessage($"Please run this at a command prompt: 'nanoclr virtualserial --create {regexResult.Groups["comport"].Value}'");
-                        MessageCentre.OutputVirtualDeviceMessage($"Then set the Serial port in Tools > Options > {NanoFrameworkPackage.OptionsCategoryName} > Virtual Device to {regexResult.Groups["comport"].Value}");
-                        MessageCentre.OutputVirtualDeviceMessage("");
-
-                        telemetry.Complete("VirtualPortFailed");
-
-                        // done here
                         return false;
                     }
-
-                    MessageCentre.InternalErrorWriteLine($"VirtualDevice: Virtual Serial Port created successfully");
-
-                    // store serial port name
-                    NanoSettings.VirtualDevicePort = regexResult.Groups["comport"].Value;
                 }
-
-                // sanity check for empty port name
-                if (string.IsNullOrEmpty(NanoSettings.VirtualDevicePort))
+                else
                 {
-                    MessageCentre.InternalErrorWriteLine($"VirtualDevice: Storing Virtual Serial Port information in settings");
+                    // check virtual serial ports
+                    var listOfVirtualSerialPorts = ListVirtualSerialPorts();
 
-                    var regexResult = Regex.Match(listOfVirtualSerialPorts, @"(?'comport'COM\d{1,3})(?><->COM\d{1,3})");
-                    NanoSettings.VirtualDevicePort = regexResult.Groups["comport"].Value;
+                    MessageCentre.InternalErrorWriteLine($"VirtualDevice: Virtual Serial Ports listed");
+
+                    if (listOfVirtualSerialPorts.Contains("No virtual serial port pairs found.")
+                        || !listOfVirtualSerialPorts.Contains(NanoSettings.VirtualDevicePort))
+                    {
+                        MessageCentre.InternalErrorWriteLine($"VirtualDevice: Creating Virtual Serial Port");
+
+                        // no virtual ports installed or the specified COM port is not there
+                        var executionResult = CreateVirtualSerialPort(NanoSettings.VirtualDevicePort, out string executionLog);
+
+                        var regexResult = Regex.Match(executionLog, "(?>Creating a new Virtual Bridge )(?'comport'COM\\d{1,3})(?>:COM\\d{1,3})");
+                        if (!executionResult || !regexResult.Success)
+                        {
+                            // failed to create virtual device
+
+                            MessageCentre.InternalErrorWriteLine($"VirtualDevice: Failed to create Virtual Serial Port");
+
+                            // report this and suggest an alternative
+                            MessageCentre.OutputVirtualDeviceMessage("**********************************************");
+                            MessageCentre.OutputVirtualDeviceMessage("*** Failed to create Virtual Serial Device ***");
+                            MessageCentre.OutputVirtualDeviceMessage("**********************************************");
+                            MessageCentre.OutputVirtualDeviceMessage("");
+                            MessageCentre.OutputVirtualDeviceMessage($"Please run this at a command prompt: 'nanoclr virtualserial --create {regexResult.Groups["comport"].Value}'");
+                            MessageCentre.OutputVirtualDeviceMessage($"Then set the Serial port in Tools > Options > {NanoFrameworkPackage.OptionsCategoryName} > Virtual Device to {regexResult.Groups["comport"].Value}");
+                            MessageCentre.OutputVirtualDeviceMessage("");
+
+                            telemetry.Complete("VirtualPortFailed");
+
+                            // done here
+                            return false;
+                        }
+
+                        MessageCentre.InternalErrorWriteLine($"VirtualDevice: Virtual Serial Port created successfully");
+
+                        // store serial port name
+                        NanoSettings.VirtualDevicePort = regexResult.Groups["comport"].Value;
+                    }
+
+                    // sanity check for empty port name
+                    if (string.IsNullOrEmpty(NanoSettings.VirtualDevicePort))
+                    {
+                        MessageCentre.InternalErrorWriteLine($"VirtualDevice: Storing Virtual Serial Port information in settings");
+
+                        var regexResult = Regex.Match(listOfVirtualSerialPorts, @"(?'comport'COM\d{1,3})(?><->COM\d{1,3})");
+                        NanoSettings.VirtualDevicePort = regexResult.Groups["comport"].Value;
+                    }
                 }
 
                 // check if we are to load a local nanoCLR instance
@@ -563,7 +586,11 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 _nanoClrProcess = new Process();
 
                 _nanoClrProcess.StartInfo.FileName = "nanoclr";
-                _nanoClrProcess.StartInfo.Arguments = $"run --serialport {NanoSettings.VirtualDevicePort} {nanoClrInstanceOption} --waitfordebugger --loopafterexit --monitorparentpid {Process.GetCurrentProcess().Id}";
+                string transportOptions = useNetwork
+                    ? BuildNetworkOptions()
+                    : $"--serialport {NanoSettings.VirtualDevicePort}";
+
+                _nanoClrProcess.StartInfo.Arguments = $"run {transportOptions} {nanoClrInstanceOption} --waitfordebugger --loopafterexit --monitorparentpid {Process.GetCurrentProcess().Id}";
                 _nanoClrProcess.StartInfo.UseShellExecute = false;
                 _nanoClrProcess.StartInfo.CreateNoWindow = true;
                 _nanoClrProcess.StartInfo.RedirectStandardOutput = true;
@@ -696,6 +723,25 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             _nanoClrProcess = null;
 
             StateChanged?.Invoke(this, EventArgs.Empty);
+        }
+
+        // the options of nanoclr for the network transport, the virtual device doesn't require authentication
+        private static string BuildNetworkOptions() =>
+            $"--networkport {NanoSettings.VirtualDeviceNetworkPort} --broadcast {NanoSettings.VirtualDeviceDiscoveryPort}";
+
+        private static string ValidateNetworkSettings()
+        {
+            if (!NetworkDeviceAddress.IsValidPort(NanoSettings.VirtualDeviceNetworkPort))
+            {
+                return "the listener port of the virtual device has to be between 1 and 65535.";
+            }
+
+            if (!NetworkDeviceAddress.IsValidPort(NanoSettings.VirtualDeviceDiscoveryPort))
+            {
+                return "the discovery broadcast port of the virtual device has to be between 1 and 65535.";
+            }
+
+            return null;
         }
 
         private void BeginOperation()

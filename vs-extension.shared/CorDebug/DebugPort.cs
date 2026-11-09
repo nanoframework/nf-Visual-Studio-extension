@@ -8,8 +8,11 @@ using CorDebugInterop;
 using Microsoft.VisualStudio.Debugger.Interop;
 using Microsoft.VisualStudio.OLE.Interop;
 using nanoFramework.Tools.Debugger;
+using nanoFramework.Tools.Debugger.WireProtocol;
 using System;
 using System.Collections;
+using System.Linq;
+using System.Text.RegularExpressions;
 using System.Runtime.InteropServices;
 
 namespace nanoFramework.Tools.VisualStudio.Extension
@@ -185,13 +188,42 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 }
             }
 
-            // TODO
-            //if(m_portFilter == PortFilter.TcpIp && process == null)
-            //{
-            //    process = EnsureProcess(PortDefinition.CreateInstanceForTcp(deviceName));                
-            //}
-                            
+            if (process == null)
+            {
+                // a network device is found from its name, it has to be in the list of devices found by discovery
+                NanoDeviceBase networkDevice = GetNetworkDevice(deviceName);
+
+                if (networkDevice != null)
+                {
+                    process = EnsureProcess(networkDevice);
+                }
+            }
+
             return process;
+        }
+
+        // the device for a name with the address of a network device, e.g. tcpip://192.168.1.20:26000
+        // network devices only exist when discovery lists them, so it has to be there already
+        private static NanoDeviceBase GetNetworkDevice(string deviceName)
+        {
+            Match match = Regex.Match(deviceName, @"tcpip://\S+", RegexOptions.IgnoreCase);
+
+            if (!match.Success)
+            {
+                return null;
+            }
+
+            NanoDeviceBase device = NanoFrameworkPackage.NanoDeviceCommService.DebugClient.NanoFrameworkDevices
+                .FirstOrDefault(d => d.Transport == TransportType.TcpIp
+                                     && string.Equals(d.ConnectionId, match.Value, StringComparison.OrdinalIgnoreCase));
+
+            if (device is null)
+            {
+                MessageCentre.InternalErrorWriteLine(
+                    $"The network device {match.Value} isn't in the list of devices. Network devices are listed when they announce themselves, check that it is powered, on the same network and that \"Find network devices\" is enabled in Tools > Options > .NET nanoFramework > General.");
+            }
+
+            return device;
         }
 
         public string GetDeviceName(NanoDeviceBase device)

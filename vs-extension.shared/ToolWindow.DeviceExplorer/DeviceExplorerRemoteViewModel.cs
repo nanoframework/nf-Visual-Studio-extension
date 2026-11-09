@@ -94,18 +94,30 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 DeviceWatchersDisabled = false;
                 return Task.CompletedTask;
             });
+            EnterDeviceTokenCommand = new AsyncCommand((parameter, cancellationToken) => DeviceOperations.EnterDeviceTokenAsync());
             RestartVirtualDeviceCommand = new AsyncCommand((parameter, cancellationToken) => DeviceOperations.RestartVirtualDeviceAsync());
             UpdateNanoClrCommand = new AsyncCommand((parameter, cancellationToken) => DeviceOperations.UpdateNanoClrAsync());
             SettingsCommand = new AsyncCommand((parameter, cancellationToken) => ShowSettingsAsync());
             CopyDetailsCommand = new AsyncCommand((parameter, cancellationToken) => CopyDetailsAsync());
             PropertiesCommand = new AsyncCommand(async (parameter, cancellationToken) =>
             {
+                // a locked device has no properties to show yet, what it needs is its token
+                if (DeviceOperations.CanEnterDeviceToken)
+                {
+                    await DeviceOperations.EnterDeviceTokenAsync();
+
+                    return;
+                }
+
                 await DeviceOperations.ReadCapabilitiesIfNeededAsync();
 
                 await RefreshSelectedDeviceAsync(showPropertiesWindow: true);
             });
             HelpCommand = new AsyncCommand((parameter, cancellationToken) => ShowHelpAsync());
             OpenLinkCommand = new AsyncCommand((parameter, cancellationToken) => OpenLinkAsync(parameter as string));
+
+            // a network device that rejects its token is asked for another one, from wherever it is used
+            NetworkDeviceAuthentication.TokenPrompt = PromptForTokenAsync;
 
             UpdateCommandStates();
         }
@@ -326,6 +338,9 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         public AsyncCommand EnableDeviceWatchersCommand { get; }
 
         [DataMember]
+        public AsyncCommand EnterDeviceTokenCommand { get; }
+
+        [DataMember]
         public AsyncCommand RestartVirtualDeviceCommand { get; }
 
         [DataMember]
@@ -452,6 +467,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             {
                 if (!devices.Contains(Devices[i].Device))
                 {
+                    Devices[i].Detach();
                     Devices.RemoveAt(i);
                 }
             }
@@ -460,7 +476,8 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             {
                 if (!Devices.Any(d => d.Device == device))
                 {
-                    Devices.Add(new DeviceItem(device));
+                    // the locked state of a device changes when it authenticates, which enables its commands
+                    Devices.Add(new DeviceItem(device, UpdateCommandStates));
                 }
             }
 
@@ -572,6 +589,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             RescanCommand.CanExecute = _deviceExplorer != null && DeviceOperations.CanRescan;
             CopyDetailsCommand.CanExecute = _selectedDevice != null;
             PropertiesCommand.CanExecute = _selectedDevice != null;
+            EnterDeviceTokenCommand.CanExecute = DeviceOperations.CanEnterDeviceToken;
             RestartVirtualDeviceCommand.CanExecute = DeviceOperations.CanRunVirtualDeviceOperation;
             UpdateNanoClrCommand.CanExecute = DeviceOperations.CanRunVirtualDeviceOperation;
 
@@ -691,6 +709,45 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             });
         }
 
+        // asks for the token of a device, returns null if the user cancels
+        private async Task<string> PromptForTokenAsync(string deviceId, string description, bool wasRejected)
+        {
+            var viewModel = await ShowNetworkDeviceDialogAsync(NetworkDeviceViewModel.ForToken(description, wasRejected));
+
+            return viewModel.Accepted ? viewModel.ResultToken : null;
+        }
+
+        private async Task<NetworkDeviceViewModel> ShowNetworkDeviceDialogAsync(NetworkDeviceViewModel viewModel)
+        {
+            try
+            {
+                // ownership of the content is transferred to Visual Studio
+#pragma warning disable CA2000 // Dispose objects before losing scope
+                var content = new NetworkDeviceContent(viewModel);
+#pragma warning restore CA2000 // Dispose objects before losing scope
+
+                // the dialog has its own OK and Cancel, it's closed through the cancellation token
+                await _getExtensibility().Shell().ShowDialogAsync(
+                    content,
+                    viewModel.DialogTitle,
+                    new DialogOption(DialogButton.None, DialogResult.None),
+                    viewModel.CloseToken);
+            }
+            catch (OperationCanceledException)
+            {
+                // closed by the dialog content
+            }
+            catch (Exception ex)
+            {
+                // OK to catch all
+                MessageCentre.InternalErrorWriteLine($"Error showing the network device dialog: {ex}");
+
+                ExtensionTelemetry.TrackException(ex, "deviceexplorer.networkdevice.dialog");
+            }
+
+            return viewModel;
+        }
+
         private async Task ShowSettingsAsync()
         {
             await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
@@ -803,12 +860,18 @@ namespace nanoFramework.Tools.VisualStudio.Extension
     [DataContract]
     internal sealed class DeviceItem : NotifyPropertyChangedObject
     {
-        private string _toolTip;
+        private readonly Action _stateChanged;
 
-        public DeviceItem(NanoDeviceBase device)
+        private string _toolTip;
+        private string _description;
+        private bool _isLocked;
+        private string _statusText;
+
+        public DeviceItem(NanoDeviceBase device, Action stateChanged = null)
         {
             Device = device;
-            Description = device.Description;
+            _description = device.Description;
+            _stateChanged = stateChanged;
 
             // virtual devices are on a serial port, but they are identified by their description
             IsVirtual = device.Description?.StartsWith("Virtual nanoDevice", StringComparison.Ordinal) ?? false;
@@ -830,9 +893,24 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             }
 
             Refresh();
+
+            device.AuthenticationStateChanged += Device_AuthenticationStateChanged;
         }
 
         public NanoDeviceBase Device { get; }
+
+        /// <summary>
+        /// Stops following the device, when it's removed from the list.
+        /// </summary>
+        public void Detach() => Device.AuthenticationStateChanged -= Device_AuthenticationStateChanged;
+
+        // can be raised on any thread; the target name and the platform of the device are known once it authenticates
+        private void Device_AuthenticationStateChanged(object sender, EventArgs e)
+        {
+            Refresh();
+
+            _stateChanged?.Invoke();
+        }
 
         /// <summary>
         /// The device is the virtual device running on this machine.
@@ -840,7 +918,43 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         public bool IsVirtual { get; }
 
         [DataMember]
-        public string Description { get; }
+        public string Description
+        {
+            get => _description;
+            private set => SetProperty(ref _description, value);
+        }
+
+        /// <summary>
+        /// The device requires a token that it doesn't have, or it rejected the one it has. It can't be used until then.
+        /// </summary>
+        [DataMember]
+        public bool IsLocked
+        {
+            get => _isLocked;
+            private set
+            {
+                if (SetProperty(ref _isLocked, value))
+                {
+                    RaiseNotifyPropertyChangedEvent(nameof(ItemOpacity));
+                }
+            }
+        }
+
+        /// <summary>
+        /// The locked devices are dimmed.
+        /// </summary>
+        [DataMember]
+        public double ItemOpacity => _isLocked ? 0.6 : 1.0;
+
+        /// <summary>
+        /// Why the device is locked: the token is missing, or it was rejected. <see langword="null"/> if the device isn't locked.
+        /// </summary>
+        [DataMember]
+        public string StatusText
+        {
+            get => _statusText;
+            private set => SetProperty(ref _statusText, value);
+        }
 
         [DataMember]
         public ImageMoniker Icon { get; }
@@ -863,11 +977,38 @@ namespace nanoFramework.Tools.VisualStudio.Extension
         /// </summary>
         public void Refresh()
         {
+            Description = Device.Description;
+
+            switch (Device.AuthenticationState)
+            {
+                case DeviceAuthenticationState.TokenMissing:
+                    IsLocked = true;
+                    StatusText = "Token missing";
+                    break;
+
+                case DeviceAuthenticationState.TokenRejected:
+                    IsLocked = true;
+                    StatusText = "Token rejected";
+                    break;
+
+                default:
+                    IsLocked = false;
+                    StatusText = null;
+                    break;
+            }
+
             var lines = DeviceOperations.GetDeviceDetails(Device)
                 .Where(d => d.Key is "Target" or "Platform" or "Connection" or "CLR version" or "Firmware" or "Booter")
                 .Select(d => $"{d.Key}: {d.Value}");
 
-            ToolTip = string.Join(Environment.NewLine, new[] { Description }.Concat(lines));
+            string lockedExplanation = Device.AuthenticationState switch
+            {
+                DeviceAuthenticationState.TokenMissing => "This device requires an authentication token and the extension doesn't have one. Double-click it to enter the token.",
+                DeviceAuthenticationState.TokenRejected => "This device rejected the authentication token. Double-click it to enter the right one.",
+                _ => null,
+            };
+
+            ToolTip = string.Join(Environment.NewLine, new[] { Description, lockedExplanation }.Where(l => l != null).Concat(lines));
         }
 
         public override string ToString() => Description;

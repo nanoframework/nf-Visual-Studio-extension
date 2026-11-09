@@ -78,9 +78,7 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                         device.DebugEngine.NoStackTraceInExceptions = !NanoSettings.ProcessStackTrace;
 
                         // make sure that the device is connected
-                        if (device.DebugEngine.Connect(
-                                    false,
-                                    true))
+                        if (NetworkDeviceAuthentication.Run(device, () => device.DebugEngine.Connect(false, true)))
                         {
                             string commandLine = await GetCommandLineForLaunchAsync();
                             commandLine = string.Format("{0} \"{1}{2}\"", commandLine, CorDebugProcess.DeployDeviceName, deployDeviceName);

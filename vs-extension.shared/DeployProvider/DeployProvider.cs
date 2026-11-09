@@ -158,18 +158,18 @@ namespace nanoFramework.Tools.VisualStudio.Extension
                 MessageCentre.InternalErrorWrite("Connecting to debugger engine...");
                 needsToCloseMessageOutput = true;
 
-                // if this is a serial virtual device, ping to check if it's responsive
+                // if this is a virtual device, serial or network, ping to check if it's responsive
                 // this will happen in case the virtual device setting is ON
                 if (NanoSettings.VirtualDeviceEnabled
-                    && device.Description.StartsWith("Virtual nanoDevice @ COM")
-                    && device.Ping() != Debugger.WireProtocol.ConnectionSource.nanoCLR)
+                    && (device.Description.StartsWith("Virtual nanoDevice @ COM") || device.Description.StartsWith("Virtual nanoDevice @ tcpip://"))
+                    && NetworkDeviceAuthentication.Run(device, () => device.Ping()) != Debugger.WireProtocol.ConnectionSource.nanoCLR)
                 {
                     // doesn't seem to be... better try to launch it
                     await NanoFrameworkPackage.VirtualDeviceService.StartVirtualDeviceAsync(false, "deploy");
                 }
 
                 // connect to the device
-                if (device.DebugEngine.Connect(false, true))
+                if (NetworkDeviceAuthentication.Run(device, () => device.DebugEngine.Connect(false, true)))
                 {
                     needsToCloseMessageOutput = false;
 
@@ -450,6 +450,17 @@ namespace nanoFramework.Tools.VisualStudio.Extension
             {
                 // this exception is used to flag a failed deployment to VS, no need to show anything about the exception here
                 throw;
+            }
+            catch (DeviceAuthenticationFailedException)
+            {
+                if (needsToCloseMessageOutput)
+                {
+                    MessageCentre.InternalErrorWriteAndCloseMessage("");
+                }
+
+                MessageCentre.InternalErrorWriteLine("*** ERROR: the device didn't accept the authentication token ***");
+
+                throw telemetry.CompleteWith("AuthenticationFailed", new DeploymentException($"{device.Description} requires an authentication token that is missing or wrong. Select the device in Device Explorer, enter the right token and retry the deployment."));
             }
             catch (Exception ex)
             {

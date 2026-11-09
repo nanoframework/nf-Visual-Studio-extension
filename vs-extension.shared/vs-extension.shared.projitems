@@ -58,6 +58,9 @@
     <Compile Include="$(MSBuildThisFileDirectory)MessageCentre\MessageCentre.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)NanoDeviceCommService\INanoDeviceCommService.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)NanoDeviceCommService\NanoDeviceCommService.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)NanoDeviceCommService\NetworkDeviceAddress.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)NanoDeviceCommService\NetworkDeviceAuthentication.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)NanoDeviceCommService\NetworkDeviceTokens.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)NanoDeviceCommService\SNanoDeviceCommService.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)NanoOptions\NanoOptionsPage.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)NanoOptions\NanoOptionsPageDebugging.cs" />
@@ -86,6 +89,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)ToolWindow.DeviceExplorer\DeviceOperations.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ToolWindow.DeviceExplorer\DeviceProperties.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ToolWindow.DeviceExplorer\NetworkConfigurationContent.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ToolWindow.DeviceExplorer\NetworkDeviceContent.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ToolWindow.DeviceExplorer\Models\ConnectionState.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ToolWindow.DeviceExplorer\Models\PingConnectionResult.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ToolWindow.DeviceExplorer\Services\NanoFrameworkService\INFDebugClientBaseService.cs" />
@@ -96,6 +100,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)ToolWindow.DeviceExplorer\ViewModel\DesignDataService.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ToolWindow.DeviceExplorer\ViewModel\DeviceExplorerViewModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ToolWindow.DeviceExplorer\ViewModel\NetworkConfigurationViewModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ToolWindow.DeviceExplorer\ViewModel\NetworkDeviceViewModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ToolWindow.DeviceExplorer\ViewModel\WifiProfileViewModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ToolWindow.DeviceExplorer\ViewModel\IDataService.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utilities\DeploymentImageGenerator.cs" />
@@ -107,5 +112,6 @@
     <!-- Remote UI data templates are sent to Visual Studio as text: they must not be compiled as WPF pages -->
     <EmbeddedResource Include="$(MSBuildThisFileDirectory)ToolWindow.DeviceExplorer\DeviceExplorerContent.xaml" LogicalName="nanoFramework.Tools.VisualStudio.Extension.DeviceExplorerContent.xaml" />
     <EmbeddedResource Include="$(MSBuildThisFileDirectory)ToolWindow.DeviceExplorer\NetworkConfigurationContent.xaml" LogicalName="nanoFramework.Tools.VisualStudio.Extension.NetworkConfigurationContent.xaml" />
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)ToolWindow.DeviceExplorer\NetworkDeviceContent.xaml" LogicalName="nanoFramework.Tools.VisualStudio.Extension.NetworkDeviceContent.xaml" />
   </ItemGroup>
 </Project>
