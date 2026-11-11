@@ -344,7 +344,7 @@ jobs:
       gitHubConnection: 'github.com_nano-$(System.TeamProject)'
       tagSource: userSpecifiedTag
       tag: v$(VS2019_Build.BUILD_VERSION)
-      title: '.NET nanoFramework VS Extension v$(VS2019_Build.BUILD_VERSION)'
+      title: 'v$(VS2019_Build.BUILD_VERSION)'
       assets: '$(Build.ArtifactStagingDirectory)/**/*.vsix'
       assetUploadMode: replace
       isPreRelease: false
@@ -568,7 +568,7 @@ jobs:
       gitHubConnection: 'github.com_nano-$(System.TeamProject)'
       tagSource: userSpecifiedTag
       tag: v$(VS2022_Build.BUILD_VERSION)
-      title: '.NET nanoFramework VS Extension v$(VS2022_Build.BUILD_VERSION)'
+      title: 'v$(VS2022_Build.BUILD_VERSION)'
       assets: '$(Build.ArtifactStagingDirectory)/**/*.vsix'
       assetUploadMode: replace
       isDraft: true
