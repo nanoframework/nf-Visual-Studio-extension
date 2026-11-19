@@ -298,11 +298,11 @@
       },
       "nanoFramework.Tools.Debugger.Net": {
         "type": "Direct",
-        "requested": "[3.0.0-preview.30, )",
-        "resolved": "3.0.0-preview.30",
-        "contentHash": "yUqj3UHdncRTL7Y+cySaMmiGLmpslwKNHm9J4bkapPfIwgo/wus1C7rRV3YYqO7wL18NJlo6ymy/rK/8VdHv5g==",
+        "requested": "[3.0.0-preview.36, )",
+        "resolved": "3.0.0-preview.36",
+        "contentHash": "IkAb5R1tFDEyio0tQ1zqolvUjaRssEtTqjuDGyU6wufHGnmGFUG5T5+u5jKcR4ZgC0+zxrp3Gu9+s631S2A5yw==",
         "dependencies": {
-          "System.IO.Ports": "8.0.0"
+          "System.IO.Ports": "11.0.0"
         }
       },
       "nanoFramework.Tools.MetadataProcessor.MsBuildTask": {
@@ -1773,8 +1773,8 @@
       },
       "System.IO.Ports": {
         "type": "Transitive",
-        "resolved": "8.0.0",
-        "contentHash": "MaiPbx2/QXZc62gm/DrajRrGPG1lU4m08GWMoWiymPYM+ba4kfACp2PbiYpqJ4QiFGhHD00zX3RoVDTucjWe9g=="
+        "resolved": "11.0.0",
+        "contentHash": "r6Zd/Hlh8w3zM9Mwtc+r96B5lVHXcLTWXS1fiEn16R4jMzRwdz+b43o7MhafZkXZTPVjlMGxqEYo27SZY94dbw=="
       },
       "System.Memory": {
         "type": "Transitive",
