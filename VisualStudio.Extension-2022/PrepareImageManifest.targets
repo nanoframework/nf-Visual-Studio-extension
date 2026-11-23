@@ -10,8 +10,8 @@
                     ItemName="AssemblyInfo" />
         </GetAssemblyIdentity>
         <ItemGroup>
-            <ImageManifests Include="**\*.imagemanifest">
-                <AssemblyVersion>%(AssemblyInfo.Version)</AssemblyVersion>
+            <ImageManifests Include="@(Content)" Condition="'%(Content.Extension)' == '.imagemanifest'">
+                <AssemblyVersion>@(AssemblyInfo->'%(Version)')</AssemblyVersion>
             </ImageManifests>
         </ItemGroup>
     </Target>
